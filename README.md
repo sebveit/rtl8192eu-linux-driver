@@ -8,9 +8,9 @@ The source code of this driver has been taken from a [ZIP archive](https://www.t
 which is provided by the TP-Link Corporation.
 
 ## Features
-* Driver Version: 4.3.15_14701.20150715_BTCOEX20150615-41
-* Release Date: 2018-01-30 
-* Supported Linux Kernel Version: 2.6.18 till 3.10.10
+* Driver Version: 5.2.19.1_25633.20171222_COEX20171113-0047
+* Release Date: 2018-05-08
+* Supported Linux Kernel Version: 2.6.24 till 4.9.60
 
 ## License
 This software is licensed under the GPLv2 only,
