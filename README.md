@@ -4,13 +4,13 @@
 This is yet another repository which contains the source code of the Linux driver
 for the Realtek RTL8192EU-VL-CG chip.
 
-The source code of this driver has been taken from a [ZIP archive](https://www.tp-link.com/de/support/download/tl-wn821n/)
-which is provided by the TP-Link Corporation.
+The source code of this driver has been taken from a [ZIP archive](https://files.dlink.com.au/products/DWA-131/REV_E/Drivers/DWA-131_E1_Linux_v5.6.3.1/)
+which is provided by the D-Link Corporation.
 
 ## Features
-* Driver Version: 5.2.19.1_25633.20171222_COEX20171113-0047
-* Release Date: 2018-05-08
-* Supported Linux Kernel Version: 2.6.24 till 4.9.60
+* Driver Version: v5.6.3.1_34030.20190613_COEX20171113-0047
+* Release Date: 2019-09-20
+* Supported Linux Kernel Version: 3.0.0 till ?4.14.0?
 
 ## License
 This software is licensed under the GPLv2 only,
