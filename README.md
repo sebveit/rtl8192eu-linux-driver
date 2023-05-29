@@ -10,7 +10,7 @@ which is provided by the D-Link Corporation.
 ## Features
 * Driver Version: v5.6.3.1_34030.20190613_COEX20171113-0047
 * Release Date: 2019-09-20
-* Supported Linux Kernel Version: 3.0.0 till ?4.14.0?
+* Supported Linux Kernel Version: 2.6.18 till 4.17.0
 
 ## License
 This software is licensed under the GPLv2 only,
