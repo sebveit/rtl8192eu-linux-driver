@@ -177,6 +177,10 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0x818C, 0xff, 0xff, 0xff), .driver_info = RTL8192E}, /* Default ID */
 	/*=== Customer ID ===*/
 	{USB_DEVICE(0x2001, 0x3319), .driver_info = RTL8192E}, /* D-Link - ALPHA */
+	{USB_DEVICE(0x2357, 0x0107), .driver_info = RTL8192E}, /* TP-Link - TL-WN821N */
+	{USB_DEVICE(0x2357, 0x0108), .driver_info = RTL8192E}, /* TP-Link - TL-WN822N */
+	{USB_DEVICE(0x2357, 0x0109), .driver_info = RTL8192E}, /* TP-Link - TL-WN823N */
+	{USB_DEVICE(0x2357, 0x0126), .driver_info = RTL8192E}, /* TP-Link - TL-WN8200ND */
 #endif
 
 #ifdef CONFIG_RTL8723B
