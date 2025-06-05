@@ -2193,16 +2193,12 @@ static int isFileReadable(const char *path, u32 *sz)
 {
 	struct file *fp;
 	int ret = 0;
-	mm_segment_t oldfs;
 	char buf;
 
 	fp = filp_open(path, O_RDONLY, 0);
 	if (IS_ERR(fp))
 		ret = PTR_ERR(fp);
 	else {
-		oldfs = get_fs();
-		set_fs(get_ds());
-
 		if (1 != readFile(fp, &buf, 1))
 			ret = PTR_ERR(fp);
 
@@ -2214,7 +2210,6 @@ static int isFileReadable(const char *path, u32 *sz)
 			#endif
 		}
 
-		set_fs(oldfs);
 		filp_close(fp, NULL);
 	}
 	return ret;
@@ -2230,7 +2225,6 @@ static int isFileReadable(const char *path, u32 *sz)
 static int retriveFromFile(const char *path, u8 *buf, u32 sz)
 {
 	int ret = -1;
-	mm_segment_t oldfs;
 	struct file *fp;
 
 	if (path && buf) {
@@ -2238,10 +2232,7 @@ static int retriveFromFile(const char *path, u8 *buf, u32 sz)
 		if (0 == ret) {
 			RTW_INFO("%s openFile path:%s fp=%p\n", __FUNCTION__, path , fp);
 
-			oldfs = get_fs();
-			set_fs(get_ds());
 			ret = readFile(fp, buf, sz);
-			set_fs(oldfs);
 			closeFile(fp);
 
 			RTW_INFO("%s readFile, ret:%d\n", __FUNCTION__, ret);
@@ -2265,7 +2256,6 @@ static int retriveFromFile(const char *path, u8 *buf, u32 sz)
 static int storeToFile(const char *path, u8 *buf, u32 sz)
 {
 	int ret = 0;
-	mm_segment_t oldfs;
 	struct file *fp;
 
 	if (path && buf) {
@@ -2273,10 +2263,7 @@ static int storeToFile(const char *path, u8 *buf, u32 sz)
 		if (0 == ret) {
 			RTW_INFO("%s openFile path:%s fp=%p\n", __FUNCTION__, path , fp);
 
-			oldfs = get_fs();
-			set_fs(get_ds());
 			ret = writeFile(fp, buf, sz);
-			set_fs(oldfs);
 			closeFile(fp);
 
 			RTW_INFO("%s writeFile, ret:%d\n", __FUNCTION__, ret);
