@@ -1119,19 +1119,31 @@ int rtw_mp_psd(struct net_device *dev,
 	       struct iw_request_info *info,
 	       struct iw_point *wrqu, char *extra)
 {
-	PADAPTER padapter = rtw_netdev_priv(dev);
-	u8		input[wrqu->length + 1];
+        PADAPTER padapter = rtw_netdev_priv(dev);
+        u8 *input = NULL;
+        int ret = 0;
 
-	_rtw_memset(input, 0, sizeof(input));
-	if (copy_from_user(input, wrqu->pointer, wrqu->length))
-		return -EFAULT;
+        if (wrqu->length > 128)
+                return -EFAULT;
 
-	input[wrqu->length] = '\0';
-	strcpy(extra, input);
+        input = rtw_zmalloc(wrqu->length + 1);
+        if (!input)
+                return -ENOMEM;
 
-	wrqu->length = mp_query_psd(padapter, extra);
+        if (copy_from_user(input, wrqu->pointer, wrqu->length)) {
+                ret = -EFAULT;
+                goto exit;
+        }
 
-	return 0;
+        input[wrqu->length] = '\0';
+        strncpy(extra, (char *)input, wrqu->length + 1);
+
+        wrqu->length = mp_query_psd(padapter, extra);
+
+exit:
+        if (input)
+                rtw_mfree(input, wrqu->length + 1);
+        return ret;
 }
 
 
