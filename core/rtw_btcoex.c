@@ -1419,11 +1419,7 @@ void rtw_btcoex_recvmsgbysocket(void *data)
 	}
 }
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
-	void rtw_btcoex_recvmsg_init(struct sock *sk_in, s32 bytes)
-#else
-	void rtw_btcoex_recvmsg_init(struct sock *sk_in)
-#endif
+void rtw_btcoex_recvmsg_init(struct sock *sk_in)
 {
 	struct bt_coex_info *pcoex_info = NULL;
 
@@ -1459,28 +1455,14 @@ u8 rtw_btcoex_sendmsgbysocket(_adapter *padapter, u8 *msg, u8 msg_size, bool for
 	iov.iov_len	 = msg_size;
 	udpmsg.msg_name	 = &pcoex_info->bt_sockaddr;
 	udpmsg.msg_namelen	= sizeof(struct sockaddr_in);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
-	/* referece:sock_xmit in kernel code
-	 * WRITE for sock_sendmsg, READ for sock_recvmsg
-	 * third parameter for msg_iovlen
-	 * last parameter for iov_len
-	 */
-	iov_iter_init(&udpmsg.msg_iter, WRITE, &iov, 1, msg_size);
-#else
-	udpmsg.msg_iov	 = &iov;
-	udpmsg.msg_iovlen	= 1;
-#endif
+iov_iter_init(&udpmsg.msg_iter, WRITE, &iov, 1, msg_size);
 	udpmsg.msg_control	= NULL;
 	udpmsg.msg_controllen = 0;
 	udpmsg.msg_flags	= MSG_DONTWAIT | MSG_NOSIGNAL;
 	oldfs = get_fs();
 	set_fs(KERNEL_DS);
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
-	error = sock_sendmsg(pcoex_info->udpsock, &udpmsg);
-#else
-	error = sock_sendmsg(pcoex_info->udpsock, &udpmsg, msg_size);
-#endif
+error = sock_sendmsg(pcoex_info->udpsock, &udpmsg);
 	set_fs(oldfs);
 	if (error < 0) {
 		RTW_INFO("Error when sendimg msg, error:%d\n", error);

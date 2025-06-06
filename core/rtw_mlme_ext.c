@@ -16082,12 +16082,12 @@ void rtw_join_done_chk_ch(_adapter *adapter, int join_res)
 					rtw_start_bss_hdl_after_chbw_decided(iface);
 
 					if (MLME_IS_GO(iface) || MLME_IS_MESH(iface)) { /* pure AP is not needed*/
-						#if defined(CONFIG_IOCTL_CFG80211) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 5, 0))
+                                               #ifdef CONFIG_IOCTL_CFG80211
 						u8 ht_option = 0;
 
 						#ifdef CONFIG_80211N_HT
 						ht_option = mlme->htpriv.ht_option;
-						#endif
+                                               #endif
 
 						rtw_cfg80211_ch_switch_notify(iface
 							, mlmeext->cur_channel, mlmeext->cur_bwmode, mlmeext->cur_ch_offset
@@ -16296,7 +16296,7 @@ exit:
 		*bw = u_bw;
 		*offset = u_offset;
 
-#if defined(CONFIG_IOCTL_CFG80211) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 5, 0))
+#ifdef CONFIG_IOCTL_CFG80211
 		{
 			u8 ht_option = 0;
 

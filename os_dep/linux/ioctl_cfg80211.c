@@ -407,22 +407,9 @@ static void rtw_get_chbw_from_cfg80211_chan_def(struct cfg80211_chan_def *chdef,
 }
 #endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)) */
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 5, 0))
 bool rtw_cfg80211_allow_ch_switch_notify(_adapter *adapter)
 {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0))
-	if ((!MLME_IS_AP(adapter))
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0))
-		&& (!MLME_IS_ADHOC(adapter))
-		&& (!MLME_IS_ADHOC_MASTER(adapter))
-		&& (!MLME_IS_MESH(adapter))
-#elif defined(CONFIG_RTW_MESH)
-		&& (!MLME_IS_MESH(adapter))
-#endif
-		)
-		return 0;
-#endif
-	return 1;
+       return 1;
 }
 
 u8 rtw_cfg80211_ch_switch_notify(_adapter *adapter, u8 ch, u8 bw, u8 offset, u8 ht)
@@ -430,38 +417,20 @@ u8 rtw_cfg80211_ch_switch_notify(_adapter *adapter, u8 ch, u8 bw, u8 offset, u8 
 	struct wiphy *wiphy = adapter_to_wiphy(adapter);
 	u8 ret = _SUCCESS;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
-	struct cfg80211_chan_def chdef;
+       struct cfg80211_chan_def chdef;
 
-	if (!rtw_cfg80211_allow_ch_switch_notify(adapter))
-		goto exit;
+       if (!rtw_cfg80211_allow_ch_switch_notify(adapter))
+               goto exit;
 
-	ret = rtw_chbw_to_cfg80211_chan_def(wiphy, &chdef, ch, bw, offset, ht);
-	if (ret != _SUCCESS)
-		goto exit;
+       ret = rtw_chbw_to_cfg80211_chan_def(wiphy, &chdef, ch, bw, offset, ht);
+       if (ret != _SUCCESS)
+               goto exit;
 
-	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef);
-
-#else
-	int freq = rtw_ch2freq(ch);
-	enum nl80211_channel_type ctype;
-
-	if (!rtw_cfg80211_allow_ch_switch_notify(adapter))
-		goto exit;
-
-	if (!freq) {
-		ret = _FAIL;
-		goto exit;
-	}
-
-	ctype = rtw_chbw_to_nl80211_channel_type(ch, bw, offset, ht);
-	cfg80211_ch_switch_notify(adapter->pnetdev, freq, ctype);
-#endif
+       cfg80211_ch_switch_notify(adapter->pnetdev, &chdef);
 
 exit:
-	return ret;
+       return ret;
 }
-#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 5, 0)) */
 
 void rtw_2g_channels_init(struct ieee80211_channel *channels)
 {
