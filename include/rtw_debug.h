@@ -82,17 +82,12 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 	#define KERN_CONT
 	#define _seqdump(sel, fmt, arg...) _dbgdump(fmt, ##arg)
 #elif defined PLATFORM_LINUX
-	#define _dbgdump printk
-	#if (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 24))
-	#define KERN_CONT
-	#endif
-	#define _seqdump seq_printf
+       #define _dbgdump printk
+       /* KERN_CONT is available in kernels >= 2.6.24 */
+       #define _seqdump seq_printf
 #elif defined PLATFORM_FREEBSD
-	#define _dbgdump printf
-	#if (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 24))
-	#define KERN_CONT
-	#endif
-	#define _seqdump(sel, fmt, arg...) _dbgdump(fmt, ##arg)
+       #define _dbgdump printf
+       #define _seqdump(sel, fmt, arg...) _dbgdump(fmt, ##arg)
 #endif
 
 void RTW_BUF_DUMP_SEL(uint _loglevel, void *sel, u8 *_titlestring,
