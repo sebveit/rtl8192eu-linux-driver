@@ -2306,10 +2306,10 @@ config_r:
 	/bin/bash script/Configure script/config.in
 
 
-.PHONY: modules clean
+.PHONY: modules clean test
 
 clean:
-	#$(MAKE) -C $(KSRC) M=$(shell pwd) clean
+        #$(MAKE) -C $(KSRC) M=$(shell pwd) clean
 	cd hal ; rm -fr */*/*/*.mod.c */*/*/*.mod */*/*/*.o */*/*/.*.cmd */*/*/*.ko
 	cd hal ; rm -fr */*/*.mod.c */*/*.mod */*/*.o */*/.*.cmd */*/*.ko
 	cd hal ; rm -fr */*.mod.c */*.mod */*.o */.*.cmd */*.ko
@@ -2323,4 +2323,10 @@ clean:
 	rm -fr *.mod.c *.mod *.o .*.cmd *.ko *~
 	rm -fr .tmp_versions
 endif
+
+test:
+	./tests/test_kernel_5.4.sh
+	./tests/test_kernel_5.10.sh
+	./tests/test_kernel_5.15.sh
+	./tests/test_kernel_6.1.sh
 
