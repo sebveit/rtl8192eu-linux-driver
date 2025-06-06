@@ -17,7 +17,6 @@
 
 #ifdef CONFIG_IOCTL_CFG80211
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0)) || defined(RTW_VENDOR_EXT_SUPPORT)
 
 /*
 #include <linux/kernel.h>
@@ -2051,6 +2050,5 @@ int rtw_cfgvendor_detach(struct wiphy *wiphy)
 
 	return 0;
 }
-#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0)) || defined(RTW_VENDOR_EXT_SUPPORT) */
 
 #endif /* CONFIG_IOCTL_CFG80211 */

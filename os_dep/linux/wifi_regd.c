@@ -293,11 +293,7 @@ void rtw_regd_apply_flags(struct wiphy *wiphy)
 			&& rtw_odm_dfs_domain_unknown(dvobj)
 			#endif
 		) {
-			#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
-			ch->flags = (IEEE80211_CHAN_NO_IBSS | IEEE80211_CHAN_PASSIVE_SCAN);
-			#else
-			ch->flags = IEEE80211_CHAN_NO_IR;
-			#endif
+                       ch->flags = IEEE80211_CHAN_NO_IR;
 		} else
 			ch->flags = 0;
 
@@ -307,12 +303,8 @@ void rtw_regd_apply_flags(struct wiphy *wiphy)
 			&& rtw_odm_dfs_domain_unknown(dvobj)
 			#endif
 		) {
-			ch->flags |= IEEE80211_CHAN_RADAR;
-			#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
-			ch->flags |= (IEEE80211_CHAN_NO_IBSS | IEEE80211_CHAN_PASSIVE_SCAN);
-			#else
-			ch->flags |= IEEE80211_CHAN_NO_IR;
-			#endif
+                       ch->flags |= IEEE80211_CHAN_RADAR;
+                       ch->flags |= IEEE80211_CHAN_NO_IR;
 		}
 		#endif /* CONFIG_DFS */
 	}
@@ -355,33 +347,16 @@ static void rtw_reg_notifier(struct wiphy *wiphy, struct regulatory_request *req
 	rtw_regd_apply_flags(wiphy);
 }
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 9, 0))
-static int rtw_reg_notifier_return(struct wiphy *wiphy, struct regulatory_request *request)
-{
-	rtw_reg_notifier(wiphy, request);
-	return 0;
-}
-#endif
 
 static void _rtw_regd_init_wiphy(struct rtw_regulatory *reg, struct wiphy *wiphy)
 {
 	const struct ieee80211_regdomain *regd;
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 9, 0))
-	wiphy->reg_notifier = rtw_reg_notifier_return;
-#else
-	wiphy->reg_notifier = rtw_reg_notifier;
-#endif
+       wiphy->reg_notifier = rtw_reg_notifier;
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
-	wiphy->flags |= WIPHY_FLAG_CUSTOM_REGULATORY;
-	wiphy->flags &= ~WIPHY_FLAG_STRICT_REGULATORY;
-	wiphy->flags &= ~WIPHY_FLAG_DISABLE_BEACON_HINTS;
-#else
-	wiphy->regulatory_flags |= REGULATORY_CUSTOM_REG;
-	wiphy->regulatory_flags &= ~REGULATORY_STRICT_REG;
-	wiphy->regulatory_flags &= ~REGULATORY_DISABLE_BEACON_HINTS;
-#endif
+       wiphy->regulatory_flags |= REGULATORY_CUSTOM_REG;
+       wiphy->regulatory_flags &= ~REGULATORY_STRICT_REG;
+       wiphy->regulatory_flags &= ~REGULATORY_DISABLE_BEACON_HINTS;
 
 	regd = _rtw_regdomain_select(reg);
 	wiphy_apply_custom_regulatory(wiphy, regd);

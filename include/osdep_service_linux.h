@@ -59,11 +59,7 @@
 	#include <linux/tqueue.h>
 #endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 7, 0))
-	#include <uapi/linux/limits.h>
-#else
-	#include <linux/limits.h>
-#endif
+#include <uapi/linux/limits.h>
 
 #ifdef RTK_DMP_PLATFORM
 	#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 12))
@@ -259,13 +255,8 @@ __inline static _list *get_next(_list	*list)
 #define rtw_hlist_for_each_entry(pos, head, member) hlist_for_each_entry(pos, head, member)
 #define rtw_hlist_for_each_safe(pos, n, head) hlist_for_each_safe(pos, n, head)
 #define rtw_hlist_entry(ptr, type, member) hlist_entry(ptr, type, member)
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 9, 0))
 #define rtw_hlist_for_each_entry_safe(pos, np, n, head, member) hlist_for_each_entry_safe(pos, n, head, member)
 #define rtw_hlist_for_each_entry_rcu(pos, node, head, member) hlist_for_each_entry_rcu(pos, head, member)
-#else
-#define rtw_hlist_for_each_entry_safe(pos, np, n, head, member) hlist_for_each_entry_safe(pos, np, n, head, member)
-#define rtw_hlist_for_each_entry_rcu(pos, node, head, member) hlist_for_each_entry_rcu(pos, node, head, member)
-#endif
 
 __inline static void _enter_critical(_lock *plock, _irqL *pirqL)
 {
