@@ -315,11 +315,7 @@ inline struct sk_buff *_rtw_skb_clone(struct sk_buff *skb)
 inline struct sk_buff *_rtw_pskb_copy(struct sk_buff *skb)
 {
 #ifdef PLATFORM_LINUX
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36))
-	return pskb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
-#else
-	return skb_clone(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
-#endif
+        return pskb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 #endif /* PLATFORM_LINUX */
 
 #ifdef PLATFORM_FREEBSD
@@ -377,11 +373,7 @@ void _rtw_skb_queue_purge(struct sk_buff_head *list)
 inline void *_rtw_usb_buffer_alloc(struct usb_device *dev, size_t size, dma_addr_t *dma)
 {
 #ifdef PLATFORM_LINUX
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
-	return usb_alloc_coherent(dev, size, (in_interrupt() ? GFP_ATOMIC : GFP_KERNEL), dma);
-#else
-	return usb_buffer_alloc(dev, size, (in_interrupt() ? GFP_ATOMIC : GFP_KERNEL), dma);
-#endif
+        return usb_alloc_coherent(dev, size, (in_interrupt() ? GFP_ATOMIC : GFP_KERNEL), dma);
 #endif /* PLATFORM_LINUX */
 
 #ifdef PLATFORM_FREEBSD
@@ -391,11 +383,7 @@ inline void *_rtw_usb_buffer_alloc(struct usb_device *dev, size_t size, dma_addr
 inline void _rtw_usb_buffer_free(struct usb_device *dev, size_t size, void *addr, dma_addr_t dma)
 {
 #ifdef PLATFORM_LINUX
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
-	usb_free_coherent(dev, size, addr, dma);
-#else
-	usb_buffer_free(dev, size, addr, dma);
-#endif
+        usb_free_coherent(dev, size, addr, dma);
 #endif /* PLATFORM_LINUX */
 
 #ifdef PLATFORM_FREEBSD
@@ -1125,14 +1113,9 @@ inline void rtw_list_splice_init(_list *list, _list *head)
 inline void rtw_list_splice_tail(_list *list, _list *head)
 {
 #ifdef PLATFORM_LINUX
-	#if (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 27))
-	if (!list_empty(list))
-		__list_splice(list, head);
-	#else
-	list_splice_tail(list, head);
-	#endif
+        list_splice_tail(list, head);
 #else
-	#error "TBD\n"
+        #error "TBD\n"
 #endif
 }
 
@@ -1332,13 +1315,7 @@ inline void _rtw_wait_for_comp(_completion *comp)
 void	_rtw_mutex_init(_mutex *pmutex)
 {
 #ifdef PLATFORM_LINUX
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37))
-	mutex_init(pmutex);
-#else
-	init_MUTEX(pmutex);
-#endif
-
+        mutex_init(pmutex);
 #endif
 #ifdef PLATFORM_FREEBSD
 	mtx_init(pmutex, "", NULL, MTX_DEF | MTX_RECURSE);
@@ -1358,14 +1335,9 @@ void	_rtw_mutex_free(_mutex *pmutex);
 void	_rtw_mutex_free(_mutex *pmutex)
 {
 #ifdef PLATFORM_LINUX
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37))
-	mutex_destroy(pmutex);
-#else
-#endif
-
+        mutex_destroy(pmutex);
 #ifdef PLATFORM_FREEBSD
-	sema_destroy(pmutex);
+        sema_destroy(pmutex);
 #endif
 
 #endif
@@ -1648,13 +1620,11 @@ void rtw_msleep_os(int ms)
 {
 
 #ifdef PLATFORM_LINUX
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36))
-	if (ms < 20) {
-		unsigned long us = ms * 1000UL;
-		usleep_range(us, us + 1000UL);
-	} else
-#endif
-		msleep((unsigned int)ms);
+        if (ms < 20) {
+                unsigned long us = ms * 1000UL;
+                usleep_range(us, us + 1000UL);
+        } else
+                msleep((unsigned int)ms);
 
 #endif
 #ifdef PLATFORM_FREEBSD
@@ -1673,16 +1643,7 @@ void rtw_msleep_os(int ms)
 void rtw_usleep_os(int us)
 {
 #ifdef PLATFORM_LINUX
-
-	/* msleep((unsigned int)us); */
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36))
-	usleep_range(us, us + 1);
-#else
-	if (1 < (us / 1000))
-		msleep(1);
-	else
-		msleep((us / 1000) + 1);
-#endif
+        usleep_range(us, us + 1);
 #endif
 
 #ifdef PLATFORM_FREEBSD
@@ -2082,18 +2043,9 @@ inline int ATOMIC_DEC_RETURN(ATOMIC_T *v)
 inline bool ATOMIC_INC_UNLESS(ATOMIC_T *v, int u)
 {
 #ifdef PLATFORM_LINUX
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 15))
-	return atomic_add_unless(v, 1, u);
+        return atomic_add_unless(v, 1, u);
 #else
-	/* only make sure not exceed after this function */
-	if (ATOMIC_INC_RETURN(v) > u) {
-		ATOMIC_DEC(v);
-		return 0;
-	}
-	return 1;
-#endif
-#else
-	#error "TBD\n"
+        #error "TBD\n"
 #endif
 }
 
@@ -2582,15 +2534,7 @@ u64 rtw_division64(u64 x, u64 y)
 inline u32 rtw_random32(void)
 {
 #ifdef PLATFORM_LINUX
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
-	return prandom_u32();
-#elif (LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 18))
-	u32 random_int;
-	get_random_bytes(&random_int , 4);
-	return random_int;
-#else
-	return random32();
-#endif
+        return prandom_u32();
 #elif defined(PLATFORM_WINDOWS)
 #error "to be implemented\n"
 #elif defined(PLATFORM_FREEBSD)
