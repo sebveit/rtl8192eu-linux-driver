@@ -74,7 +74,7 @@ u32 usb_read_port(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *rmem);
 void usb_recv_tasklet(void *priv);
 
 #ifdef CONFIG_USB_INTERRUPT_IN_PIPE
-void usb_read_interrupt_complete(struct urb *purb, struct pt_regs *regs);
+void usb_read_interrupt_complete(struct urb *purb);
 u32 usb_read_interrupt(struct intf_hdl *pintfhdl, u32 addr);
 #endif
 #endif

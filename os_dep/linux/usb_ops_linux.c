@@ -198,7 +198,7 @@ exit:
 }
 
 #ifdef CONFIG_USB_SUPPORT_ASYNC_VDN_REQ
-static void _usbctrl_vendorreq_async_callback(struct urb *urb, struct pt_regs *regs)
+static void _usbctrl_vendorreq_async_callback(struct urb *urb)
 {
 	if (urb) {
 		if (urb->context)
@@ -300,7 +300,7 @@ struct zero_bulkout_context {
 	void *padapter;
 };
 
-static void usb_bulkout_zero_complete(struct urb *purb, struct pt_regs *regs)
+static void usb_bulkout_zero_complete(struct urb *purb)
 {
 	struct zero_bulkout_context *pcontext = (struct zero_bulkout_context *)purb->context;
 
@@ -410,7 +410,7 @@ void usb_read_port_cancel(struct intf_hdl *pintfhdl)
 #endif
 }
 
-static void usb_write_port_complete(struct urb *purb, struct pt_regs *regs)
+static void usb_write_port_complete(struct urb *purb)
 {
 	_irqL irqL;
 	struct xmit_buf *pxmitbuf = (struct xmit_buf *)purb->context;
@@ -747,7 +747,7 @@ void usb_recv_tasklet(void *priv)
 	}
 }
 
-void usb_read_port_complete(struct urb *purb, struct pt_regs *regs)
+void usb_read_port_complete(struct urb *purb)
 {
 	struct recv_buf	*precvbuf = (struct recv_buf *)purb->context;
 	_adapter			*padapter = (_adapter *)precvbuf->adapter;
@@ -900,7 +900,7 @@ void usb_recv_tasklet(void *priv)
 	}
 }
 
-void usb_read_port_complete(struct urb *purb, struct pt_regs *regs)
+void usb_read_port_complete(struct urb *purb)
 {
 	struct recv_buf	*precvbuf = (struct recv_buf *)purb->context;
 	_adapter			*padapter = (_adapter *)precvbuf->adapter;
@@ -1057,7 +1057,7 @@ exit:
 #endif /* CONFIG_USE_USB_BUFFER_ALLOC_RX */
 
 #ifdef CONFIG_USB_INTERRUPT_IN_PIPE
-void usb_read_interrupt_complete(struct urb *purb, struct pt_regs *regs)
+void usb_read_interrupt_complete(struct urb *purb)
 {
 	int	err;
 	_adapter	*padapter = (_adapter *)purb->context;
