@@ -35,28 +35,10 @@
 
 #define RTW_USB_BULKOUT_TIMEOUT	5000/* ms */
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)) || (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18))
-#define _usbctrl_vendorreq_async_callback(urb, regs)	_usbctrl_vendorreq_async_callback(urb)
-#define usb_bulkout_zero_complete(purb, regs)	usb_bulkout_zero_complete(purb)
-#define usb_write_mem_complete(purb, regs)	usb_write_mem_complete(purb)
-#define usb_write_port_complete(purb, regs)	usb_write_port_complete(purb)
-#define usb_read_port_complete(purb, regs)	usb_read_port_complete(purb)
-#define usb_read_interrupt_complete(purb, regs)	usb_read_interrupt_complete(purb)
-#endif
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 12))
 #define rtw_usb_control_msg(dev, pipe, request, requesttype, value, index, data, size, timeout_ms) \
 	usb_control_msg((dev), (pipe), (request), (requesttype), (value), (index), (data), (size), (timeout_ms))
 #define rtw_usb_bulk_msg(usb_dev, pipe, data, len, actual_length, timeout_ms) \
 	usb_bulk_msg((usb_dev), (pipe), (data), (len), (actual_length), (timeout_ms))
-#else
-#define rtw_usb_control_msg(dev, pipe, request, requesttype, value, index, data, size, timeout_ms) \
-	usb_control_msg((dev), (pipe), (request), (requesttype), (value), (index), (data), (size), \
-		((timeout_ms) == 0) || ((timeout_ms) * HZ / 1000 > 0) ? ((timeout_ms) * HZ / 1000) : 1)
-#define rtw_usb_bulk_msg(usb_dev, pipe, data, len, actual_length, timeout_ms) \
-	usb_bulk_msg((usb_dev), (pipe), (data), (len), (actual_length), \
-		((timeout_ms) == 0) || ((timeout_ms) * HZ / 1000 > 0) ? ((timeout_ms) * HZ / 1000) : 1)
-#endif
 
 
 #ifdef CONFIG_USB_SUPPORT_ASYNC_VDN_REQ
@@ -92,7 +74,7 @@ u32 usb_read_port(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *rmem);
 void usb_recv_tasklet(void *priv);
 
 #ifdef CONFIG_USB_INTERRUPT_IN_PIPE
-void usb_read_interrupt_complete(struct urb *purb, struct pt_regs *regs);
+void usb_read_interrupt_complete(struct urb *purb);
 u32 usb_read_interrupt(struct intf_hdl *pintfhdl, u32 addr);
 #endif
 #endif
