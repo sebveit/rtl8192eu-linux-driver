@@ -2155,11 +2155,7 @@ static int isFileReadable(const char *path, u32 *sz)
 			ret = PTR_ERR(fp);
 
 		if (ret == 0 && sz) {
-			#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
-			*sz = i_size_read(fp->f_path.dentry->d_inode);
-			#else
-			*sz = i_size_read(fp->f_dentry->d_inode);
-			#endif
+                       *sz = i_size_read(fp->f_path.dentry->d_inode);
 		}
 
 		filp_close(fp, NULL);

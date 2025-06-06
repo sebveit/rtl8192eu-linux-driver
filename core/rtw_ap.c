@@ -1768,7 +1768,7 @@ chbw_decision:
 	rtw_hal_set_mcc_setting_start_bss_network(padapter, chbw_allow);
 #endif
 
-#if defined(CONFIG_IOCTL_CFG80211) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 5, 0))
+#ifdef CONFIG_IOCTL_CFG80211
 	for (i = 0; i < pdvobj->iface_nums; i++) {
 		if (!(ifbmp_ch_changed & BIT(i)) || !pdvobj->padapters[i])
 			continue;
@@ -1790,7 +1790,7 @@ chbw_decision:
 				, ht_option);
 		}
 	}
-#endif /* defined(CONFIG_IOCTL_CFG80211) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 5, 0)) */
+#endif /* CONFIG_IOCTL_CFG80211 */
 
 	if (DUMP_ADAPTERS_STATUS) {
 		RTW_INFO(FUNC_ADPT_FMT" done\n", FUNC_ADPT_ARG(padapter));

@@ -89,8 +89,8 @@ const char *android_wifi_cmd_str[ANDROID_WIFI_CMD_MAX] = {
 	"HOSTAPD_SET_MACADDR_ACL",
 	"HOSTAPD_ACL_ADD_STA",
 	"HOSTAPD_ACL_REMOVE_STA",
-#if defined(CONFIG_GTK_OL) && (LINUX_VERSION_CODE < KERNEL_VERSION(3, 1, 0))
-	"GTK_REKEY_OFFLOAD",
+#ifdef CONFIG_GTK_OL
+       "GTK_REKEY_OFFLOAD",
 #endif /* CONFIG_GTK_OL */
 /*	Private command for	P2P disable*/
 	"P2P_DISABLE",
@@ -308,10 +308,8 @@ int rtw_android_cfg80211_pno_setup(struct net_device *net,
 		memcpy(pno_ssids_local[index].SSID, ssids[index].ssid,
 		       ssids[index].ssid_len);
 	}
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 2, 0)
-	if(ssids)
-		rtw_mfree((u8 *)ssids, (n_ssids * sizeof(struct cfg80211_ssid)));
-#endif
+       if (ssids)
+               rtw_mfree((u8 *)ssids, (n_ssids * sizeof(struct cfg80211_ssid)));
 	pno_time = (interval / 1000);
 
 	RTW_INFO("%s: nssids: %d, pno_time=%d\n", __func__, nssid, pno_time);
@@ -519,7 +517,7 @@ int get_int_from_command(char *pcmd)
 	return rtw_atoi(pcmd + i) ;
 }
 
-#if defined(CONFIG_GTK_OL) && (LINUX_VERSION_CODE < KERNEL_VERSION(3, 1, 0))
+#ifdef CONFIG_GTK_OL
 int rtw_gtk_offload(struct net_device *net, u8 *cmd_ptr)
 {
 	int i;
@@ -915,11 +913,11 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		break;
 	}
 #endif /* CONFIG_RTW_MACADDR_ACL */
-#if defined(CONFIG_GTK_OL) && (LINUX_VERSION_CODE < KERNEL_VERSION(3, 1, 0))
-	case ANDROID_WIFI_CMD_GTK_REKEY_OFFLOAD:
-		rtw_gtk_offload(net, (u8 *)command);
-		break;
-#endif /* CONFIG_GTK_OL		 */
+#ifdef CONFIG_GTK_OL
+        case ANDROID_WIFI_CMD_GTK_REKEY_OFFLOAD:
+                rtw_gtk_offload(net, (u8 *)command);
+                break;
+#endif /* CONFIG_GTK_OL          */
 	case ANDROID_WIFI_CMD_P2P_DISABLE: {
 #ifdef CONFIG_P2P
 		rtw_p2p_enable(padapter, P2P_ROLE_DISABLE);
@@ -1071,21 +1069,13 @@ int wifi_get_mac_addr(unsigned char *buf)
 #endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)) */
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)) || defined(COMPAT_KERNEL_RELEASE)
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
 void *wifi_get_country_code(char *ccode, u32 flags)
-#else /* Linux kernel < 3.18 */
-void *wifi_get_country_code(char *ccode)
-#endif /* Linux kernel < 3.18 */
 {
 	RTW_INFO("%s\n", __FUNCTION__);
 	if (!ccode)
 		return NULL;
 	if (wifi_control_data && wifi_control_data->get_country_code)
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
-		return wifi_control_data->get_country_code(ccode, flags);
-#else /* Linux kernel < 3.18 */
-		return wifi_control_data->get_country_code(ccode);
-#endif /* Linux kernel < 3.18 */
+               return wifi_control_data->get_country_code(ccode, flags);
 	return NULL;
 }
 #endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)) */

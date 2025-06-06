@@ -30,14 +30,7 @@ inline struct proc_dir_entry *get_rtw_drv_proc(void)
 
 #define RTW_PROC_NAME DRV_NAME
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 9, 0))
-#define file_inode(file) ((file)->f_dentry->d_inode)
-#endif
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 10, 0))
-#define PDE_DATA(inode) PDE((inode))->data
-#define proc_get_parent_data(inode) PDE((inode))->parent->data
-#endif
 
 #define get_proc_net init_net.proc_net
 

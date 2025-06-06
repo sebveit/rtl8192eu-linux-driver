@@ -1398,11 +1398,7 @@ static int rtw_ndev_notifier_call(struct notifier_block *nb, unsigned long state
 	if (ptr == NULL)
 		return NOTIFY_DONE;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0))
-	ndev = netdev_notifier_info_to_dev(ptr);
-#else
-	ndev = ptr;
-#endif
+       ndev = netdev_notifier_info_to_dev(ptr);
 
 	if (ndev == NULL)
 		return NOTIFY_DONE;
@@ -1681,8 +1677,8 @@ int rtw_os_ndev_register(_adapter *adapter, const char *name)
 		goto exit;
 	}
 #endif
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0)) && defined(CONFIG_PCI_HCI)
-	ndev->gro_flush_timeout = 100000;
+#ifdef CONFIG_PCI_HCI
+       ndev->gro_flush_timeout = 100000;
 #endif
 	/* alloc netdev name */
 	rtw_init_netdev_name(ndev, name);
@@ -3998,28 +3994,14 @@ static int route_dump(u32 *gw_addr , int *gw_index)
 
 	msg.msg_name = &nladdr;
 	msg.msg_namelen = sizeof(nladdr);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
-	/* referece:sock_xmit in kernel code
-	 * WRITE for sock_sendmsg, READ for sock_recvmsg
-	 * third parameter for msg_iovlen
-	 * last parameter for iov_len
-	 */
-	iov_iter_init(&msg.msg_iter, WRITE, &iov, 1, sizeof(req));
-#else
-	msg.msg_iov = &iov;
-	msg.msg_iovlen = 1;
-#endif
+       iov_iter_init(&msg.msg_iter, WRITE, &iov, 1, sizeof(req));
 	msg.msg_control = NULL;
 	msg.msg_controllen = 0;
 	msg.msg_flags = MSG_DONTWAIT;
 
 	oldfs = get_fs();
 	set_fs(KERNEL_DS);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
-	err = sock_sendmsg(sock, &msg);
-#else
-	err = sock_sendmsg(sock, &msg, sizeof(req));
-#endif
+       err = sock_sendmsg(sock, &msg);
 	set_fs(oldfs);
 
 	if (err < 0)
@@ -4041,9 +4023,7 @@ restart:
 		iov.iov_base = pg;
 		iov.iov_len = PAGE_SIZE;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
-		iov_iter_init(&msg.msg_iter, READ, &iov, 1, PAGE_SIZE);
-#endif
+               iov_iter_init(&msg.msg_iter, READ, &iov, 1, PAGE_SIZE);
 
 		oldfs = get_fs();
 		set_fs(KERNEL_DS);
@@ -4113,23 +4093,14 @@ done:
 
 		msg.msg_name = &nladdr;
 		msg.msg_namelen = sizeof(nladdr);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
-		iov_iter_init(&msg.msg_iter, WRITE, &iov, 1, sizeof(req));
-#else
-		msg.msg_iov = &iov;
-		msg.msg_iovlen = 1;
-#endif
+               iov_iter_init(&msg.msg_iter, WRITE, &iov, 1, sizeof(req));
 		msg.msg_control = NULL;
 		msg.msg_controllen = 0;
 		msg.msg_flags = MSG_DONTWAIT;
 
 		oldfs = get_fs();
 		set_fs(KERNEL_DS);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
-		err = sock_sendmsg(sock, &msg);
-#else
-		err = sock_sendmsg(sock, &msg, sizeof(req));
-#endif
+               err = sock_sendmsg(sock, &msg);
 		set_fs(oldfs);
 
 		if (err > 0)
