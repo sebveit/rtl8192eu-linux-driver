@@ -252,17 +252,9 @@ __inline static _list	*get_list_head(_queue	*queue)
 	return &(queue->queue);
 }
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 static inline void timer_hdl(struct timer_list *in_timer)
-#else
-static inline void timer_hdl(unsigned long cntx)
-#endif
 {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 	_timer *ptimer = from_timer(ptimer, in_timer, timer);
-#else
-	_timer *ptimer = (_timer *)cntx;
-#endif
 	ptimer->function(ptimer->arg);
 }
 
@@ -271,14 +263,7 @@ __inline static void _init_timer(_timer *ptimer, _nic_hdl nic_hdl, void *pfunc, 
 	ptimer->function = pfunc;
 	ptimer->arg = cntx;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 	timer_setup(&ptimer->timer, timer_hdl, 0);
-#else
-	/* setup_timer(ptimer, pfunc,(u32)cntx);	 */
-	ptimer->timer.function = timer_hdl;
-	ptimer->timer.data = (unsigned long)ptimer;
-	init_timer(&ptimer->timer);
-#endif
 }
 
 __inline static void _set_timer(_timer *ptimer, u32 delay_time)

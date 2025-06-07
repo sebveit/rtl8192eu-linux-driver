@@ -28,7 +28,6 @@
 #define DBG_RTW_CFG80211_MESH_CONF 0
 #endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0))
 #define STATION_INFO_INACTIVE_TIME	BIT(NL80211_STA_INFO_INACTIVE_TIME)
 #define STATION_INFO_LLID			BIT(NL80211_STA_INFO_LLID)
 #define STATION_INFO_PLID			BIT(NL80211_STA_INFO_PLID)
@@ -42,8 +41,6 @@
 #define STATION_INFO_PEER_PM		BIT(NL80211_STA_INFO_PEER_PM)
 #define STATION_INFO_NONPEER_PM		BIT(NL80211_STA_INFO_NONPEER_PM)
 #define STATION_INFO_ASSOC_REQ_IES	0
-#endif /* Linux kernel >= 4.0.0 */
-
 #include <rtw_wifi_regd.h>
 
 #define RTW_MAX_MGMT_TX_CNT (8)
@@ -75,11 +72,9 @@
 
 #endif /* CONFIG_WAPI_SUPPORT */
 
-#if (LINUX_VERSION_CODE <= KERNEL_VERSION(4, 11, 12))
 #ifdef CONFIG_RTW_80211R
 #define WLAN_AKM_SUITE_FT_8021X		0x000FAC03
 #define WLAN_AKM_SUITE_FT_PSK			0x000FAC04
-#endif
 #endif
 
 /*
@@ -129,28 +124,22 @@ static const u32 rtw_cipher_suites[] = {
 		.max_power		= 30,				\
 	}
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0))
-/* if wowlan is not supported, kernel generate a disconnect at each suspend
- * cf: /net/wireless/sysfs.c, so register a stub wowlan.
- * Moreover wowlan has to be enabled via a the nl80211_set_wowlan callback.
- * (from user space, e.g. iw phy0 wowlan enable)
+/* if wowlan is not supported, kernel generates a disconnect on each suspend
+ * (see net/wireless/sysfs.c), so register a stub wowlan.  Wowlan must also be
+ * enabled via the nl80211_set_wowlan callback from userspace.
  */
 static const struct wiphy_wowlan_support wowlan_stub = {
-	.flags = WIPHY_WOWLAN_ANY,
-	.n_patterns = 0,
-	.pattern_max_len = 0,
-	.pattern_min_len = 0,
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0))
-	.max_pkt_offset = 0,
-#endif
+       .flags = WIPHY_WOWLAN_ANY,
+       .n_patterns = 0,
+       .pattern_max_len = 0,
+       .pattern_min_len = 0,
+       .max_pkt_offset = 0,
 };
-#endif
 
 static struct ieee80211_rate rtw_rates[] = {
 	RATETAB_ENT(10,  0x1,   0),
 	RATETAB_ENT(20,  0x2,   0),
 	RATETAB_ENT(55,  0x4,   0),
-	RATETAB_ENT(110, 0x8,   0),
 	RATETAB_ENT(60,  0x10,  0),
 	RATETAB_ENT(90,  0x20,  0),
 	RATETAB_ENT(120, 0x40,  0),
@@ -9449,12 +9438,8 @@ static void rtw_cfg80211_preinit_wiphy(_adapter *adapter, struct wiphy *wiphy)
 #endif
 #endif
 
-#if defined(CONFIG_PM) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0))
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 11, 0))
-	wiphy->wowlan = wowlan_stub;
-#else
-	wiphy->wowlan = &wowlan_stub;
-#endif
+#if defined(CONFIG_PM)
+       wiphy->wowlan = &wowlan_stub;
 #endif
 
 #if defined(CONFIG_TDLS) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 2, 0))
