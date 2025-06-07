@@ -17,15 +17,8 @@
 
 #ifdef CONFIG_RTW_MESH /* for now, only promised for kernel versions we support mesh */
 
-/* directly reference rhashtable in kernel */
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0))
+/* kernel >= 4.4 always provides rhashtable */
 #include <linux/rhashtable.h>
-#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)) */
-
-/* Use rhashtable from kernel 4.4 */
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 0))
-#include "rhashtable.h"
-#endif /* (LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 0)) */
 
 typedef struct rhashtable rtw_rhashtable;
 typedef struct rhash_head rtw_rhash_head;

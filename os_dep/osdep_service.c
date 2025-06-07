@@ -2087,20 +2087,14 @@ static int readFile(struct file *fp, char *buf, int len)
 {
 	int rlen = 0, sum = 0;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
-	if (!(fp->f_mode & FMODE_CAN_READ))
-#else
-	if (!fp->f_op || !fp->f_op->read)
-#endif
-		return -EPERM;
+       if (!(fp->f_mode & FMODE_CAN_READ))
+               return -EPERM;
 
 	while (sum < len) {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
-		rlen = kernel_read(fp, buf + sum, len - sum, &fp->f_pos);
-#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
-		rlen = __vfs_read(fp, buf + sum, len - sum, &fp->f_pos);
+               rlen = kernel_read(fp, buf + sum, len - sum, &fp->f_pos);
 #else
-		rlen = fp->f_op->read(fp, buf + sum, len - sum, &fp->f_pos);
+               rlen = __vfs_read(fp, buf + sum, len - sum, &fp->f_pos);
 #endif
 		if (rlen > 0)
 			sum += rlen;
@@ -2305,11 +2299,7 @@ struct net_device *rtw_alloc_etherdev_with_old_priv(int sizeof_priv, void *old_p
 	struct net_device *pnetdev;
 	struct rtw_netdev_priv_indicator *pnpi;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
-	pnetdev = alloc_etherdev_mq(sizeof(struct rtw_netdev_priv_indicator), 4);
-#else
-	pnetdev = alloc_etherdev(sizeof(struct rtw_netdev_priv_indicator));
-#endif
+       pnetdev = alloc_etherdev_mq(sizeof(struct rtw_netdev_priv_indicator), 4);
 	if (!pnetdev)
 		goto RETURN;
 
@@ -2326,11 +2316,7 @@ struct net_device *rtw_alloc_etherdev(int sizeof_priv)
 	struct net_device *pnetdev;
 	struct rtw_netdev_priv_indicator *pnpi;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
-	pnetdev = alloc_etherdev_mq(sizeof(struct rtw_netdev_priv_indicator), 4);
-#else
-	pnetdev = alloc_etherdev(sizeof(struct rtw_netdev_priv_indicator));
-#endif
+       pnetdev = alloc_etherdev_mq(sizeof(struct rtw_netdev_priv_indicator), 4);
 	if (!pnetdev)
 		goto RETURN;
 
