@@ -225,19 +225,13 @@ struct rtw_usb_drv usb_drv = {
 	.usbdrv.disconnect = rtw_dev_remove,
 	.usbdrv.id_table = rtw_usb_id_tbl,
 	.usbdrv.suspend =  rtw_suspend,
-	.usbdrv.resume = rtw_resume,
-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 22))
-	.usbdrv.reset_resume   = rtw_resume,
-#endif
+       .usbdrv.resume = rtw_resume,
+       .usbdrv.reset_resume = rtw_resume,
 #ifdef CONFIG_AUTOSUSPEND
 	.usbdrv.supports_autosuspend = 1,
 #endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 19))
-	.usbdrv.drvwrap.driver.shutdown = rtw_dev_shutdown,
-#else
-	.usbdrv.driver.shutdown = rtw_dev_shutdown,
-#endif
+       .usbdrv.drvwrap.driver.shutdown = rtw_dev_shutdown,
 };
 
 static inline int RT_usb_endpoint_dir_in(const struct usb_endpoint_descriptor *epd)
@@ -1248,36 +1242,19 @@ _adapter *rtw_usb_primary_adapter_init(struct dvobj_priv *dvobj,
 #endif
 
 #ifdef CONFIG_AUTOSUSPEND
-	if (padapter->registrypriv.power_mgnt != PS_MODE_ACTIVE) {
-		if (padapter->registrypriv.usbss_enable) {	/* autosuspend (2s delay) */
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 38))
-			dvobj->pusbdev->dev.power.autosuspend_delay = 0 * HZ;/* 15 * HZ; idle-delay time */
-#else
-			dvobj->pusbdev->autosuspend_delay = 0 * HZ;/* 15 * HZ; idle-delay time */
-#endif
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
-			usb_enable_autosuspend(dvobj->pusbdev);
-#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 22) && LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 34))
-			padapter->bDisableAutosuspend = dvobj->pusbdev->autosuspend_disabled ;
-			dvobj->pusbdev->autosuspend_disabled = 0;/* autosuspend disabled by the user */
-#endif
-
-			/* usb_autopm_get_interface(adapter_to_dvobj(padapter)->pusbintf ); */ /* init pm_usage_cnt ,let it start from 1 */
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32))
-			RTW_INFO("%s...pm_usage_cnt(%d).....\n", __FUNCTION__, atomic_read(&(dvobj->pusbintf->pm_usage_cnt)));
-#else
-			RTW_INFO("%s...pm_usage_cnt(%d).....\n", __FUNCTION__, dvobj->pusbintf->pm_usage_cnt);
-#endif
-		}
-	}
+        if (padapter->registrypriv.power_mgnt != PS_MODE_ACTIVE) {
+                if (padapter->registrypriv.usbss_enable) {      /* autosuspend (2s delay) */
+                        dvobj->pusbdev->dev.power.autosuspend_delay = 0 * HZ;
+                        usb_enable_autosuspend(dvobj->pusbdev);
+                        /* usb_autopm_get_interface(adapter_to_dvobj(padapter)->pusbintf ); */
+                        RTW_INFO("%s...pm_usage_cnt(%d).....\n", __FUNCTION__,
+                                atomic_read(&(dvobj->pusbintf->pm_usage_cnt)));
+                }
+        }
 #endif
 	/* 2012-07-11 Move here to prevent the 8723AS-VAU BT auto suspend influence */
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33))
 	if (usb_autopm_get_interface(pusb_intf) < 0)
 		RTW_INFO("can't get autopm:\n");
-#endif
 #ifdef CONFIG_BT_COEXIST
 	dvobj_to_pwrctl(dvobj)->autopm_cnt = 1;
 #endif
