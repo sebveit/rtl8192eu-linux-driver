@@ -23,11 +23,7 @@
 #include <linux/platform_device.h>
 #include <linux/wlan_plat.h>
 #endif /* defined(RTW_ENABLE_WIFI_CONTROL_FUNC) */
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0))
 #define strnicmp	strncasecmp
-#endif /* Linux kernel >= 4.0.0 */
-
 #ifdef CONFIG_GPIO_WAKEUP
 #include <linux/interrupt.h>
 #include <linux/irq.h>
@@ -618,13 +614,9 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		goto exit;
 	}
 #ifdef CONFIG_COMPAT
-#if (KERNEL_VERSION(4, 6, 0) > LINUX_VERSION_CODE)
-	if (is_compat_task()) {
-#else
-	if (in_compat_syscall()) {
-#endif
-		/* User space is 32-bit, use compat ioctl */
-		compat_android_wifi_priv_cmd compat_priv_cmd;
+       if (in_compat_syscall()) {
+               /* User space is 32-bit, use compat ioctl */
+               compat_android_wifi_priv_cmd compat_priv_cmd;
 
 		if (copy_from_user(&compat_priv_cmd, ifr->ifr_data, sizeof(compat_android_wifi_priv_cmd))) {
 			ret = -EFAULT;
