@@ -43,29 +43,6 @@ int rtw_rhashtable_walk_enter(rtw_rhashtable *ht, rtw_rhashtable_iter *iter)
 }
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 0))
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 25))
-static inline int is_vmalloc_addr(const void *x)
-{
-#ifdef CONFIG_MMU
-	unsigned long addr = (unsigned long)x;
-
-	return addr >= VMALLOC_START && addr < VMALLOC_END;
-#else
-	return 0;
-#endif
-}
-#endif /* (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 25)) */
-
-void kvfree(const void *addr)
-{
-	if (is_vmalloc_addr(addr))
-		vfree(addr);
-	else
-		kfree(addr);
-}
-#endif /* (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0)) */
-
 #include "rhashtable.c"
 
 #endif /* (LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 0)) */

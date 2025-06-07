@@ -24,9 +24,6 @@
 
 /* Use rhashtable from kernel 4.4 */
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 0))
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0))
-#define NULLS_MARKER(value) (1UL | (((long)value) << 1))
-#endif
 #include "rhashtable.h"
 #endif /* (LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 0)) */
 
