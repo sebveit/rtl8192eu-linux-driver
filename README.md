@@ -16,7 +16,7 @@ kernel releases and to fix issues that surface during the porting process.
 ## Features
 * Driver Version: v5.6.3.1_34030.20190613_COEX20171113-0047
 * Release Date: 2019-09-20
-* Supported Linux Kernel Version: 4.0 till 4.17
+* Supported Linux Kernel Version: 5.0 and newer
 
 ## License
 This software is licensed under the GPLv2 only,
