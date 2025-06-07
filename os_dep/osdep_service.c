@@ -2090,17 +2090,13 @@ static int readFile(struct file *fp, char *buf, int len)
        if (!(fp->f_mode & FMODE_CAN_READ))
                return -EPERM;
 
-	while (sum < len) {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+       while (sum < len) {
                rlen = kernel_read(fp, buf + sum, len - sum, &fp->f_pos);
-#else
-               rlen = __vfs_read(fp, buf + sum, len - sum, &fp->f_pos);
-#endif
-		if (rlen > 0)
-			sum += rlen;
-		else if (0 != rlen)
-			return rlen;
-		else
+               if (rlen > 0)
+                       sum += rlen;
+               else if (0 != rlen)
+                       return rlen;
+               else
 			break;
 	}
 
