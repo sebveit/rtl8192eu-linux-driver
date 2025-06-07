@@ -12822,15 +12822,11 @@ static int rtw_ioctl_standard_wext_private(struct net_device *dev, struct ifreq 
 static int rtw_ioctl_wext_private(struct net_device *dev, struct ifreq *rq)
 {
 #ifdef CONFIG_COMPAT
-#if (KERNEL_VERSION(4, 6, 0) > LINUX_VERSION_CODE)
-	if (is_compat_task())
-#else
-	if (in_compat_syscall())
-#endif
-		return rtw_ioctl_compat_wext_private(dev, rq);
-	else
+       if (in_compat_syscall())
+               return rtw_ioctl_compat_wext_private(dev, rq);
+       else
 #endif /* CONFIG_COMPAT */
-		return rtw_ioctl_standard_wext_private(dev, rq);
+               return rtw_ioctl_standard_wext_private(dev, rq);
 }
 
 int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
