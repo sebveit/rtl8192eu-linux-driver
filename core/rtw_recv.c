@@ -4245,7 +4245,6 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 	return ret;
 
 }
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24))
 int recv_frame_monitor(_adapter *padapter, union recv_frame *rframe)
 {
 	int ret = _SUCCESS;
@@ -4265,7 +4264,6 @@ int recv_frame_monitor(_adapter *padapter, union recv_frame *rframe)
 		rtw_free_recvframe(rframe, pfree_recv_queue); /* free this recv_frame */
 		goto exit;
 	}
-#endif
 	/* write skb information to recv frame */
 	skb_reset_mac_header(pskb);
 	rframe->u.hdr.len = pskb->len;
@@ -4450,9 +4448,7 @@ int recv_func(_adapter *padapter, union recv_frame *rframe)
 #endif
 	if (check_fwstate(mlmepriv, WIFI_MONITOR_STATE)) {
 		/* monitor mode */
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24))
-		recv_frame_monitor(padapter, rframe);
-#endif
+               recv_frame_monitor(padapter, rframe);
 		ret = _SUCCESS;
 		goto exit;
 	} else
