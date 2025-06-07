@@ -2349,10 +2349,11 @@ static int cfg80211_rtw_change_iface(struct wiphy *wiphy,
 		break;
 
 	#if defined(CONFIG_P2P) && ((LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE))
-	case NL80211_IFTYPE_P2P_CLIENT:
-		is_p2p = _TRUE;
-	#endif
-	case NL80211_IFTYPE_STATION:
+       case NL80211_IFTYPE_P2P_CLIENT:
+               is_p2p = _TRUE;
+               /* fall through */
+       #endif
+       case NL80211_IFTYPE_STATION:
 		networkType = Ndis802_11Infrastructure;
 
 		#ifdef CONFIG_P2P
@@ -2373,10 +2374,11 @@ static int cfg80211_rtw_change_iface(struct wiphy *wiphy,
 		break;
 
 	#if defined(CONFIG_P2P) && ((LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE))
-	case NL80211_IFTYPE_P2P_GO:
-		is_p2p = _TRUE;
-	#endif
-	case NL80211_IFTYPE_AP:
+       case NL80211_IFTYPE_P2P_GO:
+               is_p2p = _TRUE;
+               /* fall through */
+       #endif
+       case NL80211_IFTYPE_AP:
 		networkType = Ndis802_11APMode;
 
 		#ifdef CONFIG_P2P
@@ -2880,8 +2882,8 @@ static int cfg80211_rtw_scan(struct wiphy *wiphy
 #endif
 #ifdef CONFIG_P2P
 	if (pwdinfo->driver_interface == DRIVER_CFG80211) {
-		if (ssids->ssid != NULL
-			&& _rtw_memcmp(ssids->ssid, "DIRECT-", 7)
+               if (ssids->ssid_len &&
+                       _rtw_memcmp(ssids->ssid, "DIRECT-", 7)
 			&& rtw_get_p2p_ie((u8 *)request->ie, request->ie_len, NULL, NULL)
 		) {
 			if (rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE))
@@ -2988,8 +2990,8 @@ bypass_p2p_chk:
 
 #ifdef CONFIG_P2P
 	if (pwdinfo->driver_interface == DRIVER_CFG80211) {
-		if (ssids->ssid != NULL
-			&& _rtw_memcmp(ssids->ssid, "DIRECT-", 7)
+               if (ssids->ssid_len &&
+                       _rtw_memcmp(ssids->ssid, "DIRECT-", 7)
 			&& rtw_get_p2p_ie((u8 *)request->ie, request->ie_len, NULL, NULL)
 		) {
 			if (rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE))

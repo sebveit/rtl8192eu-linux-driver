@@ -256,9 +256,10 @@ void rtw_txpwr_init_regd(struct rf_ctl_t *rfctl)
 			, regd_str(regd)
 			, rfctl->regd_name ? "is used" : "not found"
 		);
-		if (rfctl->regd_name)
-			break;
-	default:
+               if (rfctl->regd_name)
+                       break;
+               /* fall through - use worldwide default */
+       default:
 		rfctl->regd_name = regd_str(TXPWR_LMT_WW);
 		RTW_PRINT("assign %s for default case\n", regd_str(TXPWR_LMT_WW));
 		break;
@@ -1340,10 +1341,10 @@ void mgt_dispatcher(_adapter *padapter, union recv_frame *precv_frame)
 	case WIFI_AUTH:
 		if (MLME_IS_AP(padapter) || MLME_IS_MESH(padapter))
 			ptable->func = &OnAuth;
-		else
-			ptable->func = &OnAuthClient;
-	/* pass through */
-	case WIFI_ASSOCREQ:
+               else
+                       ptable->func = &OnAuthClient;
+               /* fall through */
+       case WIFI_ASSOCREQ:
 	case WIFI_REASSOCREQ:
 		_mgt_dispatcher(padapter, ptable, precv_frame);
 		#ifdef CONFIG_HOSTAPD_MLME
