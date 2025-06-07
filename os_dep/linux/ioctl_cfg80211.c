@@ -9532,14 +9532,6 @@ static void cfg80211_rtw_rfkill_poll(struct wiphy *wiphy)
 
 #if defined(CONFIG_RTW_HOSTAPD_ACS) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33))
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) && (LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0))
-#define SURVEY_INFO_TIME			SURVEY_INFO_CHANNEL_TIME
-#define SURVEY_INFO_TIME_BUSY		SURVEY_INFO_CHANNEL_TIME_BUSY
-#define SURVEY_INFO_TIME_EXT_BUSY	SURVEY_INFO_CHANNEL_TIME_EXT_BUSY
-#define SURVEY_INFO_TIME_RX			SURVEY_INFO_CHANNEL_TIME_RX
-#define SURVEY_INFO_TIME_TX			SURVEY_INFO_CHANNEL_TIME_TX
-#endif
-
 #ifdef CONFIG_FIND_BEST_CHANNEL
 static void rtw_cfg80211_set_survey_info_with_find_best_channel(struct wiphy *wiphy
 	, struct net_device *netdev, int idx, struct survey_info *info)
@@ -9555,11 +9547,7 @@ static void rtw_cfg80211_set_survey_info_with_find_best_channel(struct wiphy *wi
 	u64 time = 100;		/*amount of time in ms the radio was turn on (on the channel)*/
 	u64 time_busy = 0;	/*amount of time the primary channel was sensed busy*/
 
-	info->filled  = SURVEY_INFO_NOISE_DBM
-		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37))
-		| SURVEY_INFO_TIME | SURVEY_INFO_TIME_BUSY
-		#endif
-		;
+	info->filled  = SURVEY_INFO_NOISE_DBM | SURVEY_INFO_TIME | SURVEY_INFO_TIME_BUSY;
 
 	for (i = 0; i < ch_num; i++)
 		total_rx_cnt += ch_set[i].rx_count;
@@ -9567,15 +9555,8 @@ static void rtw_cfg80211_set_survey_info_with_find_best_channel(struct wiphy *wi
 	time_busy = ch_set[idx].rx_count * time / total_rx_cnt;
 	noise += ch_set[idx].rx_count * 50 / total_rx_cnt;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37))
-	#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0))
-	info->channel_time = time;
-	info->channel_time_busy = time_busy;
-	#else
-	info->time = time;
-	info->time_busy = time_busy;
-	#endif
-#endif
+        info->time = time;
+        info->time_busy = time_busy;
 	info->noise = noise;
 
 	/* reset if final channel is got */
@@ -9597,25 +9578,14 @@ static void rtw_cfg80211_set_survey_info_with_clm(PADAPTER padapter, int idx, st
 	if ((idx < 0) || (pinfo == NULL))
 		return;
 
-	pinfo->filled  = SURVEY_INFO_NOISE_DBM
-		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37))
-		| SURVEY_INFO_TIME | SURVEY_INFO_TIME_BUSY
-		#endif
-		;
+	pinfo->filled  = SURVEY_INFO_NOISE_DBM | SURVEY_INFO_TIME | SURVEY_INFO_TIME_BUSY;
 
 	time_busy = rtw_acs_get_clm_ratio_by_ch_idx(padapter, chan);
 	noise = rtw_noise_query_by_chan_idx(padapter, chan);
 	/* RTW_INFO("%s: ch-idx:%d time=%llu(ms), time_busy=%llu(ms), noise=%d(dbm)\n", __func__, idx, time, time_busy, noise); */
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37))
-	#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0))
-	pinfo->channel_time = time;
-	pinfo->channel_time_busy = time_busy;
-	#else
-	pinfo->time = time;
-	pinfo->time_busy = time_busy;
-	#endif
-#endif
+        pinfo->time = time;
+        pinfo->time_busy = time_busy;
 	pinfo->noise = noise;
 }
 #endif
