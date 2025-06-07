@@ -1074,11 +1074,11 @@ s32 c2h_handler(_adapter *adapter, u8 id, u8 seq, u8 plen, u8 *payload)
 		c2h_per_rate_rpt_hdl(adapter, payload, plen);
 		break;
 #endif
-	case C2H_EXTEND:
-		sub_id = payload[0];
-		/* no handle, goto default */
+       case C2H_EXTEND:
+               sub_id = payload[0];
+               /* fall through - handle by default */
 
-	default:
+       default:
 		if (phydm_c2H_content_parsing(adapter_to_phydm(adapter), id, plen, payload) != TRUE)
 			ret = _FAIL;
 		break;
