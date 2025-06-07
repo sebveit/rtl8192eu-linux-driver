@@ -1300,7 +1300,6 @@ static struct net_device_stats *rtw_net_get_stats(struct net_device *pnetdev)
 	return &padapter->stats;
 }
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
 /*
  * AC to queue mapping
  *
@@ -1377,18 +1376,11 @@ u16 rtw_recv_select_queue(struct sk_buff *skb)
 
 }
 
-#endif
-
 static u8 is_rtw_ndev(struct net_device *ndev)
 {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29))
-	return ndev->netdev_ops
-		&& ndev->netdev_ops->ndo_do_ioctl
-		&& ndev->netdev_ops->ndo_do_ioctl == rtw_ioctl;
-#else
-	return ndev->do_ioctl
-		&& ndev->do_ioctl == rtw_ioctl;
-#endif
+        return ndev->netdev_ops
+                && ndev->netdev_ops->ndo_do_ioctl
+                && ndev->netdev_ops->ndo_do_ioctl == rtw_ioctl;
 }
 
 static int rtw_ndev_notifier_call(struct notifier_block *nb, unsigned long state, void *ptr)
@@ -1462,21 +1454,18 @@ void rtw_ndev_uninit(struct net_device *dev)
 	rtw_adapter_proc_deinit(dev);
 }
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29))
 static const struct net_device_ops rtw_netdev_ops = {
 	.ndo_init = rtw_ndev_init,
 	.ndo_uninit = rtw_ndev_uninit,
 	.ndo_open = netdev_open,
 	.ndo_stop = netdev_close,
 	.ndo_start_xmit = rtw_xmit_entry,
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
-	.ndo_select_queue	= rtw_select_queue,
-#endif
+        .ndo_select_queue       = rtw_select_queue,
 	.ndo_set_mac_address = rtw_net_set_mac_address,
 	.ndo_get_stats = rtw_net_get_stats,
 	.ndo_do_ioctl = rtw_ioctl,
 };
-#endif
+
 
 int rtw_init_netdev_name(struct net_device *pnetdev, const char *ifname)
 {
@@ -1517,18 +1506,7 @@ int rtw_init_netdev_name(struct net_device *pnetdev, const char *ifname)
 
 void rtw_hook_if_ops(struct net_device *ndev)
 {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29))
-	ndev->netdev_ops = &rtw_netdev_ops;
-#else
-	ndev->init = rtw_ndev_init;
-	ndev->uninit = rtw_ndev_uninit;
-	ndev->open = netdev_open;
-	ndev->stop = netdev_close;
-	ndev->hard_start_xmit = rtw_xmit_entry;
-	ndev->set_mac_address = rtw_net_set_mac_address;
-	ndev->get_stats = rtw_net_get_stats;
-	ndev->do_ioctl = rtw_ioctl;
-#endif
+        ndev->netdev_ops = &rtw_netdev_ops;
 }
 
 #ifdef CONFIG_CONCURRENT_MODE
@@ -1550,11 +1528,6 @@ struct net_device *rtw_init_netdev(_adapter *old_padapter)
 
 	padapter = rtw_netdev_priv(pnetdev);
 	padapter->pnetdev = pnetdev;
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 24)
-	SET_MODULE_OWNER(pnetdev);
-#endif
-
 	rtw_hook_if_ops(pnetdev);
 #ifdef CONFIG_CONCURRENT_MODE
 	if (!is_primary_adapter(padapter))
@@ -4017,14 +3990,10 @@ restart:
 
                iov_iter_init(&msg.msg_iter, READ, &iov, 1, PAGE_SIZE);
 
-		oldfs = get_fs();
-		set_fs(KERNEL_DS);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0))
-		err = sock_recvmsg(sock, &msg, MSG_DONTWAIT);
-#else
-		err = sock_recvmsg(sock, &msg, PAGE_SIZE, MSG_DONTWAIT);
-#endif
-		set_fs(oldfs);
+               oldfs = get_fs();
+               set_fs(KERNEL_DS);
+               err = sock_recvmsg(sock, &msg, MSG_DONTWAIT);
+               set_fs(oldfs);
 
 		if (err < 0)
 			goto out_sock_pg;
