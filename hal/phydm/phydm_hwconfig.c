@@ -798,16 +798,6 @@ odm_config_bb_with_header_file(struct dm_struct *dm,
 #if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
 			else if (mgnt_info->CustomerID == RT_CID_WNC_NEC && dm->is_mp_chip)
 				READ_AND_CONFIG_MP(8812a, _phy_reg_pg_nec);
-#if RT_PLATFORM == PLATFORM_MACOSX
-			/*@{1827}{1024} for BUFFALO power by rate table. Isaiah 2013-11-29*/
-			else if (mgnt_info->CustomerID == RT_CID_DNI_BUFFALO)
-				READ_AND_CONFIG_MP(8812a, _phy_reg_pg_dni);
-			/* TP-Link T4UH, Isaiah 2015-03-16*/
-			else if (mgnt_info->CustomerID == RT_CID_TPLINK_HPWR) {
-				pr_debug("RT_CID_TPLINK_HPWR:: _PHY_REG_PG_TPLINK\n");
-				READ_AND_CONFIG_MP(8812a, _phy_reg_pg_tplink);
-			}
-#endif
 #endif
 			else
 				READ_AND_CONFIG_MP(8812a, _phy_reg_pg);
@@ -837,16 +827,6 @@ odm_config_bb_with_header_file(struct dm_struct *dm,
 			if ((hal_data->EEPROMSVID == 0x1043 && hal_data->EEPROMSMID == 0x207F))
 				READ_AND_CONFIG_MP(8821a, _phy_reg_pg_e202_sa);
 			else
-#endif
-#if (RT_PLATFORM == PLATFORM_MACOSX)
-				/*@  for BUFFALO pwr by rate table */
-				if (mgnt_info->CustomerID == RT_CID_DNI_BUFFALO) {
-				/*@  for BUFFALO pwr by rate table (JP/US)*/
-				if (mgnt_info->ChannelPlan == RT_CHANNEL_DOMAIN_US_2G_CANADA_5G)
-					READ_AND_CONFIG_MP(8821a, _phy_reg_pg_dni_us);
-				else
-					READ_AND_CONFIG_MP(8821a, _phy_reg_pg_dni_jp);
-			} else
 #endif
 #endif
 				READ_AND_CONFIG_MP(8821a, _phy_reg_pg);
