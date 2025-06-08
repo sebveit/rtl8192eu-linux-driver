@@ -33,6 +33,7 @@ MODULE_VERSION(DRIVERVERSION);
 #error "Kernel versions below 5.4 are not supported"
 #endif
 
+
 /* module param defaults */
 int rtw_chip_version = 0x00;
 int rtw_rfintfs = HWPI;
