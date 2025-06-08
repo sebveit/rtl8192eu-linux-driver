@@ -597,7 +597,7 @@ struct xmit_buf {
 	u8 bulkout_id; /* for halmac */
 #endif /* RTW_HALMAC */
 
-#if defined(PLATFORM_OS_XP) || defined(PLATFORM_LINUX) || defined(PLATFORM_FREEBSD)
+#if defined(PLATFORM_OS_XP) || defined(PLATFORM_LINUX) 
 	PURB	pxmit_urb[8];
 	dma_addr_t dma_transfer_addr;	/* (in) dma addr for transfer_buffer */
 #endif
@@ -800,7 +800,7 @@ struct	xmit_priv	{
 	/*	USB_TRANSFER	usb_transfer_write_mem; */
 #endif
 #ifdef PLATFORM_LINUX
-        struct tasklet_struct xmit_tasklet;
+	struct tasklet_struct xmit_tasklet;
 #endif
 	/* per AC pending irp */
 	int beq_cnt;
