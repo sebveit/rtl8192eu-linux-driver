@@ -50,8 +50,6 @@ extern NDIS_STATUS rtw_xmit_entry(
 );
 
 #endif /* PLATFORM_WINDOWS */
-
-
 #ifdef PLATFORM_LINUX
 
 #define NR_XMITFRAME	256
