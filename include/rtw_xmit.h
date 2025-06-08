@@ -800,10 +800,7 @@ struct	xmit_priv	{
 	/*	USB_TRANSFER	usb_transfer_write_mem; */
 #endif
 #ifdef PLATFORM_LINUX
-	struct tasklet_struct xmit_tasklet;
-#endif
-#ifdef PLATFORM_FREEBSD
-	struct task xmit_tasklet;
+        struct tasklet_struct xmit_tasklet;
 #endif
 	/* per AC pending irp */
 	int beq_cnt;
