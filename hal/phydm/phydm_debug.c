@@ -4315,22 +4315,6 @@ void phydm_cmd_parser(struct dm_struct *dm, char input[][MAX_ARGV],
 #endif /*@#ifdef CONFIG_PHYDM_DEBUG_FUNCTION*/
 }
 
-#if defined __ECOS || defined __ICCARM__
-char *strsep(char **s, const char *ct)
-{
-	char *sbegin = *s;
-	char *end;
-
-	if (!sbegin)
-		return NULL;
-
-	end = strpbrk(sbegin, ct);
-	if (end)
-		*end++ = '\0';
-	*s = end;
-	return sbegin;
-}
-#endif
 
 #if (DM_ODM_SUPPORT_TYPE & (ODM_CE | ODM_AP | ODM_IOT))
 s32 phydm_cmd(struct dm_struct *dm, char *input, u32 in_len, u8 flag,
