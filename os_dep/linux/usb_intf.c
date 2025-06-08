@@ -1050,45 +1050,19 @@ void autosuspend_enter(_adapter *padapter)
 
 	if (rf_off == pwrpriv->change_rfpwrstate) {
 #ifndef	CONFIG_BT_COEXIST
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
-		usb_enable_autosuspend(dvobj->pusbdev);
-#else
-		dvobj->pusbdev->autosuspend_disabled = 0;/* autosuspend disabled by the user */
-#endif
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33))
-		usb_autopm_put_interface(dvobj->pusbintf);
-#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20))
-		usb_autopm_enable(dvobj->pusbintf);
-#else
-		usb_autosuspend_device(dvobj->pusbdev, 1);
-#endif
+usb_enable_autosuspend(dvobj->pusbdev);
+usb_autopm_put_interface(dvobj->pusbintf);
 #else	/* #ifndef	CONFIG_BT_COEXIST */
 		if (1 == pwrpriv->autopm_cnt) {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
-			usb_enable_autosuspend(dvobj->pusbdev);
-#else
-			dvobj->pusbdev->autosuspend_disabled = 0;/* autosuspend disabled by the user */
-#endif
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33))
-			usb_autopm_put_interface(dvobj->pusbintf);
-#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20))
-			usb_autopm_enable(dvobj->pusbintf);
-#else
-			usb_autosuspend_device(dvobj->pusbdev, 1);
-#endif
+usb_enable_autosuspend(dvobj->pusbdev);
+usb_autopm_put_interface(dvobj->pusbintf);
 			pwrpriv->autopm_cnt--;
 		} else
 			RTW_INFO("0!=pwrpriv->autopm_cnt[%d]   didn't usb_autopm_put_interface\n", pwrpriv->autopm_cnt);
 
 #endif	/* #ifndef	CONFIG_BT_COEXIST */
 	}
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32))
-	RTW_INFO("...pm_usage_cnt(%d).....\n", atomic_read(&(dvobj->pusbintf->pm_usage_cnt)));
-#else
-	RTW_INFO("...pm_usage_cnt(%d).....\n", dvobj->pusbintf->pm_usage_cnt);
-#endif
+RTW_INFO("...pm_usage_cnt(%d).....\n", atomic_read(&(dvobj->pusbintf->pm_usage_cnt)));
 
 }
 
@@ -1519,9 +1493,7 @@ static void rtw_dev_remove(struct usb_interface *pusb_intf)
 	return;
 
 }
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24))
 extern int console_suspend_enabled;
-#endif
 
 static int __init rtw_drv_entry(void)
 {
@@ -1539,9 +1511,7 @@ static int __init rtw_drv_entry(void)
 		ret = -1;
 		goto exit;
 	}
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24))
-	/* console_suspend_enabled=0; */
-#endif
+       /* console_suspend_enabled=0; */
 
 	usb_drv.drv_registered = _TRUE;
 	rtw_suspend_lock_init();

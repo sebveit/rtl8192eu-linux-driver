@@ -1536,25 +1536,19 @@ struct net_device *rtw_init_netdev(_adapter *old_padapter)
 
 
 #ifdef CONFIG_TX_CSUM_OFFLOAD
-        pnetdev->features |= (NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)
-        pnetdev->hw_features |= (NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
-#endif
+pnetdev->features |= (NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
+pnetdev->hw_features |= (NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
 #endif
 
 #ifdef CONFIG_RTW_NETIF_SG
-        pnetdev->features |= NETIF_F_SG;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)
-        pnetdev->hw_features |= NETIF_F_SG;
-#endif
+pnetdev->features |= NETIF_F_SG;
+pnetdev->hw_features |= NETIF_F_SG;
 #endif
 
-	if ((pnetdev->features & NETIF_F_SG) && (pnetdev->features & NETIF_F_IP_CSUM)) {
-		pnetdev->features |= (NETIF_F_TSO | NETIF_F_GSO);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)
-		pnetdev->hw_features |= (NETIF_F_TSO | NETIF_F_GSO);
-#endif
-	}
+if ((pnetdev->features & NETIF_F_SG) && (pnetdev->features & NETIF_F_IP_CSUM)) {
+pnetdev->features |= (NETIF_F_TSO | NETIF_F_GSO);
+pnetdev->hw_features |= (NETIF_F_TSO | NETIF_F_GSO);
+}
 	/* pnetdev->tx_timeout = NULL; */
 	pnetdev->watchdog_timeo = HZ * 3; /* 3 second timeout */
 
