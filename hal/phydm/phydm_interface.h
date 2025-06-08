@@ -121,18 +121,10 @@ ODM_REG(DIG,_pdm_odm)
 #define _bit_11N(_name)			ODM_BIT_##_name##_11N
 #define _bit_11AC(_name)		ODM_BIT_##_name##_11AC
 
-#ifdef __ECOS
-#define _rtk_cat(_name, _ic_type, _func)                                \
-	(                                                               \
-		((_ic_type) & ODM_IC_11N_SERIES) ? _func##_11N(_name) : \
-						   _func##_11AC(_name))
-#else
-
 #define _cat(_name, _ic_type, _func)                                    \
-	(                                                               \
-		((_ic_type) & ODM_IC_11N_SERIES) ? _func##_11N(_name) : \
-						   _func##_11AC(_name))
-#endif
+       (                                                               \
+               ((_ic_type) & ODM_IC_11N_SERIES) ? _func##_11N(_name) : \
+                                                  _func##_11AC(_name))
 /*@
  * only sample code
  *#define _cat(_name, _ic_type, _func)					\
@@ -147,17 +139,10 @@ ODM_REG(DIG,_pdm_odm)
  * gets "ODM_R_A_AGC_CORE1" or "ODM_R_A_AGC_CORE1_8192C",
  * depends on support_ic_type.
  */
-#ifdef __ECOS
-	#define ODM_REG(_name, _pdm_odm)	\
-		_rtk_cat(_name, _pdm_odm->support_ic_type, _reg)
-	#define ODM_BIT(_name, _pdm_odm)	\
-		_rtk_cat(_name, _pdm_odm->support_ic_type, _bit)
-#else
-	#define ODM_REG(_name, _pdm_odm)	\
-		_cat(_name, _pdm_odm->support_ic_type, _reg)
-	#define ODM_BIT(_name, _pdm_odm)	\
-		_cat(_name, _pdm_odm->support_ic_type, _bit)
-#endif
+#define ODM_REG(_name, _pdm_odm) \
+       _cat(_name, _pdm_odm->support_ic_type, _reg)
+#define ODM_BIT(_name, _pdm_odm) \
+       _cat(_name, _pdm_odm->support_ic_type, _bit)
 
 #endif
 /*@
