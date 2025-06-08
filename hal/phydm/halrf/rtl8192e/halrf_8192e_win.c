@@ -15,11 +15,7 @@
 
 #include "mp_precomp.h"
 
-#if RT_PLATFORM==PLATFORM_MACOSX
-#include "phydm_precomp.h"
-#else
 #include "../phydm_precomp.h"
-#endif
 
 #if (RTL8192E_SUPPORT == 1)
 
