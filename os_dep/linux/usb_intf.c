@@ -521,12 +521,10 @@ static struct dvobj_priv *usb_dvobj_init(struct usb_interface *usb_intf, const s
 		RTW_INFO("USB_SPEED_HIGH\n");
 		pdvobjpriv->usb_speed = RTW_USB_SPEED_2;
 		break;
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 31))
 	case USB_SPEED_SUPER:
 		RTW_INFO("USB_SPEED_SUPER\n");
 		pdvobjpriv->usb_speed = RTW_USB_SPEED_3;
 		break;
-#endif
 	default:
 		RTW_INFO("USB_SPEED_UNKNOWN(%x)\n", pusbd->speed);
 		pdvobjpriv->usb_speed = RTW_USB_SPEED_UNKNOWN;
@@ -928,13 +926,8 @@ int rtw_resume_process(_adapter *padapter)
 	}
 
 #if defined(CONFIG_BT_COEXIST) && defined(CONFIG_AUTOSUSPEND) /* add by amy for 8723as-vau */
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32))
 	RTW_INFO("%s...pm_usage_cnt(%d)  pwrpriv->bAutoResume=%x.  ....\n", __func__, atomic_read(&(adapter_to_dvobj(padapter)->pusbintf->pm_usage_cnt)), pwrpriv->bAutoResume);
 	pm_cnt = atomic_read(&(adapter_to_dvobj(padapter)->pusbintf->pm_usage_cnt));
-#else /* kernel < 2.6.32 */
-	RTW_INFO("...pm_usage_cnt(%d).....\n", adapter_to_dvobj(padapter)->pusbintf->pm_usage_cnt);
-	pm_cnt = adapter_to_dvobj(padapter)->pusbintf->pm_usage_cnt;
-#endif /* kernel < 2.6.32 */
 
 	RTW_INFO("pwrpriv->bAutoResume (%x)\n", pwrpriv->bAutoResume);
 	if (_TRUE == pwrpriv->bAutoResume) {
@@ -1080,42 +1073,22 @@ int autoresume_enter(_adapter *padapter)
 	if (rf_off == pwrpriv->rf_pwrstate) {
 		pwrpriv->ps_flag = _FALSE;
 #ifndef	CONFIG_BT_COEXIST
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33))
 		if (usb_autopm_get_interface(dvobj->pusbintf) < 0) {
 			RTW_INFO("can't get autopm: %d\n", result);
 			result = _FAIL;
 			goto error_exit;
 		}
-#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20))
-		usb_autopm_disable(dvobj->pusbintf);
-#else
-		usb_autoresume_device(dvobj->pusbdev, 1);
-#endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32))
 		RTW_INFO("...pm_usage_cnt(%d).....\n", atomic_read(&(dvobj->pusbintf->pm_usage_cnt)));
-#else
-		RTW_INFO("...pm_usage_cnt(%d).....\n", dvobj->pusbintf->pm_usage_cnt);
-#endif
 #else	/* #ifndef	CONFIG_BT_COEXIST */
 		pwrpriv->bAutoResume = _TRUE;
 		if (0 == pwrpriv->autopm_cnt) {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33))
 			if (usb_autopm_get_interface(dvobj->pusbintf) < 0) {
 				RTW_INFO("can't get autopm: %d\n", result);
 				result = _FAIL;
 				goto error_exit;
 			}
-#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20))
-			usb_autopm_disable(dvobj->pusbintf);
-#else
-			usb_autoresume_device(dvobj->pusbdev, 1);
-#endif
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32))
 			RTW_INFO("...pm_usage_cnt(%d).....\n", atomic_read(&(dvobj->pusbintf->pm_usage_cnt)));
-#else
-			RTW_INFO("...pm_usage_cnt(%d).....\n", dvobj->pusbintf->pm_usage_cnt);
-#endif
 			pwrpriv->autopm_cnt++;
 		} else
 			RTW_INFO("0!=pwrpriv->autopm_cnt[%d]   didn't usb_autopm_get_interface\n", pwrpriv->autopm_cnt);
@@ -1204,7 +1177,6 @@ _adapter *rtw_usb_primary_adapter_init(struct dvobj_priv *dvobj,
 	}
 
 #ifdef CONFIG_PM
-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18))
 	if (dvobj_to_pwrctl(dvobj)->bSupportRemoteWakeup) {
 		dvobj->pusbdev->do_remote_wakeup = 1;
 		pusb_intf->needs_remote_wakeup = 1;
@@ -1212,7 +1184,6 @@ _adapter *rtw_usb_primary_adapter_init(struct dvobj_priv *dvobj,
 		RTW_INFO("pwrctrlpriv.bSupportRemoteWakeup~~~~~~\n");
 		RTW_INFO("pwrctrlpriv.bSupportRemoteWakeup~~~[%d]~~~\n", device_may_wakeup(&pusb_intf->dev));
 	}
-#endif
 #endif
 
 #ifdef CONFIG_AUTOSUSPEND
@@ -1299,13 +1270,7 @@ static void rtw_usb_primary_adapter_deinit(_adapter *padapter)
 
 #ifdef CONFIG_BT_COEXIST
 	if (1 == pwrctl->autopm_cnt) {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33))
 		usb_autopm_put_interface(adapter_to_dvobj(padapter)->pusbintf);
-#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20))
-		usb_autopm_enable(adapter_to_dvobj(padapter)->pusbintf);
-#else
-		usb_autosuspend_device(adapter_to_dvobj(padapter)->pusbdev, 1);
-#endif
 		pwrctl->autopm_cnt--;
 	}
 #endif
