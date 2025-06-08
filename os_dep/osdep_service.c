@@ -124,9 +124,6 @@ inline void _rtw_vmfree(void *pbuf, u32 sz)
 #ifdef PLATFORM_LINUX
 	vfree(pbuf);
 #endif
-#ifdef PLATFORM_FREEBSD
-	free(pbuf, M_DEVBUF);
-#endif
 #ifdef PLATFORM_WINDOWS
 	NdisFreeMemory(pbuf, sz, 0);
 #endif
@@ -210,9 +207,6 @@ void _rtw_mfree(void *pbuf, u32 sz)
 		kfree(pbuf);
 
 #endif
-#ifdef PLATFORM_FREEBSD
-	free(pbuf, M_DEVBUF);
-#endif
 #ifdef PLATFORM_WINDOWS
 
 	NdisFreeMemory(pbuf, sz, 0);
@@ -228,62 +222,12 @@ void _rtw_mfree(void *pbuf, u32 sz)
 
 }
 
-#ifdef PLATFORM_FREEBSD
-/* review again */
-struct sk_buff *dev_alloc_skb(unsigned int size)
-{
-	struct sk_buff *skb = NULL;
-	u8 *data = NULL;
-
-	/* skb = _rtw_zmalloc(sizeof(struct sk_buff)); */ /* for skb->len, etc. */
-	skb = _rtw_malloc(sizeof(struct sk_buff));
-	if (!skb)
-		goto out;
-	data = _rtw_malloc(size);
-	if (!data)
-		goto nodata;
-
-	skb->head = (unsigned char *)data;
-	skb->data = (unsigned char *)data;
-	skb->tail = (unsigned char *)data;
-	skb->end = (unsigned char *)data + size;
-	skb->len = 0;
-	/* printf("%s()-%d: skb=%p, skb->head = %p\n", __FUNCTION__, __LINE__, skb, skb->head); */
-
-out:
-	return skb;
-nodata:
-	_rtw_mfree(skb, sizeof(struct sk_buff));
-	skb = NULL;
-	goto out;
-
-}
-
-void dev_kfree_skb_any(struct sk_buff *skb)
-{
-	/* printf("%s()-%d: skb->head = %p\n", __FUNCTION__, __LINE__, skb->head); */
-	if (skb->head)
-		_rtw_mfree(skb->head, 0);
-	/* printf("%s()-%d: skb = %p\n", __FUNCTION__, __LINE__, skb); */
-	if (skb)
-		_rtw_mfree(skb, 0);
-}
-struct sk_buff *skb_clone(const struct sk_buff *skb)
-{
-	return NULL;
-}
-
-#endif /* PLATFORM_FREEBSD */
 
 inline struct sk_buff *_rtw_skb_alloc(u32 sz)
 {
 #ifdef PLATFORM_LINUX
-	return __dev_alloc_skb(sz, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
+        return __dev_alloc_skb(sz, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 #endif /* PLATFORM_LINUX */
-
-#ifdef PLATFORM_FREEBSD
-	return dev_alloc_skb(sz);
-#endif /* PLATFORM_FREEBSD */
 }
 
 inline void _rtw_skb_free(struct sk_buff *skb)
@@ -294,57 +238,43 @@ inline void _rtw_skb_free(struct sk_buff *skb)
 inline struct sk_buff *_rtw_skb_copy(const struct sk_buff *skb)
 {
 #ifdef PLATFORM_LINUX
-	return skb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
+        return skb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 #endif /* PLATFORM_LINUX */
-
-#ifdef PLATFORM_FREEBSD
-	return NULL;
-#endif /* PLATFORM_FREEBSD */
 }
 
 inline struct sk_buff *_rtw_skb_clone(struct sk_buff *skb)
 {
 #ifdef PLATFORM_LINUX
-	return skb_clone(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
+        return skb_clone(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 #endif /* PLATFORM_LINUX */
-
-#ifdef PLATFORM_FREEBSD
-	return skb_clone(skb);
-#endif /* PLATFORM_FREEBSD */
 }
 inline struct sk_buff *_rtw_pskb_copy(struct sk_buff *skb)
 {
 #ifdef PLATFORM_LINUX
         return pskb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 #endif /* PLATFORM_LINUX */
-
-#ifdef PLATFORM_FREEBSD
-	return NULL;
-#endif /* PLATFORM_FREEBSD */
 }
 
 inline int _rtw_netif_rx(_nic_hdl ndev, struct sk_buff *skb)
 {
-#if defined(PLATFORM_LINUX)
-	skb->dev = ndev;
-	return netif_rx(skb);
-#elif defined(PLATFORM_FREEBSD)
-	return (*ndev->if_input)(ndev, skb);
+#ifdef PLATFORM_LINUX
+        skb->dev = ndev;
+        return netif_rx(skb);
 #else
-	rtw_warn_on(1);
-	return -1;
+        rtw_warn_on(1);
+        return -1;
 #endif
 }
 
 #ifdef CONFIG_RTW_NAPI
 inline int _rtw_netif_receive_skb(_nic_hdl ndev, struct sk_buff *skb)
 {
-#if defined(PLATFORM_LINUX)
-	skb->dev = ndev;
-	return netif_receive_skb(skb);
+#ifdef PLATFORM_LINUX
+        skb->dev = ndev;
+        return netif_receive_skb(skb);
 #else
-	rtw_warn_on(1);
-	return -1;
+        rtw_warn_on(1);
+        return -1;
 #endif
 }
 
@@ -352,10 +282,10 @@ inline int _rtw_netif_receive_skb(_nic_hdl ndev, struct sk_buff *skb)
 inline gro_result_t _rtw_napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
 {
 #if defined(PLATFORM_LINUX)
-	return napi_gro_receive(napi, skb);
+        return napi_gro_receive(napi, skb);
 #else
-	rtw_warn_on(1);
-	return -1;
+        rtw_warn_on(1);
+        return -1;
 #endif
 }
 #endif /* CONFIG_RTW_GRO */
