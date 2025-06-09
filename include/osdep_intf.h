@@ -16,7 +16,6 @@
 #ifndef __OSDEP_INTF_H_
 #define __OSDEP_INTF_H_
 
-
 struct intf_priv {
 
 	u8 *intf_dev;
@@ -42,7 +41,6 @@ struct intf_priv {
 
 	_mutex ioctl_mutex;
 
-
 #ifdef PLATFORM_LINUX
 #ifdef CONFIG_USB_HCI
 	/* when in USB, IO is through interrupt in/out endpoints */
@@ -56,29 +54,7 @@ struct intf_priv {
 	u8 bio_timer_cancel;
 #endif
 #endif
-
-#ifdef PLATFORM_OS_XP
-#ifdef CONFIG_SDIO_HCI
-	/* below is for io_rwmem... */
-	PMDL pmdl;
-	PSDBUS_REQUEST_PACKET  sdrp;
-	PSDBUS_REQUEST_PACKET  recv_sdrp;
-	PSDBUS_REQUEST_PACKET  xmit_sdrp;
-
-	PIRP		piorw_irp;
-
-#endif
-#ifdef CONFIG_USB_HCI
-	PURB	piorw_urb;
-	PIRP		piorw_irp;
-	u8 io_irp_cnt;
-	u8 bio_irp_pending;
-	_sema io_retevt;
-#endif
-#endif
-
 };
-
 
 #ifdef CONFIG_R871X_TEST
 	int rtw_start_pseudo_adhoc(_adapter *padapter);
@@ -133,8 +109,6 @@ u8 rtw_rtnl_lock_needed(struct dvobj_priv *dvobj);
 void rtw_set_rtnl_lock_holder(struct dvobj_priv *dvobj, _thread_hdl_ thd_hdl);
 
 #endif /* PLATFORM_LINUX */
-
-
 
 void rtw_ips_dev_unload(_adapter *padapter);
 
