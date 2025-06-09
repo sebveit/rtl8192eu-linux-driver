@@ -210,9 +210,8 @@ void _rtw_mfree(void *pbuf, u32 sz)
 inline struct sk_buff *_rtw_skb_alloc(u32 sz)
 {
 #ifdef PLATFORM_LINUX
-	return __dev_alloc_skb(sz, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
+        return __dev_alloc_skb(sz, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 #endif /* PLATFORM_LINUX */
-
 }
 
 inline void _rtw_skb_free(struct sk_buff *skb)
@@ -223,46 +222,43 @@ inline void _rtw_skb_free(struct sk_buff *skb)
 inline struct sk_buff *_rtw_skb_copy(const struct sk_buff *skb)
 {
 #ifdef PLATFORM_LINUX
-	return skb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
+        return skb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 #endif /* PLATFORM_LINUX */
-
 }
 
 inline struct sk_buff *_rtw_skb_clone(struct sk_buff *skb)
 {
 #ifdef PLATFORM_LINUX
-	return skb_clone(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
+        return skb_clone(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 #endif /* PLATFORM_LINUX */
-
 }
 inline struct sk_buff *_rtw_pskb_copy(struct sk_buff *skb)
 {
 #ifdef PLATFORM_LINUX
         return pskb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 #endif /* PLATFORM_LINUX */
-
 }
 
 inline int _rtw_netif_rx(_nic_hdl ndev, struct sk_buff *skb)
 {
-#if defined(PLATFORM_LINUX)
-	skb->dev = ndev;
-	return netif_rx(skb);
+#ifdef PLATFORM_LINUX
+        skb->dev = ndev;
+        return netif_rx(skb);
 #else
-       rtw_warn_on(1);
-       return -1;
+        rtw_warn_on(1);
+        return -1;
 #endif
 }
 
 #ifdef CONFIG_RTW_NAPI
 inline int _rtw_netif_receive_skb(_nic_hdl ndev, struct sk_buff *skb)
 {
-#if defined(PLATFORM_LINUX)
-	skb->dev = ndev;
-	return netif_receive_skb(skb);
+#ifdef PLATFORM_LINUX
+        skb->dev = ndev;
+        return netif_receive_skb(skb);
 #else
-	rtw_warn_on(1);
-	return -1;
+        rtw_warn_on(1);
+        return -1;
 #endif
 }
 
@@ -270,10 +266,10 @@ inline int _rtw_netif_receive_skb(_nic_hdl ndev, struct sk_buff *skb)
 inline gro_result_t _rtw_napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
 {
 #if defined(PLATFORM_LINUX)
-	return napi_gro_receive(napi, skb);
+        return napi_gro_receive(napi, skb);
 #else
-	rtw_warn_on(1);
-	return -1;
+        rtw_warn_on(1);
+        return -1;
 #endif
 }
 #endif /* CONFIG_RTW_GRO */
