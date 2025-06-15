@@ -16,14 +16,6 @@
 #define __IEEE80211_H
 
 
-#ifndef CONFIG_RTL8711FW
-
-	#if defined PLATFORM_OS_XP
-		#include <ntstrsafe.h>
-	#endif
-#else
-
-#endif
 
 #define MGMT_QUEUE_NUM 5
 
