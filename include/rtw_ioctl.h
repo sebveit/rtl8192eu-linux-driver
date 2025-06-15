@@ -15,7 +15,6 @@
 #ifndef _RTW_IOCTL_H_
 #define _RTW_IOCTL_H_
 
-#ifndef PLATFORM_WINDOWS
 /*	00 - Success
 *	11 - Error */
 #define STATUS_SUCCESS				(0x00000000L)
@@ -75,7 +74,6 @@
 #define NDIS_STATUS_INCOMPATABLE_QOS		((NDIS_STATUS)0xC0010027L)  /* cause 49 */
 #define NDIS_STATUS_AAL_PARAMS_UNSUPPORTED	((NDIS_STATUS)0xC0010028L)  /* cause 93 */
 #define NDIS_STATUS_NO_ROUTE_TO_DESTINATION	((NDIS_STATUS)0xC0010029L)  /* cause 3 */
-#endif /* #ifndef PLATFORM_WINDOWS */
 
 
 #ifndef OID_802_11_CAPABILITY
