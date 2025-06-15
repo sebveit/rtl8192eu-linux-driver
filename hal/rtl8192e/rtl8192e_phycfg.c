@@ -444,7 +444,7 @@ PHY_RFConfig8192E(
 
 	case RF_PSEUDO_11N:
 		break;
-	default: /* for MacOs Warning: "RF_TYPE_MIN" not handled in switch */
+	default:
 		break;
 	}
 	/* <20121002, Kordan> Do LCK, because the PHY reg files make no effect. (Asked by Edlu)
