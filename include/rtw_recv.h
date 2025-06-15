@@ -19,7 +19,7 @@
 #define RTW_RX_MSDU_ACT_INDICATE	BIT0
 #define RTW_RX_MSDU_ACT_FORWARD		BIT1
 
-/* Buffer settings for Linux and BSD platforms */
+/* Buffer settings for Linux platforms */
 
 	#ifdef CONFIG_SINGLE_RECV_BUF
 		#define NR_RECVBUFF (1)
