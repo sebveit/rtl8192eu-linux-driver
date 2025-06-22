@@ -681,9 +681,8 @@ void odm_initialize_timer(struct dm_struct *dm, struct phydm_timer_list *timer,
 			  const char *sz_id)
 {
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	init_timer(timer);
-	timer->function = call_back_func;
-	timer->data = (unsigned long)dm;
+       timer_setup(timer,
+                   (void (*)(struct timer_list *))call_back_func, 0);
 #if 0
 	/*@mod_timer(timer, jiffies+RTL_MILISECONDS_TO_JIFFIES(10));	*/
 #endif

@@ -891,24 +891,27 @@ void phydm_soml_bytes_acq(void *dm_void, u8 rate_id, u32 length)
 
 #if defined(CONFIG_RTL_TRIBAND_SUPPORT) && defined(CONFIG_USB_HCI)
 #define INIT_TIMER_EVENT_ENTRY(_entry, _func, _data) \
-	do { \
-		_rtw_init_listhead(&(_entry)->list); \
-		(_entry)->data = (_data); \
-		(_entry)->function = (_func); \
-	} while (0)
+       do { \
+               _rtw_init_listhead(&(_entry)->list); \
+               (_entry)->data = (_data); \
+               (_entry)->function = (_func); \
+       } while (0)
 
-static void pre_phydm_adaptive_soml_callback(unsigned long task_dm)
+static void pre_phydm_adaptive_soml_callback(struct timer_list *t)
 {
-	struct dm_struct *dm = (struct dm_struct *)task_dm;
-	struct rtl8192cd_priv *priv = dm->priv;
-	struct priv_shared_info *pshare = priv->pshare;
+       struct adaptive_soml *soml_tab =
+               from_timer(soml_tab, t, phydm_adaptive_soml_timer);
+       struct dm_struct *dm = container_of(soml_tab, struct dm_struct,
+                                           dm_soml_table);
+       struct rtl8192cd_priv *priv = dm->priv;
+       struct priv_shared_info *pshare = priv->pshare;
 
-	if (pshare->bDriverStopped || pshare->bSurpriseRemoved) {
-		printk("[%s] bDriverStopped(%d) OR bSurpriseRemoved(%d)\n",
-		       __FUNCTION__, pshare->bDriverStopped,
-		       pshare->bSurpriseRemoved);
-		return;
-	}
+       if (pshare->bDriverStopped || pshare->bSurpriseRemoved) {
+               printk("[%s] bDriverStopped(%d) OR bSurpriseRemoved(%d)\n",
+                      __func__, pshare->bDriverStopped,
+                      pshare->bSurpriseRemoved);
+               return;
+       }
 
 	rtw_enqueue_timer_event(priv, &pshare->adaptive_soml_event,
 				ENQUEUE_TO_TAIL);
@@ -920,13 +923,12 @@ void phydm_adaptive_soml_timers_usb(void *dm_void, u8 state)
 	struct adaptive_soml *soml_tab = &dm->dm_soml_table;
 	struct rtl8192cd_priv *priv = dm->priv;
 
-	if (state == INIT_SOML_TIMMER) {
-		init_timer(&soml_tab->phydm_adaptive_soml_timer);
-		soml_tab->phydm_adaptive_soml_timer.data = (unsigned long)dm;
-		soml_tab->phydm_adaptive_soml_timer.function = pre_phydm_adaptive_soml_callback;
-		INIT_TIMER_EVENT_ENTRY(&priv->pshare->adaptive_soml_event,
-				       phydm_adaptive_soml_callback,
-				       (unsigned long)dm);
+       if (state == INIT_SOML_TIMMER) {
+               timer_setup(&soml_tab->phydm_adaptive_soml_timer,
+                           pre_phydm_adaptive_soml_callback, 0);
+               INIT_TIMER_EVENT_ENTRY(&priv->pshare->adaptive_soml_event,
+                                      phydm_adaptive_soml_callback,
+                                      (unsigned long)dm);
 	} else if (state == CANCEL_SOML_TIMMER) {
 		odm_cancel_timer(dm, &soml_tab->phydm_adaptive_soml_timer);
 	} else if (state == RELEASE_SOML_TIMMER) {
