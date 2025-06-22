@@ -1136,7 +1136,7 @@ int rtw_mp_psd(struct net_device *dev,
         }
 
         input[wrqu->length] = '\0';
-        strncpy(extra, (char *)input, wrqu->length + 1);
+       strscpy(extra, (char *)input, wrqu->length + 1);
 
         wrqu->length = mp_query_psd(padapter, extra);
 
