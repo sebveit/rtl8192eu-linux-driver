@@ -17,6 +17,13 @@
 /* #include <drv_types.h> */
 #include <rtl8192e_hal.h>
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,9,0)
+static void rtl8192eu_xmit_tasklet_compat(unsigned long data)
+{
+       rtl8192eu_xmit_tasklet((struct tasklet_struct *)data);
+}
+#endif
+
 
 s32	rtl8192eu_init_xmit_priv(_adapter *padapter)
 {
@@ -24,9 +31,12 @@ s32	rtl8192eu_init_xmit_priv(_adapter *padapter)
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 
 #ifdef PLATFORM_LINUX
-	tasklet_init(&pxmitpriv->xmit_tasklet,
-		     (void(*)(unsigned long))rtl8192eu_xmit_tasklet,
-		     (unsigned long)padapter);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,9,0)
+       tasklet_init(&pxmitpriv->xmit_tasklet, rtl8192eu_xmit_tasklet_compat,
+                    (unsigned long)&pxmitpriv->xmit_tasklet);
+#else
+       tasklet_setup(&pxmitpriv->xmit_tasklet, rtl8192eu_xmit_tasklet);
+#endif
 #endif
 	rtl8192e_init_xmit_priv(padapter);
 
