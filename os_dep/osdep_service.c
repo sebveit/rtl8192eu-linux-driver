@@ -75,9 +75,9 @@ u32 rtw_atoi(u8 *s)
 
 inline void *_rtw_vmalloc(u32 sz)
 {
-	void *pbuf;
+       void *pbuf;
 #ifdef PLATFORM_LINUX
-	pbuf = vmalloc(sz);
+       pbuf = kvmalloc(sz, GFP_KERNEL);
 #endif
 
 
@@ -95,20 +95,18 @@ inline void *_rtw_vmalloc(u32 sz)
 
 inline void *_rtw_zvmalloc(u32 sz)
 {
-	void *pbuf;
+       void *pbuf;
 #ifdef PLATFORM_LINUX
-	pbuf = _rtw_vmalloc(sz);
-	if (pbuf != NULL)
-		memset(pbuf, 0, sz);
+       pbuf = kvzalloc(sz, GFP_KERNEL);
 #endif
 
-	return pbuf;
+       return pbuf;
 }
 
 inline void _rtw_vmfree(void *pbuf, u32 sz)
 {
 #ifdef PLATFORM_LINUX
-	vfree(pbuf);
+       kvfree(pbuf);
 #endif
 
 #ifdef DBG_MEMORY_LEAK
