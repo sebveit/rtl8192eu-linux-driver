@@ -1543,7 +1543,7 @@ void rtw_btcoex_init_socket(_adapter *padapter)
 	RTW_INFO("%s\n", __func__);
 	if (_FALSE == pcoex_info->is_exist) {
 		_rtw_memset(pcoex_info, 0, sizeof(struct bt_coex_info));
-		pcoex_info->btcoex_wq = create_workqueue("BTCOEX");
+               pcoex_info->btcoex_wq = alloc_workqueue("BTCOEX", WQ_UNBOUND | WQ_MEM_RECLAIM, 1);
 		INIT_DELAYED_WORK(&pcoex_info->recvmsg_work,
 				  (void *)rtw_btcoex_recvmsgbysocket);
 		pbtcoexadapter = padapter;
