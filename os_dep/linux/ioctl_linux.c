@@ -8597,17 +8597,33 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 			goto exit;
 		}
 
-		/* rmap addr cnts */
-		addr = simple_strtoul(tmp[1], &ptmp, 16);
-		RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
+               /* rmap addr cnts */
+               {
+                       unsigned long val;
+                       int ret;
 
-		cnts = simple_strtoul(tmp[2], &ptmp, 10);
-		if (cnts == 0) {
-			RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
-			err = -EINVAL;
-			goto exit;
-		}
-		RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
+                       ret = kstrtoul(tmp[1], 16, &val);
+                       if (ret) {
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       addr = (u16)val;
+               }
+               RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
+
+               {
+                       int val;
+                       int ret;
+
+                       ret = kstrtoint(tmp[2], 10, &val);
+                       if (ret || val == 0) {
+                               RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       cnts = (u16)val;
+               }
+               RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
 
 		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN , (PVOID)&max_available_len, _FALSE);
 		if ((addr + cnts) > max_available_len) {
@@ -8912,17 +8928,33 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 
 		BTEfuse_PowerSwitch(padapter, 1, _TRUE);
 
-		/* rmap addr cnts */
-		addr = simple_strtoul(tmp[1], &ptmp, 16);
-		RTW_INFO("%s: addr=0x%X\n", __FUNCTION__, addr);
+               /* rmap addr cnts */
+               {
+                       unsigned long val;
+                       int ret;
 
-		cnts = simple_strtoul(tmp[2], &ptmp, 10);
-		if (cnts == 0) {
-			RTW_INFO("%s: btrmap Fail!! cnts error!\n", __FUNCTION__);
-			err = -EINVAL;
-			goto exit;
-		}
-		RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
+                       ret = kstrtoul(tmp[1], 16, &val);
+                       if (ret) {
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       addr = (u16)val;
+               }
+               RTW_INFO("%s: addr=0x%X\n", __FUNCTION__, addr);
+
+               {
+                       int val;
+                       int ret;
+
+                       ret = kstrtoint(tmp[2], 10, &val);
+                       if (ret || val == 0) {
+                               RTW_INFO("%s: btrmap Fail!! cnts error!\n", __FUNCTION__);
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       cnts = (u16)val;
+               }
+               RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
 #ifndef RTW_HALMAC
 		EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_MAP_LEN, (PVOID)&max_available_len, _FALSE);
 		if ((addr + cnts) > max_available_len) {
@@ -9026,17 +9058,33 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 			err = -EINVAL;
 			goto exit;
 		}
-		/* rmap addr cnts */
-		addr = simple_strtoul(tmp[1], &ptmp, 16);
-		RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
+               /* rmap addr cnts */
+               {
+                       unsigned long val;
+                       int ret;
 
-		cnts = simple_strtoul(tmp[2], &ptmp, 10);
-		if (cnts == 0) {
-			RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
-			err = -EINVAL;
-			goto exit;
-		}
-		RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
+                       ret = kstrtoul(tmp[1], 16, &val);
+                       if (ret) {
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       addr = (u16)val;
+               }
+               RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
+
+               {
+                       int val;
+                       int ret;
+
+                       ret = kstrtoint(tmp[2], 10, &val);
+                       if (ret || val == 0) {
+                               RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       cnts = (u16)val;
+               }
+               RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
 
 		/*		RTW_INFO("%s: data={", __FUNCTION__); */
 		*extra = 0;
@@ -9051,17 +9099,33 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 			err = -EINVAL;
 			goto exit;
 		}
-		/* rmap addr cnts */
-		addr = simple_strtoul(tmp[1], &ptmp, 16);
-		RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
+               /* rmap addr cnts */
+               {
+                       unsigned long val;
+                       int ret;
 
-		cnts = simple_strtoul(tmp[2], &ptmp, 10);
-		if (cnts == 0) {
-			RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
-			err = -EINVAL;
-			goto exit;
-		}
-		RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
+                       ret = kstrtoul(tmp[1], 16, &val);
+                       if (ret) {
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       addr = (u16)val;
+               }
+               RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
+
+               {
+                       int val;
+                       int ret;
+
+                       ret = kstrtoint(tmp[2], 10, &val);
+                       if (ret || val == 0) {
+                               RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       cnts = (u16)val;
+               }
+               RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
 
 		/*		RTW_INFO("%s: data={", __FUNCTION__); */
 		*extra = 0;
@@ -9217,10 +9281,19 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		rtw_read8(padapter, EFUSE_CTRL);
 #endif /* RTW_HALMAC */
 
-		addr = simple_strtoul(tmp[1], &ptmp, 16);
-		addr &= 0xFFF;
+               {
+                       unsigned long val;
+                       int ret;
 
-		cnts = strlen(tmp[2]);
+                       ret = kstrtoul(tmp[1], 16, &val);
+                       if (ret) {
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       addr = (u16)val & 0xFFF;
+               }
+
+               cnts = strlen(tmp[2]);
 		if (cnts % 2) {
 			err = -EINVAL;
 			goto exit;
@@ -9272,8 +9345,17 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			goto exit;
 		}
 
-		addr = simple_strtoul(tmp[1], &ptmp, 16);
-		addr &= 0xFFF;
+               {
+                       unsigned long val;
+                       int ret;
+
+                       ret = kstrtoul(tmp[1], 16, &val);
+                       if (ret) {
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       addr = (u16)val & 0xFFF;
+               }
 
 		cnts = strlen(tmp[2]);
 		if (cnts % 2) {
@@ -9304,8 +9386,17 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			goto exit;
 		}
 
-		addr = simple_strtoul(tmp[1], &ptmp, 16);
-		addr &= 0xFFF;
+               {
+                       unsigned long val;
+                       int ret;
+
+                       ret = kstrtoul(tmp[1], 16, &val);
+                       if (ret) {
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       addr = (u16)val & 0xFFF;
+               }
 
 		cnts = strlen(tmp[2]);
 		if (cnts % 2) {
@@ -9507,8 +9598,17 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		BTEfuse_PowerSwitch(padapter, 1, _FALSE);
 #endif /* RTW_HALMAC */
 
-		addr = simple_strtoul(tmp[1], &ptmp, 16);
-		addr &= 0xFFF;
+               {
+                       unsigned long val;
+                       int ret;
+
+                       ret = kstrtoul(tmp[1], 16, &val);
+                       if (ret) {
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       addr = (u16)val & 0xFFF;
+               }
 
 		cnts = strlen(tmp[2]);
 		if (cnts % 2) {
@@ -9561,8 +9661,17 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			goto exit;
 		}
 
-		addr = simple_strtoul(tmp[1], &ptmp, 16);
-		addr &= 0xFFF;
+               {
+                       unsigned long val;
+                       int ret;
+
+                       ret = kstrtoul(tmp[1], 16, &val);
+                       if (ret) {
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       addr = (u16)val & 0xFFF;
+               }
 
 		cnts = strlen(tmp[2]);
 		if (cnts % 2) {
@@ -9726,8 +9835,17 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			goto exit;
 		}
 
-		addr = simple_strtoul(tmp[1], &ptmp, 16);
-		addr &= 0xFFF;
+               {
+                       unsigned long val;
+                       int ret;
+
+                       ret = kstrtoul(tmp[1], 16, &val);
+                       if (ret) {
+                               err = -EINVAL;
+                               goto exit;
+                       }
+                       addr = (u16)val & 0xFFF;
+               }
 
 		cnts = strlen(tmp[2]);
 		if (cnts % 2) {
