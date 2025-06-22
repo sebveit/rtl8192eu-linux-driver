@@ -14,6 +14,7 @@
  *****************************************************************************/
 #include <drv_types.h>
 #include <hal_data.h>
+#include <linux/uio.h>
 #ifdef CONFIG_BT_COEXIST
 #include <hal_btcoex.h>
 
@@ -1437,10 +1438,9 @@ void rtw_btcoex_recvmsg_init(struct sock *sk_in)
 
 u8 rtw_btcoex_sendmsgbysocket(_adapter *padapter, u8 *msg, u8 msg_size, bool force)
 {
-	u8 error;
-	struct msghdr	udpmsg;
-	mm_segment_t	oldfs;
-	struct iovec	iov;
+	int error;
+	struct msghdr   udpmsg = {0};
+	struct kvec	iov;
 	struct bt_coex_info *pcoex_info = &padapter->coex_info;
 
 	/* RTW_INFO("%s: msg:%s, force:%s\n", __func__, msg, force == _TRUE?"TRUE":"FALSE"); */
@@ -1455,15 +1455,11 @@ u8 rtw_btcoex_sendmsgbysocket(_adapter *padapter, u8 *msg, u8 msg_size, bool for
 	iov.iov_len	 = msg_size;
 	udpmsg.msg_name	 = &pcoex_info->bt_sockaddr;
 	udpmsg.msg_namelen	= sizeof(struct sockaddr_in);
-iov_iter_init(&udpmsg.msg_iter, WRITE, &iov, 1, msg_size);
 	udpmsg.msg_control	= NULL;
 	udpmsg.msg_controllen = 0;
 	udpmsg.msg_flags	= MSG_DONTWAIT | MSG_NOSIGNAL;
-	oldfs = get_fs();
-	set_fs(KERNEL_DS);
 
-error = sock_sendmsg(pcoex_info->udpsock, &udpmsg);
-	set_fs(oldfs);
+	error = kernel_sendmsg(pcoex_info->udpsock, &udpmsg, &iov, 1, msg_size);
 	if (error < 0) {
 		RTW_INFO("Error when sendimg msg, error:%d\n", error);
 		return _FAIL;
