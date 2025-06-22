@@ -15,6 +15,7 @@
 #define _XMIT_OSDEP_C_
 
 #include <drv_types.h>
+#include <linux/etherdevice.h>
 
 #define DBG_DUMP_OS_QUEUE_CTL 0
 
@@ -436,7 +437,7 @@ int _rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev)
 		&& (IP_MCAST_MAC(pkt->data)
 			|| ICMPV6_MCAST_MAC(pkt->data)
 			#ifdef CONFIG_TX_BCAST2UNI
-			|| is_broadcast_mac_addr(pkt->data)
+			|| is_broadcast_ether_addr(pkt->data)
 			#endif
 			)
 		&& (padapter->registrypriv.wifi_spec == 0)

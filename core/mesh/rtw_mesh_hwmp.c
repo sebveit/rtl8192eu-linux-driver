@@ -17,6 +17,7 @@
 #ifdef CONFIG_RTW_MESH
 #include <drv_types.h>
 #include <hal_data.h>
+#include <linux/etherdevice.h>
 
 #define RTW_TEST_FRAME_LEN	8192
 #define RTW_MAX_METRIC	0xffffffff
@@ -169,10 +170,6 @@ static inline u32 RTW_SN_DELTA(u32 x, u32 y)
 #define rtw_root_path_confirmation_jiffies(adapter) \
 	rtw_ms_to_systime(adapter->mesh_cfg.dot11MeshHWMPconfirmationInterval)
 
-static inline BOOLEAN rtw_ether_addr_equal(const u8 *addr1, const u8 *addr2)
-{
-	return _rtw_memcmp(addr1, addr2, ETH_ALEN);
-}
 
 #ifdef PLATFORM_LINUX
 #define rtw_print_ratelimit()	printk_ratelimit()
@@ -648,7 +645,7 @@ static void rtw_hwmp_preq_frame_process(_adapter *adapter,
 
 	RTW_HWMP_DBG("received PREQ from "MAC_FMT"\n", MAC_ARG(originator_addr));
 
-	if (rtw_ether_addr_equal(target_addr, adapter_mac_addr(adapter))) {
+	if (ether_addr_equal(target_addr, adapter_mac_addr(adapter))) {
 		RTW_HWMP_DBG("PREQ is for us\n");
 #ifdef CONFIG_RTW_MESH_ON_DMD_GANN
 		rtw_rcu_read_lock();
@@ -676,7 +673,7 @@ static void rtw_hwmp_preq_frame_process(_adapter *adapter,
 			minfo->last_sn_update = rtw_get_current_time();
 		}
 		target_sn = minfo->sn;
-	} else if (is_broadcast_mac_addr(target_addr) &&
+	} else if (is_broadcast_ether_addr(target_addr) &&
 		   (target_flags & RTW_IEEE80211_PREQ_TO_FLAG)) {
 		rtw_rcu_read_lock();
 		path = rtw_mesh_path_lookup(adapter, originator_addr);
@@ -789,7 +786,7 @@ static void rtw_hwmp_preq_frame_process(_adapter *adapter,
 					   originator_sn, target_flags, target_addr,
 					   target_sn, da, hopcount, ttl, lifetime,
 					   originator_metric, preq_id, adapter);
-		if (!is_multicast_mac_addr(da))
+		if (!is_multicast_ether_addr(da))
 			minfo->mshstats.fwded_unicast++;
 		else
 			minfo->mshstats.fwded_mcast++;
@@ -820,7 +817,7 @@ static void rtw_hwmp_prep_frame_process(_adapter *adapter,
 		  MAC_ARG(RTW_PREP_IE_TARGET_ADDR(prep_elem)));
 
 	originator_addr = RTW_PREP_IE_ORIG_ADDR(prep_elem);
-	if (rtw_ether_addr_equal(originator_addr, adapter_mac_addr(adapter))) {
+	if (ether_addr_equal(originator_addr, adapter_mac_addr(adapter))) {
 		/* destination, no forwarding required */
 		rtw_rcu_read_lock();
 		target_addr = RTW_PREP_IE_TARGET_ADDR(prep_elem);
@@ -919,7 +916,7 @@ static void rtw_hwmp_perr_frame_process(_adapter *adapter,
 		enter_critical_bh(&path->state_lock);
 		sta = rtw_next_hop_deref_protected(path);
 		if (path->flags & RTW_MESH_PATH_ACTIVE &&
-		    rtw_ether_addr_equal(ta, sta->cmn.mac_addr) &&
+		    ether_addr_equal(ta, sta->cmn.mac_addr) &&
 		    !(path->flags & RTW_MESH_PATH_FIXED) &&
 		    (!(path->flags & RTW_MESH_PATH_SN_VALID) ||
 		    RTW_SN_GT(target_sn, path->sn)  || target_sn == 0)) {
@@ -966,7 +963,7 @@ static void rtw_hwmp_rann_frame_process(_adapter *adapter,
 	metric = le32_to_cpu(rann->rann_metric);
 
 	/*  Ignore our own RANNs */
-	if (rtw_ether_addr_equal(originator_addr, adapter_mac_addr(adapter)))
+	if (ether_addr_equal(originator_addr, adapter_mac_addr(adapter)))
 		return;
 
 	RTW_HWMP_DBG("received RANN from "MAC_FMT" via neighbour "MAC_FMT" (is_gate=%d)\n",
@@ -1107,7 +1104,7 @@ static u32 rtw_hwmp_route_info_get(_adapter *adapter,
 		new_metric = RTW_MAX_METRIC;
 	exp_time = RTW_TU_TO_EXP_TIME(originator_lifetime);
 
-	if (rtw_ether_addr_equal(originator_addr, adapter_mac_addr(adapter))) {
+	if (ether_addr_equal(originator_addr, adapter_mac_addr(adapter))) {
 		process = _FALSE;
 		fresh_info = _FALSE;
 	} else {
@@ -1172,7 +1169,7 @@ static u32 rtw_hwmp_route_info_get(_adapter *adapter,
 
 	/* Update and check transmitter routing info */
 	ta = mgmt->addr2;
-	if (rtw_ether_addr_equal(originator_addr, ta))
+	if (ether_addr_equal(originator_addr, ta))
 		fresh_info = _FALSE;
 	else {
 		fresh_info = _TRUE;

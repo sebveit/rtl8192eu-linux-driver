@@ -15,6 +15,7 @@
 #define _RTW_RECV_C_
 
 #include <drv_types.h>
+#include <linux/etherdevice.h>
 #include <hal_data.h>
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
@@ -1135,7 +1136,7 @@ void count_rx_stats(_adapter *padapter, union recv_frame *prframe, struct sta_in
 		pstats->last_rx_time = rtw_get_current_time();
 		pstats->rx_data_pkts++;
 		pstats->rx_bytes += sz;
-		if (is_broadcast_mac_addr(pattrib->ra)) {
+		if (is_broadcast_ether_addr(pattrib->ra)) {
 			pstats->rx_data_bc_pkts++;
 			pstats->rx_bc_bytes += sz;
 		} else if (is_ra_bmc) {
@@ -1987,8 +1988,8 @@ sint validate_recv_mgnt_frame(PADAPTER padapter, union recv_frame *precv_frame)
 		else if (get_frame_sub_type(precv_frame->u.hdr.rx_data) == WIFI_PROBERSP) {
 			if (_rtw_memcmp(adapter_mac_addr(padapter), GetAddr1Ptr(precv_frame->u.hdr.rx_data), ETH_ALEN) == _TRUE)
 				psta->sta_stats.rx_probersp_pkts++;
-			else if (is_broadcast_mac_addr(GetAddr1Ptr(precv_frame->u.hdr.rx_data))
-				|| is_multicast_mac_addr(GetAddr1Ptr(precv_frame->u.hdr.rx_data)))
+			else if (is_broadcast_ether_addr(GetAddr1Ptr(precv_frame->u.hdr.rx_data))
+				|| is_multicast_ether_addr(GetAddr1Ptr(precv_frame->u.hdr.rx_data)))
 				psta->sta_stats.rx_probersp_bm_pkts++;
 			else
 				psta->sta_stats.rx_probersp_uo_pkts++;

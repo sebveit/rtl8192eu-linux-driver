@@ -15,6 +15,7 @@
 #define _RTW_MLME_C_
 
 #include <hal_data.h>
+#include <linux/etherdevice.h>
 
 extern void indicate_wx_scan_complete_event(_adapter *padapter);
 extern u8 rtw_do_join(_adapter *padapter);
@@ -3377,7 +3378,7 @@ static void collect_sta_traffic_statistics(_adapter *adapter)
 
 	for (i = 0; i < MACID_NUM_SW_LIMIT; i++) {
 		sta = macid_ctl->sta[i];
-		if (sta && !is_broadcast_mac_addr(sta->cmn.mac_addr)) {
+		if (sta && !is_broadcast_ether_addr(sta->cmn.mac_addr)) {
 			if (sta->sta_stats.last_tx_bytes > sta->sta_stats.tx_bytes)
 				sta->sta_stats.last_tx_bytes =  sta->sta_stats.tx_bytes;
 			if (sta->sta_stats.last_rx_bytes > sta->sta_stats.rx_bytes)
@@ -3425,7 +3426,7 @@ void rtw_sta_traffic_info(void *sel, _adapter *adapter)
 
 	for (i = 0; i < MACID_NUM_SW_LIMIT; i++) {
 		sta = macid_ctl->sta[i];
-		if (sta && !is_broadcast_mac_addr(sta->cmn.mac_addr))
+		if (sta && !is_broadcast_ether_addr(sta->cmn.mac_addr))
 			dump_sta_traffic(sel, adapter, sta);
 	}
 }
@@ -3598,7 +3599,7 @@ static int rtw_check_roaming_candidate(struct mlme_priv *mlme
 		);
 
 	/* got specific addr to roam */
-	if (!is_zero_mac_addr(mlme->roam_tgt_addr)) {
+	if (!is_zero_ether_addr(mlme->roam_tgt_addr)) {
 		if (_rtw_memcmp(mlme->roam_tgt_addr, competitor->network.MacAddress, ETH_ALEN) == _TRUE)
 			goto update;
 		else

@@ -15,6 +15,7 @@
 #define _RTW_MLME_EXT_C_
 
 #include <drv_types.h>
+#include <linux/etherdevice.h>
 #ifdef CONFIG_IOCTL_CFG80211
 	#include <rtw_wifi_regd.h>
 #endif /* CONFIG_IOCTL_CFG80211 */
@@ -6924,7 +6925,7 @@ unsigned int OnAction_ft(_adapter *padapter, union recv_frame *precv_frame)
 			goto exit;
 		}
 
-		if (is_zero_mac_addr(&pframe_body[8]) || is_broadcast_mac_addr(&pframe_body[8])) {
+		if (is_zero_ether_addr(&pframe_body[8]) || is_broadcast_ether_addr(&pframe_body[8])) {
 			RTW_ERR("FT: Invalid Target MAC Address "MAC_FMT"\n", MAC_ARG(padapter->mlmepriv.roam_tgt_addr));
 			goto exit;
 		}
@@ -7176,7 +7177,7 @@ void rtw_wnm_issue_action(_adapter *padapter, u8 action, u8 reason)
 			pframe = rtw_set_fixed_ie(pframe, 1, &(dialog_token), &(pattrib->pktlen));
 			pframe = rtw_set_fixed_ie(pframe, 1, &(reason), &(pattrib->pktlen));
 			pframe = rtw_set_fixed_ie(pframe, 1, &(termination_delay), &(pattrib->pktlen));
-			if (!is_zero_mac_addr(pmlmepriv->nb_info.roam_target_addr)) {
+			if (!is_zero_ether_addr(pmlmepriv->nb_info.roam_target_addr)) {
 				pframe = rtw_set_fixed_ie(pframe, 6, 
 					pmlmepriv->nb_info.roam_target_addr, &(pattrib->pktlen));
 			}
@@ -12979,7 +12980,7 @@ bypass_active_keep_alive:
 				psta = LIST_CONTAINOR(plist, struct sta_info, hash_list);
 				plist = get_next(plist);
 
-				if (is_broadcast_mac_addr(psta->cmn.mac_addr))
+				if (is_broadcast_ether_addr(psta->cmn.mac_addr))
 					continue;
 
 				if (chk_adhoc_peer_is_alive(psta) || !psta->expire_to)
