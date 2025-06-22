@@ -15,6 +15,7 @@
 #define  _RTW_SECURITY_C_
 
 #include <drv_types.h>
+#include <linux/etherdevice.h>
 
 static const char *_security_type_str[] = {
 	"N/A",
@@ -41,54 +42,54 @@ const char *security_type_str(u8 value)
 
 #ifdef DBG_SW_SEC_CNT
 #define WEP_SW_ENC_CNT_INC(sec, ra) do {\
-	if (is_broadcast_mac_addr(ra)) \
+	if (is_broadcast_ether_addr(ra)) \
 		sec->wep_sw_enc_cnt_bc++; \
-	else if (is_multicast_mac_addr(ra)) \
+	else if (is_multicast_ether_addr(ra)) \
 		sec->wep_sw_enc_cnt_mc++; \
 	else \
 		sec->wep_sw_enc_cnt_uc++; \
 	} while (0)
 
 #define WEP_SW_DEC_CNT_INC(sec, ra) do {\
-	if (is_broadcast_mac_addr(ra)) \
+	if (is_broadcast_ether_addr(ra)) \
 		sec->wep_sw_dec_cnt_bc++; \
-	else if (is_multicast_mac_addr(ra)) \
+	else if (is_multicast_ether_addr(ra)) \
 		sec->wep_sw_dec_cnt_mc++; \
 	else \
 		sec->wep_sw_dec_cnt_uc++; \
 	} while (0)
 
 #define TKIP_SW_ENC_CNT_INC(sec, ra) do {\
-	if (is_broadcast_mac_addr(ra)) \
+	if (is_broadcast_ether_addr(ra)) \
 		sec->tkip_sw_enc_cnt_bc++; \
-	else if (is_multicast_mac_addr(ra)) \
+	else if (is_multicast_ether_addr(ra)) \
 		sec->tkip_sw_enc_cnt_mc++; \
 	else \
 		sec->tkip_sw_enc_cnt_uc++; \
 	} while (0)
 
 #define TKIP_SW_DEC_CNT_INC(sec, ra) do {\
-	if (is_broadcast_mac_addr(ra)) \
+	if (is_broadcast_ether_addr(ra)) \
 		sec->tkip_sw_dec_cnt_bc++; \
-	else if (is_multicast_mac_addr(ra)) \
+	else if (is_multicast_ether_addr(ra)) \
 		sec->tkip_sw_dec_cnt_mc++; \
 	else \
 		sec->tkip_sw_dec_cnt_uc++; \
 	} while (0)
 
 #define AES_SW_ENC_CNT_INC(sec, ra) do {\
-	if (is_broadcast_mac_addr(ra)) \
+	if (is_broadcast_ether_addr(ra)) \
 		sec->aes_sw_enc_cnt_bc++; \
-	else if (is_multicast_mac_addr(ra)) \
+	else if (is_multicast_ether_addr(ra)) \
 		sec->aes_sw_enc_cnt_mc++; \
 	else \
 		sec->aes_sw_enc_cnt_uc++; \
 	} while (0)
 
 #define AES_SW_DEC_CNT_INC(sec, ra) do {\
-	if (is_broadcast_mac_addr(ra)) \
+	if (is_broadcast_ether_addr(ra)) \
 		sec->aes_sw_dec_cnt_bc++; \
-	else if (is_multicast_mac_addr(ra)) \
+	else if (is_multicast_ether_addr(ra)) \
 		sec->aes_sw_dec_cnt_mc++; \
 	else \
 		sec->aes_sw_dec_cnt_uc++; \
@@ -831,7 +832,7 @@ u32 rtw_tkip_decrypt(_adapter *padapter, u8 *precvframe)
 					if (start == 0)
 						start = rtw_get_current_time();
 
-					if (is_broadcast_mac_addr(prxattrib->ra))
+					if (is_broadcast_ether_addr(prxattrib->ra))
 						no_gkey_bc_cnt++;
 					else
 						no_gkey_mc_cnt++;
@@ -1952,7 +1953,7 @@ u32	rtw_aes_decrypt(_adapter *padapter, u8 *precvframe)
 					if (start == 0)
 						start = rtw_get_current_time();
 
-					if (is_broadcast_mac_addr(prxattrib->ra))
+					if (is_broadcast_ether_addr(prxattrib->ra))
 						no_gkey_bc_cnt++;
 					else
 						no_gkey_mc_cnt++;

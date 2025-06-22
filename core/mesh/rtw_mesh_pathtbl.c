@@ -17,6 +17,7 @@
 #ifdef CONFIG_RTW_MESH
 #include <drv_types.h>
 #include <linux/jhash.h>
+#include <linux/etherdevice.h>
 
 static void rtw_mpath_free_rcu(struct rtw_mesh_path *mpath)
 {
@@ -564,7 +565,7 @@ struct rtw_mesh_path *rtw_mesh_path_add(_adapter *adapter,
 		/* never add ourselves as neighbours */
 		return ERR_PTR(-ENOTSUPP);
 
-	if (is_multicast_mac_addr(dst))
+	if (is_multicast_ether_addr(dst))
 		return ERR_PTR(-ENOTSUPP);
 
 	if (ATOMIC_INC_UNLESS(&adapter->mesh_info.mpaths, RTW_MESH_MAX_MPATHS) == 0)
@@ -615,7 +616,7 @@ int rtw_mpp_path_add(_adapter *adapter,
 		/* never add ourselves as neighbours */
 		return -ENOTSUPP;
 
-	if (is_multicast_mac_addr(dst))
+	if (is_multicast_ether_addr(dst))
 		return -ENOTSUPP;
 
 	new_mpath = rtw_mesh_path_new(adapter, dst);

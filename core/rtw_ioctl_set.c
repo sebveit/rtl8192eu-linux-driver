@@ -16,6 +16,7 @@
 
 #include <drv_types.h>
 #include <hal_data.h>
+#include <linux/etherdevice.h>
 
 
 extern void indicate_wx_scan_complete_event(_adapter *padapter);
@@ -31,9 +32,9 @@ u8 rtw_validate_bssid(u8 *bssid)
 {
 	u8 ret = _TRUE;
 
-	if (is_zero_mac_addr(bssid)
-	    || is_broadcast_mac_addr(bssid)
-	    || is_multicast_mac_addr(bssid)
+	if (is_zero_ether_addr(bssid)
+	    || is_broadcast_ether_addr(bssid)
+	    || is_multicast_ether_addr(bssid)
 	   )
 		ret = _FALSE;
 

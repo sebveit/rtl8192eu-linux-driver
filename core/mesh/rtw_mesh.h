@@ -15,6 +15,8 @@
 #ifndef __RTW_MESH_H_
 #define __RTW_MESH_H_
 
+#include <linux/etherdevice.h>
+
 #ifndef CONFIG_AP_MODE
 	#error "CONFIG_RTW_MESH can't be enabled when CONFIG_AP_MODE is not defined\n"
 #endif
@@ -287,14 +289,14 @@ struct mesh_peer_sel_policy {
 
 #define rtw_msrc_b2u_policy_chk(flags, mda) ( \
 	(flags & RTW_MESH_B2U_ALL) \
-	|| ((flags & RTW_MESH_B2U_BCAST) && is_broadcast_mac_addr(mda)) \
+	|| ((flags & RTW_MESH_B2U_BCAST) && is_broadcast_ether_addr(mda)) \
 	|| ((flags & RTW_MESH_B2U_IP_MCAST) && (IP_MCAST_MAC(mda) || ICMPV6_MCAST_MAC(mda))) \
 	)
 
 #define rtw_mfwd_b2u_policy_chk(flags, mda, ucst) ( \
 	(flags & RTW_MESH_B2U_ALL) \
 	|| ((flags & RTW_MESH_B2U_GA_UCAST) && ucst) \
-	|| ((flags & RTW_MESH_B2U_BCAST) && is_broadcast_mac_addr(mda)) \
+	|| ((flags & RTW_MESH_B2U_BCAST) && is_broadcast_ether_addr(mda)) \
 	|| ((flags & RTW_MESH_B2U_IP_MCAST) && (IP_MCAST_MAC(mda) || ICMPV6_MCAST_MAC(mda))) \
 	)
 

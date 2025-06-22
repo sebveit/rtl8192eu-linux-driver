@@ -15,6 +15,8 @@
 #ifndef __RTW_MLME_H_
 #define __RTW_MLME_H_
 
+#include <linux/etherdevice.h>
+
 
 #define	MAX_BSS_CNT	128
 /* #define   MAX_JOIN_TIMEOUT	2000 */
@@ -662,13 +664,13 @@ struct ft_roam_info {
 
 #define rtw_wnm_btm_diff_bss(a) \
 	((rtw_wnm_btm_preference_cap(a)) && \
-	(is_zero_mac_addr((a)->mlmepriv.nb_info.roam_target_addr) == _FALSE) && \
+	(is_zero_ether_addr((a)->mlmepriv.nb_info.roam_target_addr) == _FALSE) && \
 	(_rtw_memcmp((a)->mlmepriv.nb_info.roam_target_addr,\
 		(a)->mlmepriv.cur_network.network.MacAddress, ETH_ALEN) == _FALSE))
 
 #define rtw_wnm_btm_roam_candidate(a, c) \
 	((rtw_wnm_btm_preference_cap(a)) && \
-	(is_zero_mac_addr((a)->mlmepriv.nb_info.roam_target_addr) == _FALSE) && \
+	(is_zero_ether_addr((a)->mlmepriv.nb_info.roam_target_addr) == _FALSE) && \
 	(_rtw_memcmp((a)->mlmepriv.nb_info.roam_target_addr,\
 		(c)->network.MacAddress, ETH_ALEN)))
 
@@ -698,7 +700,7 @@ struct nb_rpt_hdr {
 	u8 phy_type;	
 };
 
-/*IEEE Std 80211v, Figure 7-95e2¡XBSS Termination Duration subelement field format */
+/*IEEE Std 80211v, Figure 7-95e2Â¡XBSS Termination Duration subelement field format */
 struct btm_term_duration {
 	u8 id;
 	u8 len;
@@ -706,7 +708,7 @@ struct btm_term_duration {
 	u16 duration;
 };
 
-/*IEEE Std 80211v, Figure 7-101n8¡XBSS Transition Management Request frame body format */
+/*IEEE Std 80211v, Figure 7-101n8Â¡XBSS Transition Management Request frame body format */
 struct btm_req_hdr {
 	u8 req_mode;
 	u16 disassoc_timer;

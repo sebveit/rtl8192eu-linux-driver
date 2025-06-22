@@ -15,6 +15,7 @@
 
 #include <drv_types.h>
 #include <hal_data.h>
+#include <linux/etherdevice.h>
 
 /* A mapping from HalData to ODM. */
 enum odm_board_type boardType(u8 InterfaceSel)
@@ -759,7 +760,7 @@ s8 rtw_dm_get_min_rssi(_adapter *adapter)
 	for (i = 0; i < MACID_NUM_SW_LIMIT; i++) {
 		sta = macid_ctl->sta[i];
 		if (!sta || !GET_H2CCMD_MSRRPT_PARM_OPMODE(macid_ctl->h2c_msr + i)
-			|| is_broadcast_mac_addr(sta->cmn.mac_addr))
+			|| is_broadcast_ether_addr(sta->cmn.mac_addr))
 			continue;
 		rssi = sta->cmn.rssi_stat.rssi;
 		if (rssi >= 0 && min_rssi > rssi)

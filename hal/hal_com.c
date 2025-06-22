@@ -18,6 +18,7 @@
 #include "hal_com_h2c.h"
 
 #include "hal_data.h"
+#include <linux/etherdevice.h>
 
 #ifdef RTW_HALMAC
 #include "../../hal/hal_halmac.h"
@@ -7861,7 +7862,7 @@ static void rtw_hal_construct_ARPRsp(
 	SET_ARP_SENDER_MAC_ADDR(pARPRspPkt, adapter_mac_addr(padapter));
 	SET_ARP_SENDER_IP_ADDR(pARPRspPkt, pIPAddress);
 #ifdef CONFIG_ARP_KEEP_ALIVE
-	if (!is_zero_mac_addr(pmlmepriv->gw_mac_addr)) {
+	if (!is_zero_ether_addr(pmlmepriv->gw_mac_addr)) {
 		SET_ARP_TARGET_MAC_ADDR(pARPRspPkt, pmlmepriv->gw_mac_addr);
 		SET_ARP_TARGET_IP_ADDR(pARPRspPkt, pmlmepriv->gw_ip);
 	} else
