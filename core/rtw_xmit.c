@@ -16,6 +16,7 @@
 
 #include <drv_types.h>
 #include <hal_data.h>
+#include <linux/etherdevice.h>
 
 static u8 P802_1H_OUI[P80211_OUI_LEN] = { 0x00, 0x00, 0xf8 };
 static u8 RFC1042_OUI[P80211_OUI_LEN] = { 0x00, 0x00, 0x00 };
@@ -4449,7 +4450,7 @@ s32 rtw_monitor_xmit_entry(struct sk_buff *skb, struct net_device *ndev)
 		pattrib = &pmgntframe->attrib;
 		update_monitor_frame_attrib(padapter, pattrib);
 
-		if (is_broadcast_mac_addr(pwlanhdr->addr3) || is_broadcast_mac_addr(pwlanhdr->addr1))
+		if (is_broadcast_ether_addr(pwlanhdr->addr3) || is_broadcast_ether_addr(pwlanhdr->addr1))
 			pattrib->rate = MGN_24M;
 
 	} else {
@@ -4835,7 +4836,7 @@ sint xmitframe_enqueue_for_sleeping_sta(_adapter *padapter, struct xmit_frame *p
 			/* RTW_INFO("enqueue, sq_len=%d\n", psta->sleepq_len); */
 			/* RTW_INFO_DUMP("enqueue, tim=", pstapriv->tim_bitmap, pstapriv->aid_bmp_len); */
 			if (update_tim == _TRUE) {
-				if (is_broadcast_mac_addr(pattrib->ra))
+				if (is_broadcast_ether_addr(pattrib->ra))
 					_update_beacon(padapter, _TIM_IE_, NULL, _TRUE, "buffer BC");
 				else
 					_update_beacon(padapter, _TIM_IE_, NULL, _TRUE, "buffer MC");

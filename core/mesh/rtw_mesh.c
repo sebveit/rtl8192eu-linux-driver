@@ -16,6 +16,7 @@
 
 #ifdef CONFIG_RTW_MESH
 #include <drv_types.h>
+#include <linux/etherdevice.h>
 
 const char *_rtw_mesh_plink_str[] = {
 	"UNKNOWN",
@@ -3284,8 +3285,8 @@ static bool rtw_mesh_data_bmc_to_uc(_adapter *adapter
 		if (!(sta->state & _FW_LINKED)
 			|| _rtw_memcmp(sta->cmn.mac_addr, msa, ETH_ALEN) == _TRUE
 			|| (ori_ta && _rtw_memcmp(sta->cmn.mac_addr, ori_ta, ETH_ALEN) == _TRUE)
-			|| is_broadcast_mac_addr(sta->cmn.mac_addr)
-			|| is_zero_mac_addr(sta->cmn.mac_addr))
+			|| is_broadcast_ether_addr(sta->cmn.mac_addr)
+			|| is_zero_ether_addr(sta->cmn.mac_addr))
 			continue;
 
 		b2uframe = rtw_alloc_xmitframe(xmitpriv);
