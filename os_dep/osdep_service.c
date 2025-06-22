@@ -1354,118 +1354,54 @@ bool rtw_macaddr_is_larger(const u8 *a, const u8 *b)
 #define RTW_SUSPEND_LOCK_NAME "rtw_wifi"
 #define RTW_SUSPEND_TRAFFIC_LOCK_NAME "rtw_wifi_traffic"
 #define RTW_SUSPEND_RESUME_LOCK_NAME "rtw_wifi_resume"
-#ifdef CONFIG_WAKELOCK
-static struct wake_lock rtw_suspend_lock;
-static struct wake_lock rtw_suspend_traffic_lock;
-static struct wake_lock rtw_suspend_resume_lock;
-#elif defined(CONFIG_ANDROID_POWER)
-static android_suspend_lock_t rtw_suspend_lock = {
-	.name = RTW_SUSPEND_LOCK_NAME
-};
-static android_suspend_lock_t rtw_suspend_traffic_lock = {
-	.name = RTW_SUSPEND_TRAFFIC_LOCK_NAME
-};
-static android_suspend_lock_t rtw_suspend_resume_lock = {
-	.name = RTW_SUSPEND_RESUME_LOCK_NAME
-};
-#endif
+static struct wakeup_source *rtw_suspend_lock;
+static struct wakeup_source *rtw_suspend_traffic_lock;
+static struct wakeup_source *rtw_suspend_resume_lock;
 
 inline void rtw_suspend_lock_init(void)
 {
-#ifdef CONFIG_WAKELOCK
-	wake_lock_init(&rtw_suspend_lock, WAKE_LOCK_SUSPEND, RTW_SUSPEND_LOCK_NAME);
-	wake_lock_init(&rtw_suspend_traffic_lock, WAKE_LOCK_SUSPEND, RTW_SUSPEND_TRAFFIC_LOCK_NAME);
-	wake_lock_init(&rtw_suspend_resume_lock, WAKE_LOCK_SUSPEND, RTW_SUSPEND_RESUME_LOCK_NAME);
-#elif defined(CONFIG_ANDROID_POWER)
-	android_init_suspend_lock(&rtw_suspend_lock);
-	android_init_suspend_lock(&rtw_suspend_traffic_lock);
-	android_init_suspend_lock(&rtw_suspend_resume_lock);
-#endif
+       rtw_suspend_lock = wakeup_source_register(NULL, RTW_SUSPEND_LOCK_NAME);
+       rtw_suspend_traffic_lock = wakeup_source_register(NULL, RTW_SUSPEND_TRAFFIC_LOCK_NAME);
+       rtw_suspend_resume_lock = wakeup_source_register(NULL, RTW_SUSPEND_RESUME_LOCK_NAME);
 }
 
 inline void rtw_suspend_lock_uninit(void)
 {
-#ifdef CONFIG_WAKELOCK
-	wake_lock_destroy(&rtw_suspend_lock);
-	wake_lock_destroy(&rtw_suspend_traffic_lock);
-	wake_lock_destroy(&rtw_suspend_resume_lock);
-#elif defined(CONFIG_ANDROID_POWER)
-	android_uninit_suspend_lock(&rtw_suspend_lock);
-	android_uninit_suspend_lock(&rtw_suspend_traffic_lock);
-	android_uninit_suspend_lock(&rtw_suspend_resume_lock);
-#endif
+       wakeup_source_unregister(rtw_suspend_lock);
+       wakeup_source_unregister(rtw_suspend_traffic_lock);
+       wakeup_source_unregister(rtw_suspend_resume_lock);
 }
 
 inline void rtw_lock_suspend(void)
 {
-#ifdef CONFIG_WAKELOCK
-	wake_lock(&rtw_suspend_lock);
-#elif defined(CONFIG_ANDROID_POWER)
-	android_lock_suspend(&rtw_suspend_lock);
-#endif
-
-#if  defined(CONFIG_WAKELOCK) || defined(CONFIG_ANDROID_POWER)
-	/* RTW_INFO("####%s: suspend_lock_count:%d####\n", __FUNCTION__, rtw_suspend_lock.stat.count); */
-#endif
+       __pm_stay_awake(rtw_suspend_lock);
 }
 
 inline void rtw_unlock_suspend(void)
 {
-#ifdef CONFIG_WAKELOCK
-	wake_unlock(&rtw_suspend_lock);
-#elif defined(CONFIG_ANDROID_POWER)
-	android_unlock_suspend(&rtw_suspend_lock);
-#endif
-
-#if  defined(CONFIG_WAKELOCK) || defined(CONFIG_ANDROID_POWER)
-	/* RTW_INFO("####%s: suspend_lock_count:%d####\n", __FUNCTION__, rtw_suspend_lock.stat.count); */
-#endif
+       __pm_relax(rtw_suspend_lock);
 }
 
 inline void rtw_resume_lock_suspend(void)
 {
-#ifdef CONFIG_WAKELOCK
-	wake_lock(&rtw_suspend_resume_lock);
-#elif defined(CONFIG_ANDROID_POWER)
-	android_lock_suspend(&rtw_suspend_resume_lock);
-#endif
-
-#if  defined(CONFIG_WAKELOCK) || defined(CONFIG_ANDROID_POWER)
-	/* RTW_INFO("####%s: suspend_lock_count:%d####\n", __FUNCTION__, rtw_suspend_lock.stat.count); */
-#endif
+       __pm_stay_awake(rtw_suspend_resume_lock);
 }
 
 inline void rtw_resume_unlock_suspend(void)
 {
-#ifdef CONFIG_WAKELOCK
-	wake_unlock(&rtw_suspend_resume_lock);
-#elif defined(CONFIG_ANDROID_POWER)
-	android_unlock_suspend(&rtw_suspend_resume_lock);
-#endif
-
-#if  defined(CONFIG_WAKELOCK) || defined(CONFIG_ANDROID_POWER)
-	/* RTW_INFO("####%s: suspend_lock_count:%d####\n", __FUNCTION__, rtw_suspend_lock.stat.count); */
-#endif
+       __pm_relax(rtw_suspend_resume_lock);
 }
 
 inline void rtw_lock_suspend_timeout(u32 timeout_ms)
 {
-#ifdef CONFIG_WAKELOCK
-	wake_lock_timeout(&rtw_suspend_lock, rtw_ms_to_systime(timeout_ms));
-#elif defined(CONFIG_ANDROID_POWER)
-	android_lock_suspend_auto_expire(&rtw_suspend_lock, rtw_ms_to_systime(timeout_ms));
-#endif
+       __pm_wakeup_event(rtw_suspend_lock, timeout_ms);
 }
 
 
 inline void rtw_lock_traffic_suspend_timeout(u32 timeout_ms)
 {
-#ifdef CONFIG_WAKELOCK
-	wake_lock_timeout(&rtw_suspend_traffic_lock, rtw_ms_to_systime(timeout_ms));
-#elif defined(CONFIG_ANDROID_POWER)
-	android_lock_suspend_auto_expire(&rtw_suspend_traffic_lock, rtw_ms_to_systime(timeout_ms));
-#endif
-	/* RTW_INFO("traffic lock timeout:%d\n", timeout_ms); */
+       __pm_wakeup_event(rtw_suspend_traffic_lock, timeout_ms);
+       /* RTW_INFO("traffic lock timeout:%d\n", timeout_ms); */
 }
 
 inline void rtw_set_bit(int nr, unsigned long *addr)

@@ -358,12 +358,8 @@ static inline int rtw_merge_string(char *dst, int dst_len, const char *src1, con
 #define rtw_signal_process(pid, sig) kill_pid(find_vpid((pid)), (sig), 1)
 
 
-/* Suspend lock prevent system from going suspend */
-#ifdef CONFIG_WAKELOCK
-	#include <linux/wakelock.h>
-#elif defined(CONFIG_ANDROID_POWER)
-	#include <linux/android_power.h>
-#endif
+/* Suspend lock prevents system from suspending */
+#include <linux/pm_wakeup.h>
 
 /* limitation of path length */
 #define PATH_LENGTH_MAX PATH_MAX
