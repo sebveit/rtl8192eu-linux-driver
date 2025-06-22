@@ -16,6 +16,7 @@
 
 #include <drv_types.h>
 #include <hal_data.h>
+#include <linux/uio.h>
 
 
 
@@ -3870,10 +3871,9 @@ static int route_dump(u32 *gw_addr , int *gw_index)
 		struct nlmsghdr nlh;
 		struct rtgenmsg g;
 	} req;
-	struct msghdr msg;
-	struct iovec iov;
+       struct msghdr msg;
+       struct kvec iov;
 	struct sockaddr_nl nladdr;
-	mm_segment_t oldfs;
 	char *pg;
 	int size = 0;
 
@@ -3897,15 +3897,11 @@ static int route_dump(u32 *gw_addr , int *gw_index)
 
 	msg.msg_name = &nladdr;
 	msg.msg_namelen = sizeof(nladdr);
-       iov_iter_init(&msg.msg_iter, WRITE, &iov, 1, sizeof(req));
-	msg.msg_control = NULL;
-	msg.msg_controllen = 0;
-	msg.msg_flags = MSG_DONTWAIT;
+       msg.msg_control = NULL;
+       msg.msg_controllen = 0;
+       msg.msg_flags = MSG_DONTWAIT;
 
-	oldfs = get_fs();
-	set_fs(KERNEL_DS);
-       err = sock_sendmsg(sock, &msg);
-	set_fs(oldfs);
+       err = kernel_sendmsg(sock, &msg, &iov, 1, sizeof(req));
 
 	if (err < 0)
 		goto out_sock;
@@ -3926,12 +3922,7 @@ restart:
 		iov.iov_base = pg;
 		iov.iov_len = PAGE_SIZE;
 
-               iov_iter_init(&msg.msg_iter, READ, &iov, 1, PAGE_SIZE);
-
-               oldfs = get_fs();
-               set_fs(KERNEL_DS);
-               err = sock_recvmsg(sock, &msg, MSG_DONTWAIT);
-               set_fs(oldfs);
+               err = kernel_recvmsg(sock, &msg, &iov, 1, PAGE_SIZE, MSG_DONTWAIT);
 
 		if (err < 0)
 			goto out_sock_pg;
@@ -3992,15 +3983,11 @@ done:
 
 		msg.msg_name = &nladdr;
 		msg.msg_namelen = sizeof(nladdr);
-               iov_iter_init(&msg.msg_iter, WRITE, &iov, 1, sizeof(req));
-		msg.msg_control = NULL;
-		msg.msg_controllen = 0;
-		msg.msg_flags = MSG_DONTWAIT;
+               msg.msg_control = NULL;
+               msg.msg_controllen = 0;
+               msg.msg_flags = MSG_DONTWAIT;
 
-		oldfs = get_fs();
-		set_fs(KERNEL_DS);
-               err = sock_sendmsg(sock, &msg);
-		set_fs(oldfs);
+               err = kernel_sendmsg(sock, &msg, &iov, 1, sizeof(req));
 
 		if (err > 0)
 			goto restart;

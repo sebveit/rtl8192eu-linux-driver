@@ -16,6 +16,7 @@
 
 #include <drv_types.h>
 #include <hal_data.h>
+#include <linux/fs.h>
 
 #if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
 	#include <linux/inetdevice.h>
@@ -4744,9 +4745,8 @@ int rtw_dev_nlo_info_set(struct pno_nlo_info *nlo_info, pno_ssid_t *ssid,
 {
 
 	int i = 0;
-	struct file *fp;
-	mm_segment_t fs;
-	loff_t pos = 0;
+       struct file *fp;
+       loff_t pos = 0;
 	u8 *source = NULL;
 	long len = 0;
 
@@ -4782,18 +4782,13 @@ int rtw_dev_nlo_info_set(struct pno_nlo_info *nlo_info, pno_ssid_t *ssid,
 		return 0;
 	}
 
-	fs = get_fs();
-	set_fs(KERNEL_DS);
+       source = rtw_zmalloc(2048);
 
-	source = rtw_zmalloc(2048);
-
-	if (source != NULL) {
-		len = vfs_read(fp, source, len, &pos);
-		rtw_parse_cipher_list(nlo_info, source);
-		rtw_mfree(source, 2048);
-	}
-
-	set_fs(fs);
+       if (source != NULL) {
+               len = kernel_read(fp, source, len, &pos);
+               rtw_parse_cipher_list(nlo_info, source);
+               rtw_mfree(source, 2048);
+       }
 	filp_close(fp, NULL);
 
 	RTW_INFO("-%s-\n", __func__);
