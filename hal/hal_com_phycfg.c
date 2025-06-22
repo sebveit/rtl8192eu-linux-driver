@@ -4858,9 +4858,9 @@ PHY_ConfigRFWithTxPwrTrackParaFile(
 				if (strlen(szLine) < 10 || szLine[0] != '[')
 					continue;
 
-				strncpy(band, szLine + 1, 2);
-				strncpy(path, szLine + 5, 1);
-				strncpy(sign, szLine + 8, 1);
+                               strscpy(band, szLine + 1, sizeof(band));
+                               strscpy(path, szLine + 5, sizeof(path));
+                               strscpy(sign, szLine + 8, sizeof(sign));
 
 				i = 10; /* szLine+10 */
 				if (!ParseQualifiedString(szLine, &i, rate, '[', ']')) {
