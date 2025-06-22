@@ -226,9 +226,19 @@ static int rtw_android_pno_setup(struct net_device *net, char *command, int tota
 					 __func__, tlv_size_left);
 				goto exit_proc;
 			}
-			str_ptr++;
-			pno_time = simple_strtoul(str_ptr, &str_ptr, 16);
-			RTW_INFO("%s: pno_time=%d\n", __func__, pno_time);
+                       {
+                               unsigned long val;
+                               int ret;
+
+                               str_ptr++;
+                               ret = kstrtoul(str_ptr, 16, &val);
+                               if (ret)
+                                       goto exit_proc;
+                               pno_time = (int)val;
+                               str_ptr += strspn(str_ptr,
+                                                "0123456789abcdefABCDEF");
+                       }
+                       RTW_INFO("%s: pno_time=%d\n", __func__, pno_time);
 
 			if (str_ptr[0] != 0) {
 				if ((str_ptr[0] != PNO_TLV_FREQ_REPEAT)) {
@@ -236,18 +246,38 @@ static int rtw_android_pno_setup(struct net_device *net, char *command, int tota
 						 __func__);
 					goto exit_proc;
 				}
-				str_ptr++;
-				pno_repeat = simple_strtoul(str_ptr, &str_ptr, 16);
-				RTW_INFO("%s :got pno_repeat=%d\n", __FUNCTION__, pno_repeat);
+                               {
+                                       unsigned long val;
+                                       int ret;
+
+                                       str_ptr++;
+                                       ret = kstrtoul(str_ptr, 16, &val);
+                                       if (ret)
+                                               goto exit_proc;
+                                       pno_repeat = (int)val;
+                                       str_ptr += strspn(str_ptr,
+                                                        "0123456789abcdefABCDEF");
+                               }
+                               RTW_INFO("%s :got pno_repeat=%d\n", __FUNCTION__, pno_repeat);
 				if (str_ptr[0] != PNO_TLV_FREQ_EXPO_MAX) {
 					RTW_INFO("%s FREQ_EXPO_MAX corrupted field size\n",
 						 __func__);
 					goto exit_proc;
 				}
-				str_ptr++;
-				pno_freq_expo_max = simple_strtoul(str_ptr, &str_ptr, 16);
-				RTW_INFO("%s: pno_freq_expo_max=%d\n",
-					 __func__, pno_freq_expo_max);
+                               {
+                                       unsigned long val;
+                                       int ret;
+
+                                       str_ptr++;
+                                       ret = kstrtoul(str_ptr, 16, &val);
+                                       if (ret)
+                                               goto exit_proc;
+                                       pno_freq_expo_max = (int)val;
+                                       str_ptr += strspn(str_ptr,
+                                                        "0123456789abcdefABCDEF");
+                               }
+                               RTW_INFO("%s: pno_freq_expo_max=%d\n",
+                                        __func__, pno_freq_expo_max);
 			}
 		}
 	} else {
