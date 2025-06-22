@@ -5738,18 +5738,11 @@ static int rtw_p2p_get2(struct net_device *dev,
 
 #ifdef CONFIG_P2P
 
-	int length = wrqu->data.length;
-	char *buffer = (u8 *)rtw_malloc(length);
+       u8 *buffer;
 
-	if (buffer == NULL) {
-		ret = -ENOMEM;
-		goto bad;
-	}
-
-	if (copy_from_user(buffer, wrqu->data.pointer, wrqu->data.length)) {
-		ret = -EFAULT;
-		goto bad;
-	}
+       buffer = memdup_user(wrqu->data.pointer, wrqu->data.length);
+       if (IS_ERR(buffer))
+               return PTR_ERR(buffer);
 
 	RTW_INFO("[%s] buffer = %s\n", __FUNCTION__, buffer);
 
@@ -5763,14 +5756,12 @@ static int rtw_p2p_get2(struct net_device *dev,
 		ret = rtw_p2p_get_go_device_address(dev, info, wrqu, extra, &buffer[10]);
 	else if (_rtw_memcmp(buffer, "InvProc=", 8))
 		ret = rtw_p2p_get_invitation_procedure(dev, info, wrqu, extra, &buffer[8]);
-	else {
-		snprintf(extra, sizeof("Command not found."), "Command not found.");
-		wrqu->data.length = strlen(extra);
-	}
+       else {
+               snprintf(extra, sizeof("Command not found."), "Command not found.");
+               wrqu->data.length = strlen(extra);
+       }
 
-bad:
-	if (buffer)
-		rtw_mfree(buffer, length);
+       kfree(buffer);
 
 #endif /* CONFIG_P2P */
 
