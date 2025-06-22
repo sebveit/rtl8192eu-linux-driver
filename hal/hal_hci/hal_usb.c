@@ -17,6 +17,13 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,9,0)
+static void usb_recv_tasklet_compat(unsigned long data)
+{
+       usb_recv_tasklet((struct tasklet_struct *)data);
+}
+#endif
+
 int	usb_init_recv_priv(_adapter *padapter, u16 ini_in_buf_sz)
 {
 	struct recv_priv	*precvpriv = &padapter->recvpriv;
@@ -24,9 +31,12 @@ int	usb_init_recv_priv(_adapter *padapter, u16 ini_in_buf_sz)
 	struct recv_buf *precvbuf;
 
 #ifdef PLATFORM_LINUX
-	tasklet_init(&precvpriv->recv_tasklet,
-		     (void(*)(unsigned long))usb_recv_tasklet,
-		     (unsigned long)padapter);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,9,0)
+       tasklet_init(&precvpriv->recv_tasklet, usb_recv_tasklet_compat,
+                    (unsigned long)&precvpriv->recv_tasklet);
+#else
+       tasklet_setup(&precvpriv->recv_tasklet, usb_recv_tasklet);
+#endif
 #endif /* PLATFORM_LINUX */
 
 
