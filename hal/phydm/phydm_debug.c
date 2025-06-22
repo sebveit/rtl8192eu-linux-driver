@@ -29,6 +29,7 @@
 
 #include "mp_precomp.h"
 #include "phydm_precomp.h"
+#include <linux/string.h>
 
 void phydm_init_debug_setting(struct dm_struct *dm)
 {
@@ -4328,7 +4329,7 @@ s32 phydm_cmd(struct dm_struct *dm, char *input, u32 in_len, u8 flag,
 		token = strsep(&input, ", ");
 		if (token) {
 			if (strlen(token) <= MAX_ARGV)
-				strcpy(argv[argc], token);
+				strscpy(argv[argc], token, MAX_ARGV);
 
 			argc++;
 		} else {
