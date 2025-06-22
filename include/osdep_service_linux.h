@@ -48,7 +48,7 @@
 #include <linux/kthread.h>
 #include <linux/list.h>
 #include <linux/vmalloc.h>
-
+#include <linux/mm.h>
 
 #include <uapi/linux/limits.h>
 
