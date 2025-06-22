@@ -910,7 +910,7 @@ void wapi_test_set_key(struct _adapter *padapter, u8 *buf)
 	PRT_WAPI_T			pWapiInfo = &padapter->wapiInfo;
 	PRT_WAPI_BKID		pWapiBkid;
 	PRT_WAPI_STA_INFO	pWapiSta;
-	u8					data[43];
+	u8	*data;
 	bool					bTxEnable;
 	bool					bUpdate;
 	bool					bAuthenticator;
@@ -924,7 +924,9 @@ void wapi_test_set_key(struct _adapter *padapter, u8 *buf)
 	if (!padapter->WapiSupport)
 		return;
 
-	copy_from_user(data, buf, 43);
+	data = memdup_user(buf, 43);
+	if (IS_ERR(data))
+		return;
 	bTxEnable = data[1];
 	bAuthenticator = data[2];
 	bUpdate = data[3];
@@ -1058,6 +1060,7 @@ void wapi_test_set_key(struct _adapter *padapter, u8 *buf)
 			}
 		}
 	}
+	kfree(data);
 	WAPI_TRACE(WAPI_INIT, "<===========%s\n", __FUNCTION__);
 }
 
