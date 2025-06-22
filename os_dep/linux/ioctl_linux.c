@@ -11864,8 +11864,7 @@ thread_return lbk_thread(thread_context context)
 	ok = 0;
 	fail = 0;
 
-	daemonize("%s", "RTW_LBK_THREAD");
-	allow_signal(SIGTERM);
+       allow_signal(SIGTERM);
 
 	do {
 		if (ploopback->size == 0) {
