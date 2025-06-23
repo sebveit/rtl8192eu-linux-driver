@@ -249,11 +249,20 @@ struct security_priv {
 #define SEC_IS_BIP_KEY_INSTALLED(sec) _FALSE
 #endif
 
+/*
+ * Kernel versions from 5.10 provide struct sha256_state in <crypto/sha.h>.
+ * Older kernels lack this header, so define the structure locally.
+ */
+#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+#include <crypto/sha.h>
+#else
 struct sha256_state {
-	u64 length;
-	u32 state[8], curlen;
-	u8 buf[64];
+       u64 length;
+       u32 state[8], curlen;
+       u8 buf[64];
 };
+#endif
 
 #define GET_ENCRY_ALGO(psecuritypriv, psta, encry_algo, bmcst)\
 	do {\
