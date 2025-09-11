@@ -6827,6 +6827,47 @@ exit:
 	return ret;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+static void cfg80211_rtw_update_mgmt_frame_registrations(struct wiphy *wiphy,
+	struct wireless_dev *wdev,
+	struct mgmt_frame_regs *upd)
+{
+	struct net_device *ndev = wdev_to_ndev(wdev);
+	_adapter *adapter;
+	struct rtw_wdev_priv *pwdev_priv;
+
+	if (ndev == NULL)
+		return;
+
+	adapter = (_adapter *)rtw_netdev_priv(ndev);
+	pwdev_priv = adapter_wdev_data(adapter);
+
+#ifdef CONFIG_DEBUG_CFG80211
+	RTW_INFO(FUNC_ADPT_FMT" interface_stypes:%x\n", FUNC_ADPT_ARG(adapter),
+		upd->interface_stypes);
+#endif
+
+	/* Check for AUTH frame */
+	if (upd->interface_stypes & BIT(IEEE80211_STYPE_AUTH >> 4))
+		SET_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_AUTH, 1);
+	else
+		CLR_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_AUTH, 0);
+
+#ifdef not_yet
+	/* Check for PROBE_REQ frame */
+	if (upd->interface_stypes & BIT(IEEE80211_STYPE_PROBE_REQ >> 4))
+		SET_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_PROBE_REQ, 1);
+	else
+		CLR_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_PROBE_REQ, 0);
+
+	/* Check for ACTION frame */
+	if (upd->interface_stypes & BIT(IEEE80211_STYPE_ACTION >> 4))
+		SET_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_ACTION, 1);
+	else
+		CLR_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_ACTION, 0);
+#endif
+}
+#else /* kernel < 5.10 */
 static void cfg80211_rtw_mgmt_frame_register(struct wiphy *wiphy,
 	struct wireless_dev *wdev,
 	u16 frame_type, bool reg)
@@ -6875,6 +6916,7 @@ static void cfg80211_rtw_mgmt_frame_register(struct wiphy *wiphy,
 exit:
 	return;
 }
+#endif /* kernel version check */
 
 #if defined(CONFIG_TDLS) 
 static int cfg80211_rtw_tdls_mgmt(struct wiphy *wiphy,
@@ -8989,7 +9031,11 @@ static struct cfg80211_ops rtw_cfg80211_ops = {
 #endif
 
 	.mgmt_tx = cfg80211_rtw_mgmt_tx,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+	.update_mgmt_frame_registrations = cfg80211_rtw_update_mgmt_frame_registrations,
+#else
 	.mgmt_frame_register = cfg80211_rtw_mgmt_frame_register,
+#endif
 
 #if defined(CONFIG_TDLS) 
 	.tdls_mgmt = cfg80211_rtw_tdls_mgmt,
