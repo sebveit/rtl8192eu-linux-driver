@@ -84,14 +84,23 @@ This document outlines the comprehensive plan to modernize the RTL8192EU driver 
   - Modern kernels (5.4+): Use memdup_user() + PTR_ERR()
   - Legacy kernels: Fallback to rtw_malloc() + copy_from_user()
 
-### Phase 6: Network API Updates (Priority: LOW)
+### Phase 6: Network API Updates ✅ COMPLETED
 **Scope**: Update network stack integration
-- **netif_napi_add()**: Already has kernel 6.1+ support
-- **Workqueue APIs**: 
-  - Replace deprecated `create_workqueue()`
-  - Use `alloc_ordered_workqueue()` or `alloc_workqueue()`
-- **RCU updates**: Use newer RCU primitives where applicable
-- **Testing**: Network performance, packet processing
+- **Status**: Completed
+- **Updates applied**:
+  - `ndo_do_ioctl` → `ndo_siocdevprivate` (kernel 5.15+)
+  - Updated 2 netdev_ops structures with version checks
+  - Updated device detection logic for new ioctl handler
+- **Files updated**:
+  - os_dep/linux/os_intfs.c: netdev_ops modernization
+- **Already modern**:
+  - `netif_napi_add()`: Has kernel 6.1+ support
+  - `alloc_workqueue()`: Already using modern API
+  - RCU: Already using proper rtw_rcu_* wrappers
+- **Benefits**: 
+  - Uses modern network device ioctl interface
+  - Better integration with kernel networking stack
+  - Maintains backward compatibility with version checks
 
 ### Phase 7: Power Management Modernization (Priority: LOW)
 **Scope**: Implement modern PM operations

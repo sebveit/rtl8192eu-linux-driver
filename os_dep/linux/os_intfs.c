@@ -1383,9 +1383,15 @@ u16 rtw_recv_select_queue(struct sk_buff *skb)
 
 static u8 is_rtw_ndev(struct net_device *ndev)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+        return ndev->netdev_ops
+                && ndev->netdev_ops->ndo_siocdevprivate
+                && ndev->netdev_ops->ndo_siocdevprivate == rtw_ioctl;
+#else
         return ndev->netdev_ops
                 && ndev->netdev_ops->ndo_do_ioctl
                 && ndev->netdev_ops->ndo_do_ioctl == rtw_ioctl;
+#endif
 }
 
 static int rtw_ndev_notifier_call(struct notifier_block *nb, unsigned long state, void *ptr)
@@ -1467,7 +1473,11 @@ static const struct net_device_ops rtw_netdev_ops = {
         .ndo_select_queue       = rtw_select_queue,
 	.ndo_set_mac_address = rtw_net_set_mac_address,
 	.ndo_get_stats = rtw_net_get_stats,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+	.ndo_siocdevprivate = rtw_ioctl,
+#else
 	.ndo_do_ioctl = rtw_ioctl,
+#endif
 };
 
 
@@ -2732,7 +2742,11 @@ static int netdev_vir_if_close(struct net_device *pnetdev)
 	.ndo_start_xmit = rtw_xmit_entry,
 	.ndo_set_mac_address = rtw_net_set_mac_address,
 	.ndo_get_stats = rtw_net_get_stats,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+	.ndo_siocdevprivate = rtw_ioctl,
+#else
 	.ndo_do_ioctl = rtw_ioctl,
+#endif
         .ndo_select_queue       = rtw_select_queue,
 };
  static void rtw_hook_vir_if_ops(struct net_device *ndev)
