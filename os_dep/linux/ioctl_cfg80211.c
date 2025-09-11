@@ -6852,20 +6852,6 @@ static void cfg80211_rtw_update_mgmt_frame_registrations(struct wiphy *wiphy,
 		SET_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_AUTH, 1);
 	else
 		CLR_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_AUTH, 0);
-
-#ifdef not_yet
-	/* Check for PROBE_REQ frame */
-	if (upd->interface_stypes & BIT(IEEE80211_STYPE_PROBE_REQ >> 4))
-		SET_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_PROBE_REQ, 1);
-	else
-		CLR_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_PROBE_REQ, 0);
-
-	/* Check for ACTION frame */
-	if (upd->interface_stypes & BIT(IEEE80211_STYPE_ACTION >> 4))
-		SET_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_ACTION, 1);
-	else
-		CLR_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_ACTION, 0);
-#endif
 }
 #else /* kernel < 5.10 */
 static void cfg80211_rtw_mgmt_frame_register(struct wiphy *wiphy,
@@ -6895,20 +6881,6 @@ static void cfg80211_rtw_mgmt_frame_register(struct wiphy *wiphy,
 		else
 			CLR_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_AUTH, reg);
 		break;
-#ifdef not_yet
-	case IEEE80211_STYPE_PROBE_REQ: /* 0x0040 */
-		if (reg > 0)
-			SET_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_PROBE_REQ, reg);
-		else
-			CLR_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_PROBE_REQ, reg);
-		break;
-	case IEEE80211_STYPE_ACTION: /* 0x00D0 */
-		if (reg > 0)
-			SET_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_ACTION, reg);
-		else
-			CLR_CFG80211_REPORT_MGMT(pwdev_priv, IEEE80211_STYPE_ACTION, reg);
-		break;
-#endif
 	default:
 		break;
 	}
@@ -8912,10 +8884,8 @@ void rtw_cfg80211_external_auth_status(struct wiphy *wiphy, struct net_device *d
 		psta->state |= WIFI_FW_AUTH_SUCCESS;
 		psta->expire_to = padapter->stapriv.assoc_to;
 
-		if (params->pmkid != NULL) {
-			/* RTW_INFO_DUMP("PMKID:", params->pmkid, PMKID_LEN); */
-			_rtw_set_pmksa(dev, params->bssid, params->pmkid);
-		}
+		/* RTW_INFO_DUMP("PMKID:", params->pmkid, PMKID_LEN); */
+		_rtw_set_pmksa(dev, params->bssid, params->pmkid);
 
 		_enter_critical_bh(&psta->lock, &irqL);
 		if ((psta->auth_len != 0) && (psta->pauth_frame != NULL)) {

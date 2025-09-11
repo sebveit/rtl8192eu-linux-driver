@@ -4,3 +4,23 @@
 # C
 *.o
 *.o.cmd
+
+# Build artifacts
+*.ko
+*.mod
+*.mod.c
+*.mod.o
+*.symvers
+modules.order
+Module.symvers
+.tmp_versions/
+build-*/
+
+# Test infrastructure
+downloads/
+states/
+build_dependencies/
+linux-*/
+
+# Documentation (local only)
+CLAUDE.md
