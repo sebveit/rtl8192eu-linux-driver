@@ -9,18 +9,25 @@
 *.ko
 *.mod
 *.mod.c
+*.mod.cmd
 *.mod.o
 *.symvers
 modules.order
 Module.symvers
 .tmp_versions/
 build-*/
+.*.cmd
+*.cmd
 
 # Test infrastructure
 downloads/
 states/
 build_dependencies/
 linux-*/
+kernel-downloads/
+*.tar.gz
+*.tar.xz
+*.tar.bz2
 
 # Documentation (local only)
 CLAUDE.md
