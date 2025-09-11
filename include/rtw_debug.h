@@ -15,6 +15,8 @@
 #ifndef __RTW_DEBUG_H__
 #define __RTW_DEBUG_H__
 
+#include <linux/version.h>
+
 /* driver log level*/
 enum {
 	_DRV_NONE_ = 0,
@@ -27,6 +29,12 @@ enum {
 };
 
 #define DRIVER_PREFIX "RTW: "
+
+/* Modern kernel logging transition helpers */
+#ifdef pr_fmt
+#undef pr_fmt
+#endif
+#define pr_fmt(fmt) DRIVER_PREFIX fmt
 
 #define RTW_PRINT(x, ...) do {} while (0)
 #define RTW_ERR(x, ...) do {} while (0)
@@ -54,7 +62,12 @@ enum {
 #undef _dbgdump
 #undef _seqdump
 
+/* Use modern kernel logging APIs */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#define _dbgdump(fmt, ...) pr_info(fmt, ##__VA_ARGS__)
+#else
 #define _dbgdump printk
+#endif
 /* KERN_CONT is available in kernels >= 2.6.24 */
 #define _seqdump seq_printf
 
@@ -71,46 +84,91 @@ extern uint rtw_drv_log_level;
 
 /* with driver-defined prefix */
 #undef RTW_PRINT
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define RTW_PRINT(fmt, arg...)     \
 	do {\
 		if (_DRV_ALWAYS_ <= rtw_drv_log_level) {\
-			_dbgdump(DRIVER_PREFIX fmt, ##arg);\
+			pr_info(fmt, ##arg);\
 		} \
 	} while (0)
+#else
+#define RTW_PRINT(fmt, arg...)     \
+	do {\
+		if (_DRV_ALWAYS_ <= rtw_drv_log_level) {\
+			_dbgdump(KERN_INFO DRIVER_PREFIX fmt, ##arg);\
+		} \
+	} while (0)
+#endif
 
 #undef RTW_ERR
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define RTW_ERR(fmt, arg...)     \
 	do {\
 		if (_DRV_ERR_ <= rtw_drv_log_level) {\
-			_dbgdump(DRIVER_PREFIX"ERROR " fmt, ##arg);\
+			pr_err(fmt, ##arg);\
 		} \
 	} while (0)
+#else
+#define RTW_ERR(fmt, arg...)     \
+	do {\
+		if (_DRV_ERR_ <= rtw_drv_log_level) {\
+			_dbgdump(KERN_ERR DRIVER_PREFIX"ERROR " fmt, ##arg);\
+		} \
+	} while (0)
+#endif
 
 
 #undef RTW_WARN
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define RTW_WARN(fmt, arg...)     \
 	do {\
 		if (_DRV_WARNING_ <= rtw_drv_log_level) {\
-			_dbgdump(DRIVER_PREFIX"WARN " fmt, ##arg);\
+			pr_warn(fmt, ##arg);\
 		} \
 	} while (0)
+#else
+#define RTW_WARN(fmt, arg...)     \
+	do {\
+		if (_DRV_WARNING_ <= rtw_drv_log_level) {\
+			_dbgdump(KERN_WARNING DRIVER_PREFIX"WARN " fmt, ##arg);\
+		} \
+	} while (0)
+#endif
 
 #undef RTW_INFO
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define RTW_INFO(fmt, arg...)     \
 	do {\
 		if (_DRV_INFO_ <= rtw_drv_log_level) {\
-			_dbgdump(DRIVER_PREFIX fmt, ##arg);\
+			pr_info(fmt, ##arg);\
 		} \
 	} while (0)
+#else
+#define RTW_INFO(fmt, arg...)     \
+	do {\
+		if (_DRV_INFO_ <= rtw_drv_log_level) {\
+			_dbgdump(KERN_INFO DRIVER_PREFIX fmt, ##arg);\
+		} \
+	} while (0)
+#endif
 
 
 #undef RTW_DBG
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define RTW_DBG(fmt, arg...)     \
 	do {\
 		if (_DRV_DEBUG_ <= rtw_drv_log_level) {\
-			_dbgdump(DRIVER_PREFIX fmt, ##arg);\
+			pr_debug(fmt, ##arg);\
 		} \
 	} while (0)
+#else
+#define RTW_DBG(fmt, arg...)     \
+	do {\
+		if (_DRV_DEBUG_ <= rtw_drv_log_level) {\
+			_dbgdump(KERN_DEBUG DRIVER_PREFIX fmt, ##arg);\
+		} \
+	} while (0)
+#endif
 
 #undef RTW_INFO_DUMP
 #define RTW_INFO_DUMP(_TitleString, _HexData, _HexDataLen)	\
