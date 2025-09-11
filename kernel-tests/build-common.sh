@@ -45,9 +45,9 @@ setup_openssl() {
     tar -xzf "$tarball" -C "$build_dir"
     
     cd "$build_dir/openssl-${openssl_version}"
-    ./config --prefix="$OPENSSL_DIR" --openssldir="$OPENSSL_DIR" no-shared
-    make -j$(nproc)
-    make install_sw
+    ./config --prefix="$OPENSSL_DIR" --openssldir="$OPENSSL_DIR" no-shared > /dev/null 2>&1
+    make -j$(nproc) > /dev/null 2>&1
+    make install_sw > /dev/null 2>&1
     
     cd "$ROOT_DIR"
     rm -rf "$build_dir"
@@ -145,9 +145,19 @@ prepare_kernel() {
     # Prepare with workaround for missing headers
     make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE prepare || true
     
-    # Build modpost tool if not built
+    # Build modpost tool
+    echo "Building modpost..."
+    make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE scripts/mod/ || true
+    
+    # Fallback: compile modpost directly if not built
     if [ ! -f "scripts/mod/modpost" ]; then
-        (cd scripts/mod && make modpost) || true
+        echo "Building modpost directly..."
+        (cd scripts/mod && \
+         ${CROSS_COMPILE}gcc -o modpost modpost.c file2alias.c sumversion.c \
+         -I../../include -I../../arch/$ARCH/include) || \
+        (cd scripts/mod && \
+         gcc -o modpost modpost.c file2alias.c sumversion.c \
+         -I../../include -I../../arch/$ARCH/include) || true
     fi
     
     # Create minimal asm-offsets.h if missing

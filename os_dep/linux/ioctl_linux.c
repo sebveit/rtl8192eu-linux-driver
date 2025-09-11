@@ -573,9 +573,9 @@ static inline char *iwe_stream_wpa_wpa2_process(_adapter *padapter,
 			if (wpa_len > 0) {
 
 				_rtw_memset(pbuf, 0, buf_size);
-				p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "wpa_ie=");
+				p += snprintf(p, IW_CUSTOM_MAX - (p - pbuf), "wpa_ie=");
 				for (i = 0; i < wpa_len; i++)
-					p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "%02x", wpa_ie[i]);
+					p += snprintf(p, IW_CUSTOM_MAX - (p - pbuf), "%02x", wpa_ie[i]);
 
 				if (wpa_len > 100) {
 					printk("-----------------Len %d----------------\n", wpa_len);
@@ -598,9 +598,9 @@ static inline char *iwe_stream_wpa_wpa2_process(_adapter *padapter,
 			if (rsn_len > 0) {
 
 				_rtw_memset(pbuf, 0, buf_size);
-				p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "rsn_ie=");
+				p += snprintf(p, IW_CUSTOM_MAX - (p - pbuf), "rsn_ie=");
 				for (i = 0; i < rsn_len; i++)
-					p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "%02x", rsn_ie[i]);
+					p += snprintf(p, IW_CUSTOM_MAX - (p - pbuf), "%02x", rsn_ie[i]);
 				_rtw_memset(iwe, 0, sizeof(*iwe));
 				iwe->cmd = IWEVCUSTOM;
 				iwe->u.data.length = strlen(pbuf);
@@ -765,7 +765,7 @@ static inline char   *iwe_stream_net_rsv_process(_adapter *padapter,
 	p = buf;
 	pos = pnetwork->network.Reserved;
 
-	p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "fm=%02X%02X", pos[1], pos[0]);
+	p += snprintf(p, IW_CUSTOM_MAX - (p - buf), "fm=%02X%02X", pos[1], pos[0]);
 	_rtw_memset(iwe, 0, sizeof(*iwe));
 	iwe->cmd = IWEVCUSTOM;
 	iwe->u.data.length = strlen(buf);
@@ -9900,7 +9900,11 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		rtw_hal_read_chip_info(padapter);
 		/* set mac addr*/
 		rtw_macaddr_cfg(adapter_mac_addr(padapter), get_hal_mac_addr(padapter));
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0)
+		dev_addr_set(padapter->pnetdev, get_hal_mac_addr(padapter)); /* set mac addr to net_device */
+#else
 		_rtw_memcpy(padapter->pnetdev->dev_addr, get_hal_mac_addr(padapter), ETH_ALEN); /* set mac addr to net_device */
+#endif
 
 #ifdef CONFIG_P2P
 		rtw_init_wifidirect_addrs(padapter, adapter_mac_addr(padapter), adapter_mac_addr(padapter));
