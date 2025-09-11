@@ -3266,6 +3266,11 @@ static int rtw_wx_read32(struct net_device *dev,
 	if (0 == len)
 		return -EINVAL;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+	ptmp = memdup_user(p->pointer, len);
+	if (IS_ERR(ptmp))
+		return PTR_ERR(ptmp);
+#else
 	ptmp = (u8 *)rtw_malloc(len);
 	if (NULL == ptmp)
 		return -ENOMEM;
@@ -3274,6 +3279,7 @@ static int rtw_wx_read32(struct net_device *dev,
 		ret = -EFAULT;
 		goto exit;
 	}
+#endif
 
 	bytes = 0;
 	addr = 0;
@@ -3606,6 +3612,14 @@ static int rtw_mp_ioctl_hdl(struct net_device *dev, struct iw_request_info *info
 	pparmbuf = NULL;
 	bset = (u8)(p->flags & 0xFFFF);
 	len = p->length;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+	pparmbuf = memdup_user(p->pointer, len);
+	if (IS_ERR(pparmbuf)) {
+		ret = PTR_ERR(pparmbuf);
+		pparmbuf = NULL;
+		goto _rtw_mp_ioctl_hdl_exit;
+	}
+#else
 	pparmbuf = (u8 *)rtw_malloc(len);
 	if (pparmbuf == NULL) {
 		ret = -ENOMEM;
@@ -3616,6 +3630,7 @@ static int rtw_mp_ioctl_hdl(struct net_device *dev, struct iw_request_info *info
 		ret = -EFAULT;
 		goto _rtw_mp_ioctl_hdl_exit;
 	}
+#endif
 
 	poidparam = (struct mp_ioctl_param *)pparmbuf;
 
@@ -6843,6 +6858,13 @@ static int wpa_supplicant_ioctl(struct net_device *dev, struct iw_point *p)
 		goto out;
 	}
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+	param = memdup_user(p->pointer, p->length);
+	if (IS_ERR(param)) {
+		ret = PTR_ERR(param);
+		goto out;
+	}
+#else
 	param = (struct ieee_param *)rtw_malloc(p->length);
 	if (param == NULL) {
 		ret = -ENOMEM;
@@ -6854,6 +6876,7 @@ static int wpa_supplicant_ioctl(struct net_device *dev, struct iw_point *p)
 		ret = -EFAULT;
 		goto out;
 	}
+#endif
 
 	switch (param->cmd) {
 
@@ -7710,6 +7733,13 @@ static int rtw_hostapd_ioctl(struct net_device *dev, struct iw_point *p)
 		goto out;
 	}
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+	param = memdup_user(p->pointer, p->length);
+	if (IS_ERR(param)) {
+		ret = PTR_ERR(param);
+		goto out;
+	}
+#else
 	param = (struct ieee_param *)rtw_malloc(p->length);
 	if (param == NULL) {
 		ret = -ENOMEM;
@@ -7721,6 +7751,7 @@ static int rtw_hostapd_ioctl(struct net_device *dev, struct iw_point *p)
 		ret = -EFAULT;
 		goto out;
 	}
+#endif
 
 	/* RTW_INFO("%s, cmd=%d\n", __FUNCTION__, param->cmd); */
 
@@ -8296,6 +8327,11 @@ int rtw_vendor_ie_get(struct net_device *dev, struct iw_request_info *info, unio
 	if (0 == cmdlen)
 		return -EINVAL;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+	ptmp = memdup_user(p->pointer, cmdlen);
+	if (IS_ERR(ptmp))
+		return PTR_ERR(ptmp);
+#else
 	ptmp = (u8 *)rtw_malloc(cmdlen);
 	if (NULL == ptmp)
 		return -ENOMEM;
@@ -8304,6 +8340,7 @@ int rtw_vendor_ie_get(struct net_device *dev, struct iw_request_info *info, unio
 		ret = -EFAULT;
 		goto exit;
 	}
+#endif
 	ret = sscanf(ptmp , "%d", &vendor_ie_num);
 	if (vendor_ie_num > WLAN_MAX_VENDOR_IE_NUM - 1) {
 		ret = -EFAULT;
