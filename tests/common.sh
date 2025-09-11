@@ -167,28 +167,45 @@ prepare_kernel() {
     echo "Preparing kernel ${version} headers..."
     cd "$kernel_dir"
     
-    # Configure for ARM64
-    make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
+    # Configure for x86_64 with more complete config for testing
+    make defconfig
+    # Enable additional needed configs
+    scripts/config --enable CONFIG_USB_SUPPORT
+    scripts/config --enable CONFIG_USB
+    scripts/config --enable CONFIG_USB_COMMON  
+    scripts/config --enable CONFIG_USB_ARCH_HAS_HCD
+    scripts/config --enable CONFIG_CFG80211
+    scripts/config --enable CONFIG_WIRELESS
+    scripts/config --enable CONFIG_WLAN
+    scripts/config --enable CONFIG_NET
+    scripts/config --enable CONFIG_NETDEVICES
+    scripts/config --enable CONFIG_ETHERNET
+    scripts/config --enable CONFIG_PROC_FS
+    scripts/config --enable CONFIG_SYSFS
+    scripts/config --enable CONFIG_CRYPTO
+    scripts/config --enable CONFIG_CRYPTO_AES
+    scripts/config --enable CONFIG_CRYPTO_CCM
+    scripts/config --enable CONFIG_CRYPTO_GCM
+    scripts/config --enable CONFIG_CRYPTO_CMAC
+    scripts/config --enable CONFIG_CRC32
+    # Update config after changes
+    make olddefconfig
     
     # Set up environment to use our local OpenSSL 1.1.x
     export HOSTCFLAGS="-fcommon -I${OPENSSL_DIR}/include"
     export HOSTLDFLAGS="-L${OPENSSL_DIR}/lib"
     
     # Build scripts
-    make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-        HOSTCFLAGS="$HOSTCFLAGS" HOSTLDFLAGS="$HOSTLDFLAGS" scripts || true
+    make HOSTCFLAGS="$HOSTCFLAGS" HOSTLDFLAGS="$HOSTLDFLAGS" scripts || true
     
     # Build modpost tool
-    make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-        HOSTCFLAGS="$HOSTCFLAGS" HOSTLDFLAGS="$HOSTLDFLAGS" scripts/mod/ || true
+    make HOSTCFLAGS="$HOSTCFLAGS" HOSTLDFLAGS="$HOSTLDFLAGS" scripts/mod/ || true
     
     # Prepare kernel - this generates asm-offsets.h
-    make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-        HOSTCFLAGS="$HOSTCFLAGS" HOSTLDFLAGS="$HOSTLDFLAGS" prepare || true
+    make HOSTCFLAGS="$HOSTCFLAGS" HOSTLDFLAGS="$HOSTLDFLAGS" prepare || true
     
     # Additional preparation for modules
-    make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-        HOSTCFLAGS="$HOSTCFLAGS" HOSTLDFLAGS="$HOSTLDFLAGS" modules_prepare || true
+    make HOSTCFLAGS="$HOSTCFLAGS" HOSTLDFLAGS="$HOSTLDFLAGS" modules_prepare || true
     
     # Generate Module.symvers if missing
     if [ ! -f "Module.symvers" ]; then
@@ -231,9 +248,7 @@ build_driver() {
     # Build the module
     cd "$build_dir"
     
-    if make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-           KSRC="$kernel_dir" \
-           -j$(nproc) modules; then
+    if make KSRC="$kernel_dir" -j$(nproc) modules; then
         
         # Copy module to root with version suffix
         if [ -f "8192eu.ko" ]; then
