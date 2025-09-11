@@ -128,7 +128,37 @@ module_param(rtw_dynamic_agg_enable, int, 0644);
 #else
 	uint rtw_drv_log_level = _DRV_INFO_;
 #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+static int rtw_drv_log_level_set(const char *val, const struct kernel_param *kp)
+{
+	unsigned int level;
+	int ret = kstrtouint(val, 0, &level);
+	
+	if (ret)
+		return ret;
+	
+	if (level > _DRV_MAX_)
+		return -EINVAL;
+		
+	*(unsigned int *)kp->arg = level;
+	rtw_drv_log_level = level;
+	return 0;
+}
+
+static int rtw_drv_log_level_get(char *buffer, const struct kernel_param *kp)
+{
+	return scnprintf(buffer, PAGE_SIZE, "%u\n", *(unsigned int *)kp->arg);
+}
+
+static const struct kernel_param_ops rtw_drv_log_level_ops = {
+	.set = rtw_drv_log_level_set,
+	.get = rtw_drv_log_level_get,
+};
+
+module_param_cb(rtw_drv_log_level, &rtw_drv_log_level_ops, &rtw_drv_log_level, 0644);
+#else
 module_param(rtw_drv_log_level, uint, 0644);
+#endif
 MODULE_PARM_DESC(rtw_drv_log_level, "set log level when insert driver module, default log level is _DRV_INFO_ = 4");
 #endif
 int rtw_radio_enable = 1;
@@ -418,7 +448,37 @@ module_param(rtw_chip_version, int, 0644);
 module_param(rtw_rfintfs, int, 0644);
 module_param(rtw_lbkmode, int, 0644);
 module_param(rtw_network_mode, int, 0644);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+static int rtw_channel_set(const char *val, const struct kernel_param *kp)
+{
+	int channel;
+	int ret = kstrtoint(val, 0, &channel);
+	
+	if (ret)
+		return ret;
+	
+	/* Validate channel range (1-14 for 2.4G, 36-165 for 5G, 0 for auto) */
+	if (channel != 0 && 
+	    !((channel >= 1 && channel <= 14) || 
+	      (channel >= 36 && channel <= 165))) {
+		pr_err("Invalid channel %d. Valid: 0(auto), 1-14(2.4G), 36-165(5G)\n", 
+		       channel);
+		return -EINVAL;
+	}
+		
+	*(int *)kp->arg = channel;
+	return 0;
+}
+
+static const struct kernel_param_ops rtw_channel_ops = {
+	.set = rtw_channel_set,
+	.get = param_get_int,
+};
+
+module_param_cb(rtw_channel, &rtw_channel_ops, &rtw_channel, 0644);
+#else
 module_param(rtw_channel, int, 0644);
+#endif
 module_param(rtw_mp_mode, int, 0644);
 module_param(rtw_wmm_enable, int, 0644);
 #ifdef CONFIG_WMMPS_STA
@@ -1480,6 +1540,69 @@ static const struct net_device_ops rtw_netdev_ops = {
 #endif
 };
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+static void rtw_ethtool_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
+{
+	_adapter *padapter = rtw_netdev_priv(dev);
+	struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
+	
+	strscpy(info->driver, DRV_NAME, sizeof(info->driver));
+	strscpy(info->version, DRIVERVERSION, sizeof(info->version));
+	
+	if (dvobj->pusbintf) {
+		snprintf(info->bus_info, sizeof(info->bus_info), "usb:%s", 
+			 dev_name(&dvobj->pusbintf->dev));
+	}
+}
+
+static u32 rtw_ethtool_get_link(struct net_device *dev)
+{
+	_adapter *padapter = rtw_netdev_priv(dev);
+	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+	
+	return check_fwstate(pmlmepriv, _FW_LINKED) ? 1 : 0;
+}
+
+static void rtw_ethtool_get_stats(struct net_device *dev, struct ethtool_stats *stats, u64 *data)
+{
+	_adapter *padapter = rtw_netdev_priv(dev);
+	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+	struct recv_priv *precvpriv = &padapter->recvpriv;
+	
+	data[0] = pxmitpriv->tx_pkts;
+	data[1] = pxmitpriv->tx_drop;
+	data[2] = precvpriv->rx_pkts;
+	data[3] = precvpriv->rx_drop;
+}
+
+static int rtw_ethtool_get_sset_count(struct net_device *dev, int sset)
+{
+	switch (sset) {
+	case ETH_SS_STATS:
+		return 4; /* tx_pkts, tx_drop, rx_pkts, rx_drop */
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+static void rtw_ethtool_get_strings(struct net_device *dev, u32 sset, u8 *data)
+{
+	switch (sset) {
+	case ETH_SS_STATS:
+		memcpy(data, "tx_packets\0tx_dropped\0rx_packets\0rx_dropped\0", 44);
+		break;
+	}
+}
+
+static const struct ethtool_ops rtw_ethtool_ops = {
+	.get_drvinfo = rtw_ethtool_get_drvinfo,
+	.get_link = rtw_ethtool_get_link,
+	.get_stats = rtw_ethtool_get_stats,
+	.get_sset_count = rtw_ethtool_get_sset_count,
+	.get_strings = rtw_ethtool_get_strings,
+};
+#endif
+
 
 int rtw_init_netdev_name(struct net_device *pnetdev, const char *ifname)
 {
@@ -1521,6 +1644,9 @@ int rtw_init_netdev_name(struct net_device *pnetdev, const char *ifname)
 void rtw_hook_if_ops(struct net_device *ndev)
 {
         ndev->netdev_ops = &rtw_netdev_ops;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+        ndev->ethtool_ops = &rtw_ethtool_ops;
+#endif
 }
 
 #ifdef CONFIG_CONCURRENT_MODE

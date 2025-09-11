@@ -21,6 +21,7 @@
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #include <linux/pm_runtime.h>
+#include <linux/dev_printk.h>
 #endif
 
 #ifndef CONFIG_USB_HCI
@@ -1360,12 +1361,21 @@ static int rtw_drv_init(struct usb_interface *pusb_intf, const struct usb_device
 	/* Initialize dvobj_priv */
 	dvobj = usb_dvobj_init(pusb_intf, pdid);
 	if (dvobj == NULL) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+		dev_err_probe(&pusb_intf->dev, -ENOMEM, 
+			      "usb_dvobj_init failed\n");
+#endif
 		goto exit;
 	}
 
 	padapter = rtw_usb_primary_adapter_init(dvobj, pusb_intf);
 	if (padapter == NULL) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+		dev_err_probe(&pusb_intf->dev, -ENOMEM, 
+			      "rtw_usb_primary_adapter_init failed\n");
+#else
 		RTW_INFO("rtw_usb_primary_adapter_init Failed!\n");
+#endif
 		goto free_dvobj;
 	}
 
@@ -1535,7 +1545,12 @@ static int __init rtw_drv_entry(void)
 
 	ret = platform_wifi_power_on();
 	if (ret != 0) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+		/* Note: no device context available here for dev_err_probe */
+		pr_err("%s: power on failed!!(%d)\n", __FUNCTION__, ret);
+#else
 		RTW_INFO("%s: power on failed!!(%d)\n", __FUNCTION__, ret);
+#endif
 		ret = -1;
 		goto exit;
 	}
