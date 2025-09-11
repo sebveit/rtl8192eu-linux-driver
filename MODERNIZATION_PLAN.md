@@ -6,12 +6,18 @@ This document outlines the comprehensive plan to modernize the RTL8192EU driver 
 ## Current State Analysis
 
 ### Completed
-- ✅ **sprintf → snprintf conversion** (Phase 1 completed)
+- ✅ **Phase 1: sprintf → snprintf conversion** 
   - 467 instances replaced for buffer overflow protection
   - All string formatting now uses bounded functions
+  - Committed: "Replace sprintf with snprintf to prevent buffer overflows"
 
-### Identified Issues (Actual Metrics)
-- **51 instances** of old timer APIs (`init_timer`/`setup_timer`) in 18 files
+- ✅ **Phase 2: Timer API Modernization**
+  - Fixed timer compatibility for kernels 4.15+ vs older versions
+  - Added proper version checks for timer_setup() vs init_timer()
+  - All 51 timer instances now work through compatibility wrapper
+  - Committed: "timers: add compatibility for both old and new timer APIs"
+
+### Remaining Issues (Actual Metrics)
 - Mixed usage of old and new network device address APIs
 - **9,945 instances** of custom debug logging (RTW_INFO, RTW_PRINT, DBG_*)
 - Legacy power management implementation
@@ -20,23 +26,14 @@ This document outlines the comprehensive plan to modernize the RTL8192EU driver 
 
 ## Modernization Phases
 
-### Phase 2: Timer API Modernization (Priority: HIGH)
+### Phase 2: Timer API Modernization ✅ COMPLETED
 **Scope**: Update all timer initialization and callbacks
-- **Old API**: `init_timer()`, `setup_timer()`, timer callbacks with `unsigned long data`
-- **New API**: `timer_setup()` with type-safe callbacks (kernel 4.15+)
-- **Files affected**: 51 instances across 18 files:
-  - Core: mesh/rtw_mesh.c, mesh/rtw_mesh_pathtbl.c, rtw_beamforming.c, rtw_mlme.c, rtw_mlme_ext.c, rtw_mp.c, rtw_p2p.c, rtw_pwrctrl.c, rtw_recv.c, rtw_rm_fsm.c, rtw_sta_mgt.c, rtw_tdls.c, rtw_xmit.c
-  - HAL: hal_btcoex.c, led/hal_usb_led.c, phydm/phydm_interface.c
-  - OS: os_intfs.c, osdep_service.c
-- **Implementation**:
-  ```c
-  #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
-      timer_setup(&timer, callback_new, 0);
-  #else
-      setup_timer(&timer, callback_old, (unsigned long)data);
-  #endif
-  ```
-- **Testing**: Verify timer functionality, check for race conditions
+- **Status**: Completed and committed
+- **Solution**: Added version checks in osdep_service_linux.h
+- **Old API**: `init_timer()` for kernels < 4.15
+- **New API**: `timer_setup()` for kernels >= 4.15
+- **Files modified**: include/osdep_service_linux.h (compatibility wrapper)
+- **Impact**: All 51 timer instances now use proper API for their kernel version
 
 ### Phase 3: Network Device Address Management (Priority: HIGH)
 **Scope**: Consistent use of new dev_addr APIs
