@@ -19,6 +19,10 @@
 
 #include <platform_ops.h>
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#include <linux/pm_runtime.h>
+#endif
+
 #ifndef CONFIG_USB_HCI
 #error "CONFIG_USB_HCI shall be on!\n"
 #endif
@@ -229,6 +233,9 @@ struct rtw_usb_drv usb_drv = {
 #endif
 
        .usbdrv.drvwrap.driver.shutdown = rtw_dev_shutdown,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+       .usbdrv.drvwrap.driver.pm = &rtw_pm_ops,
+#endif
 };
 
 static inline int RT_usb_endpoint_dir_in(const struct usb_endpoint_descriptor *epd)
@@ -1025,6 +1032,52 @@ static int rtw_resume(struct usb_interface *pusb_intf)
 	return ret;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+static int rtw_runtime_suspend(struct device *dev)
+{
+	struct usb_interface *pusb_intf = to_usb_interface(dev);
+	struct dvobj_priv *dvobj = usb_get_intfdata(pusb_intf);
+	_adapter *padapter = dvobj_get_primary_adapter(dvobj);
+	int ret = 0;
+
+	RTW_INFO("%s\n", __func__);
+
+	if (rtw_is_drv_stopped(padapter) || rtw_is_surprise_removed(padapter)) {
+		RTW_INFO("rtw_runtime_suspend: device stopped or removed\n");
+		return 0;
+	}
+
+	/* Put device into low power state */
+	ret = rtw_suspend_common(padapter, PM_MESSAGE_AUTO_SUSPEND);
+	
+	return ret;
+}
+
+static int rtw_runtime_resume(struct device *dev)
+{
+	struct usb_interface *pusb_intf = to_usb_interface(dev);
+	struct dvobj_priv *dvobj = usb_get_intfdata(pusb_intf);
+	_adapter *padapter = dvobj_get_primary_adapter(dvobj);
+	int ret = 0;
+
+	RTW_INFO("%s\n", __func__);
+
+	if (rtw_is_drv_stopped(padapter) || rtw_is_surprise_removed(padapter)) {
+		RTW_INFO("rtw_runtime_resume: device stopped or removed\n");
+		return 0;
+	}
+
+	/* Resume device from low power state */
+	ret = rtw_resume_process(padapter);
+	
+	return ret;
+}
+
+static const struct dev_pm_ops rtw_pm_ops = {
+	SET_RUNTIME_PM_OPS(rtw_runtime_suspend, rtw_runtime_resume, NULL)
+};
+#endif
+
 
 
 #ifdef CONFIG_AUTOSUSPEND
@@ -1358,6 +1411,13 @@ static int rtw_drv_init(struct usb_interface *pusb_intf, const struct usb_device
 
 	status = _SUCCESS;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+	/* Enable runtime power management for modern kernels */
+	pm_runtime_enable(&pusb_intf->dev);
+	pm_runtime_set_autosuspend_delay(&pusb_intf->dev, 2000);
+	pm_runtime_use_autosuspend(&pusb_intf->dev);
+#endif
+
 #if 0 /* not used now */
 os_ndevs_deinit:
 	if (status != _SUCCESS)
@@ -1443,6 +1503,12 @@ static void rtw_dev_remove(struct usb_interface *pusb_intf)
 #endif /* CONFIG_CONCURRENT_MODE */
 
 	usb_dvobj_deinit(pusb_intf);
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+	/* Disable runtime power management */
+	pm_runtime_dont_use_autosuspend(&pusb_intf->dev);
+	pm_runtime_disable(&pusb_intf->dev);
+#endif
 
 	RTW_INFO("-r871xu_dev_remove, done\n");
 
