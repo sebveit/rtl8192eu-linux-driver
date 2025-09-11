@@ -189,15 +189,15 @@ void rtw_report_sec_ie(_adapter *adapter, u8 authmode, u8 *sec_ie)
 		}
 		p = buff;
 
-		p += sprintf(p, "ASSOCINFO(ReqIEs=");
+		p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "ASSOCINFO(ReqIEs=");
 
 		len = sec_ie[1] + 2;
 		len = (len < IW_CUSTOM_MAX) ? len : IW_CUSTOM_MAX;
 
 		for (i = 0; i < len; i++)
-			p += sprintf(p, "%02x", sec_ie[i]);
+			p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "%02x", sec_ie[i]);
 
-		p += sprintf(p, ")");
+		p += snprintf(p, IW_CUSTOM_MAX - (p - buff), ")");
 
 		_rtw_memset(&wrqu, 0, sizeof(wrqu));
 

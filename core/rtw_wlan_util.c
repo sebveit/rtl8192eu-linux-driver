@@ -3170,7 +3170,7 @@ void get_assoc_AP_Vendor(char *vendor, u8 assoc_AP_vendor)
 	switch (assoc_AP_vendor) {
 	
 	case HT_IOT_PEER_UNKNOWN:
-	sprintf(vendor, "%s", "unknown");
+	snprintf(vendor, 20, "%s", "unknown");
 	break;
 
 	case HT_IOT_PEER_REALTEK:
@@ -3179,35 +3179,35 @@ void get_assoc_AP_Vendor(char *vendor, u8 assoc_AP_vendor)
 	case HT_IOT_PEER_REALTEK_JAGUAR_BCUTAP:
 	case HT_IOT_PEER_REALTEK_JAGUAR_CCUTAP:
 
-	sprintf(vendor, "%s", "Realtek");
+	snprintf(vendor, 20, "%s", "Realtek");
 	break;
 
 	case HT_IOT_PEER_BROADCOM:
-	sprintf(vendor, "%s", "Broadcom");
+	snprintf(vendor, 20, "%s", "Broadcom");
 	break;
 
 	case HT_IOT_PEER_MARVELL:
-	sprintf(vendor, "%s", "Marvell");
+	snprintf(vendor, 20, "%s", "Marvell");
 	break;
 
 	case HT_IOT_PEER_RALINK:
-	sprintf(vendor, "%s", "Ralink");
+	snprintf(vendor, 20, "%s", "Ralink");
 	break;
 
 	case HT_IOT_PEER_CISCO:
-	sprintf(vendor, "%s", "Cisco");
+	snprintf(vendor, 20, "%s", "Cisco");
 	break;
 
 	case HT_IOT_PEER_AIRGO:
-	sprintf(vendor, "%s", "Airgo");
+	snprintf(vendor, 20, "%s", "Airgo");
 	break;
 
 	case HT_IOT_PEER_ATHEROS:
-	sprintf(vendor, "%s", "Atheros");
+	snprintf(vendor, 20, "%s", "Atheros");
 	break;
 
 	default:
-	sprintf(vendor, "%s", "unkown");
+	snprintf(vendor, 20, "%s", "unkown");
 	break;
 	}
 

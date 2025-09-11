@@ -225,6 +225,10 @@ build_driver() {
     local build_dir="$ROOT_DIR/build-${version}"
     local module_name="8192eu-${version}.ko"
     
+    # Always clean before building
+    echo "Cleaning build directory for kernel ${version}..."
+    rm -rf "$build_dir"
+    
     if check_state "$version" "built" && [ -f "$ROOT_DIR/$module_name" ]; then
         echo "Driver already built for kernel ${version}"
         return 0

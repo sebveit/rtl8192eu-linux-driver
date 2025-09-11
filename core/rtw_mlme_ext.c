@@ -3231,7 +3231,7 @@ unsigned int on_action_wnm(_adapter *adapter, union recv_frame *rframe)
 #endif		
 	default:
 		#ifdef CONFIG_IOCTL_CFG80211
-		cnt += sprintf((msg + cnt), "ACT_WNM %u", action);
+		cnt += snprintf((msg + cnt), sizeof(msg) - cnt, "ACT_WNM %u", action);
 		rtw_cfg80211_rx_action(adapter, rframe, msg);
 		#endif
 		ret = _SUCCESS;
@@ -6586,7 +6586,7 @@ unsigned int on_action_public_default(union recv_frame *precv_frame, u8 action)
 		goto exit;
 
 #ifdef CONFIG_IOCTL_CFG80211
-	cnt += sprintf((msg + cnt), "%s(token:%u)", action_public_str(action), token);
+	cnt += snprintf((msg + cnt), sizeof(msg) - cnt, "%s(token:%u)", action_public_str(action), token);
 	rtw_cfg80211_rx_action(adapter, precv_frame, msg);
 #endif
 

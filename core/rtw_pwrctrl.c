@@ -1193,7 +1193,7 @@ void LPS_Enter(PADAPTER padapter, const char *msg)
 					msg = "WMMPS_IDLE";
 #endif /* CONFIG_WMMPS_STA */
 				
-				sprintf(buf, "WIFI-%s", msg);
+				snprintf(buf, sizeof(buf), "WIFI-%s", msg);
 				pwrpriv->bpower_saving = _TRUE;
 				
 #ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS
@@ -1241,7 +1241,7 @@ void LPS_Leave(PADAPTER padapter, const char *msg)
 				msg = "WMMPS_BUSY";
 #endif /* CONFIG_WMMPS_STA */
 			
-			sprintf(buf, "WIFI-%s", msg);
+			snprintf(buf, sizeof(buf), "WIFI-%s", msg);
 			rtw_set_ps_mode(padapter, PS_MODE_ACTIVE, 0, 0, buf);
 
 #ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS	

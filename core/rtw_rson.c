@@ -84,7 +84,7 @@ void	rtw_rson_get_property_str(_adapter *padapter, char *rson_data_str)
 {
 	struct dvobj_priv *pdvobj = adapter_to_dvobj(padapter);
 
-	sprintf(rson_data_str, "version : \t%d\nid : \t\t%08x\nhop count : \t%d\nconnectible : \t%s\nloading : \t%d\nreserve : \t%16ph\n",
+	snprintf(rson_data_str, 256, "version : \t%d\nid : \t\t%08x\nhop count : \t%d\nconnectible : \t%s\nloading : \t%d\nreserve : \t%16ph\n",
 		pdvobj->rson_data.ver,
 		pdvobj->rson_data.id,
 		pdvobj->rson_data.hopcnt,

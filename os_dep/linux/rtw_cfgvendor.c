@@ -1435,7 +1435,7 @@ static int rtw_cfgvendor_logger_get_version(struct wiphy *wiphy,
 				memcpy(buf_ptr, DRIVERVERSION, strlen(DRIVERVERSION)+1);
 				break;
 			case LOGGER_ATTRIBUTE_GET_FW:
-				sprintf(buf_ptr, "v%d.%d", hal->firmware_version, hal->firmware_sub_version);
+				snprintf(buf_ptr, 1024, "v%d.%d", hal->firmware_version, hal->firmware_sub_version);
 				break;
 			default:
 				RTW_ERR("Unknown type: %d\n", type);

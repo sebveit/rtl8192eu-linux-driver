@@ -112,82 +112,82 @@ void dump_chip_info(HAL_VERSION	ChipVersion)
 	u8 buf[128] = {0};
 
 	if (IS_8188E(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8188E_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8188E_");
 	else if (IS_8188F(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8188F_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8188F_");
 	else if (IS_8188GTV(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8188GTV_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8188GTV_");
 	else if (IS_8812_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8812_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8812_");
 	else if (IS_8192E(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8192E_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8192E_");
 	else if (IS_8821_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8821_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8821_");
 	else if (IS_8723B_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8723B_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8723B_");
 	else if (IS_8703B_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8703B_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8703B_");
 	else if (IS_8723D_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8723D_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8723D_");
 	else if (IS_8814A_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8814A_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8814A_");
 	else if (IS_8822B_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8822B_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8822B_");
 	else if (IS_8821C_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8821C_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8821C_");
 	else if (IS_8710B_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8710B_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8710B_");
 	else if (IS_8192F_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8192F_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_8192F_");
 
 	else
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_UNKNOWN_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "Chip Version Info: CHIP_UNKNOWN_");
 
-	cnt += sprintf((buf + cnt), "%s_", IS_NORMAL_CHIP(ChipVersion) ? "Normal_Chip" : "Test_Chip");
+	cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "%s_", IS_NORMAL_CHIP(ChipVersion) ? "Normal_Chip" : "Test_Chip");
 	if (IS_CHIP_VENDOR_TSMC(ChipVersion))
-		cnt += sprintf((buf + cnt), "%s_", "TSMC");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "%s_", "TSMC");
 	else if (IS_CHIP_VENDOR_UMC(ChipVersion))
-		cnt += sprintf((buf + cnt), "%s_", "UMC");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "%s_", "UMC");
 	else if (IS_CHIP_VENDOR_SMIC(ChipVersion))
-		cnt += sprintf((buf + cnt), "%s_", "SMIC");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "%s_", "SMIC");
 
 	if (IS_A_CUT(ChipVersion))
-		cnt += sprintf((buf + cnt), "A_CUT_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "A_CUT_");
 	else if (IS_B_CUT(ChipVersion))
-		cnt += sprintf((buf + cnt), "B_CUT_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "B_CUT_");
 	else if (IS_C_CUT(ChipVersion))
-		cnt += sprintf((buf + cnt), "C_CUT_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "C_CUT_");
 	else if (IS_D_CUT(ChipVersion))
-		cnt += sprintf((buf + cnt), "D_CUT_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "D_CUT_");
 	else if (IS_E_CUT(ChipVersion))
-		cnt += sprintf((buf + cnt), "E_CUT_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "E_CUT_");
 	else if (IS_F_CUT(ChipVersion))
-		cnt += sprintf((buf + cnt), "F_CUT_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "F_CUT_");
 	else if (IS_I_CUT(ChipVersion))
-		cnt += sprintf((buf + cnt), "I_CUT_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "I_CUT_");
 	else if (IS_J_CUT(ChipVersion))
-		cnt += sprintf((buf + cnt), "J_CUT_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "J_CUT_");
 	else if (IS_K_CUT(ChipVersion))
-		cnt += sprintf((buf + cnt), "K_CUT_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "K_CUT_");
 	else
-		cnt += sprintf((buf + cnt), "UNKNOWN_CUT(%d)_", ChipVersion.CUTVersion);
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "UNKNOWN_CUT(%d)_", ChipVersion.CUTVersion);
 
 	if (IS_1T1R(ChipVersion))
-		cnt += sprintf((buf + cnt), "1T1R_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "1T1R_");
 	else if (IS_1T2R(ChipVersion))
-		cnt += sprintf((buf + cnt), "1T2R_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "1T2R_");
 	else if (IS_2T2R(ChipVersion))
-		cnt += sprintf((buf + cnt), "2T2R_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "2T2R_");
 	else if (IS_3T3R(ChipVersion))
-		cnt += sprintf((buf + cnt), "3T3R_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "3T3R_");
 	else if (IS_3T4R(ChipVersion))
-		cnt += sprintf((buf + cnt), "3T4R_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "3T4R_");
 	else if (IS_4T4R(ChipVersion))
-		cnt += sprintf((buf + cnt), "4T4R_");
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "4T4R_");
 	else
-		cnt += sprintf((buf + cnt), "UNKNOWN_RFTYPE(%d)_", ChipVersion.RFType);
+		cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "UNKNOWN_RFTYPE(%d)_", ChipVersion.RFType);
 
-	cnt += sprintf((buf + cnt), "RomVer(%d)\n", ChipVersion.ROMVer);
+	cnt += snprintf((buf + cnt), sizeof(buf) - cnt, "RomVer(%d)\n", ChipVersion.ROMVer);
 
 	RTW_INFO("%s", buf);
 }

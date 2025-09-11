@@ -5238,7 +5238,7 @@ phy_ParsePowerLimitTableFile(
 					*/
 					s8 ww_value = phy_txpwr_ww_lmt_value(Adapter);
 
-					sprintf(powerLimit, "%d", ww_value);
+					snprintf(powerLimit, sizeof(powerLimit), "%d", ww_value);
 					i += 2;
 
 				} else if (szLine[i] == 'N' && szLine[i + 1] == 'A') {
@@ -5246,7 +5246,7 @@ phy_ParsePowerLimitTableFile(
 					* case "NA" assign max txgi value
 					* means no limitation
 					*/
-					sprintf(powerLimit, "%d", hal_spec->txgi_max);
+					snprintf(powerLimit, sizeof(powerLimit), "%d", hal_spec->txgi_max);
 					i += 2;
 
 				} else if ((szLine[i] >= '0' && szLine[i] <= '9') || szLine[i] == '.'
@@ -5274,7 +5274,7 @@ phy_ParsePowerLimitTableFile(
 					lmt = integer * hal_spec->txgi_pdbm + ((u16)fraction * (u16)hal_spec->txgi_pdbm) / 100;
 					if (negative)
 						lmt = -lmt;
-					sprintf(powerLimit, "%d", lmt);
+					snprintf(powerLimit, sizeof(powerLimit), "%d", lmt);
 
 				} else {
 					RTW_ERR("Wrong limit expression \"%c%c\"(%d, %d)\n"

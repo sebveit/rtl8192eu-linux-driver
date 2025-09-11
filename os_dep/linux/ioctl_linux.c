@@ -135,7 +135,7 @@ static void request_wps_pbc_event(_adapter *padapter)
 
 	p = buff;
 
-	p += sprintf(p, "WPS_PBC_START.request=TRUE");
+	p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "WPS_PBC_START.request=TRUE");
 
 	_rtw_memset(&wrqu, 0, sizeof(wrqu));
 
@@ -573,9 +573,9 @@ static inline char *iwe_stream_wpa_wpa2_process(_adapter *padapter,
 			if (wpa_len > 0) {
 
 				_rtw_memset(pbuf, 0, buf_size);
-				p += sprintf(p, "wpa_ie=");
+				p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "wpa_ie=");
 				for (i = 0; i < wpa_len; i++)
-					p += sprintf(p, "%02x", wpa_ie[i]);
+					p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "%02x", wpa_ie[i]);
 
 				if (wpa_len > 100) {
 					printk("-----------------Len %d----------------\n", wpa_len);
@@ -598,9 +598,9 @@ static inline char *iwe_stream_wpa_wpa2_process(_adapter *padapter,
 			if (rsn_len > 0) {
 
 				_rtw_memset(pbuf, 0, buf_size);
-				p += sprintf(p, "rsn_ie=");
+				p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "rsn_ie=");
 				for (i = 0; i < rsn_len; i++)
-					p += sprintf(p, "%02x", rsn_ie[i]);
+					p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "%02x", rsn_ie[i]);
 				_rtw_memset(iwe, 0, sizeof(*iwe));
 				iwe->cmd = IWEVCUSTOM;
 				iwe->u.data.length = strlen(pbuf);
@@ -674,9 +674,9 @@ static inline char *iwe_stream_wapi_process(_adapter *padapter,
 		if (wapi_len > 0) {
 			p = buf_wapi;
 			/* _rtw_memset(buf_wapi, 0, MAX_WAPI_IE_LEN*2); */
-			p += sprintf(p, "wapi_ie=");
+			p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "wapi_ie=");
 			for (i = 0; i < wapi_len; i++)
-				p += sprintf(p, "%02x", wapi_ie[i]);
+				p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "%02x", wapi_ie[i]);
 
 			_rtw_memset(iwe, 0, sizeof(*iwe));
 			iwe->cmd = IWEVCUSTOM;
@@ -765,7 +765,7 @@ static inline char   *iwe_stream_net_rsv_process(_adapter *padapter,
 	p = buf;
 	pos = pnetwork->network.Reserved;
 
-	p += sprintf(p, "fm=%02X%02X", pos[1], pos[0]);
+	p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "fm=%02X%02X", pos[1], pos[0]);
 	_rtw_memset(iwe, 0, sizeof(*iwe));
 	iwe->cmd = IWEVCUSTOM;
 	iwe->u.data.length = strlen(buf);
@@ -3282,29 +3282,29 @@ static int rtw_wx_read32(struct net_device *dev,
 	switch (bytes) {
 	case 1:
 		data32 = rtw_read8(padapter, addr);
-		sprintf(extra, "0x%02X", data32);
+		snprintf(extra, 4096, "0x%02X", data32);
 		break;
 	case 2:
 		data32 = rtw_read16(padapter, addr);
-		sprintf(extra, "0x%04X", data32);
+		snprintf(extra, 4096, "0x%04X", data32);
 		break;
 	case 4:
 		data32 = rtw_read32(padapter, addr);
-		sprintf(extra, "0x%08X", data32);
+		snprintf(extra, 4096, "0x%08X", data32);
 		break;
 
 	#if defined(CONFIG_SDIO_HCI) && defined(CONFIG_SDIO_INDIRECT_ACCESS) && defined(DBG_SDIO_INDIRECT_ACCESS)
 	case 11:
 		data32 = rtw_sd_iread8(padapter, addr);
-		sprintf(extra, "0x%02X", data32);
+		snprintf(extra, 4096, "0x%02X", data32);
 		break;
 	case 12:
 		data32 = rtw_sd_iread16(padapter, addr);
-		sprintf(extra, "0x%04X", data32);
+		snprintf(extra, 4096, "0x%04X", data32);
 		break;
 	case 14:
 		data32 = rtw_sd_iread32(padapter, addr);
-		sprintf(extra, "0x%08X", data32);
+		snprintf(extra, 4096, "0x%08X", data32);
 		break;
 	#endif
 	default:
@@ -3374,7 +3374,7 @@ static int rtw_wx_read_rf(struct net_device *dev,
 	 * Only when wireless private ioctl is at odd order,
 	 * "extra" would be copied to user space.
 	 */
-	sprintf(extra, "0x%05x", data32);
+	snprintf(extra, 4096, "0x%05x", data32);
 
 	return 0;
 }
@@ -4107,7 +4107,7 @@ static int rtw_p2p_get_status(struct net_device *dev,
 	/*	Commented by Albert 2010/10/12 */
 	/*	Because of the output size limitation, I had removed the "Role" information. */
 	/*	About the "Role" information, we will use the new private IOCTL to get the "Role" information. */
-	sprintf(extra, "\n\nStatus=%.2d\n", rtw_p2p_state(pwdinfo));
+	snprintf(extra, 4096, "\n\nStatus=%.2d\n", rtw_p2p_state(pwdinfo));
 	wrqu->data.length = strlen(extra);
 
 	return ret;
@@ -4128,7 +4128,7 @@ static int rtw_p2p_get_req_cm(struct net_device *dev,
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct wifidirect_info	*pwdinfo = &(padapter->wdinfo);
 
-	sprintf(extra, "\n\nCM=%s\n", pwdinfo->rx_prov_disc_info.strconfig_method_desc_of_prov_disc_req);
+	snprintf(extra, 4096, "\n\nCM=%s\n", pwdinfo->rx_prov_disc_info.strconfig_method_desc_of_prov_disc_req);
 	wrqu->data.length = strlen(extra);
 	return ret;
 
@@ -4148,7 +4148,7 @@ static int rtw_p2p_get_role(struct net_device *dev,
 		pwdinfo->p2p_peer_interface_addr[0], pwdinfo->p2p_peer_interface_addr[1], pwdinfo->p2p_peer_interface_addr[2],
 		pwdinfo->p2p_peer_interface_addr[3], pwdinfo->p2p_peer_interface_addr[4], pwdinfo->p2p_peer_interface_addr[5]);
 
-	sprintf(extra, "\n\nRole=%.2d\n", rtw_p2p_role(pwdinfo));
+	snprintf(extra, 4096, "\n\nRole=%.2d\n", rtw_p2p_role(pwdinfo));
 	wrqu->data.length = strlen(extra);
 	return ret;
 
@@ -4169,7 +4169,7 @@ static int rtw_p2p_get_peer_ifaddr(struct net_device *dev,
 		pwdinfo->p2p_peer_interface_addr[0], pwdinfo->p2p_peer_interface_addr[1], pwdinfo->p2p_peer_interface_addr[2],
 		pwdinfo->p2p_peer_interface_addr[3], pwdinfo->p2p_peer_interface_addr[4], pwdinfo->p2p_peer_interface_addr[5]);
 
-	sprintf(extra, "\nMAC %.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
+	snprintf(extra, 4096, "\nMAC %.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
 		pwdinfo->p2p_peer_interface_addr[0], pwdinfo->p2p_peer_interface_addr[1], pwdinfo->p2p_peer_interface_addr[2],
 		pwdinfo->p2p_peer_interface_addr[3], pwdinfo->p2p_peer_interface_addr[4], pwdinfo->p2p_peer_interface_addr[5]);
 	wrqu->data.length = strlen(extra);
@@ -4191,7 +4191,7 @@ static int rtw_p2p_get_peer_devaddr(struct net_device *dev,
 		pwdinfo->rx_prov_disc_info.peerDevAddr[0], pwdinfo->rx_prov_disc_info.peerDevAddr[1],
 		pwdinfo->rx_prov_disc_info.peerDevAddr[2], pwdinfo->rx_prov_disc_info.peerDevAddr[3],
 		pwdinfo->rx_prov_disc_info.peerDevAddr[4], pwdinfo->rx_prov_disc_info.peerDevAddr[5]);
-	sprintf(extra, "\n%.2X%.2X%.2X%.2X%.2X%.2X",
+	snprintf(extra, 4096, "\n%.2X%.2X%.2X%.2X%.2X%.2X",
 		pwdinfo->rx_prov_disc_info.peerDevAddr[0], pwdinfo->rx_prov_disc_info.peerDevAddr[1],
 		pwdinfo->rx_prov_disc_info.peerDevAddr[2], pwdinfo->rx_prov_disc_info.peerDevAddr[3],
 		pwdinfo->rx_prov_disc_info.peerDevAddr[4], pwdinfo->rx_prov_disc_info.peerDevAddr[5]);
@@ -4214,7 +4214,7 @@ static int rtw_p2p_get_peer_devaddr_by_invitation(struct net_device *dev,
 		pwdinfo->p2p_peer_device_addr[0], pwdinfo->p2p_peer_device_addr[1],
 		pwdinfo->p2p_peer_device_addr[2], pwdinfo->p2p_peer_device_addr[3],
 		pwdinfo->p2p_peer_device_addr[4], pwdinfo->p2p_peer_device_addr[5]);
-	sprintf(extra, "\nMAC %.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
+	snprintf(extra, 4096, "\nMAC %.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
 		pwdinfo->p2p_peer_device_addr[0], pwdinfo->p2p_peer_device_addr[1],
 		pwdinfo->p2p_peer_device_addr[2], pwdinfo->p2p_peer_device_addr[3],
 		pwdinfo->p2p_peer_device_addr[4], pwdinfo->p2p_peer_device_addr[5]);
@@ -4233,7 +4233,7 @@ static int rtw_p2p_get_groupid(struct net_device *dev,
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct wifidirect_info	*pwdinfo = &(padapter->wdinfo);
 
-	sprintf(extra, "\n%.2X:%.2X:%.2X:%.2X:%.2X:%.2X %s",
+	snprintf(extra, 4096, "\n%.2X:%.2X:%.2X:%.2X:%.2X:%.2X %s",
 		pwdinfo->groupid_info.go_device_addr[0], pwdinfo->groupid_info.go_device_addr[1],
 		pwdinfo->groupid_info.go_device_addr[2], pwdinfo->groupid_info.go_device_addr[3],
 		pwdinfo->groupid_info.go_device_addr[4], pwdinfo->groupid_info.go_device_addr[5],
@@ -4256,7 +4256,7 @@ static int rtw_p2p_get_op_ch(struct net_device *dev,
 
 	RTW_INFO("[%s] Op_ch = %02x\n", __FUNCTION__, pwdinfo->operating_channel);
 
-	sprintf(extra, "\n\nOp_ch=%.2d\n", pwdinfo->operating_channel);
+	snprintf(extra, 4096, "\n\nOp_ch=%.2d\n", pwdinfo->operating_channel);
 	wrqu->data.length = strlen(extra);
 	return ret;
 
@@ -4346,7 +4346,7 @@ static int rtw_p2p_get_peer_wfd_port(struct net_device *dev,
 
 	RTW_INFO("[%s] p2p_state = %d\n", __FUNCTION__, rtw_p2p_state(pwdinfo));
 
-	sprintf(extra, "\n\nPort=%d\n", pwdinfo->wfd_info->peer_rtsp_ctrlport);
+	snprintf(extra, 4096, "\n\nPort=%d\n", pwdinfo->wfd_info->peer_rtsp_ctrlport);
 	RTW_INFO("[%s] remote port = %d\n", __FUNCTION__, pwdinfo->wfd_info->peer_rtsp_ctrlport);
 
 	wrqu->data.length = strlen(extra);
@@ -4363,7 +4363,7 @@ static int rtw_p2p_get_peer_wfd_preferred_connection(struct net_device *dev,
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct wifidirect_info	*pwdinfo = &(padapter->wdinfo);
 
-	sprintf(extra, "\n\nwfd_pc=%d\n", pwdinfo->wfd_info->wfd_pc);
+	snprintf(extra, 4096, "\n\nwfd_pc=%d\n", pwdinfo->wfd_info->wfd_pc);
 	RTW_INFO("[%s] wfd_pc = %d\n", __FUNCTION__, pwdinfo->wfd_info->wfd_pc);
 
 	wrqu->data.length = strlen(extra);
@@ -4381,7 +4381,7 @@ static int rtw_p2p_get_peer_wfd_session_available(struct net_device *dev,
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct wifidirect_info	*pwdinfo = &(padapter->wdinfo);
 
-	sprintf(extra, "\n\nwfd_sa=%d\n", pwdinfo->wfd_info->peer_session_avail);
+	snprintf(extra, 4096, "\n\nwfd_sa=%d\n", pwdinfo->wfd_info->peer_session_avail);
 	RTW_INFO("[%s] wfd_sa = %d\n", __FUNCTION__, pwdinfo->wfd_info->peer_session_avail);
 
 	wrqu->data.length = strlen(extra);
@@ -8491,7 +8491,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 #endif
 
 	if (strcmp(tmp[0], "status") == 0) {
-		sprintf(extra, "Load File efuse=%s,Load File MAC=%s"
+		snprintf(extra, 4096, "Load File efuse=%s,Load File MAC=%s"
 			, pHalData->efuse_file_status == EFUSE_FILE_FAILED ? "FAIL" : "OK"
 			, pHalData->macaddr_file_status == MACADDR_FILE_FAILED ? "FAIL" : "OK"
 		       );
@@ -8515,7 +8515,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		} else
 			drvmaporder = 0;
 
-		sprintf(extra, "\n");
+		snprintf(extra, 4096, "\n");
 		for (i = 0; i < cnt; i += 16) {
 			pextra = extra + strlen(extra);
 			pextra += sprintf(pextra, "0x%02x\t", shift + i);
@@ -8566,7 +8566,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		} else
 			order = 0;
 
-		sprintf(extra, "\n");
+		snprintf(extra, 4096, "\n");
 		for (i = 0; i < cnt; i += 16) {
 			pextra = extra + strlen(extra);
 			pextra += sprintf(pextra, "0x%02x\t", shift + i);
@@ -8661,7 +8661,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		} else
 			raw_order = 0;
 
-		sprintf(extra, "\n");
+		snprintf(extra, 4096, "\n");
 		for (i = 0; i < cnt; i += 16) {
 			pextra = extra + strlen(extra);
 			pextra += sprintf(pextra, "0x%02x\t", shift + i);
@@ -8709,7 +8709,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		} else
 			bt_raw_order = 0;
 
-		sprintf(extra, "\n");
+		snprintf(extra, 4096, "\n");
 		for (i = 0; i < cnt; i += 16) {
 			pextra = extra + strlen(extra);
 			pextra += sprintf(pextra, "0x%02x\t", shift + i);
@@ -8832,11 +8832,11 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		efuse_GetCurrentSize(padapter, &raw_cursize);
 		raw_maxsize = efuse_GetMaxSize(padapter);
 #endif
-		sprintf(extra, "[available raw size]= %d bytes\n", raw_maxsize - raw_cursize);
+		snprintf(extra, 4096, "[available raw size]= %d bytes\n", raw_maxsize - raw_cursize);
 	} else if (strcmp(tmp[0], "btableraw") == 0) {
 		efuse_bt_GetCurrentSize(padapter, &raw_cursize);
 		raw_maxsize = efuse_bt_GetMaxSize(padapter);
-		sprintf(extra, "[available raw size]= %d bytes\n", raw_maxsize - raw_cursize);
+		snprintf(extra, 4096, "[available raw size]= %d bytes\n", raw_maxsize - raw_cursize);
 	} else if (strcmp(tmp[0], "btfmap") == 0) {
 
 		BTEfuse_PowerSwitch(padapter, 1, _TRUE);
@@ -8849,7 +8849,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		}
 
 		/*		RTW_INFO("OFFSET\tVALUE(hex)\n"); */
-		sprintf(extra, "\n");
+		snprintf(extra, 4096, "\n");
 		for (i = 0; i < 512; i += 16) { /* set 512 because the iwpriv's extra size have limit 0x7FF */
 			/*			RTW_INFO("0x%03x\t", i); */
 			pextra = extra + strlen(extra);
@@ -8879,7 +8879,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		}
 
 		/*		RTW_INFO("OFFSET\tVALUE(hex)\n"); */
-		sprintf(extra, "\n");
+		snprintf(extra, 4096, "\n");
 		for (i = 512; i < 1024 ; i += 16) {
 			/*			RTW_INFO("0x%03x\t", i); */
 			pextra = extra + strlen(extra);
@@ -8906,7 +8906,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 
 		RTW_INFO("%s: Check 0xa0 BT Status =0x%x\n", __FUNCTION__, BTStatus);
 		if (BTStatus != 0x04) {
-			sprintf(extra, "BT Status not Active ,can't to read BT eFuse\n");
+			snprintf(extra, 4096, "BT Status not Active ,can't to read BT eFuse\n");
 			goto exit;
 		}
 
@@ -8969,7 +8969,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		RTW_INFO(FUNC_ADPT_FMT ": BT MAC=[%s]\n", FUNC_ADPT_ARG(padapter), extra);
 	} else if (strcmp(tmp[0], "btffake") == 0) {
 		/*		RTW_INFO("OFFSET\tVALUE(hex)\n"); */
-		sprintf(extra, "\n");
+		snprintf(extra, 4096, "\n");
 		for (i = 0; i < 512; i += 16) {
 			/*			RTW_INFO("0x%03x\t", i); */
 			pextra = extra + strlen(extra);
@@ -8990,7 +8990,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		/*		RTW_INFO("\n"); */
 	} else if (strcmp(tmp[0], "btbfake") == 0) {
 		/*		RTW_INFO("OFFSET\tVALUE(hex)\n"); */
-		sprintf(extra, "\n");
+		snprintf(extra, 4096, "\n");
 		for (i = 512; i < 1024; i += 16) {
 			/*			RTW_INFO("0x%03x\t", i); */
 			pextra = extra + strlen(extra);
@@ -9027,7 +9027,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		} else
 			fk_order = 0;
 
-		sprintf(extra, "\n");
+		snprintf(extra, 4096, "\n");
 		for (i = 0; i < cnt; i += 16) {
 			pextra = extra + strlen(extra);
 			pextra += sprintf(pextra, "0x%02x\t", shift + i);
@@ -9131,13 +9131,13 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		if (padapter->registrypriv.bFileMaskEfuse == _TRUE)
 			_rtw_memcpy(mask_buf, maskfileBuffer, mask_len);
 
-		sprintf(extra, "\n");
+		snprintf(extra, 4096, "\n");
 		pextra = extra + strlen(extra);
 		for (i = 0; i < mask_len; i++)
 			pextra += sprintf(pextra, "0x%02X\n", mask_buf[i]);
 
 	} else
-		sprintf(extra, "Command not found!");
+		snprintf(extra, 4096, "Command not found!");
 
 exit:
 	if (data)
@@ -9318,11 +9318,11 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		if (rtw_efuse_mask_map_read(padapter, addr, cnts, ShadowMapWiFi) == _SUCCESS) {
 			if (_rtw_memcmp((void *)ShadowMapWiFi , (void *)setdata, cnts)) {
 				RTW_INFO("%s: WiFi write map afterf compare success\n", __FUNCTION__);
-				sprintf(extra, "WiFi write map compare OK\n");
+				snprintf(extra, 4096, "WiFi write map compare OK\n");
 				err = 0;
 				goto exit;
 			} else {
-				sprintf(extra, "WiFi write map compare FAIL\n");
+				snprintf(extra, 4096, "WiFi write map compare FAIL\n");
 				RTW_INFO("%s: WiFi write map compare Fail\n", __FUNCTION__);
 				err = 0;
 				goto exit;
@@ -9565,7 +9565,7 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		BTStatus = rtw_read8(padapter, 0xa0);
 		RTW_INFO("%s: btwmap before read 0xa0 BT Status =0x%x\n", __FUNCTION__, BTStatus);
 		if (BTStatus != 0x04) {
-			sprintf(extra, "BT Status not Active ,can't do Write\n");
+			snprintf(extra, 4096, "BT Status not Active ,can't do Write\n");
 			goto exit;
 		}
 
@@ -9634,11 +9634,11 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		if ((rtw_BT_efuse_map_read(padapter, addr, cnts, ShadowMapBT) == _SUCCESS)) {
 			if (_rtw_memcmp((void *)ShadowMapBT , (void *)setdata, cnts)) {
 				RTW_INFO("%s: BT write map compare OK BTStatus=0x%x\n", __FUNCTION__, BTStatus);
-				sprintf(extra, "BT write map compare OK");
+				snprintf(extra, 4096, "BT write map compare OK");
 				err = 0;
 				goto exit;
 			} else {
-				sprintf(extra, "BT write map compare FAIL");
+				snprintf(extra, 4096, "BT write map compare FAIL");
 				RTW_INFO("%s: BT write map compare FAIL BTStatus=0x%x\n", __FUNCTION__, BTStatus);
 				err = 0;
 				goto exit;
@@ -9691,7 +9691,7 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		BTStatus = rtw_read8(padapter, 0xa0);
 		RTW_INFO("%s: btwmap before read 0xa0 BT Status =0x%x\n", __FUNCTION__, BTStatus);
 		if (BTStatus != 0x04) {
-			sprintf(extra, "BT Status not Active Write FAIL\n");
+			snprintf(extra, 4096, "BT Status not Active Write FAIL\n");
 			goto exit;
 		}
 #ifndef RTW_HALMAC
@@ -9731,12 +9731,12 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		RTW_INFO("%s: rtw_BT_efuse_map_read _rtw_memcmp\n", __FUNCTION__);
 		if ((rtw_BT_efuse_map_read(padapter, 0x00, EFUSE_BT_MAX_MAP_LEN, pEfuseHal->fakeBTEfuseInitMap) == _SUCCESS)) {
 			if (_rtw_memcmp((void *)pEfuseHal->fakeBTEfuseModifiedMap, (void *)pEfuseHal->fakeBTEfuseInitMap, EFUSE_BT_MAX_MAP_LEN)) {
-				sprintf(extra, "BT write map compare OK");
+				snprintf(extra, 4096, "BT write map compare OK");
 				RTW_INFO("%s: BT write map afterf compare success BTStatus=0x%x\n", __FUNCTION__, BTStatus);
 				err = 0;
 				goto exit;
 			} else {
-				sprintf(extra, "BT write map compare FAIL");
+				snprintf(extra, 4096, "BT write map compare FAIL");
 				if (rtw_BT_efuse_map_write(padapter, 0x00, EFUSE_BT_MAX_MAP_LEN, pEfuseHal->fakeBTEfuseModifiedMap) == _FAIL)
 					RTW_INFO("%s: rtw_BT_efuse_map_write compare error,retry = %d!\n", __FUNCTION__, i);
 
@@ -9765,7 +9765,7 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 
 		if (padapter->registrypriv.bFileMaskEfuse != _TRUE && pmp_priv->bloadefusemap == _TRUE) {
 			RTW_INFO("%s: File eFuse mask file not to be loaded\n", __FUNCTION__);
-			sprintf(extra, "Not load eFuse mask file yet, Please use the efuse_mask CMD, now remove the interface !!!!\n");
+			snprintf(extra, 4096, "Not load eFuse mask file yet, Please use the efuse_mask CMD, now remove the interface !!!!\n");
 			rtw_set_surprise_removed(padapter);
 			err = 0;
 			goto exit;
@@ -9809,11 +9809,11 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 
 		if (err) {
 			RTW_INFO("%s: WiFi write map afterf compare OK\n", __FUNCTION__);
-			sprintf(extra, "WiFi write map compare OK\n");
+			snprintf(extra, 4096, "WiFi write map compare OK\n");
 			err = 0;
 			goto exit;
 		} else {
-			sprintf(extra, "WiFi write map compare FAIL\n");
+			snprintf(extra, 4096, "WiFi write map compare FAIL\n");
 			RTW_INFO("%s: WiFi write map compare Fail\n", __FUNCTION__);
 			err = 0;
 			goto exit;
@@ -9854,7 +9854,7 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		for (jj = 0, kk = 0; jj < cnts; jj++, kk += 2)
 			pEfuseHal->fakeEfuseModifiedMap[addr + jj] = key_2char2num(tmp[2][kk], tmp[2][kk + 1]);
 		_rtw_memset(extra, '\0', strlen(extra));
-		sprintf(extra, "wlwfake OK\n");
+		snprintf(extra, 4096, "wlwfake OK\n");
 
 	}
 	else if (strcmp(tmp[0], "wfakemac") == 0) {
@@ -9893,7 +9893,7 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			pEfuseHal->fakeEfuseModifiedMap[addr + jj] = key_2char2num(tmp[1][kk], tmp[1][kk + 1]);
 
 		_rtw_memset(extra, '\0', strlen(extra));
-		sprintf(extra, "write mac addr to fake map OK\n");
+		snprintf(extra, 4096, "write mac addr to fake map OK\n");
 	} else if(strcmp(tmp[0], "update") == 0) {
 		RTW_INFO("To Use new eFuse map\n");
 		/*step read efuse/eeprom data and get mac_addr*/
@@ -9916,12 +9916,12 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			goto exit;
 		}
 		_rtw_memset(extra, '\0', strlen(extra));
-		sprintf(extra, "eFuse Update OK\n");
+		snprintf(extra, 4096, "eFuse Update OK\n");
 	} else if (strcmp(tmp[0], "analyze") == 0) {
 
 		rtw_efuse_analyze(padapter, EFUSE_WIFI, 0);
 		_rtw_memset(extra, '\0', strlen(extra));
-		sprintf(extra, "eFuse Analyze OK,please to check kernel log\n");
+		snprintf(extra, 4096, "eFuse Analyze OK,please to check kernel log\n");
 	}
 exit:
 	if (setdata)
@@ -10030,7 +10030,7 @@ static int rtw_mp_customer_str(
 		return -EFAULT;
 	}
 
-	pos = sprintf(extra, "%s: ", read ? "read" : "write");
+	pos = snprintf(extra, 4096, "%s: ", read ? "read" : "write");
 	if (read == 0 || ret == _SUCCESS) {
 		for (i = 0; i < RTW_CUSTOMER_STR_LEN; i++)
 			pos += sprintf(extra + pos, "%02x:", param[i]);
@@ -10319,15 +10319,15 @@ static int rtw_mp_sd_iread(struct net_device *dev
 
 	switch (width) {
 	case 1:
-		sprintf(extra, "0x%02x", rtw_sd_iread8(padapter, addr));
+		snprintf(extra, 4096, "0x%02x", rtw_sd_iread8(padapter, addr));
 		wrqu->length = strlen(extra);
 		break;
 	case 2:
-		sprintf(extra, "0x%04x", rtw_sd_iread16(padapter, addr));
+		snprintf(extra, 4096, "0x%04x", rtw_sd_iread16(padapter, addr));
 		wrqu->length = strlen(extra);
 		break;
 	case 4:
-		sprintf(extra, "0x%08x", rtw_sd_iread32(padapter, addr));
+		snprintf(extra, 4096, "0x%08x", rtw_sd_iread32(padapter, addr));
 		wrqu->length = strlen(extra);
 		break;
 	default:
@@ -11027,7 +11027,7 @@ static int rtw_tdls_getip(struct net_device *dev,
 
 	RTW_INFO("[%s]\n", __FUNCTION__);
 
-	sprintf(extra, "\n\n%u.%u.%u.%u\n",
+	snprintf(extra, 4096, "\n\n%u.%u.%u.%u\n",
 		pwfd_info->peer_ip_address[0], pwfd_info->peer_ip_address[1],
 		pwfd_info->peer_ip_address[2], pwfd_info->peer_ip_address[3]);
 
@@ -11059,7 +11059,7 @@ static int rtw_tdls_getport(struct net_device *dev,
 
 	RTW_INFO("[%s]\n", __FUNCTION__);
 
-	sprintf(extra, "\n\n%d\n", pwfd_info->peer_rtsp_ctrlport);
+	snprintf(extra, 4096, "\n\n%d\n", pwfd_info->peer_rtsp_ctrlport);
 	RTW_INFO("[%s] remote port = %d\n",
 		 __FUNCTION__, pwfd_info->peer_rtsp_ctrlport);
 
@@ -11089,7 +11089,7 @@ static int rtw_tdls_dis_result(struct net_device *dev,
 	RTW_INFO("[%s]\n", __FUNCTION__);
 
 	if (ptdlsinfo->dev_discovered == _TRUE) {
-		sprintf(extra, "\n\nDis=1\n");
+		snprintf(extra, 4096, "\n\nDis=1\n");
 		ptdlsinfo->dev_discovered = _FALSE;
 	}
 
@@ -11117,7 +11117,7 @@ static int rtw_wfd_tdls_status(struct net_device *dev,
 
 	RTW_INFO("[%s]\n", __FUNCTION__);
 
-	sprintf(extra, "\nlink_established:%d\n"
+	snprintf(extra, 4096, "\nlink_established:%d\n"
 		"sta_cnt:%d\n"
 		"sta_maximum:%d\n"
 		"cur_channel:%d\n"
@@ -11182,10 +11182,10 @@ static int rtw_tdls_getsta(struct net_device *dev,
 		 __FUNCTION__, __LINE__, charmac, MAC_ARG(addr));
 	ptdls_sta = rtw_get_stainfo(&padapter->stapriv, addr);
 	if (ptdls_sta) {
-		sprintf(extra, "\n\ntdls_sta_state=0x%08x\n", ptdls_sta->tdls_sta_state);
+		snprintf(extra, 4096, "\n\ntdls_sta_state=0x%08x\n", ptdls_sta->tdls_sta_state);
 		RTW_INFO("\n\ntdls_sta_state=%d\n", ptdls_sta->tdls_sta_state);
 	} else {
-		sprintf(extra, "\n\nNot found this sta\n");
+		snprintf(extra, 4096, "\n\nNot found this sta\n");
 		RTW_INFO("\n\nNot found this sta\n");
 	}
 	wrqu->data.length = strlen(extra);
@@ -11248,11 +11248,11 @@ static int rtw_tdls_get_best_ch(struct net_device *dev,
 #endif
 	}
 
-	sprintf(extra, "\nbest_channel_24G = %d\n", best_channel_24G);
+	snprintf(extra, 4096, "\nbest_channel_24G = %d\n", best_channel_24G);
 	RTW_INFO("best_channel_24G = %d\n", best_channel_24G);
 
 	if (index_5G != 0) {
-		sprintf(extra, "best_channel_5G = %d\n", best_channel_5G);
+		snprintf(extra, 4096, "best_channel_5G = %d\n", best_channel_5G);
 		RTW_INFO("best_channel_5G = %d\n", best_channel_5G);
 	}
 
@@ -12099,7 +12099,7 @@ static int rtw_test(
 
 		ret = rtw_test_h2c_cmd(padapter, param, count);
 
-		pos = sprintf(extra, "H2C ID=0x%02x content=", param[0]);
+		pos = snprintf(extra, 4096, "H2C ID=0x%02x content=", param[0]);
 		for (i = 1; i < count; i++)
 			pos += sprintf(extra + pos, "%02x,", param[i]);
 		extra[pos] = 0;

@@ -296,7 +296,7 @@ u8 rm_add_nb_req(_adapter *padapter, struct sta_info *psta)
 	if (pmac) { /* find sta_info according to bssid */
 		pmac += 4; /* skip mac= */
 		if (hwaddr_parse(pmac, bssid) == NULL) {
-			sprintf(pstr(s), "Err: \nincorrect mac format\n");
+			snprintf(pstr(s), 4096 - strlen(s), "Err: \nincorrect mac format\n");
 			return _FAIL;
 		}
 		psta = rm_get_sta(padapter, 0xff, bssid);
@@ -2044,7 +2044,7 @@ void rm_dbg_list_sta(_adapter *padapter, char *s)
 	_list *plist, *phead;
 
 
-	sprintf(pstr(s), "\n");
+	snprintf(pstr(s), 4096 - strlen(s), "\n");
 	_enter_critical_bh(&pstapriv->sta_hash_lock, &irqL);
 	for (i = 0; i < NUM_STA; i++) {
 		phead = &(pstapriv->sta_hash[i]);
@@ -2056,18 +2056,18 @@ void rm_dbg_list_sta(_adapter *padapter, char *s)
 
 			plist = get_next(plist);
 
-			sprintf(pstr(s), "=========================================\n");
-			sprintf(pstr(s), "mac=" MAC_FMT "\n",
+			snprintf(pstr(s), 4096 - strlen(s), "=========================================\n");
+			snprintf(pstr(s), 4096 - strlen(s), "mac=" MAC_FMT "\n",
 				MAC_ARG(psta->cmn.mac_addr));
-			sprintf(pstr(s), "state=0x%x, aid=%d, macid=%d\n",
+			snprintf(pstr(s), 4096 - strlen(s), "state=0x%x, aid=%d, macid=%d\n",
 				psta->state, psta->cmn.aid, psta->cmn.mac_id);
-			sprintf(pstr(s), "rm_cap="RM_CAP_FMT"\n",
+			snprintf(pstr(s), 4096 - strlen(s), "rm_cap="RM_CAP_FMT"\n",
 				RM_CAP_ARG(psta->rm_en_cap));
 		}
 
 	}
 	_exit_critical_bh(&pstapriv->sta_hash_lock, &irqL);
-	sprintf(pstr(s), "=========================================\n");
+	snprintf(pstr(s), 4096 - strlen(s), "=========================================\n");
 }
 
 void rm_dbg_help(_adapter *padapter, char *s)
@@ -2075,20 +2075,20 @@ void rm_dbg_help(_adapter *padapter, char *s)
 	int i;
 
 
-	sprintf(pstr(s), "\n");
-	sprintf(pstr(s), "rrm list_sta\n");
-	sprintf(pstr(s), "rrm list_meas\n");
+	snprintf(pstr(s), 4096 - strlen(s), "\n");
+	snprintf(pstr(s), 4096 - strlen(s), "rrm list_sta\n");
+	snprintf(pstr(s), 4096 - strlen(s), "rrm list_meas\n");
 
-	sprintf(pstr(s), "rrm add_meas <aid=1|mac=>,m=<bcn|clm|nhm|nb>,rpt=\n");
-	sprintf(pstr(s), "rrm run_meas <aid=1|evid=>\n");
-	sprintf(pstr(s), "rrm del_meas\n");
+	snprintf(pstr(s), 4096 - strlen(s), "rrm add_meas <aid=1|mac=>,m=<bcn|clm|nhm|nb>,rpt=\n");
+	snprintf(pstr(s), 4096 - strlen(s), "rrm run_meas <aid=1|evid=>\n");
+	snprintf(pstr(s), 4096 - strlen(s), "rrm del_meas\n");
 
-	sprintf(pstr(s), "rrm run_meas rmid=xxxx,ev=xx\n");
-	sprintf(pstr(s), "rrm activate\n");
+	snprintf(pstr(s), 4096 - strlen(s), "rrm run_meas rmid=xxxx,ev=xx\n");
+	snprintf(pstr(s), 4096 - strlen(s), "rrm activate\n");
 
 	for (i=0;i<RM_EV_max;i++)
-		sprintf(pstr(s), "\t%2d %s\n",i, rm_event_name(i) );
-	sprintf(pstr(s), "\n");
+		snprintf(pstr(s), 4096 - strlen(s), "\t%2d %s\n",i, rm_event_name(i) );
+	snprintf(pstr(s), 4096 - strlen(s), "\n");
 }
 
 struct sta_info *rm_get_sta(_adapter *padapter, u16 aid, u8* pbssid)
@@ -2171,7 +2171,7 @@ static int rm_dbg_modify_meas(_adapter *padapter, char *s)
 	} else if (pmac) { /* find sta_info according to bssid */
 		pmac += 4; /* skip mac= */
 		if (hwaddr_parse(pmac, bssid) == NULL) {
-			sprintf(pstr(s), "Err: \nincorrect mac format\n");
+			snprintf(pstr(s), 4096 - strlen(s), "Err: \nincorrect mac format\n");
 			return _FAIL;
 		}
 		psta = rm_get_sta(padapter, 0xff, bssid);
@@ -2220,14 +2220,14 @@ static void rm_dbg_activate_meas(_adapter *padapter, char *s)
 
 
 	if (prmpriv->prm_sel == NULL) {
-		sprintf(pstr(s), "\nErr: No inActivate measurement\n");
+		snprintf(pstr(s), 4096 - strlen(s), "\nErr: No inActivate measurement\n");
 		return;
 	}
 	prm = (struct rm_obj *)prmpriv->prm_sel;
 
 	/* verify attributes */
 	if (prm->psta == NULL) {
-		sprintf(pstr(s), "\nErr: inActivate meas has no psta\n");
+		snprintf(pstr(s), 4096 - strlen(s), "\nErr: inActivate meas has no psta\n");
 		return;
 	}
 
@@ -2238,11 +2238,11 @@ static void rm_dbg_activate_meas(_adapter *padapter, char *s)
 	/* enquee rmobj */
 	rm_enqueue_rmobj(padapter, prm, _FALSE);
 
-	sprintf(pstr(s), "\nActivate rmid=%x, state=%s, meas_type=%s\n",
+	snprintf(pstr(s), 4096 - strlen(s), "\nActivate rmid=%x, state=%s, meas_type=%s\n",
 		prm->rmid, rm_state_name(prm->state),
 		rm_type_req_name(prm->q.m_type));
 
-	sprintf(pstr(s), "aid=%d, mac=" MAC_FMT "\n",
+	snprintf(pstr(s), 4096 - strlen(s), "aid=%d, mac=" MAC_FMT "\n",
 		prm->psta->cmn.aid, MAC_ARG(prm->psta->cmn.mac_addr));
 
 	/* clearn inActivate prm info */
@@ -2265,7 +2265,7 @@ static void rm_dbg_add_meas(_adapter *padapter, char *s)
 		prm = rm_alloc_rmobj(padapter);
 
 	if (prm == NULL) {
-		sprintf(pstr(s), "\nErr: alloc meas fail\n");
+		snprintf(pstr(s), 4096 - strlen(s), "\nErr: alloc meas fail\n");
 		return;
 	}
 
@@ -2274,7 +2274,7 @@ static void rm_dbg_add_meas(_adapter *padapter, char *s)
 	pact = strstr(s, "act");
 	if (rm_dbg_modify_meas(padapter, s) == _FAIL) {
 
-		sprintf(pstr(s), "\nErr: add meas fail\n");
+		snprintf(pstr(s), 4096 - strlen(s), "\nErr: add meas fail\n");
 		rm_free_rmobj(prm);
 		prmpriv->prm_sel = NULL;
 		return;
@@ -2283,14 +2283,14 @@ static void rm_dbg_add_meas(_adapter *padapter, char *s)
 	prm->q.e_id = _MEAS_REQ_IE_; /* 38 */
 
 	if (prm->q.action_code == RM_ACT_RADIO_MEAS_REQ)
-		sprintf(pstr(s), "\nAdd rmid=%x, meas_type=%s ok\n",
+		snprintf(pstr(s), 4096 - strlen(s), "\nAdd rmid=%x, meas_type=%s ok\n",
 			prm->rmid, rm_type_req_name(prm->q.m_type));
 	else  if (prm->q.action_code == RM_ACT_NB_REP_REQ) 
-		sprintf(pstr(s), "\nAdd rmid=%x, meas_type=bcn_req ok\n",
+		snprintf(pstr(s), 4096 - strlen(s), "\nAdd rmid=%x, meas_type=bcn_req ok\n",
 			prm->rmid);
 
 	if (prm->psta)
-		sprintf(pstr(s), "mac="MAC_FMT"\n",
+		snprintf(pstr(s), 4096 - strlen(s), "mac="MAC_FMT"\n",
 			MAC_ARG(prm->psta->cmn.mac_addr));
 
 	if (pact)
@@ -2304,13 +2304,13 @@ static void rm_dbg_del_meas(_adapter *padapter, char *s)
 
 
 	if (prm) {
-		sprintf(pstr(s), "\ndelete rmid=%x\n",prm->rmid);
+		snprintf(pstr(s), 4096 - strlen(s), "\ndelete rmid=%x\n",prm->rmid);
 
 		/* free inActivate meas - enqueue yet  */
 		prmpriv->prm_sel = NULL;
 		rtw_mfree(prmpriv->prm_sel, sizeof(struct rm_obj));
 	} else
-		sprintf(pstr(s), "Err: no inActivate measurement\n");
+		snprintf(pstr(s), 4096 - strlen(s), "Err: no inActivate measurement\n");
 }
 
 static void rm_dbg_run_meas(_adapter *padapter, char *s)
@@ -2330,24 +2330,24 @@ static void rm_dbg_run_meas(_adapter *padapter, char *s)
 		pevid += 5; /* evid= */
 		sscanf(pevid, "%u", &evid);
 	} else {
-		sprintf(pstr(s), "\nErr: incorrect attribute\n");
+		snprintf(pstr(s), 4096 - strlen(s), "\nErr: incorrect attribute\n");
 		return;
 	}
 
 	prm = rm_get_rmobj(padapter, rmid);
 
 	if (!prm) {
-		sprintf(pstr(s), "\nErr: measurement not found\n");
+		snprintf(pstr(s), 4096 - strlen(s), "\nErr: measurement not found\n");
 		return;
 	}
 
 	if (evid >= RM_EV_max) {
-		sprintf(pstr(s), "\nErr: wrong event id\n");
+		snprintf(pstr(s), 4096 - strlen(s), "\nErr: wrong event id\n");
 		return;
 	}
 
 	rm_post_event(padapter, prm->rmid, evid);
-	sprintf(pstr(s), "\npost %s to rmid=%x\n",rm_event_name(evid), rmid);
+	snprintf(pstr(s), 4096 - strlen(s), "\npost %s to rmid=%x\n",rm_event_name(evid), rmid);
 }
 
 static void rm_dbg_show_meas(struct rm_obj *prm, char *s)
@@ -2358,22 +2358,22 @@ static void rm_dbg_show_meas(struct rm_obj *prm, char *s)
 
 	if (prm->q.action_code == RM_ACT_RADIO_MEAS_REQ) {
 
-		sprintf(pstr(s), "\nrmid=%x, meas_type=%s\n",
+		snprintf(pstr(s), 4096 - strlen(s), "\nrmid=%x, meas_type=%s\n",
 			prm->rmid, rm_type_req_name(prm->q.m_type));
 
 	} else  if (prm->q.action_code == RM_ACT_NB_REP_REQ) {
 
-		sprintf(pstr(s), "\nrmid=%x, action=neighbor_req\n",
+		snprintf(pstr(s), 4096 - strlen(s), "\nrmid=%x, action=neighbor_req\n",
 			prm->rmid);
 	} else
-		sprintf(pstr(s), "\nrmid=%x, action=unknown\n",
+		snprintf(pstr(s), 4096 - strlen(s), "\nrmid=%x, action=unknown\n",
 			prm->rmid);
 
 	if (psta)
-		sprintf(pstr(s), "aid=%d, mac="MAC_FMT"\n",
+		snprintf(pstr(s), 4096 - strlen(s), "aid=%d, mac="MAC_FMT"\n",
 			psta->cmn.aid, MAC_ARG(psta->cmn.mac_addr));
 
-	sprintf(pstr(s), "clock=%d, state=%s, rpt=%u/%u\n",
+	snprintf(pstr(s), 4096 - strlen(s), "clock=%d, state=%s, rpt=%u/%u\n",
 		(int)ATOMIC_READ(&prm->pclock->counter),
 		rm_state_name(prm->state), prm->p.rpt, prm->q.rpt);
 }
@@ -2389,7 +2389,7 @@ static void rm_dbg_list_meas(_adapter *padapter, char *s)
 	_list *plist, *phead;
 
 
-	sprintf(pstr(s), "\n");
+	snprintf(pstr(s), 4096 - strlen(s), "\n");
 	_enter_critical(&queue->lock, &irqL);
 	phead = get_list_head(queue);
 	plist = get_next(phead);
@@ -2400,23 +2400,23 @@ static void rm_dbg_list_meas(_adapter *padapter, char *s)
 		meas_amount++;
 		plist = get_next(plist);
 		psta = prm->psta;
-		sprintf(pstr(s), "=========================================\n");
+		snprintf(pstr(s), 4096 - strlen(s), "=========================================\n");
 
 		rm_dbg_show_meas(prm, s);
 	}
 	_exit_critical(&queue->lock, &irqL);
 
-	sprintf(pstr(s), "=========================================\n");
+	snprintf(pstr(s), 4096 - strlen(s), "=========================================\n");
 
 	if (meas_amount==0) {
-		sprintf(pstr(s), "No Activate measurement\n");
-		sprintf(pstr(s), "=========================================\n");
+		snprintf(pstr(s), 4096 - strlen(s), "No Activate measurement\n");
+		snprintf(pstr(s), 4096 - strlen(s), "=========================================\n");
 	}
 
 	if (prmpriv->prm_sel == NULL)
-		sprintf(pstr(s), "\nNo inActivate measurement\n");
+		snprintf(pstr(s), 4096 - strlen(s), "\nNo inActivate measurement\n");
 	else {
-		sprintf(pstr(s), "\ninActivate measurement\n");
+		snprintf(pstr(s), 4096 - strlen(s), "\ninActivate measurement\n");
 		rm_dbg_show_meas((struct rm_obj *)prmpriv->prm_sel, s);
 	}
 }
@@ -2463,8 +2463,8 @@ void rm_dbg_cmd(_adapter *padapter, char *s)
 		}
 	}
 #else
-	sprintf(pstr(s), "\n");
-	sprintf(pstr(s), "rrm debug command was disabled\n");
+	snprintf(pstr(s), 4096 - strlen(s), "\n");
+	snprintf(pstr(s), 4096 - strlen(s), "rrm debug command was disabled\n");
 #endif
 }
 #endif /* CONFIG_RTW_80211K */

@@ -1445,7 +1445,7 @@ int proc_get_survey_info(struct seq_file *m, void *v)
 		ie_wps = rtw_get_wps_ie(&pnetwork->network.IEs[12], pnetwork->network.IELength - 12, NULL, &wpsielen);
 		ie_p2p = rtw_get_p2p_ie(&pnetwork->network.IEs[12], pnetwork->network.IELength - 12, NULL, &ielen);
 		ssid = pnetwork->network.Ssid.Ssid;
-		sprintf(flag_str, "%s%s%s%s%s%s%s",
+		snprintf(flag_str, sizeof(flag_str), "%s%s%s%s%s%s%s",
 			(ie_wpa) ? "[WPA]" : "",
 			(ie_wpa2) ? "[WPA2]" : "",
 			(!ie_wpa && !ie_wpa && ie_cap & BIT(4)) ? "[WEP]" : "",
@@ -4866,7 +4866,7 @@ int proc_get_ps_info(struct seq_file *m, void *v)
 	else if (lps_mode == PS_MODE_DTIM)
 		str = "DTIM";
 	else
-		sprintf(str, "%d", lps_mode);
+		snprintf(str, 16, "%d", lps_mode);
 
 	RTW_PRINT_SEL(m, " LPS mode: %s\n", str);
 
