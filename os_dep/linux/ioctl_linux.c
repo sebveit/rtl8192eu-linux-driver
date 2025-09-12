@@ -12976,6 +12976,15 @@ static int rtw_ioctl_wext_private(struct net_device *dev, struct ifreq *rq)
                return rtw_ioctl_standard_wext_private(dev, rq);
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+int rtw_siocdevprivate(struct net_device *dev, struct ifreq *rq, 
+		       void __user *data, int cmd)
+{
+	/* The new ndo_siocdevprivate has an extra data parameter */
+	return rtw_ioctl(dev, rq, cmd);
+}
+#endif
+
 int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {
 	struct iwreq *wrq = (struct iwreq *)rq;

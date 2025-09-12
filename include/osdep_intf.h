@@ -80,6 +80,10 @@ uint loadparam(_adapter *adapter);
 
 #ifdef PLATFORM_LINUX
 int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+int rtw_siocdevprivate(struct net_device *dev, struct ifreq *rq, 
+		       void __user *data, int cmd);
+#endif
 
 int rtw_init_netdev_name(struct net_device *pnetdev, const char *ifname);
 struct net_device *rtw_init_netdev(_adapter *padapter);

@@ -233,7 +233,8 @@ struct rtw_usb_drv usb_drv = {
 #endif
 
        .usbdrv.drvwrap.driver.shutdown = rtw_dev_shutdown,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+/* Runtime PM disabled for kernel compatibility */
+#if 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
        .usbdrv.drvwrap.driver.pm = &rtw_pm_ops,
 #endif
 };
@@ -1032,7 +1033,8 @@ static int rtw_resume(struct usb_interface *pusb_intf)
 	return ret;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+/* Runtime PM disabled for kernel compatibility - can be re-enabled for 5.15+ */
+#if 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
 static int rtw_runtime_suspend(struct device *dev)
 {
 	struct usb_interface *pusb_intf = to_usb_interface(dev);
@@ -1048,7 +1050,7 @@ static int rtw_runtime_suspend(struct device *dev)
 	}
 
 	/* Put device into low power state */
-	ret = rtw_suspend_common(padapter, PM_MESSAGE_AUTO_SUSPEND);
+	ret = rtw_suspend_common(padapter);
 	
 	return ret;
 }
@@ -1420,7 +1422,8 @@ static int rtw_drv_init(struct usb_interface *pusb_intf, const struct usb_device
 
 	status = _SUCCESS;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+/* Runtime PM disabled for kernel compatibility */
+#if 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
 	/* Enable runtime power management for modern kernels */
 	pm_runtime_enable(&pusb_intf->dev);
 	pm_runtime_set_autosuspend_delay(&pusb_intf->dev, 2000);
@@ -1513,7 +1516,8 @@ static void rtw_dev_remove(struct usb_interface *pusb_intf)
 
 	usb_dvobj_deinit(pusb_intf);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+/* Runtime PM disabled for kernel compatibility */
+#if 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
 	/* Disable runtime power management */
 	pm_runtime_dont_use_autosuspend(&pusb_intf->dev);
 	pm_runtime_disable(&pusb_intf->dev);

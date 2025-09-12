@@ -1446,7 +1446,7 @@ static u8 is_rtw_ndev(struct net_device *ndev)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
         return ndev->netdev_ops
                 && ndev->netdev_ops->ndo_siocdevprivate
-                && ndev->netdev_ops->ndo_siocdevprivate == rtw_ioctl;
+                && ndev->netdev_ops->ndo_siocdevprivate == rtw_siocdevprivate;
 #else
         return ndev->netdev_ops
                 && ndev->netdev_ops->ndo_do_ioctl
@@ -1534,7 +1534,7 @@ static const struct net_device_ops rtw_netdev_ops = {
 	.ndo_set_mac_address = rtw_net_set_mac_address,
 	.ndo_get_stats = rtw_net_get_stats,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
-	.ndo_siocdevprivate = rtw_ioctl,
+	.ndo_siocdevprivate = rtw_siocdevprivate,
 #else
 	.ndo_do_ioctl = rtw_ioctl,
 #endif
@@ -2869,7 +2869,7 @@ static int netdev_vir_if_close(struct net_device *pnetdev)
 	.ndo_set_mac_address = rtw_net_set_mac_address,
 	.ndo_get_stats = rtw_net_get_stats,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
-	.ndo_siocdevprivate = rtw_ioctl,
+	.ndo_siocdevprivate = rtw_siocdevprivate,
 #else
 	.ndo_do_ioctl = rtw_ioctl,
 #endif
