@@ -4096,8 +4096,14 @@ static int rtw_p2p_setDN(struct net_device *dev,
 
 	RTW_INFO("[%s] %s %d\n", __FUNCTION__, extra, wrqu->data.length - 1);
 	_rtw_memset(pwdinfo->device_name, 0x00, WPS_MAX_DEVICE_NAME_LEN);
-	_rtw_memcpy(pwdinfo->device_name, extra, wrqu->data.length - 1);
-	pwdinfo->device_name_len = wrqu->data.length - 1;
+	
+	/* Security fix: Ensure we don't overflow the device_name buffer */
+	size_t copy_len = wrqu->data.length - 1;
+	if (copy_len >= WPS_MAX_DEVICE_NAME_LEN)
+		copy_len = WPS_MAX_DEVICE_NAME_LEN - 1;
+	
+	_rtw_memcpy(pwdinfo->device_name, extra, copy_len);
+	pwdinfo->device_name_len = copy_len;
 
 	return ret;
 

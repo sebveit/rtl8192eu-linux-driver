@@ -1362,7 +1362,7 @@ int rtw_mp_phypara(struct net_device *dev,
 
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(padapter);
-	char	input[wrqu->length];
+	char	input[MP_MAX_IOCTL_BUF_SIZE];
 	u32		valxcap, ret;
 
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
@@ -1371,6 +1371,7 @@ int rtw_mp_phypara(struct net_device *dev,
 	if (copy_from_user(input, wrqu->pointer, wrqu->length))
 		return -EFAULT;
 
+	input[wrqu->length] = '\0';  /* Ensure null termination */
 	RTW_INFO("%s:iwpriv in=%s\n", __func__, input);
 
 	ret = sscanf(input, "xcap=%d", &valxcap);
@@ -1391,19 +1392,20 @@ int rtw_mp_SetRFPath(struct net_device *dev,
 		     struct iw_point *wrqu, char *extra)
 {
 	PADAPTER padapter = rtw_netdev_priv(dev);
-	char	input[wrqu->length];
+	char	input[MP_MAX_IOCTL_BUF_SIZE];
 	int		bMain = 1, bTurnoff = 1;
 #ifdef CONFIG_ANTENNA_DIVERSITY
 	u8 ret = _TRUE;
 #endif
-
-	RTW_INFO("%s:iwpriv in=%s\n", __func__, input);
 
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
 
 	if (copy_from_user(input, wrqu->pointer, wrqu->length))
 		return -EFAULT;
+
+	input[wrqu->length] = '\0';  /* Ensure null termination */
+	RTW_INFO("%s:iwpriv in=%s\n", __func__, input);
 
 	bMain = strncmp(input, "1", 2); /* strncmp TRUE is 0*/
 	bTurnoff = strncmp(input, "0", 3); /* strncmp TRUE is 0*/
@@ -1445,7 +1447,7 @@ int rtw_mp_switch_rf_path(struct net_device *dev,
 {
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	struct mp_priv *pmp_priv;
-	char	input[wrqu->length];
+	char	input[MP_MAX_IOCTL_BUF_SIZE];
 	int		bwlg = 1, bwla = 1, btg = 1, bbt=1;
 	u8 ret = 0;
 
@@ -1456,6 +1458,7 @@ int rtw_mp_switch_rf_path(struct net_device *dev,
 	if (copy_from_user(input, wrqu->pointer, wrqu->length))
 		return -EFAULT;
 
+	input[wrqu->length] = '\0';  /* Ensure null termination */
 	pmp_priv = &padapter->mppriv;
 
 	RTW_INFO("%s: in=%s\n", __func__, input);
