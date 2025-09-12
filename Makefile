@@ -1,11 +1,17 @@
+################################################################################
+# RTL8192EU Linux Driver Makefile
+# Minimum supported kernel: 5.4
+# Tested kernels: 5.4, 5.10, 5.15, 6.1
+################################################################################
+
 EXTRA_CFLAGS += $(USER_EXTRA_CFLAGS)
-EXTRA_CFLAGS += -O1
-#EXTRA_CFLAGS += -O3
-#EXTRA_CFLAGS += -Wall
-#EXTRA_CFLAGS += -Wextra
-#EXTRA_CFLAGS += -Werror
-#EXTRA_CFLAGS += -pedantic
-#EXTRA_CFLAGS += -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes
+EXTRA_CFLAGS += -O2
+
+# Security hardening flags
+EXTRA_CFLAGS += -D_FORTIFY_SOURCE=2
+EXTRA_CFLAGS += -fstack-protector-strong
+EXTRA_CFLAGS += -Wformat -Wformat-security
+EXTRA_CFLAGS += -fno-common
 
 EXTRA_CFLAGS += -Wno-unused-variable
 EXTRA_CFLAGS += -Wno-unused-value
@@ -85,14 +91,11 @@ CONFIG_ICMP_VOQ = n
 CONFIG_IP_R_MONITOR = n #arp VOQ and high rate
 ########################## Debug ###########################
 CONFIG_RTW_DEBUG = y
-# default log level is _DRV_INFO_ = 4,
-# please refer to "How_to_set_driver_debug_log_level.doc" to set the available level.
+# Log levels: 0=none, 1=err, 2=warning, 3=info, 4=debug, 5=max
 CONFIG_RTW_LOG_LEVEL = 4
 ######################## Wake On Lan ##########################
 CONFIG_WOWLAN = n
-#bit2: deauth, bit1: unicast, bit0: magic pkt.
 CONFIG_WAKEUP_TYPE = 0x7
-#bit0: disBBRF off, #bit1: Wireless remote controller (WRC)
 CONFIG_SUSPEND_TYPE = 0
 CONFIG_WOW_STA_MIX = n
 CONFIG_GPIO_WAKEUP = n

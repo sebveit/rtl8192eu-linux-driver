@@ -4092,13 +4092,14 @@ static int rtw_p2p_setDN(struct net_device *dev,
 	int ret = 0;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct wifidirect_info *pwdinfo = &(padapter->wdinfo);
+	size_t copy_len;
 
 
 	RTW_INFO("[%s] %s %d\n", __FUNCTION__, extra, wrqu->data.length - 1);
 	_rtw_memset(pwdinfo->device_name, 0x00, WPS_MAX_DEVICE_NAME_LEN);
 	
 	/* Security fix: Ensure we don't overflow the device_name buffer */
-	size_t copy_len = wrqu->data.length - 1;
+	copy_len = wrqu->data.length - 1;
 	if (copy_len >= WPS_MAX_DEVICE_NAME_LEN)
 		copy_len = WPS_MAX_DEVICE_NAME_LEN - 1;
 	
