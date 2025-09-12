@@ -128,7 +128,7 @@ module_param(rtw_dynamic_agg_enable, int, 0644);
 #else
 	uint rtw_drv_log_level = _DRV_INFO_;
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 static int rtw_drv_log_level_set(const char *val, const struct kernel_param *kp)
 {
 	unsigned int level;
@@ -448,7 +448,7 @@ module_param(rtw_chip_version, int, 0644);
 module_param(rtw_rfintfs, int, 0644);
 module_param(rtw_lbkmode, int, 0644);
 module_param(rtw_network_mode, int, 0644);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 static int rtw_channel_set(const char *val, const struct kernel_param *kp)
 {
 	int channel;
@@ -1540,7 +1540,7 @@ static const struct net_device_ops rtw_netdev_ops = {
 #endif
 };
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 static void rtw_ethtool_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
 {
 	_adapter *padapter = rtw_netdev_priv(dev);
@@ -1597,7 +1597,7 @@ static void rtw_ethtool_get_strings(struct net_device *dev, u32 sset, u8 *data)
 static const struct ethtool_ops rtw_ethtool_ops = {
 	.get_drvinfo = rtw_ethtool_get_drvinfo,
 	.get_link = rtw_ethtool_get_link,
-	.get_stats = rtw_ethtool_get_stats,
+	.get_ethtool_stats = rtw_ethtool_get_stats,
 	.get_sset_count = rtw_ethtool_get_sset_count,
 	.get_strings = rtw_ethtool_get_strings,
 };
@@ -1644,7 +1644,7 @@ int rtw_init_netdev_name(struct net_device *pnetdev, const char *ifname)
 void rtw_hook_if_ops(struct net_device *ndev)
 {
         ndev->netdev_ops = &rtw_netdev_ops;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
         ndev->ethtool_ops = &rtw_ethtool_ops;
 #endif
 }

@@ -19,9 +19,8 @@
 
 #include <platform_ops.h>
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 #include <linux/pm_runtime.h>
-#include <linux/dev_printk.h>
 #endif
 
 #ifndef CONFIG_USB_HCI
@@ -234,7 +233,7 @@ struct rtw_usb_drv usb_drv = {
 #endif
 
        .usbdrv.drvwrap.driver.shutdown = rtw_dev_shutdown,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
        .usbdrv.drvwrap.driver.pm = &rtw_pm_ops,
 #endif
 };
@@ -1033,7 +1032,7 @@ static int rtw_resume(struct usb_interface *pusb_intf)
 	return ret;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 static int rtw_runtime_suspend(struct device *dev)
 {
 	struct usb_interface *pusb_intf = to_usb_interface(dev);
@@ -1361,7 +1360,7 @@ static int rtw_drv_init(struct usb_interface *pusb_intf, const struct usb_device
 	/* Initialize dvobj_priv */
 	dvobj = usb_dvobj_init(pusb_intf, pdid);
 	if (dvobj == NULL) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
 		dev_err_probe(&pusb_intf->dev, -ENOMEM, 
 			      "usb_dvobj_init failed\n");
 #endif
@@ -1370,7 +1369,7 @@ static int rtw_drv_init(struct usb_interface *pusb_intf, const struct usb_device
 
 	padapter = rtw_usb_primary_adapter_init(dvobj, pusb_intf);
 	if (padapter == NULL) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
 		dev_err_probe(&pusb_intf->dev, -ENOMEM, 
 			      "rtw_usb_primary_adapter_init failed\n");
 #else
@@ -1421,7 +1420,7 @@ static int rtw_drv_init(struct usb_interface *pusb_intf, const struct usb_device
 
 	status = _SUCCESS;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 	/* Enable runtime power management for modern kernels */
 	pm_runtime_enable(&pusb_intf->dev);
 	pm_runtime_set_autosuspend_delay(&pusb_intf->dev, 2000);
@@ -1514,7 +1513,7 @@ static void rtw_dev_remove(struct usb_interface *pusb_intf)
 
 	usb_dvobj_deinit(pusb_intf);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 	/* Disable runtime power management */
 	pm_runtime_dont_use_autosuspend(&pusb_intf->dev);
 	pm_runtime_disable(&pusb_intf->dev);
@@ -1545,7 +1544,7 @@ static int __init rtw_drv_entry(void)
 
 	ret = platform_wifi_power_on();
 	if (ret != 0) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 		/* Note: no device context available here for dev_err_probe */
 		pr_err("%s: power on failed!!(%d)\n", __FUNCTION__, ret);
 #else
