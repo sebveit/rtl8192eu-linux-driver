@@ -142,9 +142,10 @@ static const struct wiphy_wowlan_support wowlan_stub = {
 };
 
 static struct ieee80211_rate rtw_rates[] = {
-	RATETAB_ENT(10,  0x1,   0),
-	RATETAB_ENT(20,  0x2,   0),
-	RATETAB_ENT(55,  0x4,   0),
+	RATETAB_ENT(10,  0x1,   IEEE80211_RATE_SHORT_PREAMBLE),
+	RATETAB_ENT(20,  0x2,   IEEE80211_RATE_SHORT_PREAMBLE),
+	RATETAB_ENT(55,  0x4,   IEEE80211_RATE_SHORT_PREAMBLE),
+	RATETAB_ENT(110, 0x8,   IEEE80211_RATE_SHORT_PREAMBLE),
 	RATETAB_ENT(60,  0x10,  0),
 	RATETAB_ENT(90,  0x20,  0),
 	RATETAB_ENT(120, 0x40,  0),
