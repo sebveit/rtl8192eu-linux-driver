@@ -9115,7 +9115,9 @@ int rtw_wiphy_register(struct wiphy *wiphy)
 {
 	RTW_INFO(FUNC_WIPHY_FMT"\n", FUNC_WIPHY_ARG(wiphy));
 
+#ifdef RTW_VENDOR_EXT_SUPPORT
 	rtw_cfgvendor_attach(wiphy);
+#endif
 
 	rtw_regd_init(wiphy);
 
@@ -9126,7 +9128,9 @@ void rtw_wiphy_unregister(struct wiphy *wiphy)
 {
 	RTW_INFO(FUNC_WIPHY_FMT"\n", FUNC_WIPHY_ARG(wiphy));
 
+#ifdef RTW_VENDOR_EXT_SUPPORT
 	rtw_cfgvendor_detach(wiphy);
+#endif
 
 	#if defined(RTW_DEDICATED_P2P_DEVICE)
 	rtw_pd_iface_free(wiphy);
