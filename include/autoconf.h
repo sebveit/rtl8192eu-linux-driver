@@ -58,6 +58,13 @@
 
 #define CONFIG_RECV_REORDERING_CTRL
 
+/* Performance optimizations */
+#define CONFIG_USB_TX_AGGREGATION  /* Enable USB TX aggregation for better throughput */
+#define CONFIG_USB_RX_AGGREGATION  /* Enable USB RX aggregation for better throughput */
+#define CONFIG_PREALLOC_RECV_SKB   /* Pre-allocate SKBs for better RX performance */
+#define CONFIG_USE_USB_BUFFER_ALLOC_RX  /* Use USB buffer allocation for RX */
+#define CONFIG_USE_USB_BUFFER_ALLOC_TX  /* Use USB buffer allocation for TX */
+
  /* #define CONFIG_SUPPORT_USB_INT */
  #ifdef CONFIG_SUPPORT_USB_INT
 /* #define CONFIG_USB_INTERRUPT_IN_PIPE */

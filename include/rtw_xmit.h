@@ -50,7 +50,7 @@
 	#ifdef CONFIG_SINGLE_XMIT_BUF
 		#define NR_XMITBUFF	(1)
 	#else
-		#define NR_XMITBUFF	(4)
+		#define NR_XMITBUFF	(16)  /* Increased from 4 to 16 for better performance */
 	#endif /* CONFIG_SINGLE_XMIT_BUF */
 #elif defined (CONFIG_PCI_HCI)
 #ifdef CONFIG_TX_AMSDU

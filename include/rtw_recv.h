@@ -29,17 +29,17 @@
 		#elif defined(CONFIG_SDIO_HCI)
 			#define NR_RECVBUFF (8)
 		#else
-			#define NR_RECVBUFF (8)
+			#define NR_RECVBUFF (32)  /* Increased from 8 to 32 for better USB performance */
 		#endif
 	#endif /* CONFIG_SINGLE_RECV_BUF */
 	#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
 		#define NR_PREALLOC_RECV_SKB (rtw_rtkm_get_nr_recv_skb()>>1)
 	#else /*!CONFIG_PREALLOC_RX_SKB_BUFFER */
-		#define NR_PREALLOC_RECV_SKB 8
+		#define NR_PREALLOC_RECV_SKB 32  /* Increased from 8 to 32 for better performance */
 	#endif /* CONFIG_PREALLOC_RX_SKB_BUFFER */
 
 	#ifdef CONFIG_RTW_NAPI
-		#define RTL_NAPI_WEIGHT (32)
+		#define RTL_NAPI_WEIGHT (64)  /* Increased from 32 to 64 for better batch processing */
 	#endif
 
 #if defined(CONFIG_RTL8821C) && defined(CONFIG_SDIO_HCI) && defined(CONFIG_RECV_THREAD_MODE)
