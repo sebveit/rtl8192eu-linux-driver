@@ -107,8 +107,9 @@ int	usb_init_recv_priv(_adapter *padapter, u16 ini_in_buf_sz)
 	mtx_init(&precvpriv->rx_indicate_queue.ifq_mtx, "rx_indicate_queue", NULL, MTX_DEF);
 #endif /* CONFIG_RX_INDICATE_QUEUE */
 
-#ifndef CONFIG_USE_USB_BUFFER_ALLOC_RX
-	/* Initialize free_recv_skb_queue - needed when CONFIG_PREALLOC_RECV_SKB is enabled */
+#if defined(CONFIG_PREALLOC_RECV_SKB) || !defined(CONFIG_USE_USB_BUFFER_ALLOC_RX)
+	/* Initialize free_recv_skb_queue - needed when CONFIG_PREALLOC_RECV_SKB is enabled
+	 * or when CONFIG_USE_USB_BUFFER_ALLOC_RX is not defined */
 	skb_queue_head_init(&precvpriv->free_recv_skb_queue);
 #endif
 
