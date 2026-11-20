@@ -1,5 +1,6 @@
 #!/bin/bash
 
+cd "$(dirname "$0")/.." || exit 1
 echo "================================================"
 echo "Testing RTL8192EU driver with multiple kernels"
 echo "================================================"
@@ -16,7 +17,7 @@ for VERSION in 5.4 5.10 5.15 6.1; do
     echo "Testing kernel $VERSION..."
     echo "----------------------------------------"
     
-    if ./kernel-tests/simple-test-${VERSION}.sh; then
+    if ./kernel-tests/build-test.sh "$VERSION"; then
         echo "✓ Kernel $VERSION: PASSED"
         PASSED=$((PASSED + 1))
         RESULTS="${RESULTS}✓ Kernel ${VERSION}: PASSED\n"
