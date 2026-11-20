@@ -1849,10 +1849,10 @@ bip_verify:
 	{
 		int pp;
 
-		printk("pattrib->pktlen = %d =>", pattrib->pkt_len);
+		pr_info("pattrib->pktlen = %d =>", pattrib->pkt_len);
 		for (pp = 0; pp < pattrib->pkt_len; pp++)
-		printk(" %02x ", ptr[pp]);
-		printk("\n");
+		pr_cont(" %02x ", ptr[pp]);
+		pr_cont("\n");
 	}
 #endif
 
@@ -1870,10 +1870,10 @@ bip_verify:
 	{
 		int pp;
 
-		printk("after decryption pattrib->pktlen = %d @@=>", pattrib->pkt_len);
+		pr_info("after decryption pattrib->pktlen = %d @@=>", pattrib->pkt_len);
 		for (pp = 0; pp < pattrib->pkt_len; pp++)
-		printk(" %02x ", ptr[pp]);
-		printk("\n");
+		pr_cont(" %02x ", ptr[pp]);
+		pr_cont("\n");
 	}
 #endif
 

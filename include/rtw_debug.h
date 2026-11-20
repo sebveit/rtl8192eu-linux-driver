@@ -28,160 +28,72 @@ enum {
 	_DRV_MAX_ = 6
 };
 
-#define DRIVER_PREFIX "RTW: "
+#define DRIVER_PREFIX KBUILD_MODNAME ": "
 
-/* Modern kernel logging transition helpers */
 #ifdef pr_fmt
 #undef pr_fmt
 #endif
 #define pr_fmt(fmt) DRIVER_PREFIX fmt
 
-#define RTW_PRINT(x, ...) do {} while (0)
-#define RTW_ERR(x, ...) do {} while (0)
-#define RTW_WARN(x, ...) do {} while (0)
-#define RTW_INFO(x, ...) do {} while (0)
-#define RTW_DBG(x, ...) do {} while (0)
-#define RTW_PRINT_SEL(x, ...) do {} while (0)
-#define _RTW_PRINT(x, ...) do {} while (0)
-#define _RTW_ERR(x, ...) do {} while (0)
-#define _RTW_WARN(x, ...) do {} while (0)
-#define _RTW_INFO(x, ...) do {} while (0)
-#define _RTW_DBG(x, ...) do {} while (0)
-#define _RTW_PRINT_SEL(x, ...) do {} while (0)
-
-#define RTW_INFO_DUMP(_TitleString, _HexData, _HexDataLen) do {} while (0)
-#define RTW_DBG_DUMP(_TitleString, _HexData, _HexDataLen) do {} while (0)
-#define RTW_PRINT_DUMP(_TitleString, _HexData, _HexDataLen) do {} while (0)
-
-#define RTW_DBG_EXPR(EXPR) do {} while (0)
-
-#define RTW_DBGDUMP 0 /* 'stream' for _dbgdump */
-
-
-
-#undef _dbgdump
-#undef _seqdump
-
-/* Use modern kernel logging APIs */
-#define _dbgdump(fmt, ...) pr_info(fmt, ##__VA_ARGS__)
-/* KERN_CONT is available in kernels >= 2.6.24 */
-#define _seqdump seq_printf
-
-void RTW_BUF_DUMP_SEL(uint _loglevel, void *sel, u8 *_titlestring,
-								bool _idx_show, const u8 *_hexdata, int _hexdatalen);
-
+/*
+ * Logging:
+ * - RTW_ERR, RTW_WARN and RTW_PRINT always reach the kernel log (filtered
+ *   by the rtw_drv_log_level module parameter when CONFIG_RTW_DEBUG is set).
+ * - RTW_INFO and RTW_DBG are pr_debug() messages: enable them at runtime
+ *   with dynamic debug, e.g. "modprobe 8192eu dyndbg=+p" or via
+ *   /sys/kernel/debug/dynamic_debug/control.
+ */
 #ifdef CONFIG_RTW_DEBUG
-
 #ifndef _OS_INTFS_C_
 extern uint rtw_drv_log_level;
 #endif
+#define RTW_LOG_ENABLED(lvl) ((lvl) <= rtw_drv_log_level)
+#else
+#define RTW_LOG_ENABLED(lvl) ((lvl) <= _DRV_WARNING_ || (lvl) == _DRV_ALWAYS_)
+#endif
 
-#if defined(_dbgdump)
+#define RTW_PRINT(fmt, arg...) \
+	do { if (RTW_LOG_ENABLED(_DRV_ALWAYS_)) pr_info(fmt, ##arg); } while (0)
+#define RTW_ERR(fmt, arg...) \
+	do { if (RTW_LOG_ENABLED(_DRV_ERR_)) pr_err(fmt, ##arg); } while (0)
+#define RTW_WARN(fmt, arg...) \
+	do { if (RTW_LOG_ENABLED(_DRV_WARNING_)) pr_warn(fmt, ##arg); } while (0)
+#define RTW_INFO(fmt, arg...) pr_debug(fmt, ##arg)
+#define RTW_DBG(fmt, arg...) pr_debug(fmt, ##arg)
 
-/* with driver-defined prefix */
-#undef RTW_PRINT
-#define RTW_PRINT(fmt, arg...)     \
-	do {\
-		if (_DRV_ALWAYS_ <= rtw_drv_log_level) {\
-			pr_info(fmt, ##arg);\
-		} \
-	} while (0)
+/* continuation of a previous message, without prefix */
+#define _RTW_PRINT(fmt, arg...) \
+	do { if (RTW_LOG_ENABLED(_DRV_ALWAYS_)) pr_cont(fmt, ##arg); } while (0)
+#define _RTW_ERR(fmt, arg...) \
+	do { if (RTW_LOG_ENABLED(_DRV_ERR_)) pr_cont(fmt, ##arg); } while (0)
+#define _RTW_WARN(fmt, arg...) \
+	do { if (RTW_LOG_ENABLED(_DRV_WARNING_)) pr_cont(fmt, ##arg); } while (0)
+#define _RTW_INFO(fmt, arg...) pr_debug(fmt, ##arg)
+#define _RTW_DBG(fmt, arg...) pr_debug(fmt, ##arg)
 
-#undef RTW_ERR
-#define RTW_ERR(fmt, arg...)     \
-	do {\
-		if (_DRV_ERR_ <= rtw_drv_log_level) {\
-			pr_err(fmt, ##arg);\
-		} \
-	} while (0)
+#define RTW_DBGDUMP 0 /* 'stream' for _dbgdump */
 
+#undef _dbgdump
+#undef _seqdump
+#define _dbgdump(fmt, ...) pr_info(fmt, ##__VA_ARGS__)
+#define _seqdump seq_printf
 
-#undef RTW_WARN
-#define RTW_WARN(fmt, arg...)     \
-	do {\
-		if (_DRV_WARNING_ <= rtw_drv_log_level) {\
-			pr_warn(fmt, ##arg);\
-		} \
-	} while (0)
+void RTW_BUF_DUMP_SEL(uint _loglevel, void *sel, u8 *_titlestring,
+		      bool _idx_show, const u8 *_hexdata, int _hexdatalen);
 
-#undef RTW_INFO
-#define RTW_INFO(fmt, arg...)     \
-	do {\
-		if (_DRV_INFO_ <= rtw_drv_log_level) {\
-			pr_info(fmt, ##arg);\
-		} \
-	} while (0)
-
-
-#undef RTW_DBG
-#define RTW_DBG(fmt, arg...)     \
-	do {\
-		if (_DRV_DEBUG_ <= rtw_drv_log_level) {\
-			pr_debug(fmt, ##arg);\
-		} \
-	} while (0)
-
-#undef RTW_INFO_DUMP
-#define RTW_INFO_DUMP(_TitleString, _HexData, _HexDataLen)	\
+#ifdef CONFIG_RTW_DEBUG
+#define RTW_INFO_DUMP(_TitleString, _HexData, _HexDataLen) \
 	RTW_BUF_DUMP_SEL(_DRV_INFO_, RTW_DBGDUMP, _TitleString, _FALSE, _HexData, _HexDataLen)
-
-#undef RTW_DBG_DUMP
-#define RTW_DBG_DUMP(_TitleString, _HexData, _HexDataLen)	\
+#define RTW_DBG_DUMP(_TitleString, _HexData, _HexDataLen) \
 	RTW_BUF_DUMP_SEL(_DRV_DEBUG_, RTW_DBGDUMP, _TitleString, _FALSE, _HexData, _HexDataLen)
-
-
-#undef RTW_PRINT_DUMP
-#define RTW_PRINT_DUMP(_TitleString, _HexData, _HexDataLen)	\
+#define RTW_PRINT_DUMP(_TitleString, _HexData, _HexDataLen) \
 	RTW_BUF_DUMP_SEL(_DRV_ALWAYS_, RTW_DBGDUMP, _TitleString, _FALSE, _HexData, _HexDataLen)
-
-/* without driver-defined prefix */
-#undef _RTW_PRINT
-#define _RTW_PRINT(fmt, arg...)     \
-	do {\
-		if (_DRV_ALWAYS_ <= rtw_drv_log_level) {\
-			_dbgdump(KERN_CONT fmt, ##arg);\
-		} \
-	} while (0)
-
-#undef _RTW_ERR
-#define _RTW_ERR(fmt, arg...)     \
-	do {\
-		if (_DRV_ERR_ <= rtw_drv_log_level) {\
-			_dbgdump(KERN_CONT fmt, ##arg);\
-		} \
-	} while (0)
-
-
-#undef _RTW_WARN
-#define _RTW_WARN(fmt, arg...)     \
-	do {\
-		if (_DRV_WARNING_ <= rtw_drv_log_level) {\
-			_dbgdump(KERN_CONT fmt, ##arg);\
-		} \
-	} while (0)
-
-#undef _RTW_INFO
-#define _RTW_INFO(fmt, arg...)     \
-	do {\
-		if (_DRV_INFO_ <= rtw_drv_log_level) {\
-			_dbgdump(KERN_CONT fmt, ##arg);\
-		} \
-	} while (0)
-
-#undef _RTW_DBG
-#define _RTW_DBG(fmt, arg...)     \
-	do {\
-		if (_DRV_DEBUG_ <= rtw_drv_log_level) {\
-			_dbgdump(KERN_CONT fmt, ##arg);\
-		} \
-	} while (0)
-
-
-/* other debug APIs */
-#undef RTW_DBG_EXPR
-#define RTW_DBG_EXPR(EXPR) do { if (_DRV_DEBUG_ <= rtw_drv_log_level) EXPR; } while (0)
-
-#endif /* defined(_dbgdump) */
+#define RTW_DBG_EXPR(EXPR) do { if (RTW_LOG_ENABLED(_DRV_DEBUG_)) EXPR; } while (0)
+#else
+#define RTW_INFO_DUMP(_TitleString, _HexData, _HexDataLen) do {} while (0)
+#define RTW_DBG_DUMP(_TitleString, _HexData, _HexDataLen) do {} while (0)
+#define RTW_PRINT_DUMP(_TitleString, _HexData, _HexDataLen) do {} while (0)
+#define RTW_DBG_EXPR(EXPR) do {} while (0)
 #endif /* CONFIG_RTW_DEBUG */
 
 

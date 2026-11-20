@@ -1527,8 +1527,8 @@ void rtw_btcoex_dump_tx_msg(u8 *tx_msg, u8 len, u8 *msg_name)
 	u8	i = 0;
 	RTW_INFO("======> Msg name: %s\n", msg_name);
 	for (i = 0; i < len; i++)
-		printk("%02x ", tx_msg[i]);
-	printk("\n");
+		pr_info("%02x ", tx_msg[i]);
+	pr_cont("\n");
 	RTW_INFO("Msg name: %s <======\n", msg_name);
 }
 

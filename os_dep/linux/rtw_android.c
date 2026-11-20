@@ -301,23 +301,23 @@ int rtw_gtk_offload(struct net_device *net, u8 *cmd_ptr)
 		_rtw_memcpy(psta->kek, cmd_ptr, RTW_KEK_LEN);
 		cmd_ptr += RTW_KEK_LEN;
 		/*
-		printk("supplicant KEK: ");
+		pr_info("supplicant KEK: ");
 		for(i=0;i<RTW_KEK_LEN; i++)
-			printk(" %02x ", psta->kek[i]);
-		printk("\n supplicant KCK: ");
+			pr_cont(" %02x ", psta->kek[i]);
+		pr_cont("\n supplicant KCK: ");
 		*/
 		_rtw_memcpy(psta->kck, cmd_ptr, RTW_KCK_LEN);
 		cmd_ptr += RTW_KCK_LEN;
 		/*
 		for(i=0;i<RTW_KEK_LEN; i++)
-			printk(" %02x ", psta->kck[i]);
+			pr_cont(" %02x ", psta->kck[i]);
 		*/
 		_rtw_memcpy(psta->replay_ctr, cmd_ptr, RTW_REPLAY_CTR_LEN);
 		psecuritypriv->binstallKCK_KEK = _TRUE;
 
-		/* printk("\nREPLAY_CTR: "); */
+		/* pr_cont("\nREPLAY_CTR: "); */
 		/* for(i=0;i<RTW_REPLAY_CTR_LEN; i++) */
-		/* printk(" %02x ", psta->replay_ctr[i]); */
+		/* pr_cont(" %02x ", psta->replay_ctr[i]); */
 	}
 
 	return _SUCCESS;

@@ -752,7 +752,7 @@ void SetHalODMVar(
 		break;
 	case HAL_ODM_INITIAL_GAIN: {
 		u8 rx_gain = *((u8 *)(pValue1));
-		/*printk("rx_gain:%x\n",rx_gain);*/
+		/*pr_info("rx_gain:%x\n",rx_gain);*/
 		if (rx_gain == 0xff) {/*restore rx gain*/
 			/*odm_write_dig(podmpriv,pDigTable->backup_ig_value);*/
 			odm_pause_dig(podmpriv, PHYDM_RESUME, PHYDM_PAUSE_LEVEL_0, rx_gain);

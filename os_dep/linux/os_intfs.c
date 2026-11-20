@@ -3145,7 +3145,7 @@ void netdev_br_init(struct net_device *netdev)
 				memcpy(adapter->br_mac, br_netdev->dev_addr, ETH_ALEN);
 				dev_put(br_netdev);
 			} else
-				printk("%s()-%d: dev_get_by_name(%s) failed!", __FUNCTION__, __LINE__, CONFIG_BR_EXT_BRNAME);
+				pr_info("%s()-%d: dev_get_by_name(%s) failed!", __FUNCTION__, __LINE__, CONFIG_BR_EXT_BRNAME);
 		}
 
 		adapter->ethBrExtInfo.addPPPoETag = 1;
@@ -3842,7 +3842,7 @@ static int route_dump(u32 *gw_addr , int *gw_index)
 
 	err = sock_create(AF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE, &sock);
 	if (err) {
-		printk(": Could not create a datagram socket, error = %d\n", -ENXIO);
+		pr_info(": Could not create a datagram socket, error = %d\n", -ENXIO);
 		return err;
 	}
 
@@ -3907,14 +3907,14 @@ restart:
 			if (h->nlmsg_type == NLMSG_ERROR) {
 				struct nlmsgerr *errm = (struct nlmsgerr *) NLMSG_DATA(h);
 				err = errm->error;
-				printk("NLMSG error: %d\n", errm->error);
+				pr_info("NLMSG error: %d\n", errm->error);
 				goto done;
 			}
 
 			if (h->nlmsg_type == RTM_GETROUTE)
-				printk("RTM_GETROUTE: NLMSG: %d\n", h->nlmsg_type);
+				pr_info("RTM_GETROUTE: NLMSG: %d\n", h->nlmsg_type);
 			if (h->nlmsg_type != RTM_NEWROUTE) {
-				printk("NLMSG: %d\n", h->nlmsg_type);
+				pr_info("NLMSG: %d\n", h->nlmsg_type);
 				err = -EINVAL;
 				goto done;
 			}
@@ -3930,7 +3930,7 @@ restart:
 		}
 
 		if (err) {
-			printk("!!!Remnant of size %d %d %d\n", err, h->nlmsg_len, h->nlmsg_type);
+			pr_info("!!!Remnant of size %d %d %d\n", err, h->nlmsg_len, h->nlmsg_type);
 			err = -EINVAL;
 			break;
 		}

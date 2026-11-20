@@ -440,11 +440,11 @@ static inline char *iwe_stream_wpa_wpa2_process(_adapter *padapter,
 					p += snprintf(p, IW_CUSTOM_MAX - (p - pbuf), "%02x", wpa_ie[i]);
 
 				if (wpa_len > 100) {
-					printk("-----------------Len %d----------------\n", wpa_len);
+					pr_info("-----------------Len %d----------------\n", wpa_len);
 					for (i = 0; i < wpa_len; i++)
-						printk("%02x ", wpa_ie[i]);
-					printk("\n");
-					printk("-----------------Len %d----------------\n", wpa_len);
+						pr_info("%02x ", wpa_ie[i]);
+					pr_cont("\n");
+					pr_info("-----------------Len %d----------------\n", wpa_len);
 				}
 
 				_rtw_memset(iwe, 0, sizeof(*iwe));
@@ -2640,7 +2640,7 @@ static int rtw_p2p_set_persistent(struct net_device *dev,
 		else
 			pwdinfo->persistent_supported = _FALSE;
 	}
-	printk("[%s] persistent_supported = %d\n", __FUNCTION__, pwdinfo->persistent_supported);
+	pr_info("[%s] persistent_supported = %d\n", __FUNCTION__, pwdinfo->persistent_supported);
 
 
 	return ret;
@@ -2758,17 +2758,17 @@ static int rtw_p2p_set_pc(struct net_device *dev,
 		if (p2pie) {
 			/*	The P2P Device ID attribute is included in the Beacon frame. */
 			/*	The P2P Device Info attribute is included in the probe response frame. */
-			printk("[%s] Got P2P IE\n", __FUNCTION__);
+			pr_info("[%s] Got P2P IE\n", __FUNCTION__);
 			if (rtw_get_p2p_attr_content(p2pie, p2pielen, P2P_ATTR_DEVICE_ID, attr_content, &attr_contentlen)) {
 				/*	Handle the P2P Device ID attribute of Beacon first */
-				printk("[%s] P2P_ATTR_DEVICE_ID\n", __FUNCTION__);
+				pr_info("[%s] P2P_ATTR_DEVICE_ID\n", __FUNCTION__);
 				if (_rtw_memcmp(attr_content, peerMAC, ETH_ALEN)) {
 					uintPeerChannel = pnetwork->network.Configuration.DSConfig;
 					break;
 				}
 			} else if (rtw_get_p2p_attr_content(p2pie, p2pielen, P2P_ATTR_DEVICE_INFO, attr_content, &attr_contentlen)) {
 				/*	Handle the P2P Device Info attribute of probe response */
-				printk("[%s] P2P_ATTR_DEVICE_INFO\n", __FUNCTION__);
+				pr_info("[%s] P2P_ATTR_DEVICE_INFO\n", __FUNCTION__);
 				if (_rtw_memcmp(attr_content, peerMAC, ETH_ALEN)) {
 					uintPeerChannel = pnetwork->network.Configuration.DSConfig;
 					break;
@@ -2782,7 +2782,7 @@ static int rtw_p2p_set_pc(struct net_device *dev,
 	}
 
 	_exit_critical_bh(&(pmlmepriv->scanned_queue.lock), &irqL);
-	printk("[%s] channel = %d\n", __FUNCTION__, uintPeerChannel);
+	pr_info("[%s] channel = %d\n", __FUNCTION__, uintPeerChannel);
 
 	if (uintPeerChannel) {
 		u8 *wfd_ie;
@@ -2910,7 +2910,7 @@ static int rtw_p2p_set_sa(struct net_device *dev,
 		else
 			pwdinfo->session_available = _FALSE;
 	}
-	printk("[%s] session available = %d\n", __FUNCTION__, pwdinfo->session_available);
+	pr_info("[%s] session available = %d\n", __FUNCTION__, pwdinfo->session_available);
 
 
 	return ret;
@@ -3941,7 +3941,7 @@ static int rtw_dbg_port(struct net_device *dev,
 #ifdef DBG_FIXED_CHAN
 		case 0x17: {
 			struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
-			printk("===>  Fixed channel to %d\n", extra_arg);
+			pr_info("===>  Fixed channel to %d\n", extra_arg);
 			pmlmeext->fixed_chan = extra_arg;
 
 		}
@@ -6907,16 +6907,16 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 
 		RTW_INFO("pEfuseHal->fakeBTEfuseModifiedMap OFFSET\tVALUE(hex)\n");
 		for (i = 0; i < EFUSE_BT_MAX_MAP_LEN; i += 16) {
-			printk("0x%02x\t", i);
+			pr_info("0x%02x\t", i);
 			for (j = 0; j < 8; j++)
-				printk("%02X ", pEfuseHal->fakeBTEfuseModifiedMap[i + j]);
-			printk("\t");
+				pr_cont("%02X ", pEfuseHal->fakeBTEfuseModifiedMap[i + j]);
+			pr_cont("\t");
 
 			for (; j < 16; j++)
-				printk("%02X ", pEfuseHal->fakeBTEfuseModifiedMap[i + j]);
-			printk("\n");
+				pr_cont("%02X ", pEfuseHal->fakeBTEfuseModifiedMap[i + j]);
+			pr_cont("\n");
 		}
-		printk("\n");
+		pr_info("\n");
 		err = -EFAULT;
 		RTW_INFO("%s: rtw_BT_efuse_map_read _rtw_memcmp\n", __FUNCTION__);
 		if ((rtw_BT_efuse_map_read(padapter, 0x00, EFUSE_BT_MAX_MAP_LEN, pEfuseHal->fakeBTEfuseInitMap) == _SUCCESS)) {
@@ -6934,15 +6934,15 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 					RTW_INFO("pEfuseHal->fakeBTEfuseInitMap OFFSET\tVALUE(hex)\n");
 
 					for (i = 0; i < EFUSE_BT_MAX_MAP_LEN; i += 16) {
-						printk("0x%02x\t", i);
+						pr_info("0x%02x\t", i);
 						for (j = 0; j < 8; j++)
-							printk("%02X ", pEfuseHal->fakeBTEfuseInitMap[i + j]);
-						printk("\t");
+							pr_cont("%02X ", pEfuseHal->fakeBTEfuseInitMap[i + j]);
+						pr_cont("\t");
 						for (; j < 16; j++)
-							printk("%02X ", pEfuseHal->fakeBTEfuseInitMap[i + j]);
-						printk("\n");
+							pr_cont("%02X ", pEfuseHal->fakeBTEfuseInitMap[i + j]);
+						pr_cont("\n");
 					}
-					printk("\n");
+					pr_info("\n");
 				}
 				RTW_INFO("%s: BT write map afterf compare not match to write efuse try write Map again , BTStatus=0x%x\n", __FUNCTION__, BTStatus);
 				goto exit;
@@ -8120,17 +8120,17 @@ static void printdata(u8 *pbuf, u32 len)
 
 
 	for (i = 0; (i + 4) <= len; i += 4) {
-		printk("%08X", *(u32 *)(pbuf + i));
+		pr_info("%08X", *(u32 *)(pbuf + i));
 		if ((i + 4) & 0x1F)
-			printk(" ");
+			pr_cont(" ");
 		else
-			printk("\n");
+			pr_cont("\n");
 	}
 
 	if (i < len) {
 #ifdef CONFIG_BIG_ENDIAN
 		for (; i < len, i++)
-			printk("%02X", pbuf + i);
+			pr_info("%02X", pbuf + i);
 #else /* CONFIG_LITTLE_ENDIAN */
 		u8 str[9];
 		u8 n;
@@ -8139,10 +8139,10 @@ static void printdata(u8 *pbuf, u32 len)
 		_rtw_memcpy(&val, pbuf + i, n);
 		sprintf(str, "%08X", val);
 		n = (4 - n) * 2;
-		printk("%8s", str + n);
+		pr_cont("%8s", str + n);
 #endif /* CONFIG_LITTLE_ENDIAN */
 	}
-	printk("\n");
+	pr_cont("\n");
 }
 
 static u8 pktcmp(PADAPTER padapter, u8 *txbuf, u32 txsz, u8 *rxbuf, u32 rxsz)

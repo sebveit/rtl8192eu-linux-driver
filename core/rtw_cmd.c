@@ -250,17 +250,17 @@ sint _rtw_enqueue_cmd(_queue *queue, struct cmd_obj *obj, bool to_head)
 
 #ifdef DBG_CMD_QUEUE
 	if (dump_cmd_id) {
-		printk("%s===> cmdcode:0x%02x\n", __FUNCTION__, obj->cmdcode);
+		pr_info("%s===> cmdcode:0x%02x\n", __FUNCTION__, obj->cmdcode);
 		if (obj->cmdcode == GEN_CMD_CODE(_Set_MLME_EVT)) {
 			if (obj->parmbuf) {
 				struct C2HEvent_Header *pc2h_evt_hdr = (struct C2HEvent_Header *)(obj->parmbuf);
-				printk("pc2h_evt_hdr->ID:0x%02x(%d)\n", pc2h_evt_hdr->ID, pc2h_evt_hdr->ID);
+				pr_info("pc2h_evt_hdr->ID:0x%02x(%d)\n", pc2h_evt_hdr->ID, pc2h_evt_hdr->ID);
 			}
 		}
 		if (obj->cmdcode == GEN_CMD_CODE(_Set_Drv_Extra)) {
 			if (obj->parmbuf) {
 				struct drvextra_cmd_parm *pdrvextra_cmd_parm = (struct drvextra_cmd_parm *)(obj->parmbuf);
-				printk("pdrvextra_cmd_parm->ec_id:0x%02x\n", pdrvextra_cmd_parm->ec_id);
+				pr_info("pdrvextra_cmd_parm->ec_id:0x%02x\n", pdrvextra_cmd_parm->ec_id);
 			}
 		}
 	}
@@ -336,7 +336,7 @@ struct	cmd_obj	*_rtw_dequeue_cmd(_queue *queue)
 			if (obj->cmdcode == GEN_CMD_CODE(_Set_Drv_Extra)) {
 				if (obj->parmbuf) {
 					struct drvextra_cmd_parm *pdrvextra_cmd_parm = (struct drvextra_cmd_parm *)(obj->parmbuf);
-					printk("pdrvextra_cmd_parm->ec_id:0x%02x\n", pdrvextra_cmd_parm->ec_id);
+					pr_info("pdrvextra_cmd_parm->ec_id:0x%02x\n", pdrvextra_cmd_parm->ec_id);
 				}
 			}
 

@@ -817,7 +817,7 @@ static void pre_phydm_adaptive_soml_callback(struct timer_list *t)
 	struct priv_shared_info *pshare = priv->pshare;
 
 	if (pshare->bDriverStopped || pshare->bSurpriseRemoved) {
-		printk("[%s] bDriverStopped(%d) OR bSurpriseRemoved(%d)\n",
+		pr_info("[%s] bDriverStopped(%d) OR bSurpriseRemoved(%d)\n",
                       __func__, pshare->bDriverStopped,
                       pshare->bSurpriseRemoved);
 		return;

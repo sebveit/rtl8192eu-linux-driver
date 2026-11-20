@@ -807,7 +807,7 @@ int nat25_db_handle(_adapter *priv, struct sk_buff *skb, int method)
 						RTW_INFO("NAT25: Replace DA with BR's MAC\n");
 						if ((*(u32 *)priv->br_mac) == 0 && (*(u16 *)(priv->br_mac + 4)) == 0) {
 							void netdev_br_init(struct net_device *netdev);
-							printk("Re-init netdev_br_init() due to br_mac==0!\n");
+							pr_info("Re-init netdev_br_init() due to br_mac==0!\n");
 							netdev_br_init(priv->pnetdev);
 						}
 						memcpy(skb->data, priv->br_mac, ETH_ALEN);

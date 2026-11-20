@@ -84,7 +84,9 @@ static int proc_get_drv_cfg(struct seq_file *m, void *v)
 static ssize_t proc_set_log_level(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
 {
 	char tmp[32];
+#ifdef CONFIG_RTW_DEBUG
 	int log_level;
+#endif
 
 	if (count < 1)
 		return -EINVAL;
@@ -102,12 +104,12 @@ static ssize_t proc_set_log_level(struct file *file, const char __user *buffer, 
 		if (num == 1 &&
 		    log_level >= _DRV_NONE_ && log_level <= _DRV_MAX_) {
 			rtw_drv_log_level = log_level;
-			printk("rtw_drv_log_level:%d\n", rtw_drv_log_level);
+			pr_info("rtw_drv_log_level:%d\n", rtw_drv_log_level);
 		}
 	} else
 		return -EFAULT;
 #else
-	printk("CONFIG_RTW_DEBUG is disabled\n");
+	pr_info("CONFIG_RTW_DEBUG is disabled\n");
 #endif
 
 	return count;

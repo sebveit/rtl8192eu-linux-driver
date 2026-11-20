@@ -11118,7 +11118,6 @@ exit:
 void rtw_dump_cur_efuse(PADAPTER padapter)
 {
 	int mapsize =0;
-	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
 
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN , (void *)&mapsize, _FALSE);
 
@@ -11128,10 +11127,14 @@ void rtw_dump_cur_efuse(PADAPTER padapter)
 	}
 
 #ifdef CONFIG_RTW_DEBUG
-	if (hal_data->efuse_file_status == EFUSE_FILE_LOADED)
-		RTW_MAP_DUMP_SEL(RTW_DBGDUMP, "EFUSE FILE", hal_data->efuse_eeprom_data, mapsize);
-	else
-		RTW_MAP_DUMP_SEL(RTW_DBGDUMP, "HW EFUSE", hal_data->efuse_eeprom_data, mapsize);
+	{
+		HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
+
+		if (hal_data->efuse_file_status == EFUSE_FILE_LOADED)
+			RTW_MAP_DUMP_SEL(RTW_DBGDUMP, "EFUSE FILE", hal_data->efuse_eeprom_data, mapsize);
+		else
+			RTW_MAP_DUMP_SEL(RTW_DBGDUMP, "HW EFUSE", hal_data->efuse_eeprom_data, mapsize);
+	}
 #endif
 }
 
@@ -11469,9 +11472,9 @@ void dump_TX_FIFO(_adapter *padapter, u8 page_num, u16 page_size)
 	addr = ((base)*page_size) / 8;
 	for (i = 0 ; i < page_num * count ; i += 2) {
 		rtw_write32(padapter, 0x140, addr + i);
-		printk(" %08x %08x ", rtw_read32(padapter, 0x144), rtw_read32(padapter, 0x148));
+		pr_info(" %08x %08x ", rtw_read32(padapter, 0x144), rtw_read32(padapter, 0x148));
 		rtw_write32(padapter, 0x140, addr + i + 1);
-		printk(" %08x %08x\n", rtw_read32(padapter, 0x144), rtw_read32(padapter, 0x148));
+		pr_cont(" %08x %08x\n", rtw_read32(padapter, 0x144), rtw_read32(padapter, 0x148));
 	}
 }
 

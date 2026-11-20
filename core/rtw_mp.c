@@ -2012,11 +2012,11 @@ u8 rtw_mpRateParseFunc(PADAPTER pAdapter, u8 *targetStr)
 		}
 	}
 
-	printk("%s ,please input a Data RATE String as:", __func__);
+	pr_info("%s ,please input a Data RATE String as:", __func__);
 	for (i = 0; i <= 83; i++) {
-		printk("%s ", rateindex_Array[i]);
+		pr_cont("%s ", rateindex_Array[i]);
 		if (i % 10 == 0)
-			printk("\n");
+			pr_cont("\n");
 	}
 	return _FAIL;
 }

@@ -56,7 +56,10 @@ REALTEK_CONFIG_PATH ?= /lib/firmware/
 
 ########################## Debug ###########################
 CONFIG_RTW_DEBUG ?= y
-# Log levels: 0=none, 1=err, 2=warning, 3=info, 4=debug, 5=max
+# Log level for RTW_PRINT/RTW_ERR/RTW_WARN and hex dumps (0=none, 1=always,
+# 2=error, 3=warning, 4=info, 5=debug). RTW_INFO/RTW_DBG messages use
+# dynamic debug: "modprobe 8192eu dyndbg=+p".
+
 CONFIG_RTW_LOG_LEVEL ?= 4
 
 ifneq ($(KERNELRELEASE),)

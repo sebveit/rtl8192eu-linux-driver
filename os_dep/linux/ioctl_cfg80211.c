@@ -1654,18 +1654,18 @@ static int cfg80211_rtw_set_rekey_data(struct wiphy *wiphy,
 	}
 
 	_rtw_memcpy(psta->kek, data->kek, NL80211_KEK_LEN);
-	/*printk("\ncfg80211_rtw_set_rekey_data KEK:");
+	/*pr_info("\ncfg80211_rtw_set_rekey_data KEK:");
 	for(i=0;i<NL80211_KEK_LEN; i++)
-		printk(" %02x ", psta->kek[i]);*/
+		pr_cont(" %02x ", psta->kek[i]);*/
 	_rtw_memcpy(psta->kck, data->kck, NL80211_KCK_LEN);
-	/*printk("\ncfg80211_rtw_set_rekey_data KCK:");
+	/*pr_cont("\ncfg80211_rtw_set_rekey_data KCK:");
 	for(i=0;i<NL80211_KCK_LEN; i++)
-		printk(" %02x ", psta->kck[i]);*/
+		pr_cont(" %02x ", psta->kck[i]);*/
 	_rtw_memcpy(psta->replay_ctr, data->replay_ctr, NL80211_REPLAY_CTR_LEN);
 	psecuritypriv->binstallKCK_KEK = _TRUE;
-	/*printk("\nREPLAY_CTR: ");
+	/*pr_cont("\nREPLAY_CTR: ");
 	for(i=0;i<RTW_REPLAY_CTR_LEN; i++)
-		printk(" %02x ", psta->replay_ctr[i]);*/
+		pr_cont(" %02x ", psta->replay_ctr[i]);*/
 
 	return 0;
 }
@@ -3008,7 +3008,7 @@ static int cfg80211_rtw_connect(struct wiphy *wiphy, struct net_device *ndev,
 	}
 
 #ifdef CONFIG_PLATFORM_MSTAR_SCAN_BEFORE_CONNECT
-	printk("MStar Android!\n");
+	pr_info("MStar Android!\n");
 	if (pwdev_priv->bandroid_scan == _FALSE) {
 #ifdef CONFIG_P2P
 		struct wifidirect_info *pwdinfo = &(padapter->wdinfo);
@@ -3016,7 +3016,7 @@ static int cfg80211_rtw_connect(struct wiphy *wiphy, struct net_device *ndev,
 #endif /* CONFIG_P2P */
 		{
 			ret = -EBUSY;
-			printk("Android hasn't attached yet!\n");
+			pr_info("Android hasn't attached yet!\n");
 			goto exit;
 		}
 	}
@@ -5920,7 +5920,7 @@ static int cfg80211_rtw_tdls_mgmt(struct wiphy *wiphy,
 	if (txmgmt.len > 0) {
 		int i = 0;
 		for (; i < len; i++)
-			printk("%02x ", *(txmgmt.buf + i));
+			pr_info("%02x ", *(txmgmt.buf + i));
 		RTW_INFO("len:%d\n", (u32)txmgmt.len);
 	}
 
@@ -6193,7 +6193,7 @@ static int rtw_cfg80211_set_probe_resp_wpsp2pie(struct net_device *net, char *bu
 				struct wireless_dev *wdev = padapter->rtw_wdev;
 
 				#ifdef CONFIG_DEBUG_CFG80211
-				/* printk("config_method in wpsie of probe_resp = 0x%x\n", be16_to_cpu(*puconfig_method)); */
+				/* pr_info("config_method in wpsie of probe_resp = 0x%x\n", be16_to_cpu(*puconfig_method)); */
 				#endif
 
 				/* for WIFI-DIRECT LOGO 4.2.2, AUTO GO can't set PUSH_BUTTON flags */

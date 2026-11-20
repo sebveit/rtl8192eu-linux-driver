@@ -2761,10 +2761,10 @@ s32 rtw_mgmt_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame
 			/* dump total packet include MME with zero MIC */
 			{
 				int i;
-				printk("Total packet: ");
+				pr_info("Total packet: ");
 				for (i = 0; i < BIP_AAD_SIZE + frame_body_len; i++)
-					printk(" %02x ", BIP_AAD[i]);
-				printk("\n");
+					pr_cont(" %02x ", BIP_AAD[i]);
+				pr_cont("\n");
 			}
 			#endif
 
@@ -2777,10 +2777,10 @@ s32 rtw_mgmt_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame
 			/* dump calculated mic result */
 			{
 				int i;
-				printk("Calculated mic result: ");
+				pr_info("Calculated mic result: ");
 				for (i = 0; i < 16; i++)
-					printk(" %02x ", mic[i]);
-				printk("\n");
+					pr_cont(" %02x ", mic[i]);
+				pr_cont("\n");
 			}
 			#endif
 
@@ -2791,10 +2791,10 @@ s32 rtw_mgmt_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame
 			/*dump all packet after mic ok */
 			{
 				int pp;
-				printk("pattrib->pktlen = %d\n", pattrib->pktlen);
+				pr_info("pattrib->pktlen = %d\n", pattrib->pktlen);
 				for(pp=0;pp< pattrib->pktlen; pp++)
-					printk(" %02x ", mem_start[pp]);
-				printk("\n");
+					pr_info(" %02x ", mem_start[pp]);
+				pr_cont("\n");
 			}
 			#endif
 
@@ -2834,10 +2834,10 @@ s32 rtw_mgmt_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame
 	/* before encrypt dump the management packet content */
 	{
 		int i;
-		printk("Management pkt: ");
+		pr_info("Management pkt: ");
 		for(i=0; i<pattrib->pktlen; i++)
-		printk(" %02x ", pframe[i]);
-		printk("=======\n");
+		pr_cont(" %02x ", pframe[i]);
+		pr_cont("=======\n");
 	}
 	#endif
 
@@ -2879,10 +2879,10 @@ s32 rtw_mgmt_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame
 	/* dump management packet include AES IV header */
 	{
 		int i;
-		printk("Management pkt + IV: ");
+		pr_info("Management pkt + IV: ");
 		/* for(i=0; i<pattrib->pktlen; i++) */
 
-		printk("@@@@@@@@@@@@@\n");
+		pr_cont("@@@@@@@@@@@@@\n");
 	}
 	#endif
 
@@ -2902,10 +2902,10 @@ s32 rtw_mgmt_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame
 	/* dump management packet include AES header */
 	{
 		int i;
-		printk("prepare to enc Management pkt + IV: ");
+		pr_info("prepare to enc Management pkt + IV: ");
 		for (i = 0; i < pattrib->pktlen; i++)
-			printk(" %02x ", mem_start[i]);
-		printk("@@@@@@@@@@@@@\n");
+			pr_cont(" %02x ", mem_start[i]);
+		pr_cont("@@@@@@@@@@@@@\n");
 	}
 	#endif
 
