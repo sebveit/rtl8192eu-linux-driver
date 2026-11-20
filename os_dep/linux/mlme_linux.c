@@ -347,7 +347,6 @@ int hostapd_mode_init(_adapter *padapter)
 
 	pnetdev->watchdog_timeo = HZ; /* 1 second timeout */
 
-	/* pnetdev->wireless_handlers = NULL; */
 
 
 
