@@ -34,7 +34,6 @@
 	#include <net/arp.h>
 #endif
 
-	#include <drv_types_linux.h>
 
 enum _NIC_VERSION {
 
@@ -60,9 +59,6 @@ typedef struct _ADAPTER _adapter, ADAPTER, *PADAPTER;
 	#include <rtw_vht.h>
 #endif
 
-#ifdef CONFIG_INTEL_WIDI
-	#include <rtw_intel_widi.h>
-#endif
 
 #include <rtw_cmd.h>
 #include <cmd_osdep.h>
@@ -91,7 +87,6 @@ typedef struct _ADAPTER _adapter, ADAPTER, *PADAPTER;
 #include <rtw_io.h>
 #include <rtw_ioctl.h>
 #include <rtw_ioctl_set.h>
-#include <rtw_ioctl_query.h>
 #include <rtw_ioctl_rtl.h>
 #include <osdep_intf.h>
 #include <rtw_eeprom.h>
@@ -100,9 +95,6 @@ typedef struct _ADAPTER _adapter, ADAPTER, *PADAPTER;
 #include <rtw_mlme_ext.h>
 #include <rtw_mi.h>
 #include <rtw_ap.h>
-#ifdef CONFIG_RTW_MESH
-#include "../core/mesh/rtw_mesh.h"
-#endif
 #include <rtw_efuse.h>
 #include <rtw_version.h>
 #include <rtw_odm.h>
@@ -117,9 +109,6 @@ typedef struct _ADAPTER _adapter, ADAPTER, *PADAPTER;
 	#include <rtw_tdls.h>
 #endif /* CONFIG_TDLS */
 
-#ifdef CONFIG_WAPI_SUPPORT
-	#include <rtw_wapi.h>
-#endif /* CONFIG_WAPI_SUPPORT */
 
 #ifdef CONFIG_MP_INCLUDED
 	#include <rtw_mp.h>
@@ -143,13 +132,7 @@ typedef struct _ADAPTER _adapter, ADAPTER, *PADAPTER;
 #include <rtw_btcoex_wifionly.h>
 #include <rtw_btcoex.h>
 
-#ifdef CONFIG_MCC_MODE
-	#include <rtw_mcc.h>
-#endif /*CONFIG_MCC_MODE */
 
-#ifdef CONFIG_RTW_REPEATER_SON
-	#include <rtw_rson.h>
-#endif /*CONFIG_RTW_REPEATER_SON */
 
 #define SPEC_DEV_ID_NONE BIT(0)
 #define SPEC_DEV_ID_DISABLE_HT BIT(1)
@@ -384,19 +367,6 @@ struct registry_priv {
 	u8 dfs_region_domain;
 #endif
 
-#ifdef CONFIG_MCC_MODE
-	u8 en_mcc;
-	u32 rtw_mcc_single_tx_cri;
-	u32 rtw_mcc_ap_bw20_target_tx_tp;
-	u32 rtw_mcc_ap_bw40_target_tx_tp;
-	u32 rtw_mcc_ap_bw80_target_tx_tp;
-	u32 rtw_mcc_sta_bw20_target_tx_tp;
-	u32 rtw_mcc_sta_bw40_target_tx_tp;
-	u32 rtw_mcc_sta_bw80_target_tx_tp;
-	s8 rtw_mcc_policy_table_idx;
-	u8 rtw_mcc_duration;
-	u8 rtw_mcc_enable_runtime_duration;
-#endif /* CONFIG_MCC_MODE */
 
 #ifdef CONFIG_RTW_NAPI
 	u8 en_napi;
@@ -1029,9 +999,6 @@ struct dvobj_priv {
 	u8		fw_bcn_offload;
 	u8		vap_tbtt_rpt_map;
 	#endif /*CONFIG_SUPPORT_MULTI_BCN*/
-	#ifdef CONFIG_RTW_REPEATER_SON
-	struct rtw_rson_struct  rson_data;
-	#endif
 #endif
 #ifdef CONFIG_CLIENT_PORT_CFG
 	struct clt_port_t clt_port;
@@ -1101,9 +1068,6 @@ struct dvobj_priv {
 	struct dft_info dft;
 #endif
 
-#ifdef CONFIG_RTW_WIFI_HAL
-	u32 nodfs;
-#endif
 
 	/*-------- below is for SDIO INTERFACE --------*/
 
@@ -1145,9 +1109,6 @@ struct dvobj_priv {
 	/*-------- below is for PCIE INTERFACE --------*/
 
 
-#ifdef CONFIG_MCC_MODE
-	struct mcc_obj_priv mcc_objpriv;
-#endif /*CONFIG_MCC_MODE */
 
 #ifdef CONFIG_RTW_TPT_MODE
 	u8 tpt_mode; /* RTK T/P Testing Mode, 0:default mode */
@@ -1353,14 +1314,7 @@ struct _ADAPTER {
 	struct tdls_info	tdlsinfo;
 #endif /* CONFIG_TDLS */
 
-#ifdef CONFIG_WAPI_SUPPORT
-	u8	WapiSupport;
-	RT_WAPI_T	wapiInfo;
-#endif
 
-#ifdef CONFIG_RTW_REPEATER_SON
-	u8	rtw_rson_scanstage;
-#endif
 
 #ifdef CONFIG_WFD
 	struct wifi_display_info wfd_info;
@@ -1426,9 +1380,6 @@ struct _ADAPTER {
 	struct proc_dir_entry *dir_dev;/* for proc directory */
 	struct proc_dir_entry *dir_odm;
 
-#ifdef CONFIG_MCC_MODE
-	struct proc_dir_entry *dir_mcc;
-#endif /* CONFIG_MCC_MODE */
 
 #ifdef CONFIG_IOCTL_CFG80211
 	struct wireless_dev *rtw_wdev;
@@ -1545,19 +1496,7 @@ struct _ADAPTER {
 	struct int_logs int_logs;
 #endif
 
-#ifdef CONFIG_MCC_MODE
-	struct mcc_adapter_priv mcc_adapterpriv;
-#endif /* CONFIG_MCC_MODE */
 
-#ifdef CONFIG_RTW_MESH
-	struct rtw_mesh_cfg mesh_cfg;
-	struct rtw_mesh_info mesh_info;
-	_timer mesh_path_timer;
-	_timer mesh_path_root_timer;
-	_timer mesh_atlm_param_req_timer; /* airtime link metrics param request timer */
-	_workitem mesh_work;
-	unsigned long wrkq_flags;
-#endif /* CONFIG_RTW_MESH */
 };
 
 #define adapter_to_dvobj(adapter) ((adapter)->dvobj)
@@ -1574,10 +1513,6 @@ struct _ADAPTER {
 #define adapter_to_macidctl(adapter) dvobj_to_macidctl(adapter_to_dvobj((adapter)))
 
 #define adapter_mac_addr(adapter) (adapter->mac_addr)
-#ifdef CONFIG_RTW_CFGVENDOR_RANDOM_MAC_OUI
-#define adapter_pno_mac_addr(adapter) \
-	((adapter_wdev_data(adapter))->pno_mac_addr)
-#endif
 
 #define adapter_to_chset(adapter) (adapter_to_rfctl((adapter))->channel_set)
 

@@ -119,12 +119,11 @@ ldflags-y += --strip-debug
 ######################## Objects ###########################
 rtw_core := \
 	core/rtw_cmd.o core/rtw_security.o core/rtw_debug.o core/rtw_io.o \
-	core/rtw_ioctl_query.o core/rtw_ioctl_set.o core/rtw_ieee80211.o \
+	core/rtw_ioctl_set.o core/rtw_ieee80211.o \
 	core/rtw_mlme.o core/rtw_mlme_ext.o core/rtw_mi.o core/rtw_wlan_util.o \
 	core/rtw_vht.o core/rtw_pwrctrl.o core/rtw_rf.o core/rtw_chplan.o \
 	core/rtw_recv.o core/rtw_sta_mgt.o core/rtw_ap.o \
-	core/mesh/rtw_mesh.o core/mesh/rtw_mesh_pathtbl.o core/mesh/rtw_mesh_hwmp.o \
-	core/rtw_xmit.o core/rtw_p2p.o core/rtw_rson.o core/rtw_tdls.o \
+	core/rtw_xmit.o core/rtw_p2p.o core/rtw_tdls.o \
 	core/rtw_br_ext.o core/rtw_iol.o core/rtw_sreset.o \
 	core/rtw_btcoex_wifionly.o core/rtw_btcoex.o core/rtw_beamforming.o \
 	core/rtw_odm.o core/rtw_rm.o core/rtw_rm_fsm.o core/efuse/rtw_efuse.o
@@ -135,13 +134,13 @@ rtw_os := \
 	os_dep/linux/xmit_linux.o os_dep/linux/mlme_linux.o \
 	os_dep/linux/recv_linux.o os_dep/linux/ioctl_cfg80211.o \
 	os_dep/linux/rtw_cfgvendor.o os_dep/linux/wifi_regd.o \
-	os_dep/linux/rtw_android.o os_dep/linux/rtw_proc.o \
-	os_dep/linux/rtw_rhashtable.o
+	os_dep/linux/rtw_android.o os_dep/linux/rtw_proc.o
+
 
 rtw_hal := \
 	hal/hal_intf.o hal/hal_com.o hal/hal_com_phycfg.o hal/hal_phy.o \
 	hal/hal_dm.o hal/hal_dm_acs.o hal/hal_btcoex_wifionly.o hal/hal_btcoex.o \
-	hal/hal_mp.o hal/hal_mcc.o hal/hal_hci/hal_usb.o \
+	hal/hal_mp.o hal/hal_hci/hal_usb.o \
 	hal/led/hal_led.o hal/led/hal_usb_led.o hal/HalPwrSeqCmd.o \
 	hal/rtl8192e/Hal8192EPwrSeq.o hal/rtl8192e/rtl8192e_xmit.o \
 	hal/rtl8192e/rtl8192e_sreset.o hal/rtl8192e/rtl8192e_hal_init.o \

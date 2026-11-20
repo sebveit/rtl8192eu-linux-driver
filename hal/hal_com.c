@@ -1895,11 +1895,6 @@ static void per_rate_rpt_update(_adapter *adapter, u8 mac_id,
 				u8 per, u8 rate,
 				u8 bw, u8 total_pkt)
 {
-#ifdef CONFIG_RTW_MESH
-	rtw_ieee80211s_update_metric(adapter, mac_id,
-				     per, rate,
-				     bw, total_pkt);
-#endif
 }
 
 int c2h_per_rate_rpt_hdl(_adapter *adapter, u8 *data, u8 len)
@@ -3415,15 +3410,6 @@ void rtw_hal_rcr_set_chk_bssid(_adapter *adapter, u8 self_action)
 	case MLME_AP_STOPPED:
 		mstate_s.ap_num = 0;
 		mstate_s.ld_ap_num = 0;
-		break;
-#endif
-#ifdef CONFIG_RTW_MESH
-	case MLME_MESH_STARTED:
-		mstate_s.mesh_num = 1;
-		break;
-	case MLME_MESH_STOPPED:
-		mstate_s.mesh_num = 0;
-		mstate_s.ld_mesh_num = 0;
 		break;
 #endif
 	case MLME_ACTION_NONE:
@@ -5764,9 +5750,6 @@ static void rtw_hal_construct_P2PProbeRsp(_adapter *padapter, u8 *pframe, u32 *p
 #ifdef CONFIG_WFD
 	u32					wfdielen = 0;
 #endif
-#ifdef CONFIG_INTEL_WIDI
-	u8 zero_array_check[L2SDTA_SERVICE_VE_LEN] = { 0x00 };
-#endif /* CONFIG_INTEL_WIDI */
 
 	/* for debug */
 	u8 *dbgbuf = pframe;
@@ -5861,38 +5844,6 @@ static void rtw_hal_construct_P2PProbeRsp(_adapter *padapter, u8 *pframe, u32 *p
 		/*	Value: */
 		wpsie[wpsielen++] = WPS_VERSION_1;	/*	Version 1.0 */
 
-#ifdef CONFIG_INTEL_WIDI
-		/*	Commented by Kurt */
-		/*	Appended WiDi info. only if we did issued_probereq_widi(), and then we saved ven. ext. in pmlmepriv->sa_ext. */
-		if (_rtw_memcmp(pmlmepriv->sa_ext, zero_array_check, L2SDTA_SERVICE_VE_LEN) == _FALSE
-		    || pmlmepriv->num_p2p_sdt != 0) {
-			/* Sec dev type */
-			*(u16 *)(wpsie + wpsielen) = cpu_to_be16(WPS_ATTR_SEC_DEV_TYPE_LIST);
-			wpsielen += 2;
-
-			/*	Length: */
-			*(u16 *)(wpsie + wpsielen) = cpu_to_be16(0x0008);
-			wpsielen += 2;
-
-			/*	Value: */
-			/*	Category ID */
-			*(u16 *)(wpsie + wpsielen) = cpu_to_be16(WPS_PDT_CID_DISPLAYS);
-			wpsielen += 2;
-
-			/*	OUI */
-			*(u32 *)(wpsie + wpsielen) = cpu_to_be32(INTEL_DEV_TYPE_OUI);
-			wpsielen += 4;
-
-			*(u16 *)(wpsie + wpsielen) = cpu_to_be16(WPS_PDT_SCID_WIDI_CONSUMER_SINK);
-			wpsielen += 2;
-
-			if (_rtw_memcmp(pmlmepriv->sa_ext, zero_array_check, L2SDTA_SERVICE_VE_LEN) == _FALSE) {
-				/*	Vendor Extension */
-				_rtw_memcpy(wpsie + wpsielen, pmlmepriv->sa_ext, L2SDTA_SERVICE_VE_LEN);
-				wpsielen += L2SDTA_SERVICE_VE_LEN;
-			}
-		}
-#endif /* CONFIG_INTEL_WIDI */
 
 		/*	WiFi Simple Config State */
 		/*	Type: */
@@ -7058,11 +7009,7 @@ static void rtw_hal_construct_ARPRsp(
 
 	/* SET_80211_HDR_DURATION(pARPRspPkt, 0); */
 	/* SET_80211_HDR_FRAGMENT_SEQUENCE(pARPRspPkt, 0); */
-#ifdef CONFIG_WAPI_SUPPORT
-	*pLength = sMacHdrLng;
-#else
 	*pLength = 24;
-#endif
 	switch (psecuritypriv->dot11PrivacyAlgrthm) {
 	case _WEP40_:
 	case _WEP104_:
@@ -7074,11 +7021,6 @@ static void rtw_hal_construct_ARPRsp(
 	case _AES_:
 		EncryptionHeadOverhead = 8;
 		break;
-#ifdef CONFIG_WAPI_SUPPORT
-	case _SMS4_:
-		EncryptionHeadOverhead = 18;
-		break;
-#endif
 	default:
 		EncryptionHeadOverhead = 0;
 	}
@@ -7186,11 +7128,7 @@ static void rtw_hal_construct_na_message(_adapter *padapter,
 	SetSeqNum(pwlanhdr, 0);
 	set_duration(pwlanhdr, 0);
 
-#ifdef CONFIG_WAPI_SUPPORT
-	*pLength = sMacHdrLng;
-#else
 	*pLength = 24;
-#endif
 	switch (psecuritypriv->dot11PrivacyAlgrthm) {
 	case _WEP40_:
 	case _WEP104_:
@@ -7202,11 +7140,6 @@ static void rtw_hal_construct_na_message(_adapter *padapter,
 	case _AES_:
 		EncryptionHeadOverhead = 8;
 		break;
-#ifdef CONFIG_WAPI_SUPPORT
-	case _SMS4_:
-		EncryptionHeadOverhead = 18;
-		break;
-#endif
 	default:
 		EncryptionHeadOverhead = 0;
 	}
@@ -7539,11 +7472,7 @@ static void rtw_hal_construct_GTKRsp(
 	SetSeqNum(pwlanhdr, 0);
 	set_duration(pwlanhdr, 0);
 
-#ifdef CONFIG_WAPI_SUPPORT
-	*pLength = sMacHdrLng;
-#else
 	*pLength = 24;
-#endif /* CONFIG_WAPI_SUPPORT */
 
 	/* ------------------------------------------------------------------------- */
 	/* Security Header: leave space for it if necessary. */
@@ -7559,11 +7488,6 @@ static void rtw_hal_construct_GTKRsp(
 	case _AES_:
 		EncryptionHeadOverhead = 8;
 		break;
-#ifdef CONFIG_WAPI_SUPPORT
-	case _SMS4_:
-		EncryptionHeadOverhead = 18;
-		break;
-#endif /* CONFIG_WAPI_SUPPORT */
 	default:
 		EncryptionHeadOverhead = 0;
 	}
@@ -9495,9 +9419,6 @@ static void _rtw_hal_set_fw_rsvd_page(_adapter *adapter, bool finished, u8 *page
 	struct sreset_priv *psrtpriv;
 #endif /* DBG_CONFIG_ERROR_DETECT */
 
-#ifdef CONFIG_MCC_MODE
-	u8 dl_mcc_page = _FAIL;
-#endif /* CONFIG_MCC_MODE */
 	u8 nr_assoc_if;
 
 	_adapter *sta_iface = NULL;
@@ -9643,17 +9564,6 @@ static void _rtw_hal_set_fw_rsvd_page(_adapter *adapter, bool finished, u8 *page
 		#endif
 	}
 
-#ifdef CONFIG_MCC_MODE
-	/*======== MCC * n page ======== */
-	if (MCC_EN(adapter)) {/*Normal mode*/
-		dl_mcc_page = rtw_hal_dl_mcc_fw_rsvd_page(adapter, ReservedPagePacket,
-				&BufIndex, TxDescLen, PageSize, &TotalPageNum, &RsvdPageLoc, page_num);
-	} else {
-		dl_mcc_page = _FAIL;
-	}
-
-	if (dl_mcc_page == _FAIL)
-#endif /* CONFIG_MCC_MODE */
 	{	/*======== null data * 1 page ======== */
 		if (MLME_IS_STA(sta_iface) || (nr_assoc_if == 0)) {
 			RsvdPageLoc.LocNullData = TotalPageNum;
@@ -10189,12 +10099,6 @@ static void hw_port0_tsf_sync_sel(_adapter *adapter, u8 benable, u8 hw_port, u16
 	u8 client_id = 0;
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 
-#ifdef CONFIG_MCC_MODE
-	if (MCC_EN(adapter) && (rtw_hal_check_mcc_status(adapter, MCC_STATUS_DOING_MCC))) {
-		RTW_INFO("[MCC] do not set HW TSF sync\n");
-		return;
-	}
-#endif
 	/* check if port0 is already synced */
 	if (benable && dvobj->p0_tsf.sync_port != MAX_HW_PORT && dvobj->p0_tsf.sync_port == hw_port) {
 		RTW_WARN(FUNC_ADPT_FMT ": port0 already enable TSF sync(%d)\n",

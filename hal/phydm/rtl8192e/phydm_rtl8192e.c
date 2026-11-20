@@ -17,7 +17,6 @@
  * include files
  * ************************************************************ */
 
-#include "mp_precomp.h"
 #include "../phydm_precomp.h"
 s8 phydm_cck_rssi_8192e(struct dm_struct *dm, u16 lna_idx, u8 vga_idx)
 {

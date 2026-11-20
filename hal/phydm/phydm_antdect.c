@@ -27,7 +27,6 @@
  * include files
  * ************************************************************ */
 
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 #ifdef CONFIG_ANT_DETECTION

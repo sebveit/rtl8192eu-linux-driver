@@ -27,7 +27,6 @@
  * include files
  ************************************************************/
 
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 #define READ_AND_CONFIG_MP(ic, txt) (odm_read_and_config_mp_##ic##txt(dm))

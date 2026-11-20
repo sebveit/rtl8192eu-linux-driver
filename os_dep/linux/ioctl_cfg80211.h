@@ -63,8 +63,6 @@
 	#error "RTW_DEDICATED_P2P_DEVICE can't be enabled when RTW_P2P_GROUP_INTERFACE is disabled\n"
 #endif
 
-#ifdef CONFIG_RTW_MESH
-#endif
 
 struct rtw_wdev_invit_info {
 	u8 state; /* 0: req, 1:rep */
@@ -167,16 +165,7 @@ struct rtw_wdev_priv {
 	ATOMIC_T switch_ch_to;
 #endif
 
-#ifdef CONFIG_RTW_CFGVENDOR_RANDOM_MAC_OUI
-	u8 pno_mac_addr[ETH_ALEN];
-	u16 pno_scan_seq_num;
-#endif
 
-#ifdef CONFIG_RTW_CFGVEDNOR_RSSIMONITOR
-	s8 rssi_monitor_max;
-	s8 rssi_monitor_min;
-	u8 rssi_monitor_enable;
-#endif
 
 };
 

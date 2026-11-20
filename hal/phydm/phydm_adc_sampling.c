@@ -23,7 +23,6 @@
  *
  *****************************************************************************/
 
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 #if (PHYDM_LA_MODE_SUPPORT)

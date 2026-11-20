@@ -28,7 +28,6 @@
  * ************************************************************
  */
 
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 void halrf_basic_profile(void *dm_void, u32 *_used, char *output, u32 *_out_len)

@@ -26,7 +26,6 @@
 /*@************************************************************
  * include files
  ************************************************************/
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 boolean phydm_is_vht_rate(void *dm_void, u8 rate)

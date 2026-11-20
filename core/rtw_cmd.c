@@ -3218,10 +3218,6 @@ void rtw_iface_dynamic_chk_wk_hdl(_adapter *padapter)
 	#ifdef CONFIG_AP_MODE
 	if (MLME_IS_AP(padapter) || MLME_IS_MESH(padapter)) {
 		expire_timeout_chk(padapter);
-		#ifdef CONFIG_RTW_MESH
-		if (MLME_IS_MESH(padapter) && MLME_IS_ASOC(padapter))
-			rtw_mesh_peer_status_chk(padapter);
-		#endif
 	}
 	#endif
 	#endif /* CONFIG_ACTIVE_KEEP_ALIVE_CHECK */
@@ -3241,9 +3237,6 @@ void rtw_iface_dynamic_chk_wk_hdl(_adapter *padapter)
 	#endif /* !RTW_BEAMFORMING_VERSION_2 */
 	#endif
 
-#ifdef CONFIG_RTW_CFGVEDNOR_RSSIMONITOR
-	rtw_cfgvendor_rssi_monitor_evt(padapter);
-#endif
 
 
 }
@@ -3277,9 +3270,6 @@ void rtw_dynamic_chk_wk_hdl(_adapter *padapter)
 	rtw_ps_processor(padapter);
 #endif
 
-#ifdef CONFIG_MCC_MODE
-	rtw_hal_mcc_sw_status_check(padapter);
-#endif /* CONFIG_MCC_MODE */
 
 	rtw_hal_periodic_tsf_update_chk(padapter);
 }
@@ -4399,13 +4389,6 @@ void rtw_dfs_rd_en_decision(_adapter *adapter, u8 mlme_act, u8 excl_ifbmp)
 		case MLME_AP_STOPPED:
 			break;
 #endif
-#ifdef CONFIG_RTW_MESH
-		case MLME_MESH_STARTED:
-			MSTATE_MESH_NUM(&mstate)++;
-			break;
-		case MLME_MESH_STOPPED:
-			break;
-#endif
 		default:
 			rtw_warn_on(1);
 			break;
@@ -5349,68 +5332,6 @@ exit:
 	return;
 }
 
-#if defined(CONFIG_RTW_MESH) && defined(RTW_PER_CMD_SUPPORT_FW)
-static s32 rtw_req_per_cmd_hdl(_adapter *adapter)
-{
-	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
-	struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
-	struct macid_bmp req_macid_bmp, *macid_bmp;
-	u8 i, ret = _FAIL;
-
-	macid_bmp = &macid_ctl->if_g[adapter->iface_id];
-	_rtw_memcpy(&req_macid_bmp, macid_bmp, sizeof(struct macid_bmp));
-
-	/* Clear none mesh's macid */
-	for (i = 0; i < macid_ctl->num; i++) {
-		u8 role;
-		role = GET_H2CCMD_MSRRPT_PARM_ROLE(&macid_ctl->h2c_msr[i]);
-		if (role != H2C_MSR_ROLE_MESH)
-			rtw_macid_map_clr(&req_macid_bmp, i);
-	}
-
-	/* group_macid: always be 0 in NIC, so only pass macid_bitmap.m0
-	 * rpt_type: 0 includes all info in 1, use 0 for now 
-	 * macid_bitmap: pass m0 only for NIC
-	 */
-	ret = rtw_hal_set_req_per_rpt_cmd(adapter, 0, 0, req_macid_bmp.m0);
-
-	return ret;
-}
-
-u8 rtw_req_per_cmd(_adapter *adapter)
-{
-	struct cmd_obj *cmdobj;
-	struct drvextra_cmd_parm *parm;
-	struct cmd_priv *pcmdpriv = &adapter->cmdpriv;
-	struct submit_ctx sctx;
-	u8 res = _SUCCESS;
-
-	parm = (struct drvextra_cmd_parm *)rtw_zmalloc(sizeof(struct drvextra_cmd_parm));
-	if (parm == NULL) {
-		res = _FAIL;
-		goto exit;
-	}
-
-	parm->ec_id = REQ_PER_CMD_WK_CID;
-	parm->type = 0;
-	parm->size = 0;
-	parm->pbuf = NULL;
-
-	cmdobj = (struct cmd_obj *)rtw_zmalloc(sizeof(*cmdobj));
-	if (cmdobj == NULL) {
-		res = _FAIL;
-		rtw_mfree((u8 *)parm, sizeof(*parm));
-		goto exit;
-	}
-
-	init_h2fwcmd_w_parm_no_rsp(cmdobj, parm, GEN_CMD_CODE(_Set_Drv_Extra));
-
-	res = rtw_enqueue_cmd(pcmdpriv, cmdobj);
-
-exit:
-	return res;
-}
-#endif
 
 u8 rtw_drvextra_cmd_hdl(_adapter *padapter, unsigned char *pbuf)
 {
@@ -5471,11 +5392,6 @@ u8 rtw_drvextra_cmd_hdl(_adapter *padapter, unsigned char *pbuf)
 #ifdef CONFIG_AP_MODE
 	case CHECK_HIQ_WK_CID:
 		rtw_chk_hi_queue_hdl(padapter);
-		break;
-#endif
-#ifdef CONFIG_INTEL_WIDI
-	case INTEl_WIDI_WK_CID:
-		intel_widi_wk_hdl(padapter, pdrvextra_cmd->type, pdrvextra_cmd->pbuf);
 		break;
 #endif
 	/* add for CONFIG_IEEE80211W, none 11w can use it */
@@ -5547,27 +5463,12 @@ u8 rtw_drvextra_cmd_hdl(_adapter *padapter, unsigned char *pbuf)
 		break;
 #endif
 
-#ifdef CONFIG_RTW_REPEATER_SON
-	case RSON_SCAN_WK_CID:
-		rtw_rson_scan_cmd_hdl(padapter, pdrvextra_cmd->type);
-		break;
-#endif
 
 #ifdef CONFIG_IOCTL_CFG80211
 	case MGNT_TX_WK_CID:
 		ret = rtw_mgnt_tx_handler(padapter, pdrvextra_cmd->pbuf);
 		break;
 #endif /* CONFIG_IOCTL_CFG80211 */
-#ifdef CONFIG_MCC_MODE
-	case MCC_SET_DURATION_WK_CID:
-		ret = rtw_set_mcc_duration_hdl(padapter, pdrvextra_cmd->type, pdrvextra_cmd->pbuf);
-		break;
-#endif /* CONFIG_MCC_MODE */
-#if defined(CONFIG_RTW_MESH) && defined(RTW_PER_CMD_SUPPORT_FW)
-	case REQ_PER_CMD_WK_CID:
-		ret = rtw_req_per_cmd_hdl(padapter);
-		break;
-#endif
 #ifdef CONFIG_SUPPORT_STATIC_SMPS
 	case SSMPS_WK_CID :
 		rtw_ssmps_wk_hdl(padapter, (struct ssmps_cmd_parm *)pdrvextra_cmd->pbuf);

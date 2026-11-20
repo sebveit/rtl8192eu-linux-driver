@@ -24,7 +24,6 @@
  *****************************************************************************/
 
 /*Image2HeaderVersion: R3 1.5.0*/
-#include "mp_precomp.h"
 #include "../phydm_precomp.h"
 
 #define D_S_SIZE DELTA_SWINGIDX_SIZE

@@ -234,14 +234,6 @@ void rtw_mi_status_by_ifbmp(struct dvobj_priv *dvobj, u8 ifbmp, struct mi_state 
 			if (iface->stapriv.asoc_sta_count > 2)
 				MSTATE_ADHOC_LD_NUM(mstate)++;
 
-#ifdef CONFIG_RTW_MESH
-		} else if (check_fwstate(&iface->mlmepriv, WIFI_MESH_STATE) == _TRUE
-			&& check_fwstate(&iface->mlmepriv, _FW_LINKED) == _TRUE
-		) {
-			MSTATE_MESH_NUM(mstate)++;
-			if (iface->stapriv.asoc_sta_count > 2)
-				MSTATE_MESH_LD_NUM(mstate)++;
-#endif
 
 		}
 
@@ -301,10 +293,6 @@ inline void rtw_mi_status_merge(struct mi_state *d, struct mi_state *a)
 #endif
 	d->adhoc_num += a->adhoc_num;
 	d->ld_adhoc_num += a->ld_adhoc_num;
-#ifdef CONFIG_RTW_MESH
-	d->mesh_num += a->mesh_num;
-	d->ld_mesh_num += a->ld_mesh_num;
-#endif
 	d->scan_num += a->scan_num;
 	d->scan_enter_num += a->scan_enter_num;
 	d->uwps_num += a->uwps_num;
@@ -332,10 +320,6 @@ void dump_mi_status(void *sel, struct dvobj_priv *dvobj)
 #endif
 	RTW_PRINT_SEL(sel, "adhoc_num:%d\n", DEV_ADHOC_NUM(dvobj));
 	RTW_PRINT_SEL(sel, "linked_adhoc_num:%d\n", DEV_ADHOC_LD_NUM(dvobj));
-#ifdef CONFIG_RTW_MESH
-	RTW_PRINT_SEL(sel, "mesh_num:%d\n", DEV_MESH_NUM(dvobj));
-	RTW_PRINT_SEL(sel, "linked_mesh_num:%d\n", DEV_MESH_LD_NUM(dvobj));
-#endif
 #ifdef CONFIG_P2P
 	RTW_PRINT_SEL(sel, "p2p_device_num:%d\n", DEV_P2P_DV_NUM(dvobj));
 	RTW_PRINT_SEL(sel, "p2p_gc_num:%d\n", DEV_P2P_GC_NUM(dvobj));
@@ -437,16 +421,6 @@ u8 rtw_mi_check_status(_adapter *adapter, u8 type)
 			ret = _TRUE;
 		break;
 
-#ifdef CONFIG_RTW_MESH
-	case MI_MESH:
-		if (MSTATE_MESH_NUM(iface_state))
-			ret = _TRUE;
-		break;
-	case MI_MESH_ASSOC:
-		if (MSTATE_MESH_LD_NUM(iface_state))
-			ret = _TRUE;
-		break;
-#endif
 
 	case MI_STA_NOLINK: /* this is misleading, but not used now */
 		if (MSTATE_STA_NUM(iface_state) && (!(MSTATE_STA_LD_NUM(iface_state) || MSTATE_STA_LG_NUM(iface_state))))

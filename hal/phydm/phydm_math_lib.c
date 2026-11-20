@@ -27,7 +27,6 @@
  * include files
  ************************************************************/
 
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 const u32 db_invert_table[12][8] = {

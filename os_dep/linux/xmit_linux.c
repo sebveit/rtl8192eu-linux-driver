@@ -198,13 +198,6 @@ static inline bool rtw_os_need_wake_queue(_adapter *padapter, u16 qidx)
 #endif
 #endif
 	} else {
-#ifdef CONFIG_MCC_MODE
-		if (MCC_EN(padapter)) {
-			if (rtw_hal_check_mcc_status(padapter, MCC_STATUS_DOING_MCC)
-                           && MCC_STOP(padapter))
-				return _FALSE;
-		}
-#endif /* CONFIG_MCC_MODE */
 		return _TRUE;
 	}
 	return _FALSE;

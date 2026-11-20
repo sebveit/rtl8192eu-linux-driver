@@ -623,12 +623,6 @@ union recv_frame *decryptor(_adapter *padapter, union recv_frame *precv_frame)
 			DBG_COUNTER(padapter->rx_logs.core_rx_post_decrypt_aes);
 			res = rtw_aes_decrypt(padapter, (u8 *)precv_frame);
 			break;
-#ifdef CONFIG_WAPI_SUPPORT
-		case _SMS4_:
-			DBG_COUNTER(padapter->rx_logs.core_rx_post_decrypt_wapi);
-			rtw_sms4_decrypt(padapter, (u8 *)precv_frame);
-			break;
-#endif
 		default:
 			break;
 		}
@@ -662,12 +656,6 @@ union recv_frame *decryptor(_adapter *padapter, union recv_frame *precv_frame)
 #endif
 	}
 
-	#ifdef CONFIG_RTW_MESH
-	if (res != _FAIL
-		&& !prxattrib->amsdu
-		&& prxattrib->mesh_ctrl_present)
-		res = rtw_mesh_rx_validate_mctrl_non_amsdu(padapter, precv_frame);
-	#endif
 
 	if (res == _FAIL) {
 		rtw_free_recvframe(return_packet, &padapter->recvpriv.free_recv_queue);
@@ -1718,12 +1706,6 @@ static sint validate_mgmt_protect(_adapter *adapter, union recv_frame *precv_fra
 
 	sint ret;
 
-#ifdef CONFIG_RTW_MESH
-	if (MLME_IS_MESH(adapter)) {
-		if (!adapter->mesh_info.mesh_auth_id)
-			return pattrib->privacy ? _FAIL : _SUCCESS;
-	} else
-#endif
 	if (SEC_IS_BIP_KEY_INSTALLED(sec) == _FALSE)
 		return _SUCCESS;
 
@@ -1820,18 +1802,6 @@ static sint validate_mgmt_protect(_adapter *adapter, union recv_frame *precv_fra
 
 bip_verify:
 #ifdef CONFIG_IEEE80211W
-		#ifdef CONFIG_RTW_MESH
-		if (MLME_IS_MESH(adapter)) {
-			if (psta->igtk_bmp) {
-				igtk = psta->igtk.skey;
-				igtk_id = psta->igtk_id;
-				ipn = &psta->igtk_pn.val;
-			} else {
-				/* mesh MFP without IGTK */
-				goto exit;
-			}
-		} else
-		#endif
 		{
 			igtk = sec->dot11wBIPKey[sec->dot11wBIPKeyid].skey;
 			igtk_id = sec->dot11wBIPKeyid;
@@ -2035,12 +2005,6 @@ sint validate_recv_data_frame(_adapter *adapter, union recv_frame *precv_frame)
 	else
 		pattrib->amsdu = 0;
 
-#ifdef CONFIG_RTW_MESH
-	if (MLME_IS_MESH(adapter)) {
-		ret = rtw_mesh_rx_data_validate_hdr(adapter, precv_frame, &psta);
-		goto pre_validate_status_chk;
-	}
-#endif
 
 	switch (pattrib->to_fr_ds) {
 	case 0:
@@ -2077,9 +2041,6 @@ sint validate_recv_data_frame(_adapter *adapter, union recv_frame *precv_frame)
 		break;
 	}
 
-#ifdef CONFIG_RTW_MESH
-pre_validate_status_chk:
-#endif
 	if (ret == _FAIL) {
 		#ifdef DBG_RX_DROP_FRAME
 		RTW_INFO("DBG_RX_DROP_FRAME "FUNC_ADPT_FMT" case:%d, res:%d, ra="MAC_FMT", ta="MAC_FMT"\n"
@@ -2164,12 +2125,6 @@ pre_validate_status_chk:
 		pattrib->iv_len = pattrib->icv_len = 0;
 	}
 
-#ifdef CONFIG_RTW_MESH
-	if (!pattrib->amsdu
-		&& pattrib->mesh_ctrl_present
-		&& (!pattrib->encrypt || pattrib->bdecrypted))
-		ret = rtw_mesh_rx_validate_mctrl_non_amsdu(adapter, precv_frame);
-#endif
 
 exit:
 	return ret;
@@ -2210,13 +2165,6 @@ sint validate_recv_frame(_adapter *adapter, union recv_frame *precv_frame)
 #ifdef CONFIG_TDLS
 	struct tdls_info *ptdlsinfo = &adapter->tdlsinfo;
 #endif /* CONFIG_TDLS */
-#ifdef CONFIG_WAPI_SUPPORT
-	PRT_WAPI_T	pWapiInfo = &adapter->wapiInfo;
-	struct recv_frame_hdr *phdr = &precv_frame->u.hdr;
-	u8 wai_pkt = 0;
-	u16 sc;
-	u8	external_len = 0;
-#endif
 
 
 #ifdef CONFIG_FIND_BEST_CHANNEL
@@ -2266,9 +2214,6 @@ sint validate_recv_frame(_adapter *adapter, union recv_frame *precv_frame)
 	pattrib->mdata = GetMData(ptr);
 	pattrib->privacy = GetPrivacy(ptr);
 	pattrib->order = GetOrder(ptr);
-#ifdef CONFIG_WAPI_SUPPORT
-	sc = (pattrib->seq_num << 4) | pattrib->frag_num;
-#endif
 
 	{
 		u8 bDumpRxPkt = 0;
@@ -2300,35 +2245,6 @@ sint validate_recv_frame(_adapter *adapter, union recv_frame *precv_frame)
 		break;
 	case WIFI_DATA_TYPE: /* data */
 		DBG_COUNTER(adapter->rx_logs.core_rx_pre_data);
-#ifdef CONFIG_WAPI_SUPPORT
-		if (pattrib->qos)
-			external_len = 2;
-		else
-			external_len = 0;
-
-		wai_pkt = rtw_wapi_is_wai_packet(adapter, ptr);
-
-		phdr->bIsWaiPacket = wai_pkt;
-
-		if (wai_pkt != 0) {
-			if (sc != adapter->wapiInfo.wapiSeqnumAndFragNum)
-				adapter->wapiInfo.wapiSeqnumAndFragNum = sc;
-			else {
-				retval = _FAIL;
-				DBG_COUNTER(adapter->rx_logs.core_rx_pre_data_wapi_seq_err);
-				break;
-			}
-		} else {
-
-			if (rtw_wapi_drop_for_key_absent(adapter, get_addr2_ptr(ptr))) {
-				retval = _FAIL;
-				WAPI_TRACE(WAPI_RX, "drop for key absent for rx\n");
-				DBG_COUNTER(adapter->rx_logs.core_rx_pre_data_wapi_key_err);
-				break;
-			}
-		}
-
-#endif
 
 		pattrib->qos = (subtype & BIT(7)) ? 1 : 0;
 		retval = validate_recv_data_frame(adapter, precv_frame);
@@ -2662,15 +2578,6 @@ static int rtw_recv_indicatepkt_check(union recv_frame *rframe, u8 *ehdr_pos, u3
 #endif/*DBG_IP_R_MONITOR*/
 	int ret = _FAIL;
 
-#ifdef CONFIG_WAPI_SUPPORT
-	if (rtw_wapi_check_for_drop(adapter, rframe, ehdr_pos)) {
-		#ifdef DBG_RX_DROP_FRAME
-		RTW_INFO("DBG_RX_DROP_FRAME "FUNC_ADPT_FMT" rtw_wapi_check_for_drop\n"
-			, FUNC_ADPT_ARG(adapter));
-		#endif
-		goto exit;
-	}
-#endif
 
 	if (rframe->u.hdr.psta)
 		rtw_st_ctl_rx(rframe->u.hdr.psta, ehdr_pos);
@@ -2724,9 +2631,6 @@ static int rtw_recv_indicatepkt_check(union recv_frame *rframe, u8 *ehdr_pos, u3
 
 	ret = _SUCCESS;
 
-#ifdef CONFIG_WAPI_SUPPORT
-exit:
-#endif
 	return ret;
 }
 
@@ -2737,80 +2641,8 @@ static void recv_free_fwd_resource(_adapter *adapter, struct xmit_frame *fwd_fra
 	if (fwd_frame)
 		rtw_free_xmitframe(xmitpriv, fwd_frame);
 
-#ifdef CONFIG_RTW_MESH
-#if CONFIG_RTW_MESH_DATA_BMC_TO_UC
-	if (!rtw_is_list_empty(b2u_list)) {
-		struct xmit_frame *b2uframe;
-		_list *list;
-
-		list = get_next(b2u_list);
-		while (rtw_end_of_queue_search(b2u_list, list) == _FALSE) {
-			b2uframe = LIST_CONTAINOR(list, struct xmit_frame, list);
-			list = get_next(list);
-			rtw_list_delete(&b2uframe->list);
-			rtw_free_xmitframe(xmitpriv, b2uframe);
-		}
-	}
-#endif
-#endif /* CONFIG_RTW_MESH */
 }
 
-#ifdef CONFIG_RTW_MESH
-static void recv_fwd_pkt_hdl(_adapter *adapter, _pkt *pkt
-	, u8 act, struct xmit_frame *fwd_frame, _list *b2u_list)
-{
-	struct xmit_priv *xmitpriv = &adapter->xmitpriv;
-	_pkt *fwd_pkt = pkt;
-
-	if (act & RTW_RX_MSDU_ACT_INDICATE) {
-		fwd_pkt = rtw_os_pkt_copy(pkt);
-		if (!fwd_pkt) {
-			#ifdef DBG_TX_DROP_FRAME
-			RTW_INFO("DBG_TX_DROP_FRAME %s rtw_os_pkt_copy fail\n", __func__);
-			#endif
-			recv_free_fwd_resource(adapter, fwd_frame, b2u_list);
-			goto exit;
-		}
-	}
-
-#if CONFIG_RTW_MESH_DATA_BMC_TO_UC
-	if (!rtw_is_list_empty(b2u_list)) {
-		_list *list = get_next(b2u_list);
-		struct xmit_frame *b2uframe;
-
-		while (rtw_end_of_queue_search(b2u_list, list) == _FALSE) {
-			b2uframe = LIST_CONTAINOR(list, struct xmit_frame, list);
-			list = get_next(list);
-			rtw_list_delete(&b2uframe->list);
-
-			if (!fwd_frame && rtw_is_list_empty(b2u_list)) /* the last fwd_pkt */
-				b2uframe->pkt = fwd_pkt;
-			else
-				b2uframe->pkt = rtw_os_pkt_copy(fwd_pkt);
-			if (!b2uframe->pkt) {
-				rtw_free_xmitframe(xmitpriv, b2uframe);
-				continue;
-			}
-
-			rtw_xmit_posthandle(adapter, b2uframe, b2uframe->pkt);
-		}
-	}
-#endif
-
-	if (fwd_frame) {
-		fwd_frame->pkt = fwd_pkt;
-		if (rtw_xmit_posthandle(adapter, fwd_frame, fwd_pkt) < 0) {
-			#ifdef DBG_TX_DROP_FRAME
-			RTW_INFO("DBG_TX_DROP_FRAME %s rtw_xmit_posthandle fail\n", __func__);
-			#endif
-			xmitpriv->tx_drop++;
-		}
-	}
-
-exit:
-	return;
-}
-#endif /* CONFIG_RTW_MESH */
 
 int amsdu_to_msdu(_adapter *padapter, union recv_frame *prframe)
 {
@@ -2850,21 +2682,6 @@ int amsdu_to_msdu(_adapter *padapter, union recv_frame *prframe)
 		act = RTW_RX_MSDU_ACT_INDICATE;
 		fwd_frame = NULL;
 
-		#ifdef CONFIG_RTW_MESH
-		if (MLME_IS_MESH(padapter)) {
-			u8 *mda = pdata, *msa = pdata + ETH_ALEN;
-			struct rtw_ieee80211s_hdr *mctrl = (struct rtw_ieee80211s_hdr *)(pdata + ETH_HLEN);
-			int v_ret;
-
-			v_ret = rtw_mesh_rx_data_validate_mctrl(padapter, prframe
-				, mctrl, mda, msa, &mctrl_len, &da, &sa);
-			if (v_ret != _SUCCESS)
-				goto move_to_next;
-
-			act = rtw_mesh_rx_msdu_act_check(prframe
-				, mda, msa, da, sa, mctrl, &fwd_frame, &b2u_list);
-		} else
-		#endif
 		{
 			da = pdata;
 			sa = pdata + ETH_ALEN;
@@ -2892,13 +2709,6 @@ int amsdu_to_msdu(_adapter *padapter, union recv_frame *prframe)
 			break;
 		}
 
-		#ifdef CONFIG_RTW_MESH
-		if (act & RTW_RX_MSDU_ACT_FORWARD) {
-			recv_fwd_pkt_hdl(padapter, sub_pkt, act, fwd_frame, &b2u_list);
-			if (!(act & RTW_RX_MSDU_ACT_INDICATE))
-				goto move_to_next;
-		}
-		#endif
 
 		if (rtw_recv_indicatepkt_check(prframe, rtw_os_pkt_data(sub_pkt), rtw_os_pkt_len(sub_pkt)) == _SUCCESS)
 			subframes[nr_subframes++] = sub_pkt;
@@ -2966,15 +2776,6 @@ static int recv_process_mpdu(_adapter *padapter, union recv_frame *prframe)
 		struct xmit_frame *fwd_frame = NULL;
 		_list b2u_list;
 
-		#ifdef CONFIG_RTW_MESH
-		if (MLME_IS_MESH(padapter) && pattrib->mesh_ctrl_present) {
-			act = rtw_mesh_rx_msdu_act_check(prframe
-				, pattrib->mda, pattrib->msa
-				, pattrib->dst, pattrib->src
-				, (struct rtw_ieee80211s_hdr *)(get_recvframe_data(prframe) + pattrib->hdrlen + pattrib->iv_len)
-				, &fwd_frame, &b2u_list);
-		}
-		#endif
 
 		if (!act) {
 			rtw_free_recvframe(prframe, pfree_recv_queue);
@@ -3002,16 +2803,6 @@ static int recv_process_mpdu(_adapter *padapter, union recv_frame *prframe)
 			goto exit;
 		}
 
-		#ifdef CONFIG_RTW_MESH
-		if (act & RTW_RX_MSDU_ACT_FORWARD) {
-			recv_fwd_pkt_hdl(padapter, prframe->u.hdr.pkt, act, fwd_frame, &b2u_list);
-			if (!(act & RTW_RX_MSDU_ACT_INDICATE)) {
-				prframe->u.hdr.pkt = NULL;
-				rtw_free_recvframe(prframe, pfree_recv_queue);
-				goto exit;
-			}
-		}
-		#endif
 
 		if (!RTW_CANNOT_RUN(padapter)) {
 			ret = rtw_recv_indicatepkt_check(prframe
@@ -4063,9 +3854,6 @@ int recv_func_posthandle(_adapter *padapter, union recv_frame *prframe)
 
 	count_rx_stats(padapter, prframe, NULL);
 
-#ifdef CONFIG_WAPI_SUPPORT
-	rtw_wapi_update_info(padapter, prframe);
-#endif
 
 #if defined(CONFIG_80211N_HT) && defined(CONFIG_RECV_REORDERING_CTRL)
 	/* including perform A-MPDU Rx Ordering Buffer Control */
@@ -4590,10 +4378,6 @@ s32 pre_recv_entry(union recv_frame *precvframe, u8 *pphy_status)
 	if (ra_is_bmc == _FALSE) { /*unicast packets*/
 		iface = rtw_get_iface_by_macddr(primary_padapter , pda);
 		if (NULL == iface) {
-		#ifdef CONFIG_RTW_CFGVENDOR_RANDOM_MAC_OUI
-			if (_rtw_memcmp(pda, adapter_pno_mac_addr(primary_padapter),
-					ETH_ALEN) != _TRUE)
-		#endif
 			RTW_INFO("%s [WARN] Cannot find appropriate adapter - mac_addr : "MAC_FMT"\n", __func__, MAC_ARG(pda));
 			/*rtw_warn_on(1);*/
 		} else

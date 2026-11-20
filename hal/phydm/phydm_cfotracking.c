@@ -22,7 +22,6 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 s32 phydm_get_cfo_hz(void *dm_void, u32 val, u8 bit_num, u8 frac_num)

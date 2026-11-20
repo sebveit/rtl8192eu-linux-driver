@@ -386,10 +386,6 @@ struct	wlan_network *_rtw_alloc_network(struct	mlme_priv *pmlmepriv) /* (_queue 
 	pnetwork->network_type = 0;
 	pnetwork->fixed = _FALSE;
 	pnetwork->last_scanned = rtw_get_current_time();
-#if defined(CONFIG_RTW_MESH) && CONFIG_RTW_MESH_ACNODE_PREVENT
-	pnetwork->acnode_stime = 0;
-	pnetwork->acnode_notify_etime = 0;
-#endif
 
 	pnetwork->aid = 0;
 	pnetwork->join_res = 0;
@@ -993,17 +989,9 @@ bool rtw_update_scanned_network(_adapter *adapter, WLAN_BSSID_EX *target)
 			
 #ifdef CONFIG_RSSI_PRIORITY
 		if ((choice == NULL) || (pnetwork->network.PhyInfo.SignalStrength < choice->network.PhyInfo.SignalStrength))
-			#ifdef CONFIG_RTW_MESH
-			if (!MLME_IS_MESH(adapter) || !MLME_IS_ASOC(adapter)
-				|| !rtw_bss_is_same_mbss(&pmlmepriv->cur_network.network, &pnetwork->network))
-			#endif
 				choice = pnetwork;
 #else
 		if (choice == NULL || rtw_time_after(choice->last_scanned, pnetwork->last_scanned))
-			#ifdef CONFIG_RTW_MESH
-			if (!MLME_IS_MESH(adapter) || !MLME_IS_ASOC(adapter)
-				|| !rtw_bss_is_same_mbss(&pmlmepriv->cur_network.network, &pnetwork->network))
-			#endif
 				choice = pnetwork;
 #endif
 		plist = get_next(plist);
@@ -1038,10 +1026,6 @@ bool rtw_update_scanned_network(_adapter *adapter, WLAN_BSSID_EX *target)
 			/* variable initialize */
 			pnetwork->fixed = _FALSE;
 			pnetwork->last_scanned = rtw_get_current_time();
-			#if defined(CONFIG_RTW_MESH) && CONFIG_RTW_MESH_ACNODE_PREVENT
-			pnetwork->acnode_stime = 0;
-			pnetwork->acnode_notify_etime = 0;
-			#endif
 
 			pnetwork->network_type = 0;
 			pnetwork->aid = 0;
@@ -1078,9 +1062,6 @@ bool rtw_update_scanned_network(_adapter *adapter, WLAN_BSSID_EX *target)
 		 * be already expired. In this case we do the same as we found a new
 		 * net and call the new_net handler
 		 */
-		#if defined(CONFIG_RTW_MESH) && CONFIG_RTW_MESH_ACNODE_PREVENT
-		systime last_scanned = pnetwork->last_scanned;
-		#endif
 
 		pnetwork->last_scanned = rtw_get_current_time();
 
@@ -1097,34 +1078,13 @@ bool rtw_update_scanned_network(_adapter *adapter, WLAN_BSSID_EX *target)
 		else
 			update_ie = _FALSE;
 
-		#if defined(CONFIG_RTW_MESH) && CONFIG_RTW_MESH_ACNODE_PREVENT
-		if (!MLME_IS_MESH(adapter) || !MLME_IS_ASOC(adapter)
-			|| pnetwork->network.Configuration.DSConfig != target->Configuration.DSConfig
-			|| rtw_get_passing_time_ms(last_scanned) > adapter->mesh_cfg.peer_sel_policy.scanr_exp_ms
-			|| !rtw_bss_is_same_mbss(&pnetwork->network, target)
-		) {
-			pnetwork->acnode_stime = 0;
-			pnetwork->acnode_notify_etime = 0;
-		}
-		#endif
 		update_network(&(pnetwork->network), target, adapter, update_ie);
 	}
 
-	#if defined(CONFIG_RTW_MESH) && CONFIG_RTW_MESH_ACNODE_PREVENT
-	if (MLME_IS_MESH(adapter) && MLME_IS_ASOC(adapter))
-		rtw_mesh_update_scanned_acnode_status(adapter, pnetwork);
-	#endif
 
 unlock_scan_queue:
 	_exit_critical_bh(&queue->lock, &irqL);
 
-#ifdef CONFIG_RTW_MESH
-	if (pnetwork && MLME_IS_MESH(adapter)
-		&& check_fwstate(pmlmepriv, WIFI_ASOC_STATE)
-		&& !check_fwstate(pmlmepriv, WIFI_SITE_MONITOR)
-	)
-		rtw_chk_candidate_peer_notify(adapter, pnetwork);
-#endif
 
 	return update_ie;
 }
@@ -1369,13 +1329,6 @@ void rtw_surveydone_event_callback(_adapter	*adapter, u8 *pbuf)
 						|| _SUCCESS != rtw_sitesurvey_cmd(adapter, &parm)
 					   ) {
 						rtw_set_to_roam(adapter, 0);
-#ifdef CONFIG_INTEL_WIDI
-						if (adapter->mlmepriv.widi_state == INTEL_WIDI_STATE_ROAMING) {
-							_rtw_memset(pmlmepriv->sa_ext, 0x00, L2SDTA_SERVICE_VE_LEN);
-							intel_widi_wk_cmd(adapter, INTEL_WIDI_LISTEN_WK, NULL, 0);
-							RTW_INFO("change to widi listen\n");
-						}
-#endif /* CONFIG_INTEL_WIDI */
 						rtw_free_assoc_resources(adapter, _TRUE);
 						rtw_indicate_disconnect(adapter, 0, _FALSE);
 					} else
@@ -1436,25 +1389,6 @@ void rtw_surveydone_event_callback(_adapter	*adapter, u8 *pbuf)
 	rtw_cfg80211_indicate_scan_done_for_buddy(adapter, _FALSE);
 #endif
 
-#ifdef CONFIG_RTW_MESH
-	#if CONFIG_RTW_MESH_OFFCH_CAND
-	if (rtw_mesh_offch_candidate_accepted(adapter)) {
-		u8 ch;
-
-		ch = rtw_mesh_select_operating_ch(adapter);
-		if (ch && pmlmepriv->cur_network.network.Configuration.DSConfig != ch) {
-			u8 ifbmp = rtw_mi_get_ap_mesh_ifbmp(adapter);
-
-			if (ifbmp) {
-				/* switch to selected channel */
-				rtw_change_bss_chbw_cmd(adapter, RTW_CMDF_DIRECTLY, ifbmp, 0, ch, REQ_BW_ORI, REQ_OFFSET_NONE);
-				issue_probereq_ex(adapter, &pmlmepriv->cur_network.network.mesh_id, NULL, 0, 0, 0, 0);
-			} else
-				rtw_warn_on(1);
-		}
-	}
-	#endif
-#endif /* CONFIG_RTW_MESH */
 }
 
 u8 _rtw_sitesurvey_condition_check(const char *caller, _adapter *adapter, bool check_sc_interval)
@@ -1481,13 +1415,6 @@ u8 _rtw_sitesurvey_condition_check(const char *caller, _adapter *adapter, bool c
 	}
 #endif
 
-#ifdef CONFIG_RTW_REPEATER_SON
-	if (adapter->rtw_rson_scanstage == RSON_SCAN_PROCESS) {
-		RTW_INFO("%s ("ADPT_FMT") blocking scan for under rson scanning process\n", caller, ADPT_ARG(adapter));
-		ss_condition = SS_DENY_RSON_SCANING;
-		goto _exit;
-	}
-#endif
 #ifdef CONFIG_IOCTL_CFG80211
 	if (adapter_wdev_data(adapter)->block_scan == _TRUE) {
 		RTW_INFO("%s ("ADPT_FMT") wdev_priv.block_scan is set\n", caller, ADPT_ARG(adapter));
@@ -1735,13 +1662,6 @@ void rtw_indicate_connect(_adapter *padapter)
 	}
 
 	rtw_set_to_roam(padapter, 0);
-#ifdef CONFIG_INTEL_WIDI
-	if (padapter->mlmepriv.widi_state == INTEL_WIDI_STATE_ROAMING) {
-		_rtw_memset(pmlmepriv->sa_ext, 0x00, L2SDTA_SERVICE_VE_LEN);
-		intel_widi_wk_cmd(padapter, INTEL_WIDI_LISTEN_WK, NULL, 0);
-		RTW_INFO("change to widi listen\n");
-	}
-#endif /* CONFIG_INTEL_WIDI */
 	if (!MLME_IS_AP(padapter) && !MLME_IS_MESH(padapter))
 		rtw_mi_set_scan_deny(padapter, 3000);
 
@@ -1758,10 +1678,6 @@ void rtw_indicate_disconnect(_adapter *padapter, u16 reason, u8 locally_generate
 	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 	WLAN_BSSID_EX	*cur_network = &(pmlmeinfo->network);
-#ifdef CONFIG_WAPI_SUPPORT
-	struct sta_info *psta;
-	struct sta_priv *pstapriv = &padapter->stapriv;
-#endif
 	u8 *wps_ie = NULL;
 	uint wpsie_len = 0;
 
@@ -1791,14 +1707,6 @@ void rtw_indicate_disconnect(_adapter *padapter, u16 reason, u8 locally_generate
 	if (rtw_to_roam(padapter) > 0)
 		_clr_fwstate_(pmlmepriv, _FW_LINKED);
 
-#ifdef CONFIG_WAPI_SUPPORT
-	psta = rtw_get_stainfo(pstapriv, cur_network->MacAddress);
-	if (check_fwstate(pmlmepriv, WIFI_STATION_STATE))
-		rtw_wapi_return_one_sta_info(padapter, psta->cmn.mac_addr);
-	else if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) ||
-		 check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE))
-		rtw_wapi_return_all_sta_info(padapter);
-#endif
 
 	if (check_fwstate(&padapter->mlmepriv, _FW_LINKED)
 	    || (rtw_to_roam(padapter) <= 0)
@@ -2460,9 +2368,6 @@ void rtw_stassoc_event_callback(_adapter *adapter, u8 *pbuf)
 
 			rtw_sta_media_status_rpt(adapter, psta, 1);
 
-#ifdef CONFIG_MCC_MODE
-			rtw_hal_mcc_update_macid_bitmap(adapter, psta->cmn.mac_id, _TRUE);
-#endif /* CONFIG_MCC_MODE */
 
 #ifndef CONFIG_AUTO_AP_MODE
 			ap_sta_info_defer_update(adapter, psta);
@@ -2818,9 +2723,6 @@ void rtw_stadel_event_callback(_adapter *adapter, u8 *pbuf)
 	RTW_INFO("%s(mac_id=%d)=" MAC_FMT "\n", __func__, pstadel->mac_id, MAC_ARG(pstadel->macaddr));
 	rtw_sta_mstatus_disc_rpt(adapter, pstadel->mac_id);
 
-#ifdef CONFIG_MCC_MODE
-	rtw_hal_mcc_update_macid_bitmap(adapter, pstadel->mac_id, _FALSE);
-#endif /* CONFIG_MCC_MODE */
 
 	psta = rtw_get_stainfo(&adapter->stapriv, pstadel->macaddr);
 
@@ -2871,10 +2773,6 @@ void rtw_stadel_event_callback(_adapter *adapter, u8 *pbuf)
 			roam = _TRUE;
 			roam_target = pmlmepriv->roam_network;
 		}
-#ifdef CONFIG_INTEL_WIDI
-		else if (adapter->mlmepriv.widi_state == INTEL_WIDI_STATE_CONNECTED)
-			roam = _TRUE;
-#endif /* CONFIG_INTEL_WIDI */
 
 		if (roam == _TRUE) {
 			if (rtw_to_roam(adapter) > 0)
@@ -2891,10 +2789,6 @@ void rtw_stadel_event_callback(_adapter *adapter, u8 *pbuf)
 		rtw_free_mlme_priv_ie_data(pmlmepriv);
 
 		rtw_indicate_disconnect(adapter, *(u16 *)pstadel->rsvd, pstadel->locally_generated);
-#ifdef CONFIG_INTEL_WIDI
-		if (!rtw_to_roam(adapter))
-			process_intel_widi_disconnect(adapter, 1);
-#endif /* CONFIG_INTEL_WIDI */
 
 		_rtw_roaming(adapter, roam_target);
 	}
@@ -3010,13 +2904,6 @@ void rtw_join_timeout_handler(void *ctx)
 				}
 				break;
 			} else {
-#ifdef CONFIG_INTEL_WIDI
-				if (adapter->mlmepriv.widi_state == INTEL_WIDI_STATE_ROAMING) {
-					_rtw_memset(pmlmepriv->sa_ext, 0x00, L2SDTA_SERVICE_VE_LEN);
-					intel_widi_wk_cmd(adapter, INTEL_WIDI_LISTEN_WK, NULL, 0);
-					RTW_INFO("change to widi listen\n");
-				}
-#endif /* CONFIG_INTEL_WIDI */
 				RTW_INFO("%s We've try roaming but fail\n", __FUNCTION__);
 #ifdef CONFIG_RTW_80211R
 				rtw_ft_clr_flags(adapter, RTW_FT_PEER_EN|RTW_FT_PEER_OTD_EN);
@@ -3083,11 +2970,6 @@ void rtw_scan_timeout_handler(void *ctx)
 
 void rtw_mlme_reset_auto_scan_int(_adapter *adapter, u8 *reason)
 {
-#if defined(CONFIG_RTW_MESH) && defined(CONFIG_DFS_MASTER)
-#if CONFIG_RTW_MESH_OFFCH_CAND 
-	struct rf_ctl_t *rfctl = adapter_to_rfctl(adapter);
-#endif
-#endif
 	u8 u_ch;
 	u32 interval_ms = 0xffffffff; /* 0xffffffff: special value to make min() works well, also means no auto scan */
 
@@ -3104,19 +2986,6 @@ void rtw_mlme_reset_auto_scan_int(_adapter *adapter, u8 *reason)
 		*reason |= RTW_AUTO_SCAN_REASON_2040_BSS;
 	}
 
-#ifdef CONFIG_RTW_MESH
-	#if CONFIG_RTW_MESH_OFFCH_CAND
-	if (adapter->mesh_cfg.peer_sel_policy.offch_find_int_ms
-		&& rtw_mesh_offch_candidate_accepted(adapter)
-		#ifdef CONFIG_DFS_MASTER
-		&& (!rfctl->radar_detect_ch || (IS_CH_WAITING(rfctl) && !IS_UNDER_CAC(rfctl)))
-		#endif
-	) {
-		interval_ms = rtw_min(interval_ms, adapter->mesh_cfg.peer_sel_policy.offch_find_int_ms);
-		*reason |= RTW_AUTO_SCAN_REASON_MESH_OFFCH_CAND;
-	}
-	#endif
-#endif /* CONFIG_RTW_MESH */
 
 	if (interval_ms == 0xffffffff)
 		interval_ms = 0;
@@ -3478,11 +3347,6 @@ static int rtw_check_roaming_candidate(struct mlme_priv *mlme
 		&& rtw_chset_is_ch_non_ocp(chset, ch))
 		goto exit;
 
-#if defined(CONFIG_RTW_REPEATER_SON) &&  (!defined(CONFIG_RTW_REPEATER_SON_ROOT))
-	if (rtw_rson_isupdate_roamcan(mlme, candidate, competitor))
-		goto  update;
-	goto exit;
-#endif
 
 	if (is_same_ess(&competitor->network, &mlme->cur_network.network) == _FALSE)
 		goto exit;
@@ -3586,36 +3450,13 @@ int rtw_select_roaming_candidate(struct mlme_priv *mlme)
 
 	if (candidate == NULL) {
 	/*	if parent note lost the path to root and there is no other cadidate, report disconnection	*/
-#if defined(CONFIG_RTW_REPEATER_SON) &&  (!defined(CONFIG_RTW_REPEATER_SON_ROOT))
-		struct rtw_rson_struct  rson_curr;
-		u8 rson_score;
-
-		rtw_get_rson_struct(&(mlme->cur_network_scanned->network), &rson_curr);
-		rson_score = rtw_cal_rson_score(&rson_curr, mlme->cur_network_scanned->network.Rssi);
-		if (check_fwstate(mlme, _FW_LINKED)
-			&& ((rson_score == RTW_RSON_SCORE_NOTCNNT)
-			|| (rson_score == RTW_RSON_SCORE_NOTSUP)))
-			receive_disconnect(adapter, mlme->cur_network_scanned->network.MacAddress
-								, WLAN_REASON_EXPIRATION_CHK, _FALSE);
-#endif
 		RTW_INFO("%s: return _FAIL(candidate == NULL)\n", __FUNCTION__);
 		ret = _FAIL;
 		goto exit;
 	} else {
-#if defined(CONFIG_RTW_REPEATER_SON) &&  (!defined(CONFIG_RTW_REPEATER_SON_ROOT))
-		struct rtw_rson_struct  rson_curr;
-		u8 rson_score;
-
-		rtw_get_rson_struct(&(candidate->network), &rson_curr);
-		rson_score = rtw_cal_rson_score(&rson_curr, candidate->network.Rssi);
-		RTW_INFO("%s: candidate: %s("MAC_FMT", ch:%u) rson_score:%d\n", __FUNCTION__,
-			candidate->network.Ssid.Ssid, MAC_ARG(candidate->network.MacAddress),
-			 candidate->network.Configuration.DSConfig, rson_score);
-#else
 		RTW_INFO("%s: candidate: %s("MAC_FMT", ch:%u)\n", __FUNCTION__,
 			candidate->network.Ssid.Ssid, MAC_ARG(candidate->network.MacAddress),
 			 candidate->network.Configuration.DSConfig);
-#endif
 		mlme->roam_network = candidate;
 
 		if (_rtw_memcmp(candidate->network.MacAddress, mlme->roam_tgt_addr, ETH_ALEN) == _TRUE)
@@ -3651,24 +3492,6 @@ static int rtw_check_join_candidate(struct mlme_priv *mlme
 		&& rtw_chset_is_ch_non_ocp(chset, ch))
 		goto exit;
 
-#if defined(CONFIG_RTW_REPEATER_SON) &&  (!defined(CONFIG_RTW_REPEATER_SON_ROOT))
-	s16 rson_score;
-	struct rtw_rson_struct  rson_data;
-
-	if (rtw_rson_choose(candidate, competitor)) {
-		*candidate = competitor;
-		rtw_get_rson_struct(&((*candidate)->network), &rson_data);
-		rson_score = rtw_cal_rson_score(&rson_data, (*candidate)->network.Rssi);
-		RTW_INFO("[assoc_ssid:%s] new candidate: %s("MAC_FMT", ch%u) rson_score:%d\n",
-			 mlme->assoc_ssid.Ssid,
-			 (*candidate)->network.Ssid.Ssid,
-			 MAC_ARG((*candidate)->network.MacAddress),
-			 (*candidate)->network.Configuration.DSConfig,
-			 rson_score);
-		return _TRUE;
-	}
-	return _FALSE;
-#endif
 
 	/* check bssid, if needed */
 	if (mlme->assoc_by_bssid == _TRUE) {
@@ -5033,9 +4856,6 @@ void _rtw_roaming(_adapter *padapter, struct wlan_network *tgt_network)
 
 		pmlmepriv->assoc_by_bssid = _FALSE;
 
-#ifdef CONFIG_WAPI_SUPPORT
-		rtw_wapi_return_all_sta_info(padapter);
-#endif
 
 		while (1) {
 			do_join_r = rtw_do_join(padapter);

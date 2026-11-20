@@ -243,13 +243,7 @@ enum rtw_drvextra_cmd_id {
 	TEST_H2C_CID,
 	MP_CMD_WK_CID,
 	CUSTOMER_STR_WK_CID,
-#ifdef CONFIG_RTW_REPEATER_SON
-	RSON_SCAN_WK_CID,
-#endif
 	MGNT_TX_WK_CID,
-#ifdef CONFIG_MCC_MODE
-	MCC_SET_DURATION_WK_CID,
-#endif /* CONFIG_MCC_MODE */
 	REQ_PER_CMD_WK_CID,
 	SSMPS_WK_CID,
 #ifdef CONFIG_CTRL_TXSS_BY_TP
@@ -1102,11 +1096,6 @@ u8 rtw_c2h_reg_wk_cmd(_adapter *adapter, u8 *c2h_evt);
 u8 rtw_c2h_packet_wk_cmd(_adapter *adapter, u8 *c2h_evt, u16 length);
 #endif
 
-#ifdef CONFIG_RTW_REPEATER_SON
-#define RSON_SCAN_PROCESS		10
-#define RSON_SCAN_DISABLE		11
-u8 rtw_rson_scan_wk_cmd(_adapter *adapter, int op);
-#endif
 
 u8 rtw_run_in_thread_cmd(PADAPTER padapter, void (*func)(void *), void *context);
 
@@ -1120,9 +1109,6 @@ u8 session_tracker_chk_cmd(_adapter *adapter, struct sta_info *sta);
 u8 session_tracker_add_cmd(_adapter *adapter, struct sta_info *sta, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port);
 u8 session_tracker_del_cmd(_adapter *adapter, struct sta_info *sta, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port);
 
-#if defined(CONFIG_RTW_MESH) && defined(RTW_PER_CMD_SUPPORT_FW)
-u8 rtw_req_per_cmd(_adapter * adapter);
-#endif
 
 #ifdef CONFIG_CTRL_TXSS_BY_TP
 struct txss_cmd_parm {

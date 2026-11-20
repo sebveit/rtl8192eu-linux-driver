@@ -509,12 +509,6 @@ u8 rtw_set_802_11_infrastructure_mode(_adapter *padapter,
 
 			break;
 
-#ifdef CONFIG_RTW_MESH
-		case Ndis802_11_mesh:
-			set_fwstate(pmlmepriv, WIFI_MESH_STATE);
-			start_ap_mode(padapter);
-			break;
-#endif
 
 		case Ndis802_11AutoUnknown:
 		case Ndis802_11InfrastructureMax:
@@ -588,10 +582,6 @@ u8 rtw_set_802_11_authentication_mode(_adapter *padapter, NDIS_802_11_AUTHENTICA
 	if (psecuritypriv->ndisauthtype > 3)
 		psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_8021X;
 
-#ifdef CONFIG_WAPI_SUPPORT
-	if (psecuritypriv->ndisauthtype == 6)
-		psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_WAPI;
-#endif
 
 	res = rtw_set_auth(padapter, psecuritypriv);
 

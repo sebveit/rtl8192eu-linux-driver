@@ -23,7 +23,6 @@
  *
  *****************************************************************************/
 
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 void phydm_ccx_hw_restart(void *dm_void)

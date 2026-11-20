@@ -379,11 +379,7 @@ char *ifname = "wlan%d";
 module_param(ifname, charp, 0644);
 MODULE_PARM_DESC(ifname, "The default name to allocate for first interface");
 
-#ifdef CONFIG_PLATFORM_ANDROID
-	char *if2name = "p2p%d";
-#else /* CONFIG_PLATFORM_ANDROID */
 	char *if2name = "wlan%d";
-#endif /* CONFIG_PLATFORM_ANDROID */
 module_param(if2name, charp, 0644);
 MODULE_PARM_DESC(if2name, "The default name to allocate for second interface");
 
@@ -753,31 +749,6 @@ static int netdev_close(struct net_device *pnetdev);
 extern int rtw_sdio_set_power(int on);
 #endif /* CONFIG_PLATFORM_INTEL_BYT */
 
-#ifdef CONFIG_MCC_MODE
-/* enable MCC mode or not */
-int rtw_en_mcc = 1;
-/* can referece following value before insmod driver */
-int rtw_mcc_ap_bw20_target_tx_tp = MCC_AP_BW20_TARGET_TX_TP;
-int rtw_mcc_ap_bw40_target_tx_tp = MCC_AP_BW40_TARGET_TX_TP;
-int rtw_mcc_ap_bw80_target_tx_tp = MCC_AP_BW80_TARGET_TX_TP;
-int rtw_mcc_sta_bw20_target_tx_tp = MCC_STA_BW20_TARGET_TX_TP;
-int rtw_mcc_sta_bw40_target_tx_tp = MCC_STA_BW40_TARGET_TX_TP;
-int rtw_mcc_sta_bw80_target_tx_tp = MCC_STA_BW80_TARGET_TX_TP;
-int rtw_mcc_single_tx_cri = MCC_SINGLE_TX_CRITERIA;
-int rtw_mcc_policy_table_idx = 0;
-int rtw_mcc_duration = 0;
-int rtw_mcc_enable_runtime_duration = 1;
-module_param(rtw_en_mcc, int, 0644);
-module_param(rtw_mcc_single_tx_cri, int, 0644);
-module_param(rtw_mcc_ap_bw20_target_tx_tp, int, 0644);
-module_param(rtw_mcc_ap_bw40_target_tx_tp, int, 0644);
-module_param(rtw_mcc_ap_bw80_target_tx_tp, int, 0644);
-module_param(rtw_mcc_sta_bw20_target_tx_tp, int, 0644);
-module_param(rtw_mcc_sta_bw40_target_tx_tp, int, 0644);
-module_param(rtw_mcc_sta_bw80_target_tx_tp, int, 0644);
-module_param(rtw_mcc_policy_table_idx, int, 0644);
-module_param(rtw_mcc_duration, int, 0644);
-#endif /*CONFIG_MCC_MODE */
 
 #ifdef CONFIG_RTW_NAPI
 /*following setting should define NAPI in Makefile
@@ -1079,9 +1050,6 @@ uint loadparam(_adapter *padapter)
 
 #ifdef CONFIG_LAYER2_ROAMING
 	registry_par->max_roaming_times = (u8)rtw_max_roaming_times;
-#ifdef CONFIG_INTEL_WIDI
-	registry_par->max_roaming_times = (u8)rtw_max_roaming_times + 2;
-#endif /* CONFIG_INTEL_WIDI */
 #endif
 
 #ifdef CONFIG_IOL
@@ -1160,19 +1128,6 @@ uint loadparam(_adapter *padapter)
 	registry_par->dfs_region_domain = (u8)rtw_dfs_region_domain;
 #endif
 
-#ifdef CONFIG_MCC_MODE
-	registry_par->en_mcc = (u8)rtw_en_mcc;
-	registry_par->rtw_mcc_ap_bw20_target_tx_tp = (u32)rtw_mcc_ap_bw20_target_tx_tp;
-	registry_par->rtw_mcc_ap_bw40_target_tx_tp = (u32)rtw_mcc_ap_bw40_target_tx_tp;
-	registry_par->rtw_mcc_ap_bw80_target_tx_tp = (u32)rtw_mcc_ap_bw80_target_tx_tp;
-	registry_par->rtw_mcc_sta_bw20_target_tx_tp = (u32)rtw_mcc_sta_bw20_target_tx_tp;
-	registry_par->rtw_mcc_sta_bw40_target_tx_tp = (u32)rtw_mcc_sta_bw40_target_tx_tp;
-	registry_par->rtw_mcc_sta_bw80_target_tx_tp = (u32)rtw_mcc_sta_bw80_target_tx_tp;
-	registry_par->rtw_mcc_single_tx_cri = (u32)rtw_mcc_single_tx_cri;
-	registry_par->rtw_mcc_policy_table_idx = rtw_mcc_policy_table_idx;
-	registry_par->rtw_mcc_duration = (u8)rtw_mcc_duration;
-	registry_par->rtw_mcc_enable_runtime_duration = rtw_mcc_enable_runtime_duration;
-#endif /*CONFIG_MCC_MODE */
 
 #ifdef CONFIG_WOWLAN
 	registry_par->wakeup_event = rtw_wakeup_event;
@@ -2066,10 +2021,6 @@ u8 rtw_init_default_value(_adapter *padapter)
 	/* hal_priv */
 	rtw_hal_def_value_init(padapter);
 
-#ifdef CONFIG_MCC_MODE
-	/* MCC parameter */
-	rtw_hal_mcc_parameter_init(padapter);
-#endif /* CONFIG_MCC_MODE */
 
 	/* misc. */
 	RTW_ENABLE_FUNC(padapter, DF_RX_BIT);
@@ -2184,11 +2135,6 @@ struct dvobj_priv *devobj_init(void)
 	rtw_init_timer(&(pdvobj->dynamic_chk_timer), NULL, rtw_dynamic_check_timer_handlder, pdvobj);
 	rtw_init_timer(&(pdvobj->periodic_tsf_update_end_timer), NULL, rtw_hal_periodic_tsf_update_end_timer_hdl, pdvobj);
 
-#ifdef CONFIG_MCC_MODE
-	_rtw_mutex_init(&(pdvobj->mcc_objpriv.mcc_mutex));
-	_rtw_mutex_init(&(pdvobj->mcc_objpriv.mcc_tsf_req_mutex));
-	_rtw_spinlock_init(&pdvobj->mcc_objpriv.mcc_lock);
-#endif /* CONFIG_MCC_MODE */
 
 #ifdef CONFIG_RTW_NAPI_DYNAMIC
 	pdvobj->en_napi_dynamic = 0;
@@ -2216,11 +2162,6 @@ void devobj_deinit(struct dvobj_priv *pdvobj)
 	rtw_cfg80211_dev_res_free(pdvobj);
 #endif
 
-#ifdef CONFIG_MCC_MODE
-	_rtw_mutex_free(&(pdvobj->mcc_objpriv.mcc_mutex));
-	_rtw_mutex_free(&(pdvobj->mcc_objpriv.mcc_tsf_req_mutex));
-	_rtw_spinlock_free(&pdvobj->mcc_objpriv.mcc_lock);
-#endif /* CONFIG_MCC_MODE */
 
 	_rtw_mutex_free(&pdvobj->hw_init_mutex);
 	_rtw_mutex_free(&pdvobj->h2c_fwcmd_mutex);
@@ -2326,9 +2267,6 @@ u8 rtw_init_drv_sw(_adapter *padapter)
 {
 	u8	ret8 = _SUCCESS;
 
-#ifdef CONFIG_RTW_CFGVENDOR_RANDOM_MAC_OUI
-	struct rtw_wdev_priv *pwdev_priv = adapter_wdev_data(padapter);
-#endif
 
 	#if defined(CONFIG_AP_MODE) && defined(CONFIG_SUPPORT_MULTI_BCN)
 	_rtw_init_listhead(&padapter->list);
@@ -2392,9 +2330,6 @@ u8 rtw_init_drv_sw(_adapter *padapter)
 	}
 #endif /* CONFIG_TDLS */
 
-#ifdef CONFIG_RTW_MESH
-	rtw_mesh_cfg_init(padapter);
-#endif
 
 	if (_rtw_init_xmit_priv(&padapter->xmitpriv, padapter) == _FAIL) {
 		RTW_INFO("Can't _rtw_init_xmit_priv\n");
@@ -2453,18 +2388,7 @@ u8 rtw_init_drv_sw(_adapter *padapter)
 	rtw_hal_sreset_init(padapter);
 #endif
 
-#ifdef CONFIG_INTEL_WIDI
-	if (rtw_init_intel_widi(padapter) == _FAIL) {
-		RTW_INFO("Can't rtw_init_intel_widi\n");
-		ret8 = _FAIL;
-		goto exit;
-	}
-#endif /* CONFIG_INTEL_WIDI */
 
-#ifdef CONFIG_WAPI_SUPPORT
-	padapter->WapiSupport = true; /* set true temp, will revise according to Efuse or Registry value later. */
-	rtw_wapi_init(padapter);
-#endif
 
 #ifdef CONFIG_BR_EXT
 	_rtw_spinlock_init(&padapter->br_ext_lock);
@@ -2476,17 +2400,11 @@ u8 rtw_init_drv_sw(_adapter *padapter)
 #endif /* RTW_BEAMFORMING_VERSION_2 */
 #endif /* CONFIG_BEAMFORMING */
 
-#ifdef CONFIG_RTW_REPEATER_SON
-	init_rtw_rson_data(adapter_to_dvobj(padapter));
-#endif
 
 #ifdef CONFIG_RTW_80211K
 	rtw_init_rm(padapter);
 #endif
 
-#ifdef CONFIG_RTW_CFGVENDOR_RANDOM_MAC_OUI
-	memset(pwdev_priv->pno_mac_addr, 0xFF, ETH_ALEN);
-#endif
 
 exit:
 
@@ -2559,9 +2477,6 @@ void rtw_cancel_all_timer(_adapter *padapter)
 u8 rtw_free_drv_sw(_adapter *padapter)
 {
 
-#ifdef CONFIG_WAPI_SUPPORT
-	rtw_wapi_free(padapter);
-#endif
 
 	/* we can call rtw_p2p_enable here, but: */
 	/* 1. rtw_p2p_enable may have IO operation */
@@ -2587,9 +2502,6 @@ u8 rtw_free_drv_sw(_adapter *padapter)
 	_rtw_spinlock_free(&padapter->br_ext_lock);
 #endif /* CONFIG_BR_EXT */
 
-#ifdef CONFIG_INTEL_WIDI
-	rtw_free_intel_widi(padapter);
-#endif /* CONFIG_INTEL_WIDI */
 
 	free_mlme_ext_priv(&padapter->mlmeextpriv);
 
@@ -3478,14 +3390,6 @@ netdev_open_normal_process:
 	}
 #endif
 
-#ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS
-	pwrctrlpriv->radio_on_start_time = rtw_get_current_time();
-	pwrctrlpriv->pwr_saving_start_time = rtw_get_current_time();
-	pwrctrlpriv->pwr_saving_time = 0;
-	pwrctrlpriv->on_time = 0;
-	pwrctrlpriv->tx_time = 0;
-	pwrctrlpriv->rx_time = 0;
-#endif /* CONFIG_RTW_CFGVEDNOR_LLSTATS */
 
 	RTW_INFO("-871x_drv - drv_open, bup=%d\n", padapter->bup);
 
@@ -3843,9 +3747,6 @@ static int netdev_close(struct net_device *pnetdev)
 	/* padapter->rtw_wdev->iftype = NL80211_IFTYPE_MONITOR; */ /* set this at the end */
 #endif /* CONFIG_IOCTL_CFG80211 */
 
-#ifdef CONFIG_WAPI_SUPPORT
-	rtw_wapi_disable_tx(padapter);
-#endif
 #ifdef CONFIG_BT_COEXIST_SOCKET_TRX
 	if (is_primary_adapter(padapter) && (_TRUE == pHalData->EEPROMBluetoothCoexist))
 		rtw_btcoex_close_socket(padapter);

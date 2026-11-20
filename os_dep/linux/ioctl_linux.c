@@ -654,42 +654,6 @@ static inline char *iwe_stream_wapi_process(_adapter *padapter,
 		struct iw_request_info *info, struct wlan_network *pnetwork,
 		char *start, char *stop, struct iw_event *iwe)
 {
-#ifdef CONFIG_WAPI_SUPPORT
-	char *p;
-
-	if (pnetwork->network.Reserved[0] != BSS_TYPE_PROB_REQ) { /* Probe Request */
-		sint out_len_wapi = 0;
-		/* here use static for stack size */
-		static u8 buf_wapi[MAX_WAPI_IE_LEN * 2] = {0};
-		static u8 wapi_ie[MAX_WAPI_IE_LEN] = {0};
-		u16 wapi_len = 0;
-		u16  i;
-
-		out_len_wapi = rtw_get_wapi_ie(pnetwork->network.IEs , pnetwork->network.IELength, wapi_ie, &wapi_len);
-
-		RTW_INFO("rtw_wx_get_scan: %s ", pnetwork->network.Ssid.Ssid);
-		RTW_INFO("rtw_wx_get_scan: ssid = %d ", wapi_len);
-
-
-		if (wapi_len > 0) {
-			p = buf_wapi;
-			/* _rtw_memset(buf_wapi, 0, MAX_WAPI_IE_LEN*2); */
-			p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "wapi_ie=");
-			for (i = 0; i < wapi_len; i++)
-				p += snprintf(p, IW_CUSTOM_MAX - (p - buff), "%02x", wapi_ie[i]);
-
-			_rtw_memset(iwe, 0, sizeof(*iwe));
-			iwe->cmd = IWEVCUSTOM;
-			iwe->u.data.length = strlen(buf_wapi);
-			start = iwe_stream_add_point(info, start, stop, iwe, buf_wapi);
-
-			_rtw_memset(iwe, 0, sizeof(*iwe));
-			iwe->cmd = IWEVGENIE;
-			iwe->u.data.length = wapi_len;
-			start = iwe_stream_add_point(info, start, stop, iwe, wapi_ie);
-		}
-	}
-#endif/* #ifdef CONFIG_WAPI_SUPPORT */
 	return start;
 }
 
@@ -885,9 +849,6 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 			goto exit;
 		}
 	} else {
-#ifdef CONFIG_WAPI_SUPPORT
-		if (strcmp(param->u.crypt.alg, "SMS4"))
-#endif
 		{
 			ret = -EINVAL;
 			goto exit;
@@ -1019,10 +980,6 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 		}
 	}
 
-#ifdef CONFIG_WAPI_SUPPORT
-	if (strcmp(param->u.crypt.alg, "SMS4") == 0)
-		rtw_wapi_set_set_encryption(padapter, param);
-#endif
 
 exit:
 
@@ -1869,9 +1826,6 @@ static int rtw_wx_set_mlme(struct net_device *dev,
 	default:
 		return -EOPNOTSUPP;
 	}
-#ifdef CONFIG_RTW_REPEATER_SON
-	rtw_rson_do_disconnect(padapter);
-#endif
 	return ret;
 }
 
@@ -2782,33 +2736,11 @@ static int rtw_wx_set_auth(struct net_device *dev,
 {
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct iw_param *param = (struct iw_param *)&(wrqu->param);
-#ifdef CONFIG_WAPI_SUPPORT
-#ifndef CONFIG_IOCTL_CFG80211
-	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
-	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
-	struct security_priv *psecuritypriv = &padapter->securitypriv;
-	u32 value = param->value;
-#endif
-#endif
 	int ret = 0;
 
 	switch (param->flags & IW_AUTH_INDEX) {
 
 	case IW_AUTH_WPA_VERSION:
-#ifdef CONFIG_WAPI_SUPPORT
-#ifndef CONFIG_IOCTL_CFG80211
-		padapter->wapiInfo.bWapiEnable = false;
-		if (value == IW_AUTH_WAPI_VERSION_1) {
-			padapter->wapiInfo.bWapiEnable = true;
-			psecuritypriv->dot11PrivacyAlgrthm = _SMS4_;
-			psecuritypriv->dot118021XGrpPrivacy = _SMS4_;
-			psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_WAPI;
-			pmlmeinfo->auth_algo = psecuritypriv->dot11AuthAlgrthm;
-			padapter->wapiInfo.extra_prefix_len = WAPI_EXT_LEN;
-			padapter->wapiInfo.extra_postfix_len = SMS4_MIC_LEN;
-		}
-#endif
-#endif
 		break;
 	case IW_AUTH_CIPHER_PAIRWISE:
 
@@ -2817,16 +2749,6 @@ static int rtw_wx_set_auth(struct net_device *dev,
 
 		break;
 	case IW_AUTH_KEY_MGMT:
-#ifdef CONFIG_WAPI_SUPPORT
-#ifndef CONFIG_IOCTL_CFG80211
-		RTW_INFO("rtw_wx_set_auth: IW_AUTH_KEY_MGMT case\n");
-		if (value == IW_AUTH_KEY_MGMT_WAPI_PSK)
-			padapter->wapiInfo.bWapiPSK = true;
-		else
-			padapter->wapiInfo.bWapiPSK = false;
-		RTW_INFO("rtw_wx_set_auth: IW_AUTH_KEY_MGMT bwapipsk %d\n", padapter->wapiInfo.bWapiPSK);
-#endif
-#endif
 		/*
 		 *  ??? does not use these parameters
 		 */
@@ -2908,12 +2830,6 @@ static int rtw_wx_set_auth(struct net_device *dev,
 		/* ieee->privacy_invoked = param->value; */
 		break;
 
-#ifdef CONFIG_WAPI_SUPPORT
-#ifndef CONFIG_IOCTL_CFG80211
-	case IW_AUTH_WAPI_ENABLED:
-		break;
-#endif
-#endif
 
 	default:
 		return -EOPNOTSUPP;
@@ -2966,15 +2882,6 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
 		alg_name = "BIP";
 		break;
 #endif /* CONFIG_IEEE80211W */
-#ifdef CONFIG_WAPI_SUPPORT
-#ifndef CONFIG_IOCTL_CFG80211
-	case IW_ENCODE_ALG_SM4:
-		alg_name = "SMS4";
-		_rtw_memcpy(param->sta_addr, pext->addr.sa_data, ETH_ALEN);
-		RTW_INFO("rtw_wx_set_enc_ext: SMS4 case\n");
-		break;
-#endif
-#endif
 	default:
 		ret = -1;
 		goto exit;
@@ -2999,13 +2906,6 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
 	param->u.crypt.idx = (pencoding->flags & 0x00FF) - 1 ;
 
 	if (pext->ext_flags & IW_ENCODE_EXT_RX_SEQ_VALID) {
-#ifdef CONFIG_WAPI_SUPPORT
-#ifndef CONFIG_IOCTL_CFG80211
-		if (pext->alg == IW_ENCODE_ALG_SM4)
-			_rtw_memcpy(param->u.crypt.seq, pext->rx_seq, 16);
-		else
-#endif /* CONFIG_IOCTL_CFG80211 */
-#endif /* CONFIG_WAPI_SUPPORT */
 			_rtw_memcpy(param->u.crypt.seq, pext->rx_seq, 8);
 	}
 
@@ -3642,9 +3542,6 @@ static int rtw_wps_start(struct net_device *dev,
 	else if (u32wps_start == 3)   /* WPS Stop because of wps fail */
 		rtw_led_control(padapter, LED_CTL_STOP_WPS_FAIL);
 
-#ifdef CONFIG_INTEL_WIDI
-	process_intel_widi_wps_status(padapter, u32wps_start);
-#endif /* CONFIG_INTEL_WIDI */
 
 exit:
 
@@ -4533,12 +4430,6 @@ static int rtw_p2p_connect(struct net_device *dev,
 		return ret;
 	}
 
-#ifdef CONFIG_INTEL_WIDI
-	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == _TRUE) {
-		RTW_INFO("[%s] WiFi is under survey!\n", __FUNCTION__);
-		return ret;
-	}
-#endif /* CONFIG_INTEL_WIDI	 */
 
 	if (pwdinfo->ui_got_wps_info == P2P_NO_WPSINFO)
 		return -1;
@@ -4621,19 +4512,6 @@ static int rtw_p2p_connect(struct net_device *dev,
 
 	} else {
 		RTW_INFO("[%s] Not Found in Scanning Queue~\n", __FUNCTION__);
-#ifdef CONFIG_INTEL_WIDI
-		_cancel_timer_ex(&pwdinfo->restore_p2p_state_timer);
-		rtw_p2p_set_state(pwdinfo, P2P_STATE_FIND_PHASE_SEARCH);
-		rtw_p2p_findphase_ex_set(pwdinfo, P2P_FINDPHASE_EX_NONE);
-		rtw_free_network_queue(padapter, _TRUE);
-		/**
-		 * For WiDi, if we can't find candidate device in scanning queue,
-		 * driver will do scanning itself
-		 */
-		_enter_critical_bh(&pmlmepriv->lock, &irqL);
-		rtw_sitesurvey_cmd(padapter, NULL);
-		_exit_critical_bh(&pmlmepriv->lock, &irqL);
-#endif /* CONFIG_INTEL_WIDI */
 		ret = -1;
 	}
 exit:
@@ -5164,12 +5042,6 @@ static int rtw_p2p_prov_disc(struct net_device *dev,
 		RTW_INFO("[%s] WiFi Direct is disable!\n", __FUNCTION__);
 		return ret;
 	} else {
-#ifdef CONFIG_INTEL_WIDI
-		if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == _TRUE) {
-			RTW_INFO("[%s] WiFi is under survey!\n", __FUNCTION__);
-			return ret;
-		}
-#endif /* CONFIG_INTEL_WIDI */
 
 		/*	Reset the content of struct tx_provdisc_req_info excluded the wps_config_method_request. */
 		_rtw_memset(pwdinfo->tx_prov_disc_info.peerDevAddr, 0x00, ETH_ALEN);
@@ -5240,17 +5112,6 @@ static int rtw_p2p_prov_disc(struct net_device *dev,
 
 		}
 
-#ifdef CONFIG_INTEL_WIDI
-		/* Some Intel WiDi source may not provide P2P IE, */
-		/* so we could only compare mac addr by 802.11 Source Address */
-		if (pmlmepriv->widi_state == INTEL_WIDI_STATE_WFD_CONNECTION
-		    && uintPeerChannel == 0) {
-			if (_rtw_memcmp(pnetwork->network.MacAddress, peerMAC, ETH_ALEN)) {
-				uintPeerChannel = pnetwork->network.Configuration.DSConfig;
-				break;
-			}
-		}
-#endif /* CONFIG_INTEL_WIDI */
 
 		plist = get_next(plist);
 
@@ -5340,15 +5201,6 @@ static int rtw_p2p_prov_disc(struct net_device *dev,
 
 	} else {
 		RTW_INFO("[%s] NOT Found in the Scanning Queue!\n", __FUNCTION__);
-#ifdef CONFIG_INTEL_WIDI
-		_cancel_timer_ex(&pwdinfo->restore_p2p_state_timer);
-		rtw_p2p_set_state(pwdinfo, P2P_STATE_FIND_PHASE_SEARCH);
-		rtw_p2p_findphase_ex_set(pwdinfo, P2P_FINDPHASE_EX_NONE);
-		rtw_free_network_queue(padapter, _TRUE);
-		_enter_critical_bh(&pmlmepriv->lock, &irqL);
-		rtw_sitesurvey_cmd(padapter, NULL);
-		_exit_critical_bh(&pmlmepriv->lock, &irqL);
-#endif /* CONFIG_INTEL_WIDI */
 	}
 exit:
 
@@ -6548,9 +6400,6 @@ static int wpa_mlme(struct net_device *dev, u32 command, u32 reason)
 		ret = -EOPNOTSUPP;
 		break;
 	}
-#ifdef CONFIG_RTW_REPEATER_SON
-	rtw_rson_do_disconnect(padapter);
-#endif
 	return ret;
 
 }
@@ -10974,41 +10823,6 @@ static int rtw_tdls_get(struct net_device *dev,
 
 
 
-#ifdef CONFIG_INTEL_WIDI
-static int rtw_widi_set(struct net_device *dev,
-			struct iw_request_info *info,
-			union iwreq_data *wrqu, char *extra)
-{
-	int ret = 0;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-
-	process_intel_widi_cmd(padapter, extra);
-
-	return ret;
-}
-
-static int rtw_widi_set_probe_request(struct net_device *dev,
-				      struct iw_request_info *info,
-				      union iwreq_data *wrqu, char *extra)
-{
-	int	ret = 0;
-	u8	*pbuf = NULL;
-	_adapter	*padapter = (_adapter *)rtw_netdev_priv(dev);
-
-	pbuf = rtw_malloc(sizeof(l2_msg_t));
-	if (pbuf) {
-		if (copy_from_user(pbuf, wrqu->data.pointer, wrqu->data.length))
-			ret = -EFAULT;
-		/* _rtw_memcpy(pbuf, wrqu->data.pointer, wrqu->data.length); */
-
-		if (wrqu->data.flags == 0)
-			intel_widi_wk_cmd(padapter, INTEL_WIDI_ISSUE_PROB_WK, pbuf, sizeof(l2_msg_t));
-		else if (wrqu->data.flags == 1)
-			rtw_set_wfd_rds_sink_info(padapter, (l2_msg_t *)pbuf);
-	}
-	return ret;
-}
-#endif /* CONFIG_INTEL_WIDI */
 
 #ifdef CONFIG_MAC_LOOPBACK_DRIVER
 
@@ -11807,16 +11621,6 @@ static const struct iw_priv_args rtw_private_args[] = {
 		IW_PRIV_TYPE_CHAR | 40, IW_PRIV_TYPE_CHAR | 0x7FF, "test"
 	},
 
-#ifdef CONFIG_INTEL_WIDI
-	{
-		SIOCIWFIRSTPRIV + 0x1E,
-		IW_PRIV_TYPE_CHAR | 1024, 0, "widi_set"
-	},
-	{
-		SIOCIWFIRSTPRIV + 0x1F,
-		IW_PRIV_TYPE_CHAR | 128, 0, "widi_prob_req"
-	},
-#endif /* CONFIG_INTEL_WIDI */
 
 	{ SIOCIWFIRSTPRIV + 0x0E, IW_PRIV_TYPE_CHAR | 1024, 0 , ""},  /* set  */
 	{ SIOCIWFIRSTPRIV + 0x0F, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK , ""},/* get
@@ -11950,10 +11754,6 @@ static iw_handler rtw_private_handler[] = {
 #endif
 	NULL,							/* 0x1C is reserved for hostapd */
 	rtw_test,						/* 0x1D */
-#ifdef CONFIG_INTEL_WIDI
-	rtw_widi_set,					/* 0x1E */
-	rtw_widi_set_probe_request,		/* 0x1F */
-#endif /* CONFIG_INTEL_WIDI */
 };
 
 #if WIRELESS_EXT >= 17

@@ -84,9 +84,6 @@ void _ips_enter(_adapter *padapter)
 		if (pwrpriv->ips_mode == IPS_LEVEL_2)
 			pwrpriv->bkeepfwalive = _TRUE;
 
-#ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS		
-		pwrpriv->pwr_saving_start_time = rtw_get_current_time();
-#endif /* CONFIG_RTW_CFGVEDNOR_LLSTATS */
 
 		rtw_ips_pwr_down(padapter);
 		pwrpriv->rf_pwrstate = rf_off;
@@ -124,9 +121,6 @@ int _ips_leave(_adapter *padapter)
 		if (result == _SUCCESS)
 			pwrpriv->rf_pwrstate = rf_on;
 		
-#ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS	
-		pwrpriv->pwr_saving_time += rtw_get_passing_time_ms(pwrpriv->pwr_saving_start_time);
-#endif /* CONFIG_RTW_CFGVEDNOR_LLSTATS */
 
 		RTW_PRINT("nolinked power save leave\n");
 
@@ -1186,9 +1180,6 @@ void LPS_Enter(PADAPTER padapter, const char *msg)
 				snprintf(buf, sizeof(buf), "WIFI-%s", msg);
 				pwrpriv->bpower_saving = _TRUE;
 				
-#ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS
-				pwrpriv->pwr_saving_start_time = rtw_get_current_time();
-#endif /* CONFIG_RTW_CFGVEDNOR_LLSTATS */
 
 				rtw_set_ps_mode(padapter, pwrpriv->power_mgnt, padapter->registrypriv.smart_ps, 0, buf);
 			}
@@ -1234,9 +1225,6 @@ void LPS_Leave(PADAPTER padapter, const char *msg)
 			snprintf(buf, sizeof(buf), "WIFI-%s", msg);
 			rtw_set_ps_mode(padapter, PS_MODE_ACTIVE, 0, 0, buf);
 
-#ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS	
-			pwrpriv->pwr_saving_time += rtw_get_passing_time_ms(pwrpriv->pwr_saving_start_time);
-#endif /* CONFIG_RTW_CFGVEDNOR_LLSTATS */
 		}
 	}
 

@@ -979,10 +979,6 @@ static s32 update_attrib_sec_info(_adapter *padapter, struct pkt_attrib *pattrib
 	} else {
 		GET_ENCRY_ALGO(psecuritypriv, psta, pattrib->encrypt, bmcast);
 
-#ifdef CONFIG_WAPI_SUPPORT
-		if (pattrib->ether_type == 0x88B4)
-			pattrib->encrypt = _NO_PRIVACY_;
-#endif
 
 		switch (psecuritypriv->dot11AuthAlgrthm) {
 		case dot11AuthAlgrthm_Open:
@@ -1056,13 +1052,6 @@ static s32 update_attrib_sec_info(_adapter *padapter, struct pkt_attrib *pattrib
 
 		break;
 
-#ifdef CONFIG_WAPI_SUPPORT
-	case _SMS4_:
-		pattrib->iv_len = 18;
-		pattrib->icv_len = 16;
-		rtw_wapi_get_iv(padapter, pattrib->ra, pattrib->iv);
-		break;
-#endif
 	default:
 		pattrib->iv_len = 0;
 		pattrib->icv_len = 0;
@@ -1087,10 +1076,6 @@ static s32 update_attrib_sec_info(_adapter *padapter, struct pkt_attrib *pattrib
 	if (pattrib->encrypt && bmcast && _rtw_camctl_chk_flags(padapter, SEC_STATUS_STA_PK_GK_CONFLICT_DIS_BMC_SEARCH))
 		pattrib->bswenc = _TRUE;
 
-#ifdef CONFIG_WAPI_SUPPORT
-	if (pattrib->encrypt == _SMS4_)
-		pattrib->bswenc = _FALSE;
-#endif
 
 exit:
 
@@ -1258,10 +1243,6 @@ static u8 _rtw_lps_chk_packet_type(struct pkt_attrib *pattrib)
 {
 	u8 pkt_type = LPS_PT_NORMAL; /*normal data frame*/
 
-	#ifdef CONFIG_WAPI_SUPPORT
-	if ((pattrib->ether_type == 0x88B4) || (pattrib->ether_type == 0x0806) || (pattrib->ether_type == 0x888e) || (pattrib->dhcp_pkt == 1))
-		pkt_type = LPS_PT_SP;
-	#else /* !CONFIG_WAPI_SUPPORT */
 
 	#ifndef CONFIG_LPS_NOT_LEAVE_FOR_ICMP
 	if (pattrib->icmp_pkt == 1)
@@ -1270,7 +1251,6 @@ static u8 _rtw_lps_chk_packet_type(struct pkt_attrib *pattrib)
 	#endif
 		if (pattrib->dhcp_pkt == 1)
 			pkt_type = LPS_PT_SP;
-	#endif
 	return pkt_type;
 }
 #endif
@@ -1484,10 +1464,6 @@ get_sta_info:
 	) {
 		if (pattrib->qos_en) {
 			set_qos(&pktfile, pattrib);
-			#ifdef CONFIG_RTW_MESH
-			if (MLME_IS_MESH(padapter))
-				rtw_mesh_tx_set_whdr_mctrl_len(pattrib->mesh_frame_mode, pattrib);
-			#endif
 		}
 	} else {
 #ifdef CONFIG_TDLS
@@ -1687,10 +1663,6 @@ static s32 xmitframe_swencrypt(_adapter *padapter, struct xmit_frame *pxmitframe
 		case _AES_:
 			rtw_aes_encrypt(padapter, (u8 *)pxmitframe);
 			break;
-#ifdef CONFIG_WAPI_SUPPORT
-		case _SMS4_:
-			rtw_sms4_encrypt(padapter, (u8 *)pxmitframe);
-#endif
 		default:
 			break;
 		}
@@ -1784,17 +1756,6 @@ s32 rtw_make_wlanhdr(_adapter *padapter , u8 *hdr, struct pkt_attrib *pattrib)
 
 			if (pattrib->qos_en)
 				qos_option = _TRUE;
-#ifdef CONFIG_RTW_MESH
-		} else if (check_fwstate(pmlmepriv, WIFI_MESH_STATE) == _TRUE) {
-			rtw_mesh_tx_build_whdr(padapter, pattrib, fctrl, pwlanhdr);
-			if (pattrib->qos_en)
-				qos_option = _TRUE;
-			else {
-				RTW_WARN("[%s] !qos_en in Mesh\n", __FUNCTION__);
-				res = _FAIL;
-				goto exit;
-			}
-#endif
 		} else {
 			res = _FAIL;
 			goto exit;
@@ -1818,18 +1779,6 @@ s32 rtw_make_wlanhdr(_adapter *padapter , u8 *hdr, struct pkt_attrib *pattrib)
 
 			if(pattrib->amsdu)
 				SetAMsdu(qc, pattrib->amsdu);
-#ifdef CONFIG_RTW_MESH
-			if (MLME_IS_MESH(padapter)) {
-				/* active: don't care, light sleep: 0, deep sleep: 1*/
-				set_mps_lv(qc, 0); //TBD
-
-				/* TBD: temporary set (rspi, eosp) = (0, 1) which means End MPSP */
-				set_rspi(qc, 0);
-				SetEOSP(qc, 1);
-				
-				set_mctrl_present(qc, 1);
-			}
-#endif
 		}
 
 		/* TODO: fill HT Control Field */
@@ -2403,19 +2352,6 @@ s32 rtw_xmitframe_coalesce_amsdu(_adapter *padapter, struct xmit_frame *pxmitfra
 		_rtw_open_pktfile(pkt_queue, &pktfile_queue);
 		_rtw_pktfile_read(&pktfile_queue, NULL, pattrib_queue->pkt_hdrlen);
 
-		#ifdef CONFIG_RTW_MESH
-		if (MLME_IS_MESH(padapter)) {
-			/* mDA(6), mSA(6), len(2), mctrl */
-			_rtw_memcpy(pframe, pattrib_queue->mda, ETH_ALEN);
-			pframe += ETH_ALEN;
-			_rtw_memcpy(pframe, pattrib_queue->msa, ETH_ALEN);
-			pframe += ETH_ALEN;
-			len = (u16*)pframe;
-			pframe += 2;
-			rtw_mesh_tx_build_mctrl(padapter, pattrib_queue, pframe);
-			pframe += XATTRIB_GET_MCTRL_LEN(pattrib_queue);
-		} else
-		#endif
 		{
 			/* 802.3 MAC Header DA(6)  SA(6)  Len(2)*/
 			_rtw_memcpy(pframe, pattrib_queue->dst, ETH_ALEN);
@@ -2451,19 +2387,6 @@ s32 rtw_xmitframe_coalesce_amsdu(_adapter *padapter, struct xmit_frame *pxmitfra
 	_rtw_open_pktfile(pkt, &pktfile);
 	_rtw_pktfile_read(&pktfile, NULL, pattrib->pkt_hdrlen);
 
-#ifdef CONFIG_RTW_MESH
-	if (MLME_IS_MESH(padapter)) {
-		/* mDA(6), mSA(6), len(2), mctrl */
-		_rtw_memcpy(pframe, pattrib->mda, ETH_ALEN);
-		pframe += ETH_ALEN;
-		_rtw_memcpy(pframe, pattrib->msa, ETH_ALEN);
-		pframe += ETH_ALEN;
-		len = (u16*)pframe;
-		pframe += 2;
-		rtw_mesh_tx_build_mctrl(padapter, pattrib, pframe);
-		pframe += XATTRIB_GET_MCTRL_LEN(pattrib);
-	} else
-#endif
 	{
 		/* 802.3 MAC Header  DA(6)  SA(6)  Len(2) */
 		_rtw_memcpy(pframe, pattrib->dst, ETH_ALEN);
@@ -2625,13 +2548,6 @@ s32 rtw_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame *pxm
 		}
 
 		if (frg_inx == 0) {
-			#ifdef CONFIG_RTW_MESH
-			if (MLME_IS_MESH(padapter)) {
-				rtw_mesh_tx_build_mctrl(padapter, pattrib, pframe);
-				pframe += XATTRIB_GET_MCTRL_LEN(pattrib);
-				mpdu_len -= XATTRIB_GET_MCTRL_LEN(pattrib);
-			}
-			#endif
 
 			llc_sz = rtw_put_snap(pframe, pattrib->ether_type);
 			pframe += llc_sz;
@@ -4145,25 +4061,7 @@ static void do_queue_select(_adapter	*padapter, struct pkt_attrib *pattrib)
 
 	qsel = pattrib->priority;
 
-#ifdef CONFIG_MCC_MODE
-	if (MCC_EN(padapter)) {
-		/* Under MCC */
-		if (rtw_hal_check_mcc_status(padapter, MCC_STATUS_NEED_MCC)) {
-			if (padapter->mcc_adapterpriv.role == MCC_ROLE_GO
-			    || padapter->mcc_adapterpriv.role == MCC_ROLE_AP) {
-				pattrib->qsel = QSLT_VO; /* AP interface VO queue */
-			} else {
-				pattrib->qsel = QSLT_BE; /* STA interface BE queue */
-			}
-		} else
-			/* Not Under MCC */
-			pattrib->qsel = qsel;
-	} else
-		/* Not enable MCC */
-		pattrib->qsel = qsel;
-#else /* !CONFIG_MCC_MODE */
 	pattrib->qsel = qsel;
-#endif /* CONFIG_MCC_MODE */
 }
 
 /*
@@ -4273,19 +4171,7 @@ s32 rtw_xmit_posthandle(_adapter *padapter, struct xmit_frame *pxmitframe, _pkt 
 
 	res = update_attrib(padapter, pkt, &pxmitframe->attrib);
 
-#ifdef CONFIG_MCC_MODE
-	/* record data kernel TX to driver to check MCC concurrent TX */
-	rtw_hal_mcc_calc_tx_bytes_from_kernel(padapter, pxmitframe->attrib.pktlen);
-#endif /* CONFIG_MCC_MODE */
 
-#ifdef CONFIG_WAPI_SUPPORT
-	if (pxmitframe->attrib.ether_type != 0x88B4) {
-		if (rtw_wapi_drop_for_key_absent(padapter, pxmitframe->attrib.ra)) {
-			WAPI_TRACE(WAPI_RX, "drop for key absend when tx\n");
-			res = _FAIL;
-		}
-	}
-#endif
 	if (res == _FAIL) {
 		/*RTW_INFO("%s-"ADPT_FMT" update attrib fail\n", __func__, ADPT_ARG(padapter));*/
 #ifdef DBG_TX_DROP_FRAME
@@ -4378,45 +4264,6 @@ s32 rtw_xmit(_adapter *padapter, _pkt **ppkt)
 	}
 #endif /* CONFIG_BR_EXT */
 
-#ifdef CONFIG_RTW_MESH
-	if (MLME_IS_MESH(padapter)) {
-		_list b2u_list;
-
-		res = rtw_mesh_addr_resolve(padapter, pxmitframe, *ppkt, &b2u_list);
-		if (res == RTW_RA_RESOLVING)
-			return 1;
-		if (res == _FAIL)
-			return -1;
-
-		#if CONFIG_RTW_MESH_DATA_BMC_TO_UC
-		if (!rtw_is_list_empty(&b2u_list)) {
-			_list *list = get_next(&b2u_list);
-			struct xmit_frame *b2uframe;
-
-			while ((rtw_end_of_queue_search(&b2u_list, list)) == _FALSE) {
-				b2uframe = LIST_CONTAINOR(list, struct xmit_frame, list);
-				list = get_next(list);
-				rtw_list_delete(&b2uframe->list);
-
-				b2uframe->pkt = rtw_os_pkt_copy(*ppkt);
-				if (!b2uframe->pkt) {
-					if (res == RTW_BMC_NO_NEED)
-						res = _SUCCESS;
-					rtw_free_xmitframe(pxmitpriv, b2uframe);
-					continue;
-				}
-
-				rtw_xmit_posthandle(padapter, b2uframe, b2uframe->pkt);
-			}
-		}
-		#endif /* CONFIG_RTW_MESH_DATA_BMC_TO_UC */
-
-		if (res == RTW_BMC_NO_NEED) {
-			rtw_free_xmitframe(&padapter->xmitpriv, pxmitframe);
-			return 0;
-		}
-	}
-#endif /* CONFIG_RTW_MESH */
 
 	pxmitframe->pkt = NULL; /* let rtw_xmit_posthandle not to free pkt inside */
 	res = rtw_xmit_posthandle(padapter, pxmitframe, *ppkt);
@@ -4512,9 +4359,6 @@ inline bool xmitframe_hiq_filter(struct xmit_frame *xmitframe)
 
 		if (attrib->ether_type == 0x0806
 		    || attrib->ether_type == 0x888e
-#ifdef CONFIG_WAPI_SUPPORT
-		    || attrib->ether_type == 0x88B4
-#endif
 		    || attrib->dhcp_pkt
 		   ) {
 			if (0)
@@ -5333,16 +5177,6 @@ bool rtw_xmit_ac_blocked(_adapter *adapter)
 		}
 	}
 
-#ifdef CONFIG_MCC_MODE
-	if (MCC_EN(adapter)) {
-		if (rtw_hal_check_mcc_status(adapter, MCC_STATUS_DOING_MCC)) {
-			if (MCC_STOP(adapter)) {
-				blocked = _TRUE;
-				goto exit;
-			}
-		}
-	}
-#endif /*  CONFIG_MCC_MODE */
 
 exit:
 	return blocked;

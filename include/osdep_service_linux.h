@@ -157,7 +157,6 @@ typedef struct rcu_head rtw_rcu_head;
 #define rtw_rcu_access_pointer(p) rcu_access_pointer(p)
 
 /* rhashtable */
-#include "../os_dep/linux/rtw_rhashtable.h"
 
 typedef	int	_OS_STATUS;
 /* typedef u32	_irqL; */

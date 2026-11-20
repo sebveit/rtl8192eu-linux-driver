@@ -241,17 +241,6 @@ struct pkt_attrib {
 	u8	src[ETH_ALEN];
 	u8	ta[ETH_ALEN];
 	u8	ra[ETH_ALEN];
-#ifdef CONFIG_RTW_MESH
-	u8	mda[ETH_ALEN];	/* mesh da */
-	u8	msa[ETH_ALEN];	/* mesh sa */
-	u8	meshctrl_len;	/* Length of Mesh Control field */
-	u8	mesh_frame_mode;
-	#if CONFIG_RTW_MESH_DATA_BMC_TO_UC
-	u8 mb2u;
-	#endif
-	u8 mfwd_ttl;
-	u32 mseq;
-#endif
 #ifdef CONFIG_TX_CSUM_OFFLOAD
 	u8	hw_csum;
 #endif
@@ -313,11 +302,7 @@ struct pkt_attrib {
 
 };
 
-#ifdef CONFIG_RTW_MESH
-#define XATTRIB_GET_MCTRL_LEN(xattrib) ((xattrib)->meshctrl_len)
-#else
 #define XATTRIB_GET_MCTRL_LEN(xattrib) 0
-#endif
 
 #ifdef CONFIG_TX_AMSDU
 enum {

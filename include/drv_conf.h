@@ -17,43 +17,9 @@
 #include "autoconf.h"
 #include "hal_ic_cfg.h"
 #define CONFIG_RSSI_PRIORITY
-#ifdef CONFIG_RTW_REPEATER_SON
-	#ifndef CONFIG_AP
-		#define CONFIG_AP
-	#endif
-	#ifndef CONFIG_CONCURRENT_MODE
-		#define CONFIG_CONCURRENT_MODE
-	#endif
-	#ifndef CONFIG_BR_EXT
-		#define CONFIG_BR_EXT
-	#endif
-	#ifndef CONFIG_RTW_REPEATER_SON_ID
-		#define CONFIG_RTW_REPEATER_SON_ID			0x02040608
-	#endif
-	//#define CONFIG_RTW_REPEATER_SON_ROOT
-	#ifndef CONFIG_RTW_REPEATER_SON_ROOT
-		#define CONFIG_LAYER2_ROAMING_ACTIVE
-	#endif
-	#undef CONFIG_POWER_SAVING
-#endif
 
-#if defined(CONFIG_MCC_MODE) && (!defined(CONFIG_CONCURRENT_MODE))
 
-	#error "Enable CONCURRENT_MODE before enable MCC MODE\n"
 
-#endif
-
-#if defined(CONFIG_MCC_MODE) && defined(CONFIG_BT_COEXIST)
-
-	#error "Disable BT COEXIST before enable MCC MODE\n"
-
-#endif
-
-#if defined(CONFIG_MCC_MODE) && defined(CONFIG_TDLS)
-
-	#error "Disable TDLS before enable MCC MODE\n"
-
-#endif
 
 #if defined(CONFIG_RTW_80211R) && !defined(CONFIG_LAYER2_ROAMING)
 
@@ -63,11 +29,6 @@
 
 /* Older Android kernel doesn't has CONFIG_ANDROID defined,
  * add this to force CONFIG_ANDROID defined */
-#ifdef CONFIG_PLATFORM_ANDROID
-	#ifndef CONFIG_ANDROID
-		#define CONFIG_ANDROID
-	#endif
-#endif
 
 #ifdef CONFIG_ANDROID
 	/* Some Android build will restart the UI while non-printable ascii is passed
@@ -138,39 +99,6 @@
 	#endif
 #endif
 
-#ifdef CONFIG_RTW_MESH
-	#ifndef CONFIG_RTW_MESH_ACNODE_PREVENT
-	#define CONFIG_RTW_MESH_ACNODE_PREVENT 1
-	#endif
-
-	#ifndef CONFIG_RTW_MESH_OFFCH_CAND
-	#define CONFIG_RTW_MESH_OFFCH_CAND 1
-	#endif
-
-	#ifndef CONFIG_RTW_MESH_PEER_BLACKLIST
-	#define CONFIG_RTW_MESH_PEER_BLACKLIST 1
-	#endif
-
-	#ifndef CONFIG_RTW_MESH_CTO_MGATE_BLACKLIST
-	#define CONFIG_RTW_MESH_CTO_MGATE_BLACKLIST 1
-	#endif
-	#ifndef CONFIG_RTW_MESH_CTO_MGATE_CARRIER
-	#define CONFIG_RTW_MESH_CTO_MGATE_CARRIER CONFIG_RTW_MESH_CTO_MGATE_BLACKLIST
-	#endif
-
-	#ifndef CONFIG_RTW_MPM_TX_IES_SYNC_BSS
-	#define CONFIG_RTW_MPM_TX_IES_SYNC_BSS 1
-	#endif
-	#if CONFIG_RTW_MPM_TX_IES_SYNC_BSS
-		#ifndef CONFIG_RTW_MESH_AEK
-		#define CONFIG_RTW_MESH_AEK
-		#endif
-	#endif
-
-	#ifndef CONFIG_RTW_MESH_DATA_BMC_TO_UC
-	#define CONFIG_RTW_MESH_DATA_BMC_TO_UC 1
-	#endif
-#endif
 
 #if !defined(CONFIG_SCAN_BACKOP) && defined(CONFIG_AP_MODE)
 #define CONFIG_SCAN_BACKOP
@@ -249,14 +177,6 @@
 	#define CONFIG_TXPWR_LIMIT 1
 #endif
 
-#ifdef CONFIG_RTW_IPCAM_APPLICATION
-	#undef CONFIG_TXPWR_BY_RATE_EN
-	#define CONFIG_TXPWR_BY_RATE_EN 1
-	#define CONFIG_RTW_CUSTOMIZE_BEEDCA		0x0000431C
-	#define CONFIG_RTW_CUSTOMIZE_BWMODE		0x00
-	#define CONFIG_RTW_CUSTOMIZE_RLSTA		0x7
-	#define CONFIG_RTW_TX_2PATH_EN		/*	mutually incompatible with STBC_TX & Beamformer	*/
-#endif
 /*#define CONFIG_EXTEND_LOWRATE_TXOP			*/
 
 #ifndef CONFIG_RTW_RX_AMPDU_SZ_LIMIT_1SS

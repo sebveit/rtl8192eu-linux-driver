@@ -607,13 +607,6 @@ void set_channel_bwmode(_adapter *padapter, unsigned char channel, unsigned char
 	}
 	_enter_critical_mutex(&(adapter_to_dvobj(padapter)->setch_mutex), NULL);
 
-#ifdef CONFIG_MCC_MODE
-	if (MCC_EN(padapter)) {
-		/* driver doesn't set channel setting reg under MCC */
-		if (rtw_hal_check_mcc_status(padapter, MCC_STATUS_DOING_MCC))
-			RTW_INFO("Warning: Do not set channel setting reg MCC mode\n");
-	}
-#endif
 
 #ifdef CONFIG_DFS_MASTER
 	{
@@ -2982,10 +2975,6 @@ void update_tx_basic_rate(_adapter *padapter, u8 wirelessmode)
 	if (!rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE))
 		return;
 #endif /* CONFIG_P2P */
-#ifdef CONFIG_INTEL_WIDI
-	if (padapter->mlmepriv.widi_state != INTEL_WIDI_STATE_NONE)
-		return;
-#endif /* CONFIG_INTEL_WIDI */
 
 	_rtw_memset(supported_rates, 0, NDIS_802_11_LENGTH_RATES_EX);
 
@@ -3732,15 +3721,6 @@ void rtw_alloc_macid(_adapter *padapter, struct sta_info *psta)
 	_enter_critical_bh(&macid_ctl->lock, &irqL);
 
 	for (i = last_id; i < macid_ctl->num; i++) {
-#ifdef CONFIG_MCC_MODE
-		/* macid 0/1 reserve for mcc for mgnt queue macid */
-		if (MCC_EN(padapter)) {
-			if (i == MCC_ROLE_STA_GC_MGMT_QUEUE_MACID)
-				continue;
-			if (i == MCC_ROLE_SOFTAP_GO_MGMT_QUEUE_MACID)
-				continue;
-		}
-#endif /* CONFIG_MCC_MODE */
 
 		if (is_bc_sta) {
 			struct cam_ctl_t *cam_ctl = dvobj_to_sec_camctl(dvobj);

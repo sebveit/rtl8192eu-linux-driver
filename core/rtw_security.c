@@ -1944,9 +1944,6 @@ u32	rtw_aes_decrypt(_adapter *padapter, u8 *precvframe)
 				/* RTW_INFO("rx bc/mc packets, to perform sw rtw_aes_decrypt\n"); */
 				/* prwskey = psecuritypriv->dot118021XGrpKey[psecuritypriv->dot118021XGrpKeyid].skey; */
 				if ((!MLME_IS_MESH(padapter) && psecuritypriv->binstallGrpkey == _FALSE)
-					#ifdef CONFIG_RTW_MESH
-					|| !(stainfo->gtk_bmp | BIT(prxattrib->key_index))
-					#endif
 				) {
 					res = _FAIL;
 
@@ -1979,12 +1976,6 @@ u32	rtw_aes_decrypt(_adapter *padapter, u8 *precvframe)
 				no_gkey_bc_cnt = 0;
 				no_gkey_mc_cnt = 0;
 
-				#ifdef CONFIG_RTW_MESH
-				if (MLME_IS_MESH(padapter)) {
-					/* TODO: multiple GK? */
-					prwskey = &stainfo->gtk.skey[0];
-				} else
-				#endif
 				{
 					prwskey = psecuritypriv->dot118021XGrpKey[prxattrib->key_index].skey;
 					if (psecuritypriv->dot118021XGrpKeyid != prxattrib->key_index) {

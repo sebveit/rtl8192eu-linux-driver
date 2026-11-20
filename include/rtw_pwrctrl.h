@@ -40,13 +40,8 @@
 #endif /* CONFIG_BT_COEXIST */
 
 #ifdef CONFIG_WOWLAN
-	#ifdef CONFIG_PLATFORM_ANDROID_INTEL_X86
-		/* TCP/ICMP/UDP multicast with specific IP addr */
-		#define DEFAULT_PATTERN_NUM 4
-	#else
 		/* TCP/ICMP */
 		#define DEFAULT_PATTERN_NUM 3
-	#endif
 
 #ifdef CONFIG_WOW_PATTERN_HW_CAM	/* Frame Mask Cam number for pattern match */
 #define MAX_WKFM_CAM_NUM	12
@@ -479,14 +474,6 @@ struct pwrctrl_priv {
 #endif
 	u8 current_lps_hw_port_id;
 
-#ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS
-	systime radio_on_start_time;
-	systime pwr_saving_start_time;
-	u32 pwr_saving_time;
-	u32 on_time;
-	u32 tx_time;
-	u32 rx_time;
-#endif /* CONFIG_RTW_CFGVEDNOR_LLSTATS */
 
 };
 

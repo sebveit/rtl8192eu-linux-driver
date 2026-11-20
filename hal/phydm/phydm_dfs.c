@@ -29,7 +29,6 @@
  * ============================================================
  */
 
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 #if defined(CONFIG_PHYDM_DFS_MASTER)

@@ -26,7 +26,6 @@
 /*************************************************************
  * include files
  * *************************************************************/
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 #ifdef PHYDM_LNA_SAT_CHK_SUPPORT

@@ -28,7 +28,6 @@
  * ************************************************************
  */
 
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 void phydm_reset_bb_hw_cnt(void *dm_void)
