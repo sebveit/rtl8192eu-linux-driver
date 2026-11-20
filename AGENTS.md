@@ -13,7 +13,8 @@ This repository contains the source code for the Realtek RTL8192EU wireless driv
 - Include a short description in the body if the change is nontrivial.
 
 ## Testing
-- Build the driver against Linux 5.4 using `./kernel-tests/simple-test-5.4.sh`. This requires a working AArch64 cross-compiler toolchain and packages listed in `TESTING.md`.
+- Build the driver against all supported kernels with `make test`, or a single
+  kernel/variant with `./kernel-tests/build-test.sh <version> [variant]`; see `TESTING.md`.
 - If you modify any shell scripts, run `shellcheck` on them.
 - Ensure the work tree is clean before committing.
 

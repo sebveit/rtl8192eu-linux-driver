@@ -1,24 +1,48 @@
-Testing Instructions
-====================
+# Testing
 
-Before running any of the kernel build tests, make sure the following packages are installed:
+## Build tests
 
-- build-essential (includes `gcc` and `make`)
-- `flex`
-- `bison`
-- `bc`
-- `wget`
-- `tar`
-- `xz-utils`
-- the `aarch64-linux-gnu` cross‑compiler toolchain
-- any other dependencies required for building a Linux kernel (for example, `libssl-dev` and `libelf-dev`)
+`kernel-tests/build-test.sh <version> [variant]` builds the driver against a
+prepared kernel tree and fails on compiler errors or on symbols the kernel
+does not export.
 
-These packages must be installed before running `kernel-tests/simple-test-5.4.sh`.
+| Variant | Target | Kernel tree |
+|---|---|---|
+| `arm64` (default) | arm64, GCC cross compiler | `./linux-<version>` |
+| `arm64be` | big-endian arm64 | `./linux-<version>-arm64be` |
+| `x86_64` | x86_64, host GCC | `./linux-<version>-x86_64` |
+| `x86_64-clang` | x86_64, `CC=clang` | `./linux-<version>-x86_64-clang` |
 
-Once these packages are available, you can execute the test script for building against Linux 5.4:
+If the kernel tree is missing it is extracted from
+`kernel-downloads/linux-<version>.*.tar.xz` (or downloaded from kernel.org),
+configured with `defconfig` plus wireless extensions (`CFG80211_WEXT`,
+`WIRELESS_EXT`, `WEXT_PRIV`, as on distribution kernels) and prepared with
+`modules_prepare`.
+
+Driver options can be passed via `DRIVER_ARGS`:
 
 ```sh
-$ ./kernel-tests/simple-test-5.4.sh
+./kernel-tests/build-test.sh 6.1
+./kernel-tests/build-test.sh 6.1 x86_64-clang
+DRIVER_ARGS="CONFIG_MP_INCLUDED=y CONFIG_WOWLAN=y" ./kernel-tests/build-test.sh 6.1
 ```
 
-The script downloads and prepares the Linux 5.4 sources if needed and then builds the driver modules using the AArch64 cross‑compiler.
+`make test` (or `kernel-tests/simple-test-all.sh`) builds against 5.4, 5.10,
+5.15 and 6.1 for arm64. The scripts run `make clean` in the source tree, so
+run them one at a time.
+
+The GitHub Actions workflow in `.github/workflows/build.yml` runs the full
+matrix (all kernels, all variants, and the optional features).
+
+## Required packages
+
+GCC and binutils for the host and for `aarch64-linux-gnu`, clang (for the
+clang variant), `make`, `bc`, `bison`, `flex`, `libelf` and OpenSSL
+development files, `wget`, `tar` and `xz`.
+
+## Hardware testing
+
+Build tests do not exercise the driver. Before a release, test with a real
+RTL8192EU adapter: load/unload, scan, connect (WPA2/WPA3), throughput
+(e.g. iperf3), AP mode, suspend/resume and hot-unplug, and watch the kernel
+log for warnings.

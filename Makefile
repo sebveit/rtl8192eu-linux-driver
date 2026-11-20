@@ -69,6 +69,9 @@ ifneq ($(KERNELRELEASE),)
 
 ccflags-y += $(USER_EXTRA_CFLAGS)
 ccflags-y += -Wformat -Wformat-security
+# Older kernel headers (e.g. include/net/ip.h in 6.1) trip this clang >= 21
+# warning, which becomes an error with CONFIG_WERROR.
+ccflags-y += $(call cc-disable-warning,default-const-init-var-unsafe)
 
 ccflags-y += -I$(src)/include -I$(src)/platform -I$(src)/hal/btc -I$(src)/hal/phydm
 
@@ -204,7 +207,11 @@ ifneq ($(CROSS_COMPILE),)
 KBUILD_ARGS += CROSS_COMPILE=$(CROSS_COMPILE)
 endif
 
-.PHONY: all modules clean install uninstall strip test
+DKMS_NAME := rtl8192eu
+DKMS_VER := $(shell sed -n 's/^PACKAGE_VERSION="\(.*\)"/\1/p' dkms.conf)
+DKMS_SRC := $(DESTDIR)/usr/src/$(DKMS_NAME)-$(DKMS_VER)
+
+.PHONY: all modules clean install uninstall strip test dkms_install dkms_remove
 
 all: modules
 
@@ -231,5 +238,18 @@ endif
 
 test:
 	./kernel-tests/simple-test-all.sh
+
+dkms_install:
+	install -d $(DKMS_SRC)
+	tar -c --exclude='*.o' --exclude='.*.cmd' --exclude='*.ko' --exclude='*.mod*' \
+		core hal include os_dep platform Makefile Kconfig LICENSE dkms.conf | \
+		tar -x -C $(DKMS_SRC)
+	dkms add -m $(DKMS_NAME) -v $(DKMS_VER)
+	dkms build -m $(DKMS_NAME) -v $(DKMS_VER)
+	dkms install -m $(DKMS_NAME) -v $(DKMS_VER)
+
+dkms_remove:
+	-dkms remove -m $(DKMS_NAME) -v $(DKMS_VER) --all
+	rm -rf $(DKMS_SRC)
 
 endif

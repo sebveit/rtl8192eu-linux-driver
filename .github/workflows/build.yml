@@ -1,0 +1,50 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        kernel: ["5.4", "5.10", "5.15", "6.1"]
+        variant: [arm64]
+        include:
+          - kernel: "6.1"
+            variant: x86_64
+          - kernel: "6.1"
+            variant: x86_64-clang
+          - kernel: "6.1"
+            variant: arm64be
+          - kernel: "6.1"
+            variant: arm64
+            driver_args: CONFIG_MP_INCLUDED=y CONFIG_RTW_DEBUG=n
+          - kernel: "6.1"
+            variant: arm64
+            driver_args: CONFIG_POWER_SAVING=y CONFIG_WOWLAN=y CONFIG_TDLS=y CONFIG_WIFI_MONITOR=y
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential bc bison flex libelf-dev libssl-dev wget xz-utils \
+            gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu clang
+
+      - name: Cache prepared kernel tree
+        uses: actions/cache@v4
+        with:
+          path: |
+            linux-${{ matrix.kernel }}*
+            kernel-downloads
+          key: kernel-${{ matrix.kernel }}-${{ matrix.variant }}-${{ hashFiles('kernel-tests/build-test.sh') }}
+
+      - name: Build driver
+        env:
+          DRIVER_ARGS: ${{ matrix.driver_args }}
+        run: ./kernel-tests/build-test.sh "${{ matrix.kernel }}" "${{ matrix.variant }}"
