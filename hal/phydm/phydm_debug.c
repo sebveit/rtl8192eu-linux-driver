@@ -176,7 +176,7 @@ void phydm_bb_hw_dbg_info_n(void *dm_void, u32 *_used, char *output,
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u32 used = *_used;
 	u32 out_len = *_out_len;
-	u32 value32 = 0, value32_1 = 0;
+	u32 value32 = 0;
 	u8 rf_gain_a = 0, rf_gain_b = 0, rf_gain_c = 0, rf_gain_d = 0;
 	u8 rx_snr_a = 0, rx_snr_b = 0, rx_snr_c = 0, rx_snr_d = 0;
 	s8 rxevm_0 = 0, rxevm_1 = 0;
@@ -956,7 +956,6 @@ void phydm_rx_rate_distribution(void *dm_void)
 void phydm_print_hist_2_buf(void *dm_void, u16 *val, u16 len, char *buf,
 			    u16 buf_size)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
 	if (len == PHY_HIST_SIZE) {
 		PHYDM_SNPRINTF(buf, buf_size,
@@ -1022,7 +1021,6 @@ void phydm_show_phy_hitogram(void *dm_void)
 	char buf[PHYDM_SNPRINT_SIZE] = {0};
 	u16 buf_size = PHYDM_SNPRINT_SIZE;
 	u16 th_size = PHY_HIST_SIZE - 1;
-	u8 i = 0;
 
 	PHYDM_DBG(dm, DBG_CMN, "[PHY Histogram] ==============>\n");
 /*@===[Threshold]=============================================================*/
@@ -1685,9 +1683,6 @@ void phydm_fw_trace_en_h2c(void *dm_void, boolean enable,
 void phydm_get_per_path_txagc(void *dm_void, u8 path, u32 *_used, char *output,
 			      u32 *_out_len)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	u8 rate_idx;
-	u8 txagc;
 	u32 used = *_used;
 	u32 out_len = *_out_len;
 
@@ -1789,14 +1784,8 @@ void phydm_get_txagc(void *dm_void, u32 *_used, char *output, u32 *_out_len)
 void phydm_set_txagc(void *dm_void, u32 *const val, u32 *_used,
 		     char *output, u32 *_out_len)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u32 used = *_used;
 	u32 out_len = *_out_len;
-	u8 i = 0;
-	u32 pow = 0; /*power index*/
-	u8 vht_start_rate = ODM_RATEVHTSS1MCS0;
-	boolean rpt = true;
-	enum rf_path path = RF_PATH_A;
 
 /*@val[1] = path*/
 /*@val[2] = hw_rate*/
@@ -1869,14 +1858,8 @@ void phydm_set_txagc(void *dm_void, u32 *const val, u32 *_used,
 void phydm_shift_txagc(void *dm_void, u32 *const val, u32 *_used, char *output,
 		       u32 *_out_len)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u32 used = *_used;
 	u32 out_len = *_out_len;
-	u8 i = 0;
-	u32 pow = 0; /*Power index*/
-	boolean rpt = true;
-	u8 vht_start_rate = ODM_RATEVHTSS1MCS0;
-	enum rf_path path = RF_PATH_A;
 
 #ifdef PHYDM_COMMON_API_SUPPORT
 	if (!(dm->support_ic_type & CMN_API_SUPPORT_IC))
@@ -2502,7 +2485,6 @@ void phydm_dump_reg(void *dm_void, char input[][16], u32 *_used, char *output,
 	u32 var1[10] = {0};
 	u32 used = *_used;
 	u32 out_len = *_out_len;
-	u32 addr = 0;
 
 	if (input[1][0])
 		PHYDM_SSCANF(input[1], DCMD_DECIMAL, &var1[0]);
@@ -2767,15 +2749,8 @@ void phydm_per_tone_evm(void *dm_void, char input[][16], u32 *_used,
 void phydm_bw_ch_adjust(void *dm_void, char input[][16],
 			u32 *_used, char *output, u32 *_out_len)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	char help[] = "-h";
-	u32 var1[10] = {0};
 	u32 used = *_used;
 	u32 out_len = *_out_len;
-	u8 i;
-	boolean is_enable_dbg_mode;
-	u8 central_ch, primary_ch_idx;
-	enum channel_width bw;
 
 #ifdef PHYDM_COMMON_API_SUPPORT
 

@@ -22,27 +22,6 @@
  * LLT R/W/Init function
  *
  * ------------------------------------------------------------------------- */
-static s32 _LLTWrite(PADAPTER padapter, u32 address, u32 data)
-{
-	s32	status = _SUCCESS;
-	s8	count = POLLING_LLT_THRESHOLD;
-	u32	value = _LLT_INIT_ADDR(address) | _LLT_INIT_DATA(data) | _LLT_OP(_LLT_WRITE_ACCESS);
-
-	rtw_write32(padapter, REG_LLT_INIT, value);
-	/* polling */
-	do {
-		value = rtw_read32(padapter, REG_LLT_INIT);
-		if (_LLT_NO_ACTIVE == _LLT_OP_VALUE(value))
-			break;
-	} while (--count);
-
-	if (count <= 0) {
-		RTW_INFO("Failed to polling write LLT done at address %d!\n", address);
-		status = _FAIL;
-	}
-	return status;
-}
-
 u8 _LLTRead(PADAPTER padapter, u32 address)
 {
 	s32	count = POLLING_LLT_THRESHOLD;
@@ -68,7 +47,6 @@ u8 _LLTRead(PADAPTER padapter, u32 address)
 s32 InitLLTTable8192E(PADAPTER padapter, u8 txpktbuf_bndy)
 {
 	s32	status = _FAIL;
-	HAL_DATA_TYPE *pHalData	= GET_HAL_DATA(padapter);
 	u32 value32;
 	systime start = 0;
 	u32 passing_time = 0;
@@ -233,25 +211,6 @@ _PageWrite_8192E(
 	return _BlockWrite_8192E(padapter, buffer, size);
 }
 
-static VOID
-_FillDummy_8192E(
-	u8		*pFwBuf,
-	u32	*pFwLen
-)
-{
-	u32	FwLen = *pFwLen;
-	u8	remain = (u8)(FwLen % 4);
-	remain = (remain == 0) ? 0 : (4 - remain);
-
-	while (remain > 0) {
-		pFwBuf[FwLen] = 0;
-		FwLen++;
-		remain--;
-	}
-
-	*pFwLen = FwLen;
-}
-
 static int
 _WriteFW_8192E(
 	IN		PADAPTER		padapter,
@@ -406,13 +365,10 @@ FirmwareDownload8192E(
 	systime fwdl_start_time;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 
-	u8				*pFwImageFileName;
-	u8				*pucMappedFile = NULL;
 	PRT_FIRMWARE_8192E	pFirmware = NULL;
 	u8				*pFwHdr = NULL;
 	u8				*pFirmwareBuf;
 	u32				FirmwareLen;
-	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(Adapter);
 #ifdef CONFIG_FILE_FWIMG
 	u8 *fwfilepath;
 #endif
@@ -573,7 +529,6 @@ hal_InitPGData_8192E(
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	u32			i;
-	u16			value16;
 
 	if (_FALSE == pHalData->bautoload_fail_flag) {
 		/* autoload OK. */
@@ -692,9 +647,7 @@ void Hal_ReadPowerSavingMode8192E(
 	IN	BOOLEAN			AutoLoadFail
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(padapter);
-	u8 tmpvalue;
 
 	if (AutoLoadFail) {
 		pwrctl->bHWPowerdown = _FALSE;
@@ -736,7 +689,6 @@ Hal_ReadTxPowerInfo8192E(
 
 	/* 2010/10/19 MH Add Regulator recognize for CU. */
 	if (!AutoLoadFail) {
-		struct registry_priv  *registry_par = &Adapter->registrypriv;
 
 		if (PROMContent[EEPROM_RF_BOARD_OPTION_8192E] == 0xFF)
 			pHalData->EEPROMRegulatory = 2; /* (EEPROM_DEFAULT_BOARD_OPTION&0x7);	 */ /* bit0~2 */
@@ -1017,7 +969,6 @@ void Hal_EfuseParseKFreeData_8192E(
 
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	struct kfree_data_t *kfree_data = &pHalData->kfree_data;
-	u8 Efuse_BB_GAIN;
 	u8 pg_pwrtrim = 0xFF, pg_therm = 0xFF;
 
 	if ((Adapter->registrypriv.RegPwrTrimEnable == 1) || !AutoloadFail) {
@@ -1122,43 +1073,6 @@ rtl8192E_EfusePowerSwitch(
 	Hal_EfusePowerSwitch8192E(pAdapter, bWrite, PwrState);
 }
 
-
-static bool efuse_read_phymap(
-	PADAPTER	Adapter,
-	u8			*pbuf,	/* buffer to store efuse physical map */
-	u16			*size	/* the max byte to read. will update to byte read */
-)
-{
-	u8 *pos = pbuf;
-	u16 limit = *size;
-	u16 addr = 0;
-	bool reach_end = _FALSE;
-
-	/*  */
-	/* Refresh efuse init map as all 0xFF. */
-	/*  */
-	_rtw_memset(pbuf, 0xFF, limit);
-
-
-	/*  */
-	/* Read physical efuse content. */
-	/*  */
-	while (addr < limit) {
-		ReadEFuseByte(Adapter, addr, pos, _FALSE);
-		if (*pos != 0xFF) {
-			pos++;
-			addr++;
-		} else {
-			reach_end = _TRUE;
-			break;
-		}
-	}
-
-	*size = addr;
-
-	return reach_end;
-
-}
 
 
 
@@ -1712,7 +1626,6 @@ hal_EfusePgPacketRead_8192E(
 	u8	hoffset = 0, hworden = 0;
 	u8	tmpidx = 0;
 	u8	tmpdata[8];
-	u8	max_section = 0;
 	u8	tmp_header = 0;
 
 	if (data == NULL)
@@ -1810,7 +1723,6 @@ BOOLEAN efuse_PgPacketCheck(
 	BOOLEAN		bPseudoTest
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 
 	if (Efuse_GetCurrentSize(pAdapter, efuseType, bPseudoTest) >= (EFUSE_REAL_CONTENT_LEN_8192E - EFUSE_OOB_PROTECT_BYTES_8192E)) {
 		RTW_INFO("%s()error: %x >= %x\n", __func__, Efuse_GetCurrentSize(pAdapter, efuseType, bPseudoTest), (EFUSE_REAL_CONTENT_LEN_8192E - EFUSE_OOB_PROTECT_BYTES_8192E));
@@ -2267,7 +2179,6 @@ hal_EfusePgPacketWrite1ByteHeader(
 	PPGPKT_STRUCT	pTargetPkt,
 	u8				bPseudoTest)
 {
-	u8	bRet = _FALSE;
 	u8	pg_header = 0, tmp_header = 0;
 	u16	efuse_addr = *pAddr;
 	u8	repeatcnt = 0;
@@ -2441,7 +2352,6 @@ static void hw_var_set_monitor(PADAPTER Adapter, u8 variable, u8 *val)
 	u32	rcr_bits;
 	u16	value_rxfltmap2;
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
-	struct mlme_priv *pmlmepriv = &(Adapter->mlmepriv);
 
 	if (*((u8 *)val) == _HW_STATE_MONITOR_) {
 
@@ -2471,8 +2381,6 @@ static void hw_var_set_monitor(PADAPTER Adapter, u8 variable, u8 *val)
 
 static void hw_var_set_opmode(PADAPTER Adapter, u8 variable, u8 *val)
 {
-	u8	val8;
-	u32 val32;
 	u8	mode = *((u8 *)val);
 	static u8 isMonitor = _FALSE;
 
@@ -2703,7 +2611,6 @@ _InitTxBufferBoundary_8192E(
 	IN u8 txpktbuf_bndy
 )
 {
-	struct registry_priv *pregistrypriv = &Adapter->registrypriv;
 
 	rtw_write8(Adapter, REG_BCNQ_BDNY, txpktbuf_bndy);
 	rtw_write8(Adapter, REG_MGQ_BDNY, txpktbuf_bndy);
@@ -2980,7 +2887,6 @@ _InitWMACSetting_8192E(
 {
 	/* u4Byte			value32; */
 	/* u16			value16; */
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u32 rcr;
 
 	/* rcr = AAP | APM | AM | AB | APP_ICV | ADF | AMF | APP_FCS | HTC_LOC_CTRL | APP_MIC | APP_PHYSTS; */
@@ -3119,7 +3025,6 @@ VOID _InitBeaconParameters_8192E(IN  PADAPTER Adapter)
 void SetBeaconRelatedRegisters8192E(PADAPTER padapter)
 {
 	u32	value32;
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	u32 bcn_ctrl_reg			= REG_BCN_CTRL;
@@ -3246,7 +3151,6 @@ u8 Hal_CrystalAFEAdjust(_adapter *Adapter)
 u8 SetHwReg8192E(PADAPTER Adapter, u8 variable, u8 *val)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	struct dm_struct		*podmpriv = &pHalData->odmpriv;
 	u8 ret = _SUCCESS;
 
 	switch (variable) {
@@ -3788,7 +3692,6 @@ void rtl8192e_read_wmmedca_reg(PADAPTER adapter, u16 *vo_params, u16 *vi_params,
 void GetHwReg8192E(PADAPTER Adapter, u8 variable, u8 *val)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	struct dm_struct		*podmpriv = &pHalData->odmpriv;
 	u32 val32;
 
 	switch (variable) {
@@ -3875,7 +3778,6 @@ SetHalDefVar8192E(
 	IN	PVOID					pValue
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u8			bResult = _SUCCESS;
 
 	switch (eVariable) {
@@ -3895,7 +3797,6 @@ void hal_ra_info_dump(_adapter *padapter , void *sel)
 	u32 rate_mask1, rate_mask2;
 	u8 curr_tx_rate, curr_tx_sgi, hight_rate, lowest_rate;
 	struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
-	HAL_DATA_TYPE *HalData = GET_HAL_DATA(padapter);
 	struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
 
 	for (i = 0; i < macid_ctl->num; i++) {
@@ -4152,7 +4053,6 @@ void rtl8192e_init_default_value(_adapter *padapter)
 {
 	PHAL_DATA_TYPE pHalData;
 	struct pwrctrl_priv *pwrctrlpriv;
-	u8 i;
 
 	pHalData = GET_HAL_DATA(padapter);
 	pwrctrlpriv = adapter_to_pwrctl(padapter);

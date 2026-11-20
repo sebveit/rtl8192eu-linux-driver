@@ -2888,7 +2888,6 @@ void halbtc8192e2ant_action_wifi_multi_port(IN struct btc_coexist *btcoexist)
 void halbtc8192e2ant_action_sco(IN struct btc_coexist *btcoexist)
 {
 	u8	wifi_rssi_state, bt_rssi_state = BTC_RSSI_STATE_STAY_LOW;
-	u32	wifi_bw;
 	u8	bt_thresh0 = 0, bt_thresh1 = 0;
 
 	halbtc8192e2ant_get_bt_rssi_threshold(btcoexist, &bt_thresh0,
@@ -2922,7 +2921,6 @@ void halbtc8192e2ant_action_sco(IN struct btc_coexist *btcoexist)
 void halbtc8192e2ant_action_sco_pan(IN struct btc_coexist *btcoexist)
 {
 	u8	wifi_rssi_state, bt_rssi_state = BTC_RSSI_STATE_STAY_LOW;
-	u32	wifi_bw;
 	u8		bt_thresh0 = 0, bt_thresh1 = 0;
 
 
@@ -2968,7 +2966,6 @@ void halbtc8192e2ant_action_sco_pan(IN struct btc_coexist *btcoexist)
 void halbtc8192e2ant_action_hid(IN struct btc_coexist *btcoexist)
 {
 	u8	wifi_rssi_state, bt_rssi_state = BTC_RSSI_STATE_HIGH;
-	u32	wifi_bw;
 	u8	anttype = 0;
 
 	btcoexist->btc_get(btcoexist, BTC_GET_U1_ANT_TYPE, &anttype);
@@ -3017,8 +3014,6 @@ void halbtc8192e2ant_action_hid(IN struct btc_coexist *btcoexist)
 void halbtc8192e2ant_action_a2dp(IN struct btc_coexist *btcoexist)
 {
 	u8		wifi_rssi_state, bt_rssi_state = BTC_RSSI_STATE_HIGH;
-	u32		wifi_bw;
-	boolean		long_dist = false;
 	u8	anttype = 0;
 
 	btcoexist->btc_get(btcoexist, BTC_GET_U1_ANT_TYPE, &anttype);
@@ -3129,7 +3124,6 @@ void halbtc8192e2ant_action_a2dp_pan_hs(IN struct btc_coexist *btcoexist)
 void halbtc8192e2ant_action_pan_edr(IN struct btc_coexist *btcoexist)
 {
 	u8		wifi_rssi_state, bt_rssi_state = BTC_RSSI_STATE_HIGH;
-	u32		wifi_bw;
 	u8		bt_thresh0 = 0, bt_thresh1 = 0;
 
 	halbtc8192e2ant_get_bt_rssi_threshold(btcoexist, &bt_thresh0,
@@ -3217,7 +3211,6 @@ void halbtc8192e2ant_action_pan_hs(IN struct btc_coexist *btcoexist)
 void halbtc8192e2ant_action_pan_edr_a2dp(IN struct btc_coexist *btcoexist)
 {
 	u8		wifi_rssi_state, bt_rssi_state = BTC_RSSI_STATE_HIGH;
-	u32		wifi_bw;
 	u8		bt_thresh0 = 0, bt_thresh1 = 0;
 
 	halbtc8192e2ant_get_bt_rssi_threshold(btcoexist, &bt_thresh0,
@@ -3248,7 +3241,6 @@ void halbtc8192e2ant_action_pan_edr_a2dp(IN struct btc_coexist *btcoexist)
 void halbtc8192e2ant_action_pan_edr_hid(IN struct btc_coexist *btcoexist)
 {
 	u8		wifi_rssi_state, bt_rssi_state = BTC_RSSI_STATE_HIGH;
-	u32		wifi_bw;
 	u8		bt_thresh0 = 0, bt_thresh1 = 0;
 
 	halbtc8192e2ant_get_bt_rssi_threshold(btcoexist, &bt_thresh0,
@@ -3280,7 +3272,6 @@ void halbtc8192e2ant_action_pan_edr_hid(IN struct btc_coexist *btcoexist)
 void halbtc8192e2ant_action_hid_a2dp_pan_edr(IN struct btc_coexist *btcoexist)
 {
 	u8		wifi_rssi_state, bt_rssi_state = BTC_RSSI_STATE_HIGH;
-	u32		wifi_bw;
 	u8		bt_thresh0 = 0, bt_thresh1 = 0;
 
 	halbtc8192e2ant_get_bt_rssi_threshold(btcoexist, &bt_thresh0,
@@ -3310,10 +3301,7 @@ void halbtc8192e2ant_action_hid_a2dp_pan_edr(IN struct btc_coexist *btcoexist)
 void halbtc8192e2ant_action_hid_a2dp(IN struct btc_coexist *btcoexist)
 {
 	u8		wifi_rssi_state, bt_rssi_state = BTC_RSSI_STATE_HIGH;
-	u32		wifi_bw;
-	u8		bt_thresh0 = 0, bt_thresh1 = 0, anttype = 0;
-	u32				num_of_wifi_link = 0;
-	u32				wifi_link_status = 0;
+	u8 anttype = 0;
 
 	btcoexist->btc_get(btcoexist, BTC_GET_U1_ANT_TYPE, &anttype);
 

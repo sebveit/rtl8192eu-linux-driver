@@ -57,7 +57,6 @@ BOOLEAN rtw_file_efuse_IsMasked(PADAPTER pAdapter, u16 Offset)
 
 BOOLEAN efuse_IsMasked(PADAPTER pAdapter, u16 Offset)
 {
-	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(pAdapter);
 
 	if (pAdapter->registrypriv.boffefusemask)
 		return FALSE;
@@ -73,7 +72,6 @@ BOOLEAN efuse_IsMasked(PADAPTER pAdapter, u16 Offset)
 
 void rtw_efuse_mask_array(PADAPTER pAdapter, u8 *pArray)
 {
-	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(pAdapter);
 
 	if (IS_HARDWARE_TYPE_8192E(pAdapter))
 		GET_MASK_ARRAY(8192E, _MUSB, pArray);
@@ -83,7 +81,6 @@ void rtw_efuse_mask_array(PADAPTER pAdapter, u8 *pArray)
 
 u16 rtw_get_efuse_mask_arraylen(PADAPTER pAdapter)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 
 	if (IS_HARDWARE_TYPE_8192E(pAdapter))
 		return GET_MASK_ARRAY_LEN(8192E, _MUSB);
@@ -187,7 +184,6 @@ void rtw_efuse_analyze(PADAPTER	padapter, u8 Type, u8 Fake)
 	u16	eFuse_Addr = 0;
 	u8 offset, wden;
 	u16	 i, j;
-	u8	u1temp = 0;
 	u8	efuseHeader = 0, efuseExtHdr = 0, efuseData[EFUSE_MAX_WORD_UNIT*2] = {0}, dataCnt = 0;
 	u16	efuseHeader2Byte = 0;
 	u8	*eFuseWord = NULL;// [EFUSE_MAX_SECTION_NUM][EFUSE_MAX_WORD_UNIT];
@@ -1988,8 +1984,6 @@ u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 	u8	ret = _SUCCESS;
 	u16	mapLen = 0, startAddr = 0, efuse_max_available_len = 0;
 	u32	backupRegs[4] = {0};
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	PEFUSE_HAL	pEfuseHal = &pHalData->EfuseHal;
 
 
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, _FALSE);
@@ -2807,7 +2801,7 @@ u32 rtw_read_macaddr_from_file(const char *path, u8 *buf)
 	u32 ret = _FAIL;
 
 	u8 file_data[17];
-	u32 read_size, pos = 0;
+	u32 read_size;
 	u8 addr[ETH_ALEN];
 
 	if (rtw_is_file_readable(path) != _TRUE) {

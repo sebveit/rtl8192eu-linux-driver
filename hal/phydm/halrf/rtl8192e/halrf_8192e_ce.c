@@ -162,13 +162,11 @@ void odm_tx_pwr_track_set_pwr92_e(void *dm_void, enum pwrtrack_method method,
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct _ADAPTER *adapter = dm->adapter;
-	PHAL_DATA_TYPE hal_data = GET_HAL_DATA(adapter);
 	u8 pwr_tracking_limit_ofdm = 30; /*+0dB*/
 	u8 pwr_tracking_limit_cck = 28; /*-2dB*/
 	u8 tx_rate = 0xFF;
 	u8 final_ofdm_swing_index = 0;
 	u8 final_cck_swing_index = 0;
-	u8 i = 0;
 	struct dm_rf_calibration_struct *cali_info = &(dm->rf_calibrate_info);
 	struct _hal_rf_ *rf = &(dm->rf_table);
 
@@ -224,7 +222,6 @@ void odm_tx_pwr_track_set_pwr92_e(void *dm_void, enum pwrtrack_method method,
 	}
 
 	if (method == TXAGC) {
-		u8 rf = 0;
 		u32 pwr = 0, tx_agc = 0;
 		void *adapter = dm->adapter;
 
@@ -601,7 +598,6 @@ void get_delta_swing_table_8192e(void *dm_void, u8 **temperature_up_a,
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct _ADAPTER *adapter = dm->adapter;
-	PHAL_DATA_TYPE hal_data = GET_HAL_DATA(adapter);
 	struct dm_rf_calibration_struct *cali_info = &(dm->rf_calibrate_info);
 	struct _hal_rf_ *rf = &(dm->rf_table);
 	u8 tx_rate = 0xFF;
@@ -1364,7 +1360,6 @@ phy_simularity_compare_8192e(struct dm_struct *dm, s32 result[][8], u8 c1,
 	u32 i, j, diff, simularity_bit_map, bound = 0;
 	u8 final_candidate[2] = {0xFF, 0xFF}; /* for path A and path B */
 	boolean is_result = true;
-	boolean is2T = true;
 	s32 tmp1 = 0, tmp2 = 0;
 
 	bound = 8;
@@ -1691,7 +1686,7 @@ void phy_iq_calibrate_8192e(void *dm_void, boolean is_recovery)
 	s32 result[4][8]; /* last is final result */
 	u8 i, final_candidate, indexforchannel;
 	boolean is_patha_ok, is_pathb_ok;
-	s32 rege94, rege9c, regea4, regeac, regeb4, regebc, regec4, regecc, reg_tmp = 0;
+	s32 rege94, rege9c, regea4, regeac, regeb4, regebc, regec4, regecc;
 	boolean is12simular, is13simular, is23simular;
 	u32 IQK_BB_REG_92C[IQK_BB_REG_NUM] = {
 		REG_OFDM_0_XA_RX_IQ_IMBALANCE, REG_OFDM_0_XB_RX_IQ_IMBALANCE,

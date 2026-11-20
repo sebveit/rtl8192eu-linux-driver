@@ -673,8 +673,6 @@ void phydm_dig_init(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct phydm_dig_struct *dig_t = &dm->dm_dig_table;
-	u32 ret_value = 0;
-	u8 i;
 
 	dig_t->dm_dig_max = DIG_MAX_BALANCE_MODE;
 	dig_t->dm_dig_min = DIG_MIN_PERFORMANCE;

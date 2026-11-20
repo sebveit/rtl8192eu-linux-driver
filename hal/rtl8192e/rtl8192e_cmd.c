@@ -289,7 +289,6 @@ void rtl8192e_set_BcnEarly_C2H_Rpt_cmd(PADAPTER padapter, u8 enable)
 u8
 GetTxBufferRsvdPageNum8192E(_adapter *padapter, bool wowlan)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	u8	RsvdPageNum = 0;
 	/* default reseved 1 page for the IC type which is undefined. */
 	u8	TxPageBndy = LAST_ENTRY_OF_TX_PKT_BUFFER_8192C;
@@ -302,10 +301,8 @@ GetTxBufferRsvdPageNum8192E(_adapter *padapter, bool wowlan)
 }
 void rtl8192e_download_rsvd_page(PADAPTER padapter, u8 mstatus)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
-	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
 	BOOLEAN		bSendBeacon = _FALSE;
 	BOOLEAN		bcn_valid = _FALSE;
 	u8	DLBcnCount = 0;
@@ -428,7 +425,6 @@ void rtl8192e_set_p2p_ctw_period_cmd(_adapter *padapter, u8 ctwindow)
 void rtl8192e_set_p2p_ps_offload_cmd(_adapter *padapter, u8 p2p_ps_state)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	struct pwrctrl_priv		*pwrpriv = adapter_to_pwrctl(padapter);
 	struct wifidirect_info	*pwdinfo = &(padapter->wdinfo);
 	u8	*p2p_ps_offload = &pHalData->p2p_ps_offload;
 
@@ -599,7 +595,6 @@ s32 c2h_handler_8192e(_adapter *adapter, u8 id, u8 seq, u8 plen, u8 *payload)
 		break;
 	}
 
-exit:
 	return ret;
 }
 

@@ -2449,9 +2449,6 @@ static int __rtw_mp_hwtx(struct net_device *dev,
 		struct iw_request_info *info,
 		union iwreq_data *wrqu, char *extra, u8 *input)
 {
-	PADAPTER padapter = rtw_netdev_priv(dev);
-	struct mp_priv *pmp_priv = &padapter->mppriv;
-	PMPT_CONTEXT		pMptCtx = &(padapter->mppriv.mpt_ctx);
 
 	return 0;
 

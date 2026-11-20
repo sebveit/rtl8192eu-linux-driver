@@ -19,9 +19,6 @@
 
 #include <rtw_wifi_regd.h>
 
-static struct country_code_to_enum_rd allCountries[] = {
-	{COUNTRY_CODE_USER, "RD"},
-};
 
 /*
  * REG_RULE(freq start, freq end, bandwidth, max gain, eirp, reg_flags)
@@ -243,17 +240,6 @@ static void _rtw_regd_init_wiphy(struct rtw_regulatory *reg, struct wiphy *wiphy
 	wiphy_apply_custom_regulatory(wiphy, regd);
 
 	rtw_regd_apply_flags(wiphy);
-}
-
-static struct country_code_to_enum_rd *_rtw_regd_find_country(u16 countrycode)
-{
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(allCountries); i++) {
-		if (allCountries[i].countrycode == countrycode)
-			return &allCountries[i];
-	}
-	return NULL;
 }
 
 int rtw_regd_init(struct wiphy *wiphy)

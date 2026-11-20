@@ -46,7 +46,6 @@ u8 MgntQuery_NssTxRate(u16 Rate)
 
 void hal_mpt_SwitchRfSetting(PADAPTER	pAdapter)
 {
-	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(pAdapter);
 	PMPT_CONTEXT		pMptCtx = &(pAdapter->mppriv.mpt_ctx);
 	u8				ChannelToSw = pMptCtx->MptChannelToSw;
 	ULONG				ulRateIdx = pMptCtx->mpt_rate_index;
@@ -286,9 +285,7 @@ void hal_mpt_CCKTxPowerAdjust(PADAPTER Adapter, BOOLEAN bInCH14)
 
 void hal_mpt_SetChannel(PADAPTER pAdapter)
 {
-	enum rf_path eRFPath;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
-	struct dm_struct		*pDM_Odm = &(pHalData->odmpriv);
 	struct mp_priv	*pmp = &pAdapter->mppriv;
 	u8		channel = pmp->channel;
 	u8		bandwidth = pmp->bandwidth;
@@ -332,7 +329,6 @@ void mpt_SetTxPower_Old(PADAPTER pAdapter, MPT_TXPWR_DEF Rate, u8 *pTxPower)
 	switch (Rate) {
 	case MPT_CCK: {
 		u4Byte	TxAGC = 0, pwr = 0;
-		u1Byte	rf;
 
 		pwr = pTxPower[RF_PATH_A];
 		if (pwr < 0x3f) {
@@ -351,7 +347,7 @@ void mpt_SetTxPower_Old(PADAPTER pAdapter, MPT_TXPWR_DEF Rate, u8 *pTxPower)
 
 	case MPT_OFDM_AND_HT: {
 		u4Byte	TxAGC = 0;
-		u1Byte	pwr = 0, rf;
+		u1Byte pwr = 0;
 
 		pwr = pTxPower[0];
 		if (pwr < 0x3f) {
@@ -495,7 +491,6 @@ void hal_mpt_SetTxPower(PADAPTER pAdapter)
 		    IS_HARDWARE_TYPE_8188F(pAdapter) ||
 		    IS_HARDWARE_TYPE_8188GTV(pAdapter)
 		) {
-			u8 path = (pHalData->antenna_tx_path == ANTENNA_A) ? (RF_PATH_A) : (RF_PATH_B);
 
 			RTW_INFO("===> MPT_ProSetTxPower: Old\n");
 
@@ -547,7 +542,7 @@ VOID mpt_SetRFPath_819X(PADAPTER	pAdapter)
 	R_ANTENNA_SELECT_CCK	*p_cck_txrx;
 	u1Byte		r_rx_antenna_ofdm = 0, r_ant_select_cck_val = 0;
 	u1Byte		chgTx = 0, chgRx = 0;
-	u4Byte		r_ant_sel_cck_val = 0, r_ant_select_ofdm_val = 0, r_ofdm_tx_en_val = 0;
+	u4Byte r_ant_select_ofdm_val = 0, r_ofdm_tx_en_val = 0;
 
 	ulAntennaTx = pHalData->antenna_tx_path;
 	ulAntennaRx = pHalData->AntennaRxPath;
@@ -779,7 +774,6 @@ void hal_mpt_GetThermalMeter(PADAPTER pAdapter, u8 *value)
 
 void hal_mpt_SetSingleCarrierTx(PADAPTER pAdapter, u8 bStart)
 {
-	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 
 	pAdapter->mppriv.mpt_ctx.bSingleCarrier = bStart;
 
@@ -816,9 +810,8 @@ void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 	PMPT_CONTEXT		pMptCtx = &(pAdapter->mppriv.mpt_ctx);
-	struct dm_struct		*pDM_Odm = &pHalData->odmpriv;
 	u4Byte			ulAntennaTx = pHalData->antenna_tx_path;
-	static u4Byte		regRF = 0, regBB0 = 0, regBB1 = 0, regBB2 = 0, regBB3 = 0;
+	static u4Byte regRF = 0;
 	u8 rfPath;
 
 	switch (ulAntennaTx) {
@@ -1011,9 +1004,7 @@ static	VOID mpt_StopCckContTx(
 	PADAPTER	pAdapter
 )
 {
-	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
 	PMPT_CONTEXT	pMptCtx = &(pAdapter->mppriv.mpt_ctx);
-	u1Byte			u1bReg;
 
 	pMptCtx->bCckContTx = FALSE;
 	pMptCtx->bOfdmContTx = FALSE;
@@ -1044,10 +1035,7 @@ static	VOID mpt_StopOfdmContTx(
 	PADAPTER	pAdapter
 )
 {
-	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
 	PMPT_CONTEXT	pMptCtx = &(pAdapter->mppriv.mpt_ctx);
-	u1Byte			u1bReg;
-	u4Byte			data;
 
 	pMptCtx->bCckContTx = FALSE;
 	pMptCtx->bOfdmContTx = FALSE;
@@ -1077,7 +1065,6 @@ static	VOID mpt_StartCckContTx(
 	PADAPTER		pAdapter
 )
 {
-	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
 	PMPT_CONTEXT	pMptCtx = &(pAdapter->mppriv.mpt_ctx);
 	u4Byte			cckrate;
 
@@ -1119,7 +1106,6 @@ static	VOID mpt_StartOfdmContTx(
 	PADAPTER		pAdapter
 )
 {
-	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
 	PMPT_CONTEXT	pMptCtx = &(pAdapter->mppriv.mpt_ctx);
 
 	/* 1. if OFDM block on?*/

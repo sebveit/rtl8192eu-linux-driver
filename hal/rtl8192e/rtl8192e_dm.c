@@ -32,13 +32,6 @@
  * ************************************************************ */
 
 
-static VOID
-dm_CheckProtection(
-	IN	PADAPTER	Adapter
-)
-{
-}
-
 
 #ifdef CONFIG_SUPPORT_HW_WPS_PBC
 static void dm_CheckPbcGPIO(_adapter *padapter)
@@ -92,7 +85,6 @@ dm_InitGPIOSetting(
 	IN	PADAPTER	Adapter
 )
 {
-	PHAL_DATA_TYPE		pHalData = GET_HAL_DATA(Adapter);
 
 	u8	tmp1byte;
 
@@ -110,7 +102,7 @@ static void Init_ODM_ComInfo_8192e(PADAPTER	Adapter)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	struct dm_struct		*pDM_Odm = &(pHalData->odmpriv);
-	u8	cut_ver, fab_ver;
+	u8 cut_ver;
 
 	Init_ODM_ComInfo(Adapter);
 
@@ -136,8 +128,6 @@ rtl8192e_InitHalDm(
 	IN	PADAPTER	Adapter
 )
 {
-	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
-	struct dm_struct		*pDM_Odm = &(pHalData->odmpriv);
 
 	dm_InitGPIOSetting(Adapter);
 	rtw_phydm_init(Adapter);
@@ -152,8 +142,6 @@ rtl8192e_HalDmWatchDog(
 {
 	BOOLEAN		bFwCurrentInPSMode = _FALSE;
 	u8 bFwPSAwake = _TRUE;
-	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
-	struct dm_struct		*pDM_Odm = &(pHalData->odmpriv);
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(Adapter);
 	u8 in_lps = _FALSE;
 

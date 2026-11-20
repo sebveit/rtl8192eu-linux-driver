@@ -40,6 +40,11 @@ prepare_kernel() {
 	echo "Preparing kernel $VERSION..."
 	# -fcommon: older dtc sources fail to link with GCC >= 10
 	make -C "$KSRC" "${MAKE_ARGS[@]}" HOSTCFLAGS="-fcommon" defconfig
+	# Distribution kernels enable wireless extensions; defconfig does not.
+	# USB_ZD1201 selects WIRELESS_EXT and WEXT_PRIV.
+	"$KSRC"/scripts/config --file "$KSRC/.config" -e CFG80211_WEXT \
+		-e WLAN_VENDOR_ZYDAS -m USB_ZD1201
+	make -C "$KSRC" "${MAKE_ARGS[@]}" HOSTCFLAGS="-fcommon" olddefconfig
 	# extract-cert needs OpenSSL headers that may be missing; it is not
 	# needed for building external modules.
 	printf '#include <stdio.h>\nint main(void) { return 0; }\n' > "$KSRC/scripts/extract-cert.c"

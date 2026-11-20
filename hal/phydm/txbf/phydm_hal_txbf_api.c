@@ -18,7 +18,6 @@
 #if (defined(CONFIG_BB_TXBF_API))
 u8 beamforming_get_htndp_tx_rate(void *dm_void, u8 bfer_str_num)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u8 nr_index = 0;
 	u8 ndp_tx_rate;
 /*@Find nr*/
@@ -47,7 +46,6 @@ u8 beamforming_get_htndp_tx_rate(void *dm_void, u8 bfer_str_num)
 
 u8 beamforming_get_vht_ndp_tx_rate(void *dm_void, u8 bfer_str_num)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u8 nr_index = 0;
 	u8 ndp_tx_rate;
 /*@Find nr*/

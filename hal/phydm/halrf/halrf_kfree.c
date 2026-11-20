@@ -824,7 +824,7 @@ void phydm_set_kfree_to_rf_8198f(void *dm_void, u8 e_rf_path, u8 data)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct odm_power_trim_data *power_trim_info = &dm->power_trim_data;
-	u32 band, i;
+	u32 i;
 	s8 pwr_offset[3];
 
 	RF_DBG(dm, DBG_RF_MP,

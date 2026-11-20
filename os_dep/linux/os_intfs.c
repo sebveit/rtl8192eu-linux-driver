@@ -3377,7 +3377,6 @@ int _netdev_open(struct net_device *pnetdev)
 #endif /* CONFIG_BT_COEXIST_SOCKET_TRX */
 
 
-netdev_open_normal_process:
 
 #ifdef CONFIG_CONCURRENT_MODE
 	{

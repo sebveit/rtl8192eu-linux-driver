@@ -1952,7 +1952,6 @@ static int proc_get_tx_bw_mode(struct seq_file *m, void *v)
 
 static void rtw_set_tx_bw_mode(struct _ADAPTER *adapter, u8 bw_mode)
 {
-	struct mlme_priv *mlme = &(adapter->mlmepriv);
 	struct mlme_ext_priv *mlmeext = &(adapter->mlmeextpriv);
 	struct macid_ctl_t *macid_ctl = &adapter->dvobj->macid_ctl;
 	u8 update = _FALSE;
@@ -3164,7 +3163,6 @@ static void tpt_mode_default(struct _ADAPTER *adapter)
 static void rtw_tpt_mode(struct _ADAPTER *adapter)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
-	struct pwrctrl_priv *pwrctrlpriv = adapter_to_pwrctl(adapter);
 
 	if (dvobj->tpt_mode > 0) {
 

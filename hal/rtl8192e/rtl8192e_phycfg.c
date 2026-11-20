@@ -95,7 +95,6 @@ phy_RFSerialRead(
 	u4Byte						NewOffset;
 	u4Byte						tmplong2;
 	u1Byte						RfPiEnable = 0;
-	u1Byte						i;
 	u4Byte						MaskforPhySet = 0;
 
 	_enter_critical_mutex(&(adapter_to_dvobj(Adapter)->rf_read_reg_mutex) , NULL);
@@ -1101,7 +1100,6 @@ PHY_HandleSwChnlAndSetBW8192E(
 	u8					tmpnCur40MhzPrimeSC = pHalData->nCur40MhzPrimeSC;
 	u8					tmpnCur80MhzPrimeSC = pHalData->nCur80MhzPrimeSC;
 	u8					tmpCenterFrequencyIndex1 = pHalData->CurrentCenterFrequencyIndex1;
-	struct mlme_ext_priv	*pmlmeext = &Adapter->mlmeextpriv;
 
 	/* RTW_INFO("=> PHY_HandleSwChnlAndSetBW8812: bSwitchChannel %d, bSetBandWidth %d\n",bSwitchChannel,bSetBandWidth); */
 
@@ -1187,7 +1185,6 @@ PHY_SetRFEReg_8192E(
 	IN PADAPTER		Adapter
 )
 {
-	u8			u1tmp = 0;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
 	if ((pHalData->ExternalPA_2G == 0) && (pHalData->ExternalLNA_2G == 0))

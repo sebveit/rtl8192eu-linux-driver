@@ -177,7 +177,6 @@ int
 PHY_RF6052_Config_8192E(
 	IN	PADAPTER		Adapter)
 {
-	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
 	int					rtStatus = _SUCCESS;
 
 	/*  */

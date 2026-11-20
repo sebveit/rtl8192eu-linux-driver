@@ -871,7 +871,6 @@ void GetHalODMVar(
 	PVOID					pValue1,
 	PVOID					pValue2)
 {
-	struct dm_struct *podmpriv = adapter_to_phydm(Adapter);
 
 	switch (eVariable) {
 #ifdef CONFIG_ANTENNA_DIVERSITY
@@ -1471,7 +1470,6 @@ void rtw_phydm_watchdog(_adapter *adapter, bool in_lps)
 	rtw_acs_update_current_info(adapter);
 	#endif
 
-_exit:
 	return;
 }
 

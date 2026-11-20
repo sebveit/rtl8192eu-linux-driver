@@ -20,18 +20,6 @@
 
 
 
-static void _dbg_dump_macreg(_adapter *padapter)
-{
-	u32 offset = 0;
-	u32 val32 = 0;
-	u32 index = 0 ;
-	for (index = 0; index < 64; index++) {
-		offset = index * 4;
-		val32 = rtw_read32(padapter, offset);
-		RTW_INFO("offset : 0x%02x ,val:0x%08x\n", offset, val32);
-	}
-}
-
 static VOID
 _ConfigChipOutEP_8192E(
 	IN	PADAPTER	pAdapter,
@@ -179,7 +167,6 @@ static u32 _InitPowerOn_8192EU(_adapter *padapter)
 {
 	u16 value16;
 	u32 value32;
-	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(padapter);
 	/* HW Power on sequence */
 	u8 bMacPwrCtrlOn = _FALSE;
 
@@ -301,7 +288,6 @@ _init_UsbBusSetting_8192EU(
 	IN  PADAPTER Adapter
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u8 usb_bus_setting = 0;
 	usb_bus_setting = rtw_read8(Adapter, REG_RXDMA_8192E);
 	usb_bus_setting = usb_bus_setting | BIT_DMA_MODE;
@@ -414,7 +400,6 @@ _init_UsbAggregationSetting_8192EU(
 	IN  PADAPTER Adapter
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
 	/* Tx aggregation setting */
 	usb_AggSettingTxUpdate_8192EU(Adapter);
@@ -449,34 +434,14 @@ USB_AggModeSwitch(
 {
 }	/* USB_AggModeSwitch */
 
-static VOID _RfPowerSave(
-	IN	PADAPTER		Adapter
-)
-{
-}
-
 enum {
 	Antenna_Lfet = 1,
 	Antenna_Right = 2,
 };
 
-/*
- * 2010/08/26 MH Add for selective suspend mode check.
- * If Efuse 0x0e bit1 is not enabled, we can not support selective suspend for Minicard and
- * slim card.
- *   */
-static VOID
-HalDetectSelectiveSuspendMode(
-	IN PADAPTER				Adapter
-)
-{
-}	/* HalDetectSelectiveSuspendMode */
-
-
 rt_rf_power_state RfOnOffDetect(IN	PADAPTER pAdapter)
 {
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(pAdapter);
-	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(pAdapter);
 	u8	val8;
 	rt_rf_power_state rfpowerstate = rf_off;
 
@@ -525,14 +490,12 @@ u1Byte ReadUSB2PHYReg_8192EU(PADAPTER Adapter, u8 Offset)
 u32 rtl8192eu_hal_init(PADAPTER Adapter)
 {
 	u8	value8 = 0;
-	u16  value16;
 	u8	txpktbuf_bndy;
 	u32	status = _SUCCESS;
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
 	struct pwrctrl_priv		*pwrctrlpriv = adapter_to_pwrctl(Adapter);
 	struct registry_priv	*pregistrypriv = &Adapter->registrypriv;
 
-	rt_rf_power_state		eRfPowerStateToSet;
 
 
 	systime init_start_time = rtw_get_current_time();
@@ -1079,7 +1042,6 @@ unsigned int rtl8192eu_inirp_init(PADAPTER Adapter)
 	u8 i;
 	struct recv_buf *precvbuf;
 	uint	status;
-	struct dvobj_priv *pdev = adapter_to_dvobj(Adapter);
 	struct intf_hdl *pintfhdl = &Adapter->iopriv.intf;
 	struct recv_priv *precvpriv = &(Adapter->recvpriv);
 	u32(*_read_port)(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *pmem);
@@ -1368,7 +1330,6 @@ void UpdateInterruptMask8192EU(PADAPTER padapter, u8 bHIMR0 , u32 AddMSR, u32 Re
 u8 SetHwReg8192EU(PADAPTER Adapter, u8 variable, u8 *val)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(Adapter);
 	u8 ret = _SUCCESS;
 
 
@@ -1457,7 +1418,6 @@ u8 SetHwReg8192EU(PADAPTER Adapter, u8 variable, u8 *val)
 
 void GetHwReg8192EU(PADAPTER Adapter, u8 variable, u8 *val)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
 	switch (variable) {
 	default:
@@ -1473,7 +1433,6 @@ GetHalDefVar8192EUsb(
 	IN	PVOID					pValue
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u8			bResult = _SUCCESS;
 
 	switch (eVariable) {
@@ -1498,7 +1457,6 @@ SetHalDefVar8192EUsb(
 	IN	PVOID					pValue
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u8			bResult = _SUCCESS;
 
 	switch (eVariable) {
@@ -1512,7 +1470,6 @@ SetHalDefVar8192EUsb(
 
 void _update_response_rate(_adapter *padapter, unsigned int mask)
 {
-	u8	RateIndex = 0;
 	/* Set RRSR rate table. */
 	rtw_write8(padapter, REG_RRSR, mask & 0xff);
 	rtw_write8(padapter, REG_RRSR + 1, (mask >> 8) & 0xff);

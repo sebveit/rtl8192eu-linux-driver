@@ -1076,48 +1076,6 @@ static VOID _ThreeOutPipeMapping(
 	}
 
 }
-static VOID _FourOutPipeMapping(
-	IN	PADAPTER	pAdapter,
-	IN	BOOLEAN		bWIFICfg
-)
-{
-	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(pAdapter);
-
-	if (bWIFICfg) { /* for WMM */
-
-		/*	BK, 	BE, 	VI, 	VO, 	BCN,	CMD,MGT,HIGH,HCCA  */
-		/* {  1, 	2, 	1, 	0, 	0, 	0, 	0, 	0, 		0	}; */
-		/* 0:H, 1:N, 2:L ,3:E */
-
-		pdvobjpriv->Queue2Pipe[0] = pdvobjpriv->RtOutPipe[0];/* VO */
-		pdvobjpriv->Queue2Pipe[1] = pdvobjpriv->RtOutPipe[1];/* VI */
-		pdvobjpriv->Queue2Pipe[2] = pdvobjpriv->RtOutPipe[2];/* BE */
-		pdvobjpriv->Queue2Pipe[3] = pdvobjpriv->RtOutPipe[1];/* BK */
-
-		pdvobjpriv->Queue2Pipe[4] = pdvobjpriv->RtOutPipe[0];/* BCN */
-		pdvobjpriv->Queue2Pipe[5] = pdvobjpriv->RtOutPipe[0];/* MGT */
-		pdvobjpriv->Queue2Pipe[6] = pdvobjpriv->RtOutPipe[3];/* HIGH */
-		pdvobjpriv->Queue2Pipe[7] = pdvobjpriv->RtOutPipe[0];/* TXCMD */
-
-	} else { /* typical setting */
-
-
-		/*	BK, 	BE, 	VI, 	VO, 	BCN,	CMD,MGT,HIGH,HCCA  */
-		/* {  2, 	2, 	1, 	0, 	0, 	0, 	0, 	0, 		0	};			 */
-		/* 0:H, 1:N, 2:L */
-
-		pdvobjpriv->Queue2Pipe[0] = pdvobjpriv->RtOutPipe[0];/* VO */
-		pdvobjpriv->Queue2Pipe[1] = pdvobjpriv->RtOutPipe[1];/* VI */
-		pdvobjpriv->Queue2Pipe[2] = pdvobjpriv->RtOutPipe[2];/* BE */
-		pdvobjpriv->Queue2Pipe[3] = pdvobjpriv->RtOutPipe[2];/* BK */
-
-		pdvobjpriv->Queue2Pipe[4] = pdvobjpriv->RtOutPipe[0];/* BCN */
-		pdvobjpriv->Queue2Pipe[5] = pdvobjpriv->RtOutPipe[0];/* MGT */
-		pdvobjpriv->Queue2Pipe[6] = pdvobjpriv->RtOutPipe[3];/* HIGH */
-		pdvobjpriv->Queue2Pipe[7] = pdvobjpriv->RtOutPipe[0];/* TXCMD	 */
-	}
-
-}
 BOOLEAN
 Hal_MappingOutPipe(
 	IN	PADAPTER	pAdapter,
@@ -1601,8 +1559,6 @@ exit:
 
 int c2h_defeature_dbg_hdl(_adapter *adapter, u8 *data, u8 len)
 {
-	HAL_DATA_TYPE	*hal_data = GET_HAL_DATA(adapter);
-	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
 	int ret = _FAIL;
 
 	int i;
@@ -2264,7 +2220,6 @@ void rtw_sec_write_cam(_adapter *adapter, u8 addr, u32 wdata)
 
 void rtw_sec_read_cam_ent(_adapter *adapter, u8 id, u8 *ctrl, u8 *mac, u8 *key)
 {
-	unsigned int val, addr;
 	u8 i;
 	u32 rdata;
 	u8 begin = 0;
@@ -2315,8 +2270,8 @@ void rtw_sec_write_cam_ent(_adapter *adapter, u8 id, u16 ctrl, u8 *mac, u8 *key)
 {
 	unsigned int i;
 	int j;
-	u8 addr, addr1 = 0;
-	u32 wdata, wdata1 = 0;
+	u8 addr;
+	u32 wdata;
 
 	/* TODO: consider other key length accordingly */
 	j = 7;
@@ -3124,7 +3079,6 @@ static void rtw_hal_set_tsf_update(_adapter *adapter, u8 en)
 static void rtw_hal_set_hw_update_tsf(PADAPTER padapter)
 {
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
-	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 
 #if defined(CONFIG_RTL8822B) || defined(CONFIG_MI_WITH_MBSSID_CAM)
 	RTW_INFO("[Warn] %s "ADPT_FMT" enter func\n", __func__, ADPT_ARG(padapter));
@@ -3178,7 +3132,6 @@ static void rtw_hal_tsf_update_pause(_adapter *adapter)
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	_adapter *iface;
 	int i;
-	u8 val8;
 
 	for (i = 0; i < dvobj->iface_nums; i++) {
 		iface = dvobj->padapters[i];
@@ -3986,7 +3939,6 @@ inline s32 rtw_hal_set_FwMediaStatusRpt_range_cmd(_adapter *adapter, bool opmode
 
 void rtw_hal_set_FwRsvdPage_cmd(PADAPTER padapter, PRSVDPAGE_LOC rsvdpageloc)
 {
-	struct	hal_ops *pHalFunc = &padapter->hal_func;
 	u8	u1H2CRsvdPageParm[H2C_RSVDPAGE_LOC_LEN] = {0};
 	u8	ret = 0;
 
@@ -4118,10 +4070,6 @@ void rtw_hal_set_input_gpio(_adapter *padapter, u8 index)
 
 void rtw_hal_set_FwAoacRsvdPage_cmd(PADAPTER padapter, PRSVDPAGE_LOC rsvdpageloc)
 {
-	struct	hal_ops *pHalFunc = &padapter->hal_func;
-	struct	pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
-	struct	mlme_priv *pmlmepriv = &padapter->mlmepriv;
-	u8	res = 0, count = 0, ret = 0;
 #ifdef CONFIG_WOWLAN
 	u8 u1H2CAoacRsvdPageParm[H2C_AOAC_RSVDPAGE_LOC_LEN] = {0};
 
@@ -6672,7 +6620,7 @@ void rtw_hal_construct_beacon(_adapter *padapter,
 {
 	struct rtw_ieee80211_hdr	*pwlanhdr;
 	u16					*fctrl;
-	u32					rate_len, pktlen;
+	u32 pktlen;
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	WLAN_BSSID_EX		*cur_network = &(pmlmeinfo->network);
@@ -6708,7 +6656,6 @@ void rtw_hal_construct_beacon(_adapter *padapter,
 	pktlen += 2;
 
 
-_ConstructBeacon:
 
 	if ((pktlen + TXDESC_SIZE) > MAX_BEACON_LEN) {
 		RTW_ERR("beacon frame too large ,len(%d,%d)\n",
@@ -6728,7 +6675,6 @@ static void rtw_hal_construct_PSPoll(_adapter *padapter,
 {
 	struct rtw_ieee80211_hdr	*pwlanhdr;
 	u16					*fctrl;
-	u32					pktlen;
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 
@@ -9322,41 +9268,7 @@ static u8 _rtw_mi_assoc_if_num(_adapter *adapter)
 	return mi_iface_num;
 }
 
-static _adapter *_rtw_search_sta_iface(_adapter *adapter)
-{
-	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
-	_adapter *iface = NULL;
-	_adapter *sta_iface = NULL;
-	int i;
-
-	for (i = 0; i < dvobj->iface_nums; i++) {
-		iface = dvobj->padapters[i];
-		if (check_fwstate(&iface->mlmepriv, WIFI_STATION_STATE) == _TRUE) {
-			if (check_fwstate(&iface->mlmepriv, _FW_LINKED) == _TRUE) {
-				sta_iface = iface;
-				break;
-			}
-		}
-	}
-	return sta_iface;
-}
 #ifdef CONFIG_AP_MODE
-static _adapter *_rtw_search_ap_iface(_adapter *adapter)
-{
-	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
-	_adapter *iface = NULL;
-	_adapter *ap_iface = NULL;
-	int i;
-
-	for (i = 0; i < dvobj->iface_nums; i++) {
-		iface = dvobj->padapters[i];
-		if (check_fwstate(&iface->mlmepriv, WIFI_AP_STATE) == _TRUE ) {
-			ap_iface = iface;
-			break;
-		}
-	}
-	return ap_iface;
-}
 #endif
 
 #ifdef CONFIG_CUSTOMER01_SMART_ANTENNA
@@ -9399,17 +9311,14 @@ static void _rtw_hal_set_fw_rsvd_page(_adapter *adapter, bool finished, u8 *page
 	struct xmit_priv	*pxmitpriv;
 	struct pwrctrl_priv *pwrctl;
 	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
-	struct hal_ops *pHalFunc = &adapter->hal_func;
 	u32	BeaconLength = 0, ProbeRspLength = 0, PSPollLength = 0;
 	u32	NullDataLength = 0, QosNullLength = 0, BTQosNullLength = 0;
-	u32	ProbeReqLength = 0, NullFunctionDataLength = 0;
 	u8	TxDescLen = TXDESC_SIZE, TxDescOffset = TXDESC_OFFSET;
 	u8	TotalPageNum = 0 , CurtPktPageNum = 0 , RsvdPageNum = 0;
 	u8	*ReservedPagePacket;
 	u16	BufIndex = 0;
 	u32	TotalPacketLen = 0, MaxRsvdPageBufSize = 0, PageSize = 0;
 	RSVDPAGE_LOC	RsvdPageLoc;
-	struct registry_priv  *registry_par = &adapter->registrypriv;
 
 #ifdef DBG_FW_DEBUG_MSG_PKT
 	u32	fw_dbg_msg_pkt_len = 0;
@@ -9867,7 +9776,6 @@ static void hw_var_set_bcn_func(_adapter *adapter, u8 enable)
 
 static void hw_var_set_mlme_disconnect(_adapter *adapter)
 {
-	u8 val8;
 
 	/* reject all data frames */
 #ifdef CONFIG_CONCURRENT_MODE
@@ -9905,11 +9813,8 @@ static void hw_var_set_mlme_disconnect(_adapter *adapter)
 
 static void hw_var_set_mlme_sitesurvey(_adapter *adapter, u8 enable)
 {
-	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
 	u16 value_rxfltmap2;
-	int i;
-	_adapter *iface;
 
 #ifdef DBG_IFACE_STATUS
 	DBG_IFACE_STATUS_DUMP(adapter);
@@ -9966,9 +9871,7 @@ static void hw_var_set_mlme_sitesurvey(_adapter *adapter, u8 enable)
 
 static void hw_var_set_mlme_join(_adapter *adapter, u8 type)
 {
-	u8 val8;
 	u16 val16;
-	u32 val32;
 	u8 RetryLimit = RL_VAL_STA;
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
 	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
@@ -10841,7 +10744,6 @@ u8 SetHwReg(_adapter *adapter, u8 variable, u8 *val)
 void GetHwReg(_adapter *adapter, u8 variable, u8 *val)
 {
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
-	u64 val64;
 
 
 	switch (variable) {
@@ -11624,7 +11526,6 @@ exit:
 
 void rtw_dump_cur_efuse(PADAPTER padapter)
 {
-	int i =0;
 	int mapsize =0;
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
 
@@ -11754,12 +11655,6 @@ void rtw_bb_rf_gain_offset(_adapter *padapter)
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	struct registry_priv  *registry_par = &padapter->registrypriv;
 	struct kfree_data_t *kfree_data = &pHalData->kfree_data;
-	u8		value = pHalData->EEPROMRFGainOffset;
-	u8		tmp = 0x3e;
-	u32		res, i = 0;
-	u4Byte		ArrayLen	= sizeof(Array_kfreemap) / sizeof(u32);
-	pu4Byte		Array	= Array_kfreemap;
-	u4Byte		v1 = 0, v2 = 0, GainValue = 0, target = 0;
 
 	if (registry_par->RegPwrTrimEnable == 2) {
 		RTW_INFO("Registry kfree default force disable.\n");
@@ -11954,7 +11849,6 @@ void dm_DynamicUsbTxAgg(_adapter *padapter, u8 from_timer)
 /* bus-agg check for SoftAP mode */
 inline u8 rtw_hal_busagg_qsel_check(_adapter *padapter, u8 pre_qsel, u8 next_qsel)
 {
-	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	u8 chk_rst = _SUCCESS;
 
 	if (!MLME_IS_AP(padapter) && !MLME_IS_MESH(padapter))
@@ -12488,7 +12382,6 @@ void rtw_dump_rx_counters(_adapter *padapter)
 #endif
 u8 rtw_get_current_tx_sgi(_adapter *padapter, struct sta_info *psta)
 {
-	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
 	u8 curr_tx_sgi = 0;
 	struct ra_sta_info *ra_info;
 
@@ -12507,7 +12400,6 @@ u8 rtw_get_current_tx_sgi(_adapter *padapter, struct sta_info *psta)
 
 u8 rtw_get_current_tx_rate(_adapter *padapter, struct sta_info *psta)
 {
-	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
 	u8 rate_id = 0;
 	struct ra_sta_info *ra_info;
 

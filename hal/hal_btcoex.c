@@ -231,7 +231,7 @@ static void DBG_BT_INFO_INIT(PBTCDBGINFO pinfo, u8 *pbuf, u32 size)
 void DBG_BT_INFO(u8 *dbgmsg)
 {
 	PBTCDBGINFO pinfo;
-	u32 msglen, buflen;
+	u32 msglen;
 	u8 *pbuf;
 
 
@@ -266,15 +266,6 @@ static void halbtcoutsrc_DbgInit(void)
 
 	for (i = 0; i < COMP_MAX; i++)
 		GLBtcDbgType[i] = 0;
-}
-
-static u8 halbtcoutsrc_IsCsrBtCoex(PBTC_COEXIST pBtCoexist)
-{
-	if (pBtCoexist->board_info.bt_chip_type == BTC_CHIP_CSR_BC4
-	    || pBtCoexist->board_info.bt_chip_type == BTC_CHIP_CSR_BC8
-	   )
-		return _TRUE;
-	return _FALSE;
 }
 
 static void halbtcoutsrc_EnterPwrLock(PBTC_COEXIST pBtCoexist)
@@ -603,7 +594,6 @@ struct btc_wifi_link_info halbtcoutsrc_getwifilinkinfo(PBTC_COEXIST pBtCoexist)
 	PADAPTER adapter = NULL;
 	PADAPTER iface = NULL;
 	PADAPTER sta_iface = NULL, p2p_iface = NULL, ap_iface = NULL;
-	BTC_LINK_MODE btc_link_moe = BTC_LINK_MAX;
 	struct dvobj_priv *dvobj = NULL;
 	struct mlme_ext_priv *mlmeext = NULL;
 	struct btc_wifi_link_info wifi_link_info;
@@ -823,7 +813,6 @@ u32 halbtcoutsrc_GetBtPatchVer(PBTC_COEXIST pBtCoexist)
 		}
 	}
 
-exit:
 	return pBtCoexist->bt_info.bt_real_fw_ver;
 }
 
@@ -1285,7 +1274,6 @@ u16 halbtcoutsrc_LnaConstrainLvl(void *pBtcContext, u8 *lna_constrain_level)
 
 	if (halbtcoutsrc_IsHwMailboxExist(pBtCoexist) == _TRUE) {
 		_irqL irqL;
-		u8 op_code;
 
 		_enter_critical_mutex(&GLBtcBtMpOperLock, &irqL);
 
@@ -1557,14 +1545,12 @@ void halbtcoutsrc_DisplayBtLinkInfo(PBTC_COEXIST pBtCoexist)
 void halbtcoutsrc_DisplayWifiStatus(PBTC_COEXIST pBtCoexist)
 {
 	PADAPTER	padapter = pBtCoexist->Adapter;
-	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
 	u8			*cliBuf = pBtCoexist->cli_buf;
-	s32			wifiRssi = 0, btHsRssi = 0;
+	s32 wifiRssi = 0;
 	BOOLEAN	bScan = _FALSE, bLink = _FALSE, bRoam = _FALSE, bWifiBusy = _FALSE, bWifiUnderBMode = _FALSE;
 	u32			wifiBw = BTC_WIFI_BW_HT20, wifiTrafficDir = BTC_WIFI_TRAFFIC_TX, wifiFreq = BTC_FREQ_2_4G;
 	u32			wifiLinkStatus = 0x0;
-	BOOLEAN	bBtHsOn = _FALSE, bLowPower = _FALSE;
-	u8			wifiChnl = 0, wifiP2PChnl = 0, nScanAPNum = 0, FwPSState;
+	u8 wifiChnl = 0, wifiP2PChnl = 0, nScanAPNum = 0;
 	u32			iqk_cnt_total = 0, iqk_cnt_ok = 0, iqk_cnt_fail = 0;
 	u16			wifiBcnInterval = 0;
 	PHAL_DATA_TYPE hal = GET_HAL_DATA(padapter);
@@ -2024,7 +2010,6 @@ static void halbtcoutsrc_coex_offload_init(void)
 static COL_H2C_STATUS halbtcoutsrc_send_h2c(PADAPTER Adapter, PCOL_H2C pcol_h2c, u16 h2c_cmd_len)
 {
 	COL_H2C_STATUS		h2c_status = COL_STATUS_C2H_OK;
-	u8				i;
 
 reinit_completion(&gl_coex_offload.c2h_event[pcol_h2c->req_num]);
 
@@ -2070,10 +2055,9 @@ COL_H2C_STATUS halbtcoutsrc_CoexH2cProcess(void *pBtCoexist,
 	PADAPTER			Adapter = ((struct btc_coexist *)pBtCoexist)->Adapter;
 	u8				H2C_Parameter[BTC_TMP_BUF_SHORT] = {0};
 	PCOL_H2C			pcol_h2c = (PCOL_H2C)&H2C_Parameter[0];
-	u16				paraLen = 0;
 	COL_H2C_STATUS		h2c_status = COL_STATUS_C2H_OK, c2h_status = COL_STATUS_C2H_OK;
 	COL_H2C_STATUS		ret_status = COL_STATUS_C2H_OK;
-	u16				i, col_h2c_len = 0;
+	u16 col_h2c_len = 0;
 
 	pcol_h2c->opcode = opcode;
 	pcol_h2c->opcode_ver = opcode_ver;
@@ -2238,8 +2222,6 @@ exit:
 
 u32 halbtcoutsrc_GetPhydmVersion(void *pBtcContext)
 {
-	struct btc_coexist *pBtCoexist = (struct btc_coexist *)pBtcContext;
-	PADAPTER		Adapter = pBtCoexist->Adapter;
 
 	return RELEASE_VERSION_8192E;
 
@@ -3436,53 +3418,6 @@ u8 EXhalbtcoutsrc_rate_id_to_btc_rate_id(u8 rate_id)
 	return btc_rate_id;
 }
 
-static void halbt_init_hw_config92C(PADAPTER padapter)
-{
-	PHAL_DATA_TYPE pHalData;
-	u8 u1Tmp;
-
-
-	pHalData = GET_HAL_DATA(padapter);
-	if ((pHalData->bt_coexist.btChipType == BT_CSR_BC4) ||
-	    (pHalData->bt_coexist.btChipType == BT_CSR_BC8)) {
-		if (pHalData->rf_type == RF_1T1R) {
-			/* Config to 1T1R */
-			u1Tmp = rtw_read8(padapter, rOFDM0_TRxPathEnable);
-			u1Tmp &= ~BIT(1);
-			rtw_write8(padapter, rOFDM0_TRxPathEnable, u1Tmp);
-			RT_DISP(FBT, BT_TRACE, ("[BTCoex], BT write 0xC04 = 0x%x\n", u1Tmp));
-
-			u1Tmp = rtw_read8(padapter, rOFDM1_TRxPathEnable);
-			u1Tmp &= ~BIT(1);
-			rtw_write8(padapter, rOFDM1_TRxPathEnable, u1Tmp);
-			RT_DISP(FBT, BT_TRACE, ("[BTCoex], BT write 0xD04 = 0x%x\n", u1Tmp));
-		}
-	}
-}
-
-static void halbt_init_hw_config92D(PADAPTER padapter)
-{
-	PHAL_DATA_TYPE pHalData;
-	u8 u1Tmp;
-
-	pHalData = GET_HAL_DATA(padapter);
-	if ((pHalData->bt_coexist.btChipType == BT_CSR_BC4) ||
-	    (pHalData->bt_coexist.btChipType == BT_CSR_BC8)) {
-		if (pHalData->rf_type == RF_1T1R) {
-			/* Config to 1T1R */
-			u1Tmp = rtw_read8(padapter, rOFDM0_TRxPathEnable);
-			u1Tmp &= ~BIT(1);
-			rtw_write8(padapter, rOFDM0_TRxPathEnable, u1Tmp);
-			RT_DISP(FBT, BT_TRACE, ("[BTCoex], BT write 0xC04 = 0x%x\n", u1Tmp));
-
-			u1Tmp = rtw_read8(padapter, rOFDM1_TRxPathEnable);
-			u1Tmp &= ~BIT(1);
-			rtw_write8(padapter, rOFDM1_TRxPathEnable, u1Tmp);
-			RT_DISP(FBT, BT_TRACE, ("[BTCoex], BT write 0xD04 = 0x%x\n", u1Tmp));
-		}
-	}
-}
-
 /*
  * Description:
  *	Run BT-Coexist mechansim or not
@@ -3544,7 +3479,6 @@ void hal_btcoex_SetPgAntNum(PADAPTER padapter, u8 antNum)
 
 u8 hal_btcoex_Initialize(PADAPTER padapter)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	u8 ret;
 
 	_rtw_memset(&GLBtCoexist, 0, sizeof(GLBtCoexist));
@@ -3994,12 +3928,10 @@ hal_btcoex_ParseAntIsolationConfigFile(
 	char			*buffer
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u32	i = 0 , j = 0;
 	char	*szLine , *ptmp;
 	int rtStatus = _SUCCESS;
 	char param_value_string[10];
-	u8 param_value;
 	u8 anttype = 4;
 
 	u8 ant_num = 3 , ant_distance = 50 , rfe_type = 1;

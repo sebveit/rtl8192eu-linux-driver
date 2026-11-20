@@ -466,7 +466,7 @@ u8 init_channel_set(_adapter *padapter, u8 ChannelPlan, RT_CHANNEL_INFO *channel
 	struct registry_priv *regsty = adapter_to_regsty(padapter);
 	u8	index, chanset_size = 0;
 	u8	b5GBand = _FALSE, b2_4GBand = _FALSE;
-	u8	rd_2g = 0, rd_5g = 0;
+	u8 rd_2g = 0;
 #ifdef CONFIG_DFS_MASTER
 	int i;
 #endif

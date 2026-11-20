@@ -76,7 +76,6 @@ void phydm_rx_statistic_cal(struct dm_struct *dm,
 	u8 rate = (pktinfo->data_rate & 0x7f);
 	u8 bw_idx = phy_info->band_width;
 	u8 offset = 0;
-	u8 gid = 0;
 #if (ODM_PHY_STATUS_NEW_TYPE_SUPPORT || defined(PHYSTS_3RD_TYPE_SUPPORT))
 	u8 val = 0;
 #endif
@@ -410,37 +409,6 @@ phydm_evm_2_percent(s8 value)
 	return (u8)ret_val;
 }
 
-static u8
-phydm_evm_dbm(s8 value)
-{
-	s8 ret_val = value;
-
-	/* @-33dB~0dB to 33dB ~ 0dB */
-	if (ret_val == -128)
-		ret_val = 127;
-	else if (ret_val < 0)
-		ret_val = 0 - ret_val;
-
-	ret_val = ret_val >> 1;
-	return (u8)ret_val;
-}
-
-static s16
-phydm_cfo(s8 value)
-{
-	s16 ret_val;
-
-	if (value < 0) {
-		ret_val = 0 - value;
-		ret_val = (ret_val << 1) + (ret_val >> 1); /*@2.5~=312.5/2^7 */
-		ret_val = ret_val | BIT(12); /*set bit12 as 1 for negative cfo*/
-	} else {
-		ret_val = value;
-		ret_val = (ret_val << 1) + (ret_val >> 1); /* @*2.5~=312.5/2^7*/
-	}
-	return ret_val;
-}
-
 s8 phydm_cck_rssi_convert(struct dm_struct *dm, u16 lna_idx, u8 vga_idx)
 {
 	/*@phydm_get_cck_rssi_table_from_reg*/
@@ -530,7 +498,6 @@ void phydm_phy_sts_n_parsing(struct dm_struct *dm,
 	u8 cck_agc_rpt;
 	s8 evm_tmp = 0;
 	u8 sq = 0;
-	u8 val_tmp = 0;
 	s8 val_s8 = 0;
 	struct phy_status_rpt_8192cd *phy_sts = NULL;
 
@@ -929,7 +896,6 @@ void phydm_process_rssi_for_dm(struct dm_struct *dm,
 	s32 rssi_ave = 0; /*@average among all paths*/
 	s8 rssi_all = 0; /*@average value of CCK & OFDM*/
 	s8 rssi_cck_tmp = 0, rssi_ofdm_tmp = 0;
-	u8 i = 0;
 	u8 rssi_max = 0, rssi_min = 0;
 	u32 w1 = 0, w2 = 0; /*weighting*/
 	u8 send_rssi_2_fw = 0;

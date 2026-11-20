@@ -1920,7 +1920,6 @@ int rtw_blacklist_add(_queue *blist, const u8 *addr, u32 timeout_ms)
 
 	exit_critical_bh(&blist->lock);
 
-exit:
 	return (exist == _TRUE && timeout == _FALSE) ? RTW_ALREADY : (ent ? _SUCCESS : _FAIL);
 }
 
@@ -1952,7 +1951,6 @@ int rtw_blacklist_del(_queue *blist, const u8 *addr)
 
 	exit_critical_bh(&blist->lock);
 
-exit:
 	return exist == _TRUE ? _SUCCESS : RTW_ALREADY;
 }
 
@@ -1986,7 +1984,6 @@ int rtw_blacklist_search(_queue *blist, const u8 *addr)
 
 	exit_critical_bh(&blist->lock);
 
-exit:
 	return exist;
 }
 

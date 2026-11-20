@@ -298,7 +298,6 @@ void halrf_iqk_trigger(void *dm_void, boolean is_recovery)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct dm_iqk_info *iqk_info = &dm->IQK_info;
-	struct dm_dpk_info *dpk_info = &dm->dpk_info;
 	struct _hal_rf_ *rf = &dm->rf_table;
 	u64 start_time;
 
@@ -436,7 +435,6 @@ void halrf_dpk_trigger(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct _hal_rf_ *rf = &dm->rf_table;
-	struct dm_dpk_info *dpk_info = &dm->dpk_info;
 
 	u64 start_time;
 
@@ -456,7 +454,6 @@ void halrf_dpk_trigger(void *dm_void)
 u8 halrf_dpk_result_check(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	struct dm_dpk_info *dpk_info = &dm->dpk_info;
 
 	u8 result = 0;
 
@@ -473,7 +470,6 @@ void halrf_dpk_sram_read(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
-	u8 path, group;
 
 	switch (dm->support_ic_type) {
 
@@ -497,7 +493,6 @@ void halrf_dpk_enable_disable(void *dm_void)
 void halrf_dpk_track(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	struct dm_dpk_info *dpk_info = &dm->dpk_info;
 
 	switch (dm->support_ic_type) {
 
@@ -510,7 +505,6 @@ void halrf_dpk_track(void *dm_void)
 void halrf_dpk_reload(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	struct dm_dpk_info *dpk_info = &dm->dpk_info;
 
 	switch (dm->support_ic_type) {
 
@@ -522,7 +516,6 @@ void halrf_dpk_reload(void *dm_void)
 enum hal_status
 halrf_config_rfk_with_header_file(void *dm_void, u32 config_type)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	enum hal_status result = HAL_STATUS_SUCCESS;
 	return result;
 }
@@ -549,25 +542,21 @@ void halrf_txgapk_trigger(void *dm_void)
 
 void halrf_tssi_init(void *dm_void)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
 }
 
 void halrf_do_tssi(void *dm_void)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
 }
 
 void halrf_set_tssi_value(void *dm_void, u32 tssi_value)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
 }
 
 u32 halrf_query_tssi_value(void *dm_void)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
 	return 0;
 }
@@ -620,7 +609,6 @@ void halrf_bprf(void *dm_void, u32 *bp_reg, u32 bp[][4], u32 num, u8 ss)
 
 void halrf_swap(void *dm_void, u32 *v1, u32 *v2)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u32 temp;
 
 	temp = *v1;
@@ -631,7 +619,6 @@ void halrf_swap(void *dm_void, u32 *v1, u32 *v2)
 void halrf_bubble(void *dm_void, u32 *v1, u32 *v2)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	u32 temp;
 
 	if (*v1 >= 0x200 && *v2 >= 0x200) {
 		if (*v1 > *v2)
@@ -647,7 +634,6 @@ void halrf_bubble(void *dm_void, u32 *v1, u32 *v2)
 void halrf_b_sort(void *dm_void, u32 *iv, u32 *qv)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	u32 temp;
 	u32 i, j;
 
 	RF_DBG(dm, DBG_RF_DACK, "[DACK]bubble!!!!!!!!!!!!");
@@ -662,7 +648,6 @@ void halrf_b_sort(void *dm_void, u32 *iv, u32 *qv)
 void halrf_minmax_compare(void *dm_void, u32 value, u32 *min,
 			  u32 *max)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
 	if (value >= 0x200) {
 		if (*min >= 0x200) {
@@ -692,7 +677,6 @@ void halrf_minmax_compare(void *dm_void, u32 value, u32 *min,
 
 u32 halrf_delta(void *dm_void, u32 v1, u32 v2)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
 	if (v1 >= 0x200 && v2 >= 0x200) {
 		if (v1 > v2)
@@ -730,11 +714,11 @@ boolean halrf_compare(void *dm_void, u32 value)
 void halrf_mode(void *dm_void, u32 *i_value, u32 *q_value)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	u32 iv[SN], qv[SN], im[SN], qm[SN], temp, temp1, temp2;
+	u32 iv[SN], qv[SN], im[SN], qm[SN], temp;
 	u32 p, m, t;
 	u32 i_max = 0, q_max = 0, i_min = 0x0, q_min = 0x0, c = 0x0;
 	u32 i_delta, q_delta;
-	u8 i, j, ii = 0, qi = 0;
+	u8 i;
 	boolean fail = false;
 
 	ODM_delay_ms(10);

@@ -51,7 +51,6 @@ void phydm_reset_bb_hw_cnt(void *dm_void)
 
 void phydm_dynamic_ant_weighting(void *dm_void)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
 #ifdef DYN_ANT_WEIGHTING_SUPPORT
 
@@ -95,8 +94,6 @@ void phydm_iq_gen_en(void *dm_void)
 {
 #ifdef PHYDM_COMPILE_IC_2SS
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	u8 i = 0;
-	enum rf_path path = RF_PATH_A;
 
 	#if (ODM_IC_11AC_SERIES_SUPPORT)
 	if (!(dm->support_ic_type & ODM_IC_11AC_SERIES))
@@ -261,7 +258,6 @@ void phydm_pathb_q_matrix_rotate(void *dm_void, u16 idx)
 void phydm_trx_antenna_setting_init(void *dm_void, u8 num_rf_path)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	u8 rx_ant = 0, tx_ant = 0;
 	u8 path_bitmap = 1;
 
 	path_bitmap = (u8)phydm_gen_bitmask(num_rf_path);
@@ -296,7 +292,6 @@ void phydm_trx_antenna_setting_init(void *dm_void, u8 num_rf_path)
 void phydm_config_ofdm_tx_path(void *dm_void, u32 path)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	u8 ofdm_tx_path = 0x33;
 
 	if (dm->num_rf_path == PDM_1SS)
 		return;
@@ -534,7 +529,6 @@ void phydm_tx_2path(void *dm_void)
 {
 #if (defined(PHYDM_COMPILE_IC_2SS))
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	enum bb_path rx_path = (enum bb_path)dm->rx_ant_status;
 
 	PHYDM_DBG(dm, ODM_COMP_API, "%s ======>\n", __func__);
 
@@ -1708,7 +1702,6 @@ void phydm_nbi_debug(void *dm_void, char input[][16], u32 *_used, char *output,
 	u32 f_int = 0; /*@interference frequency*/
 	u32 sec_ch = 0; /*secondary channel*/
 	u8 rpt = 0;
-	u8 path = 0;
 
 	if (dm->support_ic_type & ODM_IC_JGR3_SERIES)
 		idx_lmt = 6;
@@ -1799,7 +1792,6 @@ void phydm_csi_debug(void *dm_void, char input[][16], u32 *_used, char *output,
 	u32 f_int = 0; /*@interference frequency*/
 	u32 sec_ch = 0;  /*secondary channel*/
 	u8 rpt = 0;
-	u8 wgt = 0;
 
 	if (dm->support_ic_type & ODM_IC_JGR3_SERIES)
 		idx_lmt = 6;

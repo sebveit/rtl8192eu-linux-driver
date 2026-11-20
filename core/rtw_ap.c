@@ -1521,7 +1521,6 @@ void start_bss_network(_adapter *padapter, struct createbss_parm *parm)
 	u8 mlme_act = MLME_ACTION_UNKNOWN;
 	u8 val8;
 	u16 bcn_interval;
-	u32	acparm;
 	struct registry_priv	*pregpriv = &padapter->registrypriv;
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct security_priv *psecuritypriv = &(padapter->securitypriv);
@@ -1787,11 +1786,8 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	WLAN_BSSID_EX *pbss_network = (WLAN_BSSID_EX *)&pmlmepriv->cur_network.network;
 	u8 *ie = pbss_network->IEs;
-	u8 vht_cap = _FALSE;
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
-	struct rf_ctl_t *rfctl = adapter_to_rfctl(padapter);
-	u8 rf_num = 0;
 	int ret_rm;
 	/* SSID */
 	/* Supported rates */
@@ -4234,7 +4230,6 @@ exit:
 static bool rtw_ap_choose_chbw(_adapter *adapter, u8 sel_ch, u8 max_bw, u8 cur_ch
 	, u8 *ch, u8 *bw, u8 *offset, u8 mesh_only, const char *caller)
 {
-	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	struct rf_ctl_t *rfctl = adapter_to_rfctl(adapter);
 	bool ch_avail = _FALSE;
 
@@ -4284,7 +4279,6 @@ static bool rtw_ap_choose_chbw(_adapter *adapter, u8 sel_ch, u8 max_bw, u8 cur_c
 					, rfctl->ch_sel_same_band_prefer, mesh_only);
 	}
 
-exit:
 	if (ch_avail == _FALSE)
 		RTW_WARN("%s no available channel\n", caller);
 
@@ -4297,7 +4291,6 @@ u8 rtw_ap_chbw_decision(_adapter *adapter, u8 ifbmp, u8 excl_ifbmp
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	RT_CHANNEL_INFO *chset = adapter_to_chset(adapter);
-	struct rf_ctl_t *rfctl = adapter_to_rfctl(adapter);
 	bool ch_avail = _FALSE;
 	u8 cur_ie_ch[CONFIG_IFACE_NUMBER] = {0};
 	u8 cur_ie_bw[CONFIG_IFACE_NUMBER] = {0};
@@ -5028,7 +5021,6 @@ exit:
 
 void rtw_ap_parse_sta_vht_ie(_adapter *adapter, struct sta_info *sta, struct rtw_ieee802_11_elems *elems)
 {
-	struct mlme_priv *mlme = &adapter->mlmepriv;
 
 	sta->flags &= ~WLAN_STA_VHT;
 

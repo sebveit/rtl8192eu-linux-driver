@@ -127,7 +127,6 @@ int rtw_os_alloc_recvframe(_adapter *padapter, union recv_frame *precvframe, u8 
 #endif
 	}
 
-exit_rtw_os_recv_resource_alloc:
 
 	return res;
 
@@ -665,7 +664,6 @@ int rtw_recv_indicatepkt(_adapter *padapter, union recv_frame *precv_frame)
 
 	rtw_os_recv_indicate_pkt(padapter, precv_frame->u.hdr.pkt, precv_frame);
 
-_recv_indicatepkt_end:
 	precv_frame->u.hdr.pkt = NULL;
 	rtw_free_recvframe(precv_frame, pfree_recv_queue);
 	return _SUCCESS;

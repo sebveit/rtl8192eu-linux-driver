@@ -19,7 +19,6 @@
 
 s32	rtl8192e_init_xmit_priv(_adapter *padapter)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	struct xmit_priv	*pxmitpriv = &padapter->xmitpriv;
 
 #ifdef CONFIG_TX_EARLY_MODE

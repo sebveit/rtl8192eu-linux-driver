@@ -983,7 +983,5 @@ void phydm_adaptive_soml_para_set(void *dm_void, u8 train_num, u8 intvl,
 
 void phydm_init_soft_ml_setting(void *dm_void)
 {
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	u32 soml_mask = BIT(31) | BIT(30) | BIT(29) | BIT(28);
 
 }

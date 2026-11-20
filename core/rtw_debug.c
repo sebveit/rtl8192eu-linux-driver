@@ -2572,12 +2572,6 @@ ssize_t proc_set_rx_signal(struct file *file, const char __user *buffer, size_t 
 
 int proc_get_mac_rptbuf(struct seq_file *m, void *v)
 {
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	u16 i;
-	u16 mac_id;
-	u32 shcut_addr = 0;
-	u32 read_addr = 0;
 	return 0;
 }
 
@@ -5046,8 +5040,6 @@ ssize_t proc_set_tx_sa_query(struct file *file, const char __user *buffer, size_
 
 int proc_get_tx_sa_query(struct seq_file *m, void *v)
 {
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 
 	RTW_PRINT_SEL(m, "%s\n", __func__);
 	return 0;
@@ -5150,8 +5142,6 @@ ssize_t proc_set_tx_deauth(struct file *file, const char __user *buffer, size_t 
 
 int proc_get_tx_deauth(struct seq_file *m, void *v)
 {
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 
 	RTW_PRINT_SEL(m, "%s\n", __func__);
 	return 0;
@@ -5161,20 +5151,9 @@ ssize_t proc_set_tx_auth(struct file *file, const char __user *buffer, size_t co
 {
 	struct net_device *dev = data;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
-	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
-	struct	sta_priv *pstapriv = &padapter->stapriv;
-	struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
-	struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
-	struct sta_info *psta;
-	_list	*plist, *phead;
-	_irqL	 irqL;
 	char tmp[16];
-	u8	mac_addr[NUM_STA][ETH_ALEN];
-	u8 bc_addr[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 	u32 tx_auth;
-	u8 index;
 
 
 	if (count > 2) {
@@ -5209,8 +5188,6 @@ ssize_t proc_set_tx_auth(struct file *file, const char __user *buffer, size_t co
 
 int proc_get_tx_auth(struct seq_file *m, void *v)
 {
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 
 	RTW_PRINT_SEL(m, "%s\n", __func__);
 	return 0;

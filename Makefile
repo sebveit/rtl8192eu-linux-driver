@@ -65,8 +65,6 @@ ifneq ($(KERNELRELEASE),)
 
 ccflags-y += $(USER_EXTRA_CFLAGS)
 ccflags-y += -Wformat -Wformat-security
-ccflags-y += -Wno-unused-variable -Wno-unused-value -Wno-unused-label
-ccflags-y += -Wno-unused-parameter -Wno-unused-function -Wno-unused
 
 ccflags-y += -I$(src)/include -I$(src)/platform -I$(src)/hal/btc -I$(src)/hal/phydm
 

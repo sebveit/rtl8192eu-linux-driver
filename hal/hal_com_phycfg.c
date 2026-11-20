@@ -564,12 +564,7 @@ u16 hal_load_pg_txpwr_info_path_5g(
 	const struct map_t *txpwr_map,
 	u16 pg_offset)
 {
-	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
 	u16 offset = pg_offset;
-	u8 group, tx_idx;
-	u8 val;
-	u8 tmp_base;
-	s8 tmp_diff;
 
 #ifdef CONFIG_IEEE80211_BAND_5GHZ
 	if (pwr_info == NULL || !hal_chk_band_cap(adapter, BAND_CAP_5G))
@@ -817,7 +812,6 @@ int check_phy_efuse_tx_power_info_valid(_adapter *adapter)
 #ifdef CONFIG_IEEE80211_BAND_5GHZ
 	u8 valid_5g_path_bmp = 0;
 #endif
-	int result = _FALSE;
 
 	for (path = 0; path < MAX_RF_PATH; path++) {
 		u8 ret = _FALSE;
@@ -1182,7 +1176,6 @@ s8 rtw_regsty_get_target_tx_power(
 bool rtw_regsty_chk_target_tx_power_valid(_adapter *adapter)
 {
 	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
-	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
 	int path, tx_num, band, rs;
 	s8 target;
 
@@ -1296,7 +1289,6 @@ phy_SetTxPowerByRateBase(
 
 static inline BOOLEAN phy_is_txpwr_by_rate_undefined_of_band_path(_adapter *adapter, u8 band, u8 path)
 {
-	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
 	u8 rate_idx = 0;
 
@@ -1311,7 +1303,6 @@ exit:
 
 static inline void phy_txpwr_by_rate_duplicate_band_path(_adapter *adapter, u8 band, u8 s_path, u8 t_path)
 {
-	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
 	u8 rate_idx = 0;
 
@@ -1397,7 +1388,7 @@ phy_StoreTxPowerByRateBase(
 		MGN_VHT4SS_MCS7,
 	};
 
-	u8 band, path, rs, tx_num, base, index;
+	u8 band, path, rs, tx_num, base;
 
 	for (band = BAND_ON_2_4G; band <= BAND_ON_5G; band++) {
 		if (!hal_is_band_support(pAdapter, band))
@@ -1450,9 +1441,8 @@ PHY_GetRateValuesOfTxPowerByRate(
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
-	struct hal_spec_t *hal_spec = GET_HAL_SPEC(pAdapter);
 	struct dm_struct		*pDM_Odm = &pHalData->odmpriv;
-	u8				index = 0, i = 0;
+	u8 i = 0;
 	u8 (*get_val)(u32, u8);
 
 	if (pDM_Odm->phy_reg_pg_version == 1)
@@ -1821,7 +1811,7 @@ PHY_InitTxPowerByRate(
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
-	u8	band = 0, rfPath = 0, rate = 0, i = 0, j = 0;
+	u8 band = 0, rfPath = 0, rate = 0;
 
 	for (band = BAND_ON_2_4G; band <= BAND_ON_5G; ++band)
 		for (rfPath = 0; rfPath < TX_PWR_BY_RATE_NUM_RF; ++rfPath)
@@ -1855,10 +1845,8 @@ phy_ConvertTxPowerByRateInDbmToRelativeValues(
 	IN	PADAPTER	pAdapter
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 	u8			base = 0, i = 0, value = 0,
-				band = 0, path = 0, index = 0,
-				startIndex = 0, endIndex = 0;
+				band = 0, path = 0;
 	u8	cckRates[4] = {MGN_1M, MGN_2M, MGN_5_5M, MGN_11M},
 		ofdmRates[8] = {MGN_6M, MGN_9M, MGN_12M, MGN_18M, MGN_24M, MGN_36M, MGN_48M, MGN_54M},
 		mcs0_7Rates[8] = {MGN_MCS0, MGN_MCS1, MGN_MCS2, MGN_MCS3, MGN_MCS4, MGN_MCS5, MGN_MCS6, MGN_MCS7},
@@ -1947,7 +1935,6 @@ PHY_TxPowerByRateConfiguration(
 	IN  PADAPTER			pAdapter
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 
 	phy_txpwr_by_rate_chk_for_path_dup(pAdapter);
 	phy_StoreTxPowerByRateBase(pAdapter);
@@ -2018,8 +2005,6 @@ PHY_GetTxPowerIndexBase(
 )
 {
 	PHAL_DATA_TYPE		pHalData = GET_HAL_DATA(pAdapter);
-	struct dm_struct			*pDM_Odm = &pHalData->odmpriv;
-	u8					i = 0;	/* default set to 1S */
 	u8					txPower = 0;
 	u8					chnlIdx = (Channel - 1);
 
@@ -2717,7 +2702,6 @@ s8 phy_get_txpwr_lmt_abs(
 	u8 lock
 )
 {
-	struct dvobj_priv *dvobj = adapter_to_dvobj(Adapter);
 	struct rf_ctl_t *rfctl = adapter_to_rfctl(Adapter);
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(Adapter);
 	struct hal_spec_t *hal_spec = GET_HAL_SPEC(Adapter);
@@ -3389,11 +3373,10 @@ phy_set_tx_power_limit(
 {
 #if CONFIG_TXPWR_LIMIT
 	PADAPTER Adapter = pDM_Odm->adapter;
-	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
 	struct hal_spec_t *hal_spec = GET_HAL_SPEC(Adapter);
 	u8 band = 0, bandwidth = 0, tlrs = 0, channel;
 	u8 ntx_idx;
-	s8 powerLimit = 0, prevPowerLimit, channelIndex;
+	s8 powerLimit = 0, channelIndex;
 	s8 ww_lmt_val = phy_txpwr_ww_lmt_value(Adapter);
 
 	if (0)
@@ -3605,7 +3588,6 @@ bool phy_is_tx_power_by_rate_needed(_adapter *adapter)
 int phy_load_tx_power_by_rate(_adapter *adapter, u8 chk_file)
 {
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
-	struct registry_priv *regsty = dvobj_to_regsty(adapter_to_dvobj(adapter));
 	int ret = _FAIL;
 
 	hal_data->txpwr_by_rate_loaded = 0;
@@ -3794,7 +3776,6 @@ void dump_target_tx_power(void *sel, _adapter *adapter)
 		}
 	}
 
-exit:
 	return;
 }
 
@@ -3871,7 +3852,6 @@ void dump_tx_power_by_rate(void *sel, _adapter *adapter)
 int rtw_get_phy_file_path(_adapter *adapter, const char *file_name)
 {
 #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
 	int len = 0;
 
 	if (file_name) {
@@ -4113,7 +4093,7 @@ phy_ParseBBPgParaFile(
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	struct hal_spec_t *hal_spec = GET_HAL_SPEC(Adapter);
 	char	*szLine, *ptmp;
-	u32	u4bRegOffset, u4bRegMask, u4bRegValue;
+	u32 u4bRegOffset, u4bRegMask;
 	u32	u4bMove;
 	BOOLEAN firstLine = _TRUE;
 	u8	tx_num = 0;
@@ -4149,7 +4129,7 @@ phy_ParseBBPgParaFile(
 			}
 
 			if (pHalData->odmpriv.phy_reg_pg_version > 0) {
-				u32	index = 0, cnt = 0;
+				u32 index = 0;
 
 				if (eqNByte(szLine, "0xffff", 6))
 					break;
@@ -4629,12 +4609,9 @@ PHY_ConfigRFWithTxPwrTrackParaFile(
 )
 {
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
-	struct dm_struct			*pDM_Odm = &pHalData->odmpriv;
-	struct dm_rf_calibration_struct		*pRFCalibrateInfo = &(pDM_Odm->rf_calibrate_info);
 	int	rlen = 0, rtStatus = _FAIL;
 	char	*szLine, *ptmp;
-	u32	i = 0, j = 0;
-	char	c = 0;
+	u32 i = 0;
 
 	if (!(Adapter->registrypriv.load_phy_file & LOAD_RF_TXPWR_TRACK_PARA_FILE))
 		return rtStatus;

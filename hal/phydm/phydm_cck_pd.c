@@ -77,7 +77,6 @@ void phydm_set_cckpd_lv_type1(void *dm_void, enum cckpd_lv lv)
 void phydm_cckpd_type1(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	struct phydm_dig_struct *dig_t = &dm->dm_dig_table;
 	struct phydm_cckpd_struct *cckpd_t = &dm->dm_cckpd_table;
 	enum cckpd_lv lv = CCK_PD_LV_INIT;
 	boolean is_update = true;

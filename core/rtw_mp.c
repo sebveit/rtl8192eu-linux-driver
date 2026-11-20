@@ -413,7 +413,6 @@ MPT_InitializeAdapter(
 	IN	u8				Channel
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 	s32		rtStatus = _SUCCESS;
 	PMPT_CONTEXT	pMptCtx = &pAdapter->mppriv.mpt_ctx;
 	u32		ledsetting;
@@ -1031,7 +1030,7 @@ void fill_tx_desc_8192e(PADAPTER padapter)
 
 	u32 pkt_size = pattrib->last_txcmdsz;
 	s32 bmcast = IS_MCAST(pattrib->ra);
-	u8 data_rate, pwr_status, offset;
+	u8 offset;
 
 
 	SET_TX_DESC_PKT_SIZE_92E(pDesc, pkt_size);
