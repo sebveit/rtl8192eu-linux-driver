@@ -1928,7 +1928,7 @@ void rtw_hal_update_sta_wset(_adapter *adapter, struct sta_info *psta)
 	psta->cmn.support_wireless_set = w_set;
 }
 
-void rtw_hal_update_sta_mimo_type(_adapter *adapter, struct sta_info *psta)
+static void rtw_hal_update_sta_mimo_type(_adapter *adapter, struct sta_info *psta)
 {
 	s8 tx_nss, rx_nss;
 
@@ -1961,7 +1961,7 @@ void rtw_hal_update_sta_mimo_type(_adapter *adapter, struct sta_info *psta)
 			psta->cmn.mac_id, tx_nss, rx_nss);
 }
 
-void rtw_hal_update_sta_smps_cap(_adapter *adapter, struct sta_info *psta)
+static void rtw_hal_update_sta_smps_cap(_adapter *adapter, struct sta_info *psta)
 {
 	/*Spatial Multiplexing Power Save*/
 		psta->cmn.sm_ps = SM_PS_DISABLE;
@@ -1985,7 +1985,7 @@ u8 rtw_get_mgntframe_raid(_adapter *adapter, unsigned char network_type)
 	return raid;
 }
 
-void rtw_hal_update_sta_rate_mask(PADAPTER padapter, struct sta_info *psta)
+static void rtw_hal_update_sta_rate_mask(PADAPTER padapter, struct sta_info *psta)
 {
 	struct hal_spec_t *hal_spec = GET_HAL_SPEC(padapter);
 	u8 i, rf_type, tx_nss;
@@ -2143,7 +2143,6 @@ u32 rtw_sec_read_cam(_adapter *adapter, u8 addr)
 	u32 cnt = 0;
 	systime start = 0, end = 0;
 	u8 timeout = 0;
-	u8 sr = 0;
 
 	_enter_critical_mutex(mutex, NULL);
 
@@ -2152,7 +2151,6 @@ u32 rtw_sec_read_cam(_adapter *adapter, u8 addr)
 	start = rtw_get_current_time();
 	while (1) {
 		if (rtw_is_surprise_removed(adapter)) {
-			sr = 1;
 			break;
 		}
 
@@ -2185,7 +2183,6 @@ void rtw_sec_write_cam(_adapter *adapter, u8 addr, u32 wdata)
 	u32 cnt = 0;
 	systime start = 0, end = 0;
 	u8 timeout = 0;
-	u8 sr = 0;
 
 	_enter_critical_mutex(mutex, NULL);
 
@@ -2195,7 +2192,6 @@ void rtw_sec_write_cam(_adapter *adapter, u8 addr, u32 wdata)
 	start = rtw_get_current_time();
 	while (1) {
 		if (rtw_is_surprise_removed(adapter)) {
-			sr = 1;
 			break;
 		}
 
@@ -3937,7 +3933,7 @@ inline s32 rtw_hal_set_FwMediaStatusRpt_range_cmd(_adapter *adapter, bool opmode
 	return rtw_hal_set_FwMediaStatusRpt_cmd(adapter, opmode, miracast, miracast_sink, role, macid, 1, macid_end);
 }
 
-void rtw_hal_set_FwRsvdPage_cmd(PADAPTER padapter, PRSVDPAGE_LOC rsvdpageloc)
+static void rtw_hal_set_FwRsvdPage_cmd(PADAPTER padapter, PRSVDPAGE_LOC rsvdpageloc)
 {
 	u8	u1H2CRsvdPageParm[H2C_RSVDPAGE_LOC_LEN] = {0};
 	u8	ret = 0;
@@ -4067,65 +4063,6 @@ void rtw_hal_set_input_gpio(_adapter *padapter, u8 index)
 }
 
 #endif
-
-void rtw_hal_set_FwAoacRsvdPage_cmd(PADAPTER padapter, PRSVDPAGE_LOC rsvdpageloc)
-{
-#ifdef CONFIG_WOWLAN
-	u8 u1H2CAoacRsvdPageParm[H2C_AOAC_RSVDPAGE_LOC_LEN] = {0};
-
-	RTW_INFO("%s: RWC: %d ArpRsp: %d NbrAdv: %d LocNDPInfo: %d\n",
-		 __func__, rsvdpageloc->LocRemoteCtrlInfo,
-		 rsvdpageloc->LocArpRsp, rsvdpageloc->LocNbrAdv,
-		 rsvdpageloc->LocNDPInfo);
-	RTW_INFO("%s:GtkRsp: %d GtkInfo: %d ProbeReq: %d NetworkList: %d\n",
-		 __func__, rsvdpageloc->LocGTKRsp, rsvdpageloc->LocGTKInfo,
-		 rsvdpageloc->LocProbeReq, rsvdpageloc->LocNetList);
-
-	if (check_fwstate(pmlmepriv, _FW_LINKED)) {
-		SET_H2CCMD_AOAC_RSVDPAGE_LOC_REMOTE_WAKE_CTRL_INFO(u1H2CAoacRsvdPageParm, rsvdpageloc->LocRemoteCtrlInfo);
-		SET_H2CCMD_AOAC_RSVDPAGE_LOC_ARP_RSP(u1H2CAoacRsvdPageParm, rsvdpageloc->LocArpRsp);
-		SET_H2CCMD_AOAC_RSVDPAGE_LOC_NEIGHBOR_ADV(u1H2CAoacRsvdPageParm,
-							rsvdpageloc->LocNbrAdv);
-		SET_H2CCMD_AOAC_RSVDPAGE_LOC_NDP_INFO(u1H2CAoacRsvdPageParm,
-						      rsvdpageloc->LocNDPInfo);
-#ifdef CONFIG_GTK_OL
-		SET_H2CCMD_AOAC_RSVDPAGE_LOC_GTK_RSP(u1H2CAoacRsvdPageParm, rsvdpageloc->LocGTKRsp);
-		SET_H2CCMD_AOAC_RSVDPAGE_LOC_GTK_INFO(u1H2CAoacRsvdPageParm, rsvdpageloc->LocGTKInfo);
-		SET_H2CCMD_AOAC_RSVDPAGE_LOC_GTK_EXT_MEM(u1H2CAoacRsvdPageParm, rsvdpageloc->LocGTKEXTMEM);
-#endif /* CONFIG_GTK_OL */
-		ret = rtw_hal_fill_h2c_cmd(padapter,
-					   H2C_AOAC_RSVD_PAGE,
-					   H2C_AOAC_RSVDPAGE_LOC_LEN,
-					   u1H2CAoacRsvdPageParm);
-
-		RTW_INFO("AOAC Report=%d\n", rsvdpageloc->LocAOACReport);
-		_rtw_memset(&u1H2CAoacRsvdPageParm, 0, sizeof(u1H2CAoacRsvdPageParm));
-		SET_H2CCMD_AOAC_RSVDPAGE_LOC_AOAC_REPORT(u1H2CAoacRsvdPageParm,
-					 rsvdpageloc->LocAOACReport);
-		ret = rtw_hal_fill_h2c_cmd(padapter,
-				   H2C_AOAC_RSVDPAGE3,
-				   H2C_AOAC_RSVDPAGE_LOC_LEN,
-				   u1H2CAoacRsvdPageParm);
-		pwrpriv->wowlan_aoac_rpt_loc = rsvdpageloc->LocAOACReport;
-	}
-#ifdef CONFIG_PNO_SUPPORT
-	else {
-
-		if (!pwrpriv->wowlan_in_resume) {
-			RTW_INFO("NLO_INFO=%d\n", rsvdpageloc->LocPNOInfo);
-			_rtw_memset(&u1H2CAoacRsvdPageParm, 0,
-				    sizeof(u1H2CAoacRsvdPageParm));
-			SET_H2CCMD_AOAC_RSVDPAGE_LOC_NLO_INFO(u1H2CAoacRsvdPageParm,
-						      rsvdpageloc->LocPNOInfo);
-			ret = rtw_hal_fill_h2c_cmd(padapter,
-						   H2C_AOAC_RSVDPAGE3,
-						   H2C_AOAC_RSVDPAGE_LOC_LEN,
-						   u1H2CAoacRsvdPageParm);
-		}
-	}
-#endif /* CONFIG_PNO_SUPPORT */
-#endif /* CONFIG_WOWLAN */
-}
 
 #ifdef DBG_FW_DEBUG_MSG_PKT
 void rtw_hal_set_fw_dbg_msg_pkt_rsvd_page_cmd(PADAPTER padapter, PRSVDPAGE_LOC rsvdpageloc)
@@ -6815,7 +6752,7 @@ void rtw_hal_construct_NullFunctionData(
 	*pLength = pktlen;
 }
 
-void rtw_hal_construct_ProbeRsp(_adapter *padapter, u8 *pframe, u32 *pLength,
+static void rtw_hal_construct_ProbeRsp(_adapter *padapter, u8 *pframe, u32 *pLength,
 				BOOLEAN bHideSSID)
 {
 	struct rtw_ieee80211_hdr	*pwlanhdr;
@@ -9325,7 +9262,6 @@ static void _rtw_hal_set_fw_rsvd_page(_adapter *adapter, bool finished, u8 *page
 #endif /*DBG_FW_DEBUG_MSG_PKT*/
 
 #ifdef DBG_CONFIG_ERROR_DETECT
-	struct sreset_priv *psrtpriv;
 #endif /* DBG_CONFIG_ERROR_DETECT */
 
 	u8 nr_assoc_if;
@@ -9337,7 +9273,6 @@ static void _rtw_hal_set_fw_rsvd_page(_adapter *adapter, bool finished, u8 *page
 
 	pHalData = GET_HAL_DATA(adapter);
 #ifdef DBG_CONFIG_ERROR_DETECT
-	psrtpriv = &pHalData->srestpriv;
 #endif
 	pxmitpriv = &adapter->xmitpriv;
 	pwrctl = adapter_to_pwrctl(adapter);
@@ -10404,7 +10339,7 @@ s32 rtw_hal_set_wifi_btc_port_id_cmd(_adapter *adapter)
 #endif
 
 #define LPS_ACTIVE_TIMEOUT	10 /*number of times*/
-void rtw_lps_state_chk(_adapter *adapter, u8 ps_mode)
+static void rtw_lps_state_chk(_adapter *adapter, u8 ps_mode)
 {
 	if (ps_mode == PS_MODE_ACTIVE) {
 		u8 ps_ready = _FALSE;
@@ -11682,7 +11617,7 @@ bool kfree_data_is_bb_gain_empty(struct kfree_data_t *data)
 }
 
 #ifdef CONFIG_USB_RX_AGGREGATION
-void rtw_set_usb_agg_by_mode_normal(_adapter *padapter, u8 cur_wireless_mode)
+static void rtw_set_usb_agg_by_mode_normal(_adapter *padapter, u8 cur_wireless_mode)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	if (cur_wireless_mode < WIRELESS_11_24N
@@ -11750,34 +11685,7 @@ void rtw_set_usb_agg_by_mode_normal(_adapter *padapter, u8 cur_wireless_mode)
 	}
 }
 
-void rtw_set_usb_agg_by_mode_customer(_adapter *padapter, u8 cur_wireless_mode, u8 UsbDmaSize, u8 Legacy_UsbDmaSize)
-{
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-
-	if (cur_wireless_mode < WIRELESS_11_24N
-	    && cur_wireless_mode > 0) { /* ABG mode */
-		if (Legacy_UsbDmaSize != pHalData->rxagg_usb_size
-		    || 0x10 != pHalData->rxagg_usb_timeout) {
-			pHalData->rxagg_usb_size = Legacy_UsbDmaSize;
-			pHalData->rxagg_usb_timeout = 0x10;
-			rtw_write16(padapter, REG_RXDMA_AGG_PG_TH,
-				pHalData->rxagg_usb_size | (pHalData->rxagg_usb_timeout << 8));
-		}
-	} else if (cur_wireless_mode >= WIRELESS_11_24N
-		   && cur_wireless_mode <= WIRELESS_MODE_MAX) { /* N AC mode */
-		if (UsbDmaSize != pHalData->rxagg_usb_size
-		    || 0x20 != pHalData->rxagg_usb_timeout) {
-			pHalData->rxagg_usb_size = UsbDmaSize;
-			pHalData->rxagg_usb_timeout = 0x20;
-			rtw_write16(padapter, REG_RXDMA_AGG_PG_TH,
-				pHalData->rxagg_usb_size | (pHalData->rxagg_usb_timeout << 8));
-		}
-	} else {
-		/* RTW_INFO("%s: Unknown wireless mode(0x%x)\n",__func__,padapter->mlmeextpriv.cur_wireless_mode); */
-	}
-}
-
-void rtw_set_usb_agg_by_mode(_adapter *padapter, u8 cur_wireless_mode)
+static void rtw_set_usb_agg_by_mode(_adapter *padapter, u8 cur_wireless_mode)
 {
 #ifdef CONFIG_PLATFORM_NOVATEK_NT72668
 	rtw_set_usb_agg_by_mode_customer(padapter, cur_wireless_mode, 0x3, 0x3);
@@ -12930,7 +12838,7 @@ void rtw_dump_phy_cap_by_phydmapi(void *sel, _adapter *adapter)
 	#endif
 }
 #else
-void rtw_dump_phy_cap_by_hal(void *sel, _adapter *adapter)
+static void rtw_dump_phy_cap_by_hal(void *sel, _adapter *adapter)
 {
 	u8 phy_cap = _FALSE;
 

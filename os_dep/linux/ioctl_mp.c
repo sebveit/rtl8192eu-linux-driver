@@ -1536,10 +1536,8 @@ static int __rtw_mp_dump(struct net_device *dev,
 		struct iw_request_info *info,
 		struct iw_point *wrqu, char *extra, u8 *input)
 {
-	struct mp_priv *pmp_priv;
 	PADAPTER padapter = rtw_netdev_priv(dev);
 
-	pmp_priv = &padapter->mppriv;
 
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
@@ -1695,8 +1693,6 @@ static int __rtw_mp_switch_rf_path(struct net_device *dev,
 		struct iw_request_info *info,
 		struct iw_point *wrqu, char *extra, char *input)
 {
-	PADAPTER padapter = rtw_netdev_priv(dev);
-	struct mp_priv *pmp_priv;
 	int		bwlg = 1, bwla = 1, btg = 1, bbt=1;
 	u8 ret = 0;
 
@@ -1708,7 +1704,6 @@ static int __rtw_mp_switch_rf_path(struct net_device *dev,
 		return -EFAULT;
 
 	input[wrqu->length] = '\0';  /* Ensure null termination */
-	pmp_priv = &padapter->mppriv;
 
 	RTW_INFO("%s: in=%s\n", __func__, input);
 
@@ -1858,10 +1853,7 @@ int rtw_mp_getver(struct net_device *dev,
 		  struct iw_request_info *info,
 		  union iwreq_data *wrqu, char *extra)
 {
-	PADAPTER padapter = rtw_netdev_priv(dev);
-	struct mp_priv *pmp_priv;
 
-	pmp_priv = &padapter->mppriv;
 
 	if (copy_from_user(extra, wrqu->data.pointer, wrqu->data.length))
 		return -EFAULT;
@@ -1880,10 +1872,8 @@ int rtw_mp_mon(struct net_device *dev,
 	struct mp_priv *pmp_priv = &padapter->mppriv;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct hal_ops *pHalFunc = &padapter->hal_func;
-	NDIS_802_11_NETWORK_INFRASTRUCTURE networkType;
 	int bstart = 1, bstop = 1;
 
-	networkType = Ndis802_11Infrastructure;
 	if (copy_from_user(extra, wrqu->data.pointer, wrqu->data.length))
 		return -EFAULT;
 

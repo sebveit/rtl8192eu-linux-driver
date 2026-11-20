@@ -209,7 +209,7 @@ void odm_release_timer(struct dm_struct *dm, struct phydm_timer_list *timer)
 
 }
 
-u8 phydm_trans_h2c_id(struct dm_struct *dm, u8 phydm_h2c_id)
+static u8 phydm_trans_h2c_id(struct dm_struct *dm, u8 phydm_h2c_id)
 {
 	u8 platform_h2c_id = phydm_h2c_id;
 

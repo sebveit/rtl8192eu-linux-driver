@@ -376,19 +376,9 @@ u8 rtw_btcoex_IsBtLinkExist(PADAPTER padapter)
 	return hal_btcoex_IsBtLinkExist(padapter);
 }
 
-void rtw_btcoex_SetBtPatchVersion(PADAPTER padapter, u16 btHciVer, u16 btPatchVer)
-{
-	hal_btcoex_SetBtPatchVersion(padapter, btHciVer, btPatchVer);
-}
-
 void rtw_btcoex_SetHciVersion(PADAPTER  padapter, u16 hciVersion)
 {
 	hal_btcoex_SetHciVersion(padapter, hciVersion);
-}
-
-void rtw_btcoex_StackUpdateProfileInfo(void)
-{
-	hal_btcoex_StackUpdateProfileInfo();
 }
 
 void rtw_btcoex_pta_off_on_notify(PADAPTER padapter, u8 bBTON)

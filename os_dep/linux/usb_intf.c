@@ -260,7 +260,6 @@ static struct dvobj_priv *usb_dvobj_init(struct usb_interface *usb_intf, const s
 	int	i;
 	int	status = _FAIL;
 	struct dvobj_priv *pdvobjpriv;
-	struct usb_device_descriptor	*pdev_desc;
 	struct usb_host_config			*phost_conf;
 	struct usb_config_descriptor		*pconf_desc;
 	struct usb_host_interface		*phost_iface;
@@ -286,7 +285,6 @@ static struct dvobj_priv *usb_dvobj_init(struct usb_interface *usb_intf, const s
 	/* padapter->EepromAddressSize = 6; */
 	/* pdvobjpriv->nr_endpoint = 6; */
 
-	pdev_desc = &pusbd->descriptor;
 
 
 	phost_conf = pusbd->actconfig;
@@ -895,7 +893,7 @@ extern void rtd2885_wlan_netlink_sendMsg(char *action_string, char *name);
 
 _adapter  *rtw_sw_export = NULL;
 
-_adapter *rtw_usb_primary_adapter_init(struct dvobj_priv *dvobj,
+static _adapter *rtw_usb_primary_adapter_init(struct dvobj_priv *dvobj,
 	struct usb_interface *pusb_intf)
 {
 	_adapter *padapter = NULL;

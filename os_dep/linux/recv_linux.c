@@ -258,9 +258,7 @@ _pkt *rtw_os_alloc_msdu_pkt(union recv_frame *prframe, const u8 *da, const u8 *s
 	u16	eth_type;
 	u8	*data_ptr;
 	_pkt *sub_skb;
-	struct rx_pkt_attrib *pattrib;
 
-	pattrib = &prframe->u.hdr.attrib;
 
 #ifdef CONFIG_SKB_COPY
 	sub_skb = rtw_skb_alloc(msdu_len + 14);
@@ -603,12 +601,10 @@ int rtw_recv_monitor(_adapter *padapter, union recv_frame *precv_frame)
 	struct recv_priv *precvpriv;
 	_queue	*pfree_recv_queue;
 	_pkt *skb;
-	struct rx_pkt_attrib *pattrib;
 
 	if (NULL == precv_frame)
 		goto _recv_drop;
 
-	pattrib = &precv_frame->u.hdr.attrib;
 	precvpriv = &(padapter->recvpriv);
 	pfree_recv_queue = &(precvpriv->free_recv_queue);
 

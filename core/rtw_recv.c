@@ -865,7 +865,7 @@ sint recv_decache(union recv_frame *precv_frame)
 	return _SUCCESS;
 }
 
-void process_pwrbit_data(_adapter *padapter, union recv_frame *precv_frame, struct sta_info *psta)
+static void process_pwrbit_data(_adapter *padapter, union recv_frame *precv_frame, struct sta_info *psta)
 {
 #ifdef CONFIG_AP_MODE
 	unsigned char pwrbit;
@@ -893,7 +893,7 @@ void process_pwrbit_data(_adapter *padapter, union recv_frame *precv_frame, stru
 #endif
 }
 
-void process_wmmps_data(_adapter *padapter, union recv_frame *precv_frame, struct sta_info *psta)
+static void process_wmmps_data(_adapter *padapter, union recv_frame *precv_frame, struct sta_info *psta)
 {
 #ifdef CONFIG_AP_MODE
 	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
@@ -1126,7 +1126,7 @@ void count_rx_stats(_adapter *padapter, union recv_frame *prframe, struct sta_in
 
 }
 
-sint sta2sta_data_frame(
+static sint sta2sta_data_frame(
 	_adapter *adapter,
 	union recv_frame *precv_frame,
 	struct sta_info **psta
@@ -1305,7 +1305,7 @@ exit:
 
 }
 
-sint ap2sta_data_frame(
+static sint ap2sta_data_frame(
 	_adapter *adapter,
 	union recv_frame *precv_frame,
 	struct sta_info **psta)
@@ -1445,7 +1445,7 @@ exit:
 
 }
 
-sint sta2ap_data_frame(
+static sint sta2ap_data_frame(
 	_adapter *adapter,
 	union recv_frame *precv_frame,
 	struct sta_info **psta)
@@ -1895,7 +1895,7 @@ fail:
 
 union recv_frame *recvframe_chk_defrag(PADAPTER padapter, union recv_frame *precv_frame);
 
-sint validate_recv_mgnt_frame(PADAPTER padapter, union recv_frame *precv_frame)
+static sint validate_recv_mgnt_frame(PADAPTER padapter, union recv_frame *precv_frame)
 {
 	struct sta_info *psta = precv_frame->u.hdr.psta
 		= rtw_get_stainfo(&padapter->stapriv, get_addr2_ptr(precv_frame->u.hdr.rx_data));
@@ -1986,7 +1986,7 @@ exit:
 
 }
 
-sint validate_recv_data_frame(_adapter *adapter, union recv_frame *precv_frame)
+static sint validate_recv_data_frame(_adapter *adapter, union recv_frame *precv_frame)
 {
 	u8 bretry, a4_shift;
 	struct sta_info *psta = NULL;
@@ -2286,7 +2286,7 @@ exit:
 
 
 /* remove the wlanhdr and add the eth_hdr */
-sint wlanhdr_to_ethhdr(union recv_frame *precvframe)
+static sint wlanhdr_to_ethhdr(union recv_frame *precvframe)
 {
 	sint	rmv_len;
 	u16	eth_type, len;
@@ -2643,7 +2643,7 @@ static void recv_free_fwd_resource(_adapter *adapter, struct xmit_frame *fwd_fra
 }
 
 
-int amsdu_to_msdu(_adapter *padapter, union recv_frame *prframe)
+static int amsdu_to_msdu(_adapter *padapter, union recv_frame *prframe)
 {
 	struct rx_pkt_attrib *rattrib = &prframe->u.hdr.attrib;
 	int	a_len, padding_len;
@@ -3194,7 +3194,7 @@ static void recv_set_iseq_after_mpdu_process(union recv_frame *rframe, u16 seq_n
 }
 
 #ifdef CONFIG_MP_INCLUDED
-int validate_mp_recv_frame(_adapter *adapter, union recv_frame *precv_frame)
+static int validate_mp_recv_frame(_adapter *adapter, union recv_frame *precv_frame)
 {
 	int ret = _SUCCESS;
 	u8 *ptr = precv_frame->u.hdr.rx_data;
@@ -3312,7 +3312,7 @@ static sint MPwlanhdr_to_ethhdr(union recv_frame *precvframe)
 }
 
 
-int mp_recv_frame(_adapter *padapter, union recv_frame *rframe)
+static int mp_recv_frame(_adapter *padapter, union recv_frame *rframe)
 {
 	int ret = _SUCCESS;
 	struct rx_pkt_attrib *pattrib = &rframe->u.hdr.attrib;
@@ -3705,7 +3705,7 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 	return ret;
 
 }
-int recv_frame_monitor(_adapter *padapter, union recv_frame *rframe)
+static int recv_frame_monitor(_adapter *padapter, union recv_frame *rframe)
 {
 	int ret = _SUCCESS;
 	_queue *pfree_recv_queue = &padapter->recvpriv.free_recv_queue;
@@ -3750,7 +3750,7 @@ exit:
 	return ret;
 }
 #endif
-int recv_func_prehandle(_adapter *padapter, union recv_frame *rframe)
+static int recv_func_prehandle(_adapter *padapter, union recv_frame *rframe)
 {
 	int ret = _SUCCESS;
 #ifdef DBG_RX_COUNTER_DUMP
@@ -3787,7 +3787,7 @@ exit:
 }
 
 /*#define DBG_RX_BMC_FRAME*/
-int recv_func_posthandle(_adapter *padapter, union recv_frame *prframe)
+static int recv_func_posthandle(_adapter *padapter, union recv_frame *prframe)
 {
 	int ret = _SUCCESS;
 	union recv_frame *orig_prframe = prframe;
@@ -3878,7 +3878,7 @@ _recv_data_drop:
 	return ret;
 }
 
-int recv_func(_adapter *padapter, union recv_frame *rframe)
+static int recv_func(_adapter *padapter, union recv_frame *rframe)
 {
 	int ret;
 	struct rx_pkt_attrib *prxattrib = &rframe->u.hdr.attrib;
@@ -4197,7 +4197,7 @@ static void rx_process_link_qual(_adapter *padapter, union recv_frame *prframe)
 #endif /* CONFIG_NEW_SIGNAL_STAT_PROCESS */
 }
 
-void rx_process_phy_info(_adapter *padapter, union recv_frame *rframe)
+static void rx_process_phy_info(_adapter *padapter, union recv_frame *rframe)
 {
 	/* Check RSSI */
 	rx_process_rssi(padapter, rframe);

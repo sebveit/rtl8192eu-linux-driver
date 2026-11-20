@@ -406,4 +406,7 @@ extern struct net_device *rtw_alloc_etherdev(int sizeof_priv);
 #define STRUCT_PACKED __attribute__ ((packed))
 
 
+int rtw_copy_user_input(char *dst, size_t dst_size, const char __user *src,
+			size_t count);
+
 #endif

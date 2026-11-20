@@ -1554,6 +1554,7 @@ RETURN:
 	return;
 }
 
+
 int rtw_change_ifname(_adapter *padapter, const char *ifname)
 {
 	struct dvobj_priv *dvobj;
@@ -1618,7 +1619,6 @@ error:
 
 }
 
-
 #ifdef CONFIG_PLATFORM_SPRD
 	#ifdef do_div
 		#undef do_div
@@ -1648,12 +1648,10 @@ inline u32 rtw_random32(void)
 
 void rtw_buf_free(u8 **buf, u32 *buf_len)
 {
-	u32 ori_len;
 
 	if (!buf || !buf_len)
 		return;
 
-	ori_len = *buf_len;
 
 	if (*buf) {
 		u32 tmp_buf_len = *buf_len;
@@ -2166,3 +2164,28 @@ int hexstr2bin(const char *hex, u8 *buf, size_t len)
 	return 0;
 }
 
+
+/*
+ * Copy user input of a procfs/debugfs write handler into a fixed-size,
+ * NUL-terminated buffer. Copies at most dst_size - 1 bytes and never more
+ * than the user supplied. Returns 0 on success, non-zero on failure (like
+ * copy_from_user()).
+ */
+int rtw_copy_user_input(char *dst, size_t dst_size, const char __user *src,
+			size_t count)
+{
+	size_t len;
+
+	if (!dst_size)
+		return -EINVAL;
+	dst[0] = '\0';
+	if (!src)
+		return -EFAULT;
+
+	len = min(count, dst_size - 1);
+	if (copy_from_user(dst, src, len))
+		return -EFAULT;
+	dst[len] = '\0';
+
+	return 0;
+}

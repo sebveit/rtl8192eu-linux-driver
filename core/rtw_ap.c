@@ -857,7 +857,7 @@ _exit:
 }
 #endif
 
-void rtw_init_bmc_sta_tx_rate(_adapter *padapter, struct sta_info *psta)
+static void rtw_init_bmc_sta_tx_rate(_adapter *padapter, struct sta_info *psta)
 {
 #ifdef CONFIG_BMC_TX_LOW_RATE
 	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
@@ -2630,93 +2630,6 @@ int rtw_ap_set_wep_key(_adapter *padapter, u8 *key, u8 keylen, int keyid, u8 set
 	return rtw_ap_set_key(padapter, key, alg, keyid, set_tx);
 }
 
-u8 rtw_ap_bmc_frames_hdl(_adapter *padapter)
-{
-#define HIQ_XMIT_COUNTS (6)
-	_irqL irqL;
-	struct sta_info *psta_bmc;
-	_list	*xmitframe_plist, *xmitframe_phead;
-	struct xmit_frame *pxmitframe = NULL;
-	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
-	struct sta_priv  *pstapriv = &padapter->stapriv;
-	bool update_tim = _FALSE;
-
-
-	if (padapter->registrypriv.wifi_spec != 1)
-		return H2C_SUCCESS;
-
-
-	psta_bmc = rtw_get_bcmc_stainfo(padapter);
-	if (!psta_bmc)
-		return H2C_SUCCESS;
-
-
-	_enter_critical_bh(&pxmitpriv->lock, &irqL);
-
-	if ((rtw_tim_map_is_set(padapter, pstapriv->tim_bitmap, 0)) && (psta_bmc->sleepq_len > 0)) {
-		int tx_counts = 0;
-
-		_update_beacon(padapter, _TIM_IE_, NULL, _FALSE, "update TIM with TIB=1");
-
-		RTW_INFO("sleepq_len of bmc_sta = %d\n", psta_bmc->sleepq_len);
-
-		xmitframe_phead = get_list_head(&psta_bmc->sleep_q);
-		xmitframe_plist = get_next(xmitframe_phead);
-
-		while ((rtw_end_of_queue_search(xmitframe_phead, xmitframe_plist)) == _FALSE) {
-			pxmitframe = LIST_CONTAINOR(xmitframe_plist, struct xmit_frame, list);
-
-			xmitframe_plist = get_next(xmitframe_plist);
-
-			rtw_list_delete(&pxmitframe->list);
-
-			psta_bmc->sleepq_len--;
-			tx_counts++;
-
-			if (psta_bmc->sleepq_len > 0)
-				pxmitframe->attrib.mdata = 1;
-			else
-				pxmitframe->attrib.mdata = 0;
-
-			if (tx_counts == HIQ_XMIT_COUNTS)
-				pxmitframe->attrib.mdata = 0;
-
-			pxmitframe->attrib.triggered = 1;
-
-			if (xmitframe_hiq_filter(pxmitframe) == _TRUE)
-				pxmitframe->attrib.qsel = QSLT_HIGH;/*HIQ*/
-
-			rtw_hal_xmitframe_enqueue(padapter, pxmitframe);
-
-			if (tx_counts == HIQ_XMIT_COUNTS)
-				break;
-
-		}
-
-	} else {
-		if (psta_bmc->sleepq_len == 0) {
-
-			/*RTW_INFO("sleepq_len of bmc_sta = %d\n", psta_bmc->sleepq_len);*/
-
-			if (rtw_tim_map_is_set(padapter, pstapriv->tim_bitmap, 0))
-				update_tim = _TRUE;
-
-			rtw_tim_map_clear(padapter, pstapriv->tim_bitmap, 0);
-			rtw_tim_map_clear(padapter, pstapriv->sta_dz_bitmap, 0);
-
-			if (update_tim == _TRUE) {
-				RTW_INFO("clear TIB\n");
-				_update_beacon(padapter, _TIM_IE_, NULL, _TRUE, "bmc sleepq and HIQ empty");
-			}
-		}
-	}
-
-	_exit_critical_bh(&pxmitpriv->lock, &irqL);
-
-
-	return H2C_SUCCESS;
-}
-
 #ifdef CONFIG_NATIVEAP_MLME
 
 static void associated_stainfo_update(_adapter *padapter, struct sta_info *psta, u32 sta_info_type)
@@ -3094,15 +3007,12 @@ void rtw_process_public_act_bsscoex(_adapter *padapter, u8 *pframe, uint frame_l
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	u8 *frame_body = pframe + sizeof(struct rtw_ieee80211_hdr_3addr);
 	uint frame_body_len = frame_len - sizeof(struct rtw_ieee80211_hdr_3addr);
-	u8 category, action;
 
 	psta = rtw_get_stainfo(pstapriv, get_addr2_ptr(pframe));
 	if (psta == NULL)
 		return;
 
 
-	category = frame_body[0];
-	action = frame_body[1];
 
 	if (frame_body_len > 0) {
 		if ((frame_body[2] == EID_BSSCoexistence) && (frame_body[3] > 0)) {
@@ -3867,7 +3777,7 @@ void start_ap_mode(_adapter *padapter)
 
 }
 
-void rtw_ap_bcmc_sta_flush(_adapter *padapter)
+static void rtw_ap_bcmc_sta_flush(_adapter *padapter)
 {
 #ifdef CONFIG_CONCURRENT_MODE
 	int cam_id = -1;

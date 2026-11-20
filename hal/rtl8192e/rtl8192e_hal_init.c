@@ -22,28 +22,6 @@
  * LLT R/W/Init function
  *
  * ------------------------------------------------------------------------- */
-u8 _LLTRead(PADAPTER padapter, u32 address)
-{
-	s32	count = POLLING_LLT_THRESHOLD;
-	u32	value = _LLT_INIT_ADDR(address) | _LLT_OP(_LLT_READ_ACCESS);
-	u16	LLTReg = REG_LLT_INIT;
-
-
-	rtw_write32(padapter, LLTReg, value);
-
-	/* polling and get value */
-	do {
-		value = rtw_read32(padapter, LLTReg);
-		if (_LLT_NO_ACTIVE == _LLT_OP_VALUE(value))
-			return (u8)value;
-	} while (--count);
-
-
-
-
-	return 0xFF;
-}
-
 s32 InitLLTTable8192E(PADAPTER padapter, u8 txpktbuf_bndy)
 {
 	s32	status = _FAIL;
@@ -1091,7 +1069,6 @@ Hal_EfuseReadEFuse8192E(
 	u8	offset, wren;
 	u16	i, j;
 	u16	**eFuseWord = NULL;
-	u16	efuse_utilized = 0;
 	u8	efuse_usage = 0;
 	u8	u1temp = 0;
 
@@ -1127,7 +1104,6 @@ Hal_EfuseReadEFuse8192E(
 	/*  */
 	ReadEFuseByte(Adapter, eFuse_Addr, rtemp8, bPseudoTest);
 	if (*rtemp8 != 0xFF) {
-		efuse_utilized++;
 		/* RTW_INFO("efuse_Addr-%d efuse_data=%x\n", eFuse_Addr, *rtemp8); */
 		eFuse_Addr++;
 	} else {
@@ -1186,7 +1162,6 @@ Hal_EfuseReadEFuse8192E(
 					ReadEFuseByte(Adapter, eFuse_Addr, rtemp8, bPseudoTest);
 					eFuse_Addr++;
 					/* RTPRINT(FEEPROM, EFUSE_READ_ALL, ("Data=0x%x\n", *rtemp8)); 				 */
-					efuse_utilized++;
 					eFuseWord[offset][i] = (*rtemp8 & 0xff);
 
 
@@ -1198,7 +1173,6 @@ Hal_EfuseReadEFuse8192E(
 					eFuse_Addr++;
 					/* RTPRINT(FEEPROM, EFUSE_READ_ALL, ("Data=0x%x\n", *rtemp8)); 				 */
 
-					efuse_utilized++;
 					eFuseWord[offset][i] |= (((u2Byte)*rtemp8 << 8) & 0xff00);
 
 					if (eFuse_Addr >= EFUSE_REAL_CONTENT_LEN_8192E)
@@ -1214,11 +1188,9 @@ Hal_EfuseReadEFuse8192E(
 				/* Check word enable condition in the section				 */
 				if (!(wren & 0x01)) {
 					eFuse_Addr++;
-					efuse_utilized++;
 					if (eFuse_Addr >= EFUSE_REAL_CONTENT_LEN_8192E)
 						break;
 					eFuse_Addr++;
-					efuse_utilized++;
 					if (eFuse_Addr >= EFUSE_REAL_CONTENT_LEN_8192E)
 						break;
 				}
@@ -1229,7 +1201,6 @@ Hal_EfuseReadEFuse8192E(
 		/* RTPRINT(FEEPROM, EFUSE_READ_ALL, ("Addr=%d rtemp 0x%x\n", eFuse_Addr, *rtemp8)); */
 
 		if (*rtemp8 != 0xFF && (eFuse_Addr < EFUSE_REAL_CONTENT_LEN_8192E)) {
-			efuse_utilized++;
 			eFuse_Addr++;
 		}
 	}
@@ -1279,7 +1250,7 @@ rtl8192E_ReadEFuse(
 }
 
 /* Do not support BT */
-VOID
+static VOID
 Hal_EFUSEGetEfuseDefinition8192E(
 	IN		PADAPTER	pAdapter,
 	IN		u1Byte		efuseType,
@@ -1361,7 +1332,7 @@ Hal_EFUSEGetEfuseDefinition8192E(
 	break;
 	}
 }
-VOID
+static VOID
 Hal_EFUSEGetEfuseDefinition_Pseudo8192E(
 	IN		PADAPTER	pAdapter,
 	IN		u8			efuseType,
@@ -1717,7 +1688,7 @@ rtl8192E_Efuse_PgPacketRead(IN	PADAPTER	pAdapter,
 	return ret;
 }
 
-BOOLEAN efuse_PgPacketCheck(
+static BOOLEAN efuse_PgPacketCheck(
 	PADAPTER	pAdapter,
 	u8		efuseType,
 	BOOLEAN		bPseudoTest
@@ -1733,7 +1704,7 @@ BOOLEAN efuse_PgPacketCheck(
 }
 
 
-VOID
+static VOID
 efuse_PgPacketConstruct(
 	IN	    u8			offset,
 	IN	    u8			word_en,
@@ -1750,7 +1721,7 @@ efuse_PgPacketConstruct(
 	RTW_INFO("efuse_PgPacketConstruct(), targetPkt, offset=%d, word_en=0x%x, word_cnts=%d\n", pTargetPkt->offset, pTargetPkt->word_en, pTargetPkt->word_cnts);
 }
 
-u2Byte Hal_EfusePgPacketExceptionHandle_8192E(
+static u2Byte Hal_EfusePgPacketExceptionHandle_8192E(
 		PADAPTER	pAdapter,
 		u2Byte		ErrOffset
 		)
@@ -1821,7 +1792,7 @@ u2Byte Hal_EfusePgPacketExceptionHandle_8192E(
 	return ErrOffset;
 }
 
-BOOLEAN hal_EfuseCheckIfDatafollowed(
+static BOOLEAN hal_EfuseCheckIfDatafollowed(
 	IN		PADAPTER		pAdapter,
 	IN		u8			word_cnts,
 	IN		u16			startAddr,
@@ -1840,7 +1811,7 @@ BOOLEAN hal_EfuseCheckIfDatafollowed(
 }
 
 
-BOOLEAN
+static BOOLEAN
 hal_EfuseWordEnMatched(
 	IN	PPGPKT_STRUCT	pTargetPkt,
 	IN	PPGPKT_STRUCT	pCurPkt,
@@ -1876,7 +1847,7 @@ hal_EfuseWordEnMatched(
 }
 
 
-BOOLEAN
+static BOOLEAN
 efuse_PgPacketPartialWrite(
 	IN	    PADAPTER		pAdapter,
 	IN	    u8			efuseType,
@@ -2032,7 +2003,7 @@ efuse_PgPacketPartialWrite(
 }
 
 
-BOOLEAN
+static BOOLEAN
 hal_EfuseFixHeaderProcess(
 	IN		PADAPTER			pAdapter,
 	IN		u8				efuseType,
@@ -2220,7 +2191,7 @@ hal_EfusePgPacketWrite1ByteHeader(
 	return _TRUE;
 }
 
-BOOLEAN	efuse_PgPacketWriteHeader(
+static BOOLEAN	efuse_PgPacketWriteHeader(
 	PADAPTER		pAdapter,
 	u8			efuseType,
 	u16			*pAddr,
@@ -2262,7 +2233,7 @@ hal_EfusePgPacketWriteData(
 }
 
 
-int
+static int
 hal_EfusePgPacketWrite_8192E(IN	PADAPTER	pAdapter,
 			u8			offset,
 			u8			word_en,
@@ -2977,7 +2948,7 @@ VOID _InitRetryFunction_8192E(IN  PADAPTER Adapter)
 	/* rtw_write8(Adapter, REG_ACKTO, 0x80); */
 }
 
-VOID
+static VOID
 _BeaconFunctionEnable(
 	IN	PADAPTER		Adapter,
 	IN	BOOLEAN			Enable,
@@ -3570,7 +3541,7 @@ struct bcn_qinfo_92e {
 	u16 pkt_num:8;
 };
 
-void dump_qinfo_92e(void *sel, struct qinfo_92e *info, const char *tag)
+static void dump_qinfo_92e(void *sel, struct qinfo_92e *info, const char *tag)
 {
 	/* if (info->pkt_num) */
 	RTW_PRINT_SEL(sel, "%shead:0x%02x, tail:0x%02x, pkt_num:%u, macid:%u, ac:%u\n"
@@ -3578,7 +3549,7 @@ void dump_qinfo_92e(void *sel, struct qinfo_92e *info, const char *tag)
 		     );
 }
 
-void dump_bcn_qinfo_92e(void *sel, struct bcn_qinfo_92e *info, const char *tag)
+static void dump_bcn_qinfo_92e(void *sel, struct bcn_qinfo_92e *info, const char *tag)
 {
 	/* if (info->pkt_num) */
 	RTW_PRINT_SEL(sel, "%shead:0x%02x, pkt_num:%u\n"
@@ -3586,7 +3557,7 @@ void dump_bcn_qinfo_92e(void *sel, struct bcn_qinfo_92e *info, const char *tag)
 		     );
 }
 
-void dump_mac_qinfo_92e(void *sel, _adapter *adapter)
+static void dump_mac_qinfo_92e(void *sel, _adapter *adapter)
 {
 	u32 q0_info;
 	u32 q1_info;
@@ -3647,7 +3618,7 @@ static void dump_mac_txfifo_92e(void *sel, _adapter *adapter)
 			, hpq, lpq, npq, epq, pubq);
 }
 
-void rtl8192e_read_wmmedca_reg(PADAPTER adapter, u16 *vo_params, u16 *vi_params, u16 *be_params, u16 *bk_params)
+static void rtl8192e_read_wmmedca_reg(PADAPTER adapter, u16 *vo_params, u16 *vi_params, u16 *be_params, u16 *bk_params)
 {
 	u8 vo_reg_params[4];
 	u8 vi_reg_params[4];
@@ -3788,7 +3759,7 @@ SetHalDefVar8192E(
 
 	return bResult;
 }
-void hal_ra_info_dump(_adapter *padapter , void *sel)
+static void hal_ra_info_dump(_adapter *padapter , void *sel)
 {
 	int i;
 	u8 mac_id;
@@ -3970,17 +3941,6 @@ void rtl8192e_start_thread(_adapter *padapter)
 void rtl8192e_stop_thread(_adapter *padapter)
 {
 }
-void hal_notch_filter_8192E(_adapter *adapter, bool enable)
-{
-	if (enable) {
-		RTW_INFO("Enable notch filter\n");
-		/* rtw_write8(adapter, rOFDM0_RxDSP+1, rtw_read8(adapter, rOFDM0_RxDSP+1) | BIT1); */
-	} else {
-		RTW_INFO("Disable notch filter\n");
-		/* rtw_write8(adapter, rOFDM0_RxDSP+1, rtw_read8(adapter, rOFDM0_RxDSP+1) & ~BIT1); */
-	}
-}
-
 
 static void read_chip_version_8192e(PADAPTER Adapter)
 {
@@ -3993,7 +3953,7 @@ static void read_chip_version_8192e(PADAPTER Adapter)
 	RTW_INFO("%s 0xF0 = 0x%x\n", __FUNCTION__, value32);
 
 	pHalData->version_id.ICType = CHIP_8192E;
-	pHalData->version_id.RFType = (value32 & RF_TYPE_ID) ? RF_2T2R : RF_1T1R;
+	pHalData->version_id.RFType = (value32 & RF_TYPE_ID) ? RF_TYPE_2T2R : RF_TYPE_1T1R;
 	pHalData->version_id.ChipType = ((value32 & RTL_ID) ? TEST_CHIP : NORMAL_CHIP);
 
 	tmpvdr = (value32 & EXT_VENDOR_ID) >> EXT_VENDOR_ID_SHIFT;

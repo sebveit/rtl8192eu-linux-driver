@@ -591,7 +591,7 @@ void usb_write_port_cancel(struct intf_hdl *pintfhdl)
 	}
 }
 
-void usb_init_recvbuf(_adapter *padapter, struct recv_buf *precvbuf)
+static void usb_init_recvbuf(_adapter *padapter, struct recv_buf *precvbuf)
 {
 
 	precvbuf->transfer_len = 0;
@@ -630,7 +630,7 @@ void usb_recv_tasklet(struct tasklet_struct *t)
 	}
 }
 
-void usb_read_port_complete(struct urb *purb)
+static void usb_read_port_complete(struct urb *purb)
 {
 	struct recv_buf	*precvbuf = (struct recv_buf *)purb->context;
 	_adapter			*padapter = (_adapter *)precvbuf->adapter;

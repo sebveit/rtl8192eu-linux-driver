@@ -85,7 +85,7 @@ static BOOLEAN HalUsbSetQueuePipeMapping8192EUsb(
 
 }
 
-void rtl8192eu_interface_configure(_adapter *padapter)
+static void rtl8192eu_interface_configure(_adapter *padapter)
 {
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(padapter);
 	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(padapter);
@@ -427,13 +427,6 @@ _init_UsbAggregationSetting_8192EU(
  *	12/10/2010	MHC		Create Version 0.
  *
  *---------------------------------------------------------------------------*/
-VOID
-USB_AggModeSwitch(
-	IN	PADAPTER			Adapter
-)
-{
-}	/* USB_AggModeSwitch */
-
 enum {
 	Antenna_Lfet = 1,
 	Antenna_Right = 2,
@@ -458,36 +451,14 @@ rt_rf_power_state RfOnOffDetect(IN	PADAPTER pAdapter)
 	return rfpowerstate;
 }	/* HalDetectPwrDownMode */
 
-void _ps_open_RF(_adapter *padapter)
+static void _ps_open_RF(_adapter *padapter)
 {
 	/* here call with bRegSSPwrLvl 1, bRegSSPwrLvl 2 needs to be verified */
 	/* phy_SsPwrSwitch92CU(padapter, rf_on, 1); */
 }
 
-void _ps_close_RF(_adapter *padapter)
-{
-	/* here call with bRegSSPwrLvl 1, bRegSSPwrLvl 2 needs to be verified */
-	/* phy_SsPwrSwitch92CU(padapter, rf_off, 1); */
-}
 /* page added for usb2 phy reg access. 20120514 */
-VOID WriteUSB2PHYReg_8192EU(PADAPTER Adapter, u8 Offset, u8 Value)
-{
-	Offset -= 0x20;
-	rtw_write8(Adapter, 0xFE41, Value);
-	rtw_write8(Adapter, 0xFE40, Offset);
-	rtw_write8(Adapter, 0xFE42, 0x81);
-}
-
-u1Byte ReadUSB2PHYReg_8192EU(PADAPTER Adapter, u8 Offset)
-{
-	u8 value;
-	rtw_write8(Adapter, 0xFE40, Offset);
-	rtw_write8(Adapter, 0xFE42, 0x81);
-	value = rtw_read8(Adapter, 0xFE43);
-
-	return value;
-}
-u32 rtl8192eu_hal_init(PADAPTER Adapter)
+static u32 rtl8192eu_hal_init(PADAPTER Adapter)
 {
 	u8	value8 = 0;
 	u8	txpktbuf_bndy;
@@ -938,7 +909,7 @@ exit:
 	return status;
 }
 
-VOID
+static VOID
 hal_poweroff_8192eu(
 	IN	PADAPTER			Adapter
 )
@@ -995,7 +966,7 @@ static void rtl8192e_hw_power_down(_adapter *padapter)
 	rtw_write16(padapter, REG_APS_FSMCO, 0x8812);
 }
 
-u32 rtl8192eu_hal_deinit(PADAPTER Adapter)
+static u32 rtl8192eu_hal_deinit(PADAPTER Adapter)
 {
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(Adapter);
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
@@ -1037,7 +1008,7 @@ u32 rtl8192eu_hal_deinit(PADAPTER Adapter)
 }
 
 
-unsigned int rtl8192eu_inirp_init(PADAPTER Adapter)
+static unsigned int rtl8192eu_inirp_init(PADAPTER Adapter)
 {
 	u8 i;
 	struct recv_buf *precvbuf;
@@ -1090,7 +1061,7 @@ exit:
 
 }
 
-unsigned int rtl8192eu_inirp_deinit(PADAPTER Adapter)
+static unsigned int rtl8192eu_inirp_deinit(PADAPTER Adapter)
 {
 
 	rtw_read_port_cancel(Adapter);
@@ -1104,7 +1075,7 @@ unsigned int rtl8192eu_inirp_deinit(PADAPTER Adapter)
  *	EEPROM/EFUSE Content Parsing
  *
  * ------------------------------------------------------------------- */
-VOID
+static VOID
 hal_ReadIDs_8192EU(
 	IN	PADAPTER	Adapter,
 	IN	pu1Byte		PROMContent,
@@ -1146,54 +1117,6 @@ hal_ReadIDs_8192EU(
 	RTW_INFO("Customer ID: 0x%02X, SubCustomer ID: 0x%02X\n", pHalData->EEPROMCustomerID, pHalData->EEPROMSubCustomerID);
 }
 
-VOID
-hal_CustomizedBehavior_8192EU(
-	IN	PADAPTER	Adapter
-)
-{
-#ifdef CONFIG_RTW_SW_LED
-
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	struct led_priv	*pledpriv = adapter_to_led(Adapter);
-
-
-	/* Led mode */
-	switch (pHalData->CustomerID) {
-	case RT_CID_DEFAULT:
-		pledpriv->LedStrategy = SW_LED_MODE1;
-		pledpriv->bRegUseLed = _TRUE;
-		break;
-
-	case RT_CID_819x_HP:
-		pledpriv->LedStrategy = SW_LED_MODE6; /* Customize Led mode	 */
-		break;
-
-	case RT_CID_819x_Sercomm_Belkin:
-		pledpriv->LedStrategy = SW_LED_MODE9;
-		break;
-
-	case RT_CID_819x_Sercomm_Netgear:
-		pledpriv->LedStrategy = SW_LED_MODE10;
-		break;
-
-	case RT_CID_819x_ALPHA_Dlink: /* add by ylb 20121012 for customer led for alpha */
-		pledpriv->LedStrategy = SW_LED_MODE1;
-		break;
-
-	default:
-		pledpriv->LedStrategy = SW_LED_MODE9;
-		break;
-	}
-
-	/* 2010.04.28 for 88CU minicard led control */
-	/* if(pHalData->InterfaceSel == INTF_SEL2_MINICARD) */
-	/* { */
-	/*	pHalData->LedStrategy = SW_LED_MODE6; */
-	/* } */
-	pHalData->bLedOpenDrain = _TRUE;/* Support Open-drain arrangement for controlling the LED. Added by Roger, 2009.10.16. */
-#endif
-}
-
 static void
 hal_CustomizeByCustomerID_8192EU(
 	IN	PADAPTER		padapter
@@ -1228,7 +1151,7 @@ ReadLEDSetting_8192EU(
 #endif
 }
 
-VOID
+static VOID
 InitAdapterVariablesByPROM_8192EU(
 	IN	PADAPTER	Adapter
 )
@@ -1288,7 +1211,7 @@ static void Hal_ReadPROMContent_8192EU(
 	InitAdapterVariablesByPROM_8192EU(Adapter);
 }
 
-u8
+static u8
 ReadAdapterInfo8192EU(
 	IN PADAPTER			Adapter
 )
@@ -1327,7 +1250,7 @@ void UpdateInterruptMask8192EU(PADAPTER padapter, u8 bHIMR0 , u32 AddMSR, u32 Re
 
 }
 
-u8 SetHwReg8192EU(PADAPTER Adapter, u8 variable, u8 *val)
+static u8 SetHwReg8192EU(PADAPTER Adapter, u8 variable, u8 *val)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u8 ret = _SUCCESS;
@@ -1416,7 +1339,7 @@ u8 SetHwReg8192EU(PADAPTER Adapter, u8 variable, u8 *val)
 }
 
 
-void GetHwReg8192EU(PADAPTER Adapter, u8 variable, u8 *val)
+static void GetHwReg8192EU(PADAPTER Adapter, u8 variable, u8 *val)
 {
 
 	switch (variable) {
@@ -1426,7 +1349,7 @@ void GetHwReg8192EU(PADAPTER Adapter, u8 variable, u8 *val)
 	}
 
 }
-u8
+static u8
 GetHalDefVar8192EUsb(
 	IN	PADAPTER				Adapter,
 	IN	HAL_DEF_VARIABLE		eVariable,
@@ -1450,7 +1373,7 @@ GetHalDefVar8192EUsb(
  *	Description:
  *		Change default setting of specified variable.
  *   */
-u8
+static u8
 SetHalDefVar8192EUsb(
 	IN	PADAPTER				Adapter,
 	IN	HAL_DEF_VARIABLE		eVariable,
@@ -1467,16 +1390,6 @@ SetHalDefVar8192EUsb(
 	return bResult;
 }
 
-
-void _update_response_rate(_adapter *padapter, unsigned int mask)
-{
-	/* Set RRSR rate table. */
-	rtw_write8(padapter, REG_RRSR, mask & 0xff);
-	rtw_write8(padapter, REG_RRSR + 1, (mask >> 8) & 0xff);
-
-	/* Set RTS initial rate */
-	/* We just need to update to pHalData->RTSInitRate which will be set in Tx descriptor. */
-}
 
 static void rtl8192eu_init_default_value(_adapter *padapter)
 {

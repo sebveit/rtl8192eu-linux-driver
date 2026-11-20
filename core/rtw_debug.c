@@ -646,7 +646,7 @@ ssize_t proc_set_write_reg(struct file *file, const char __user *buffer, size_t 
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%x %x %x", &addr, &val, &len);
 
@@ -722,7 +722,7 @@ ssize_t proc_set_read_reg(struct file *file, const char __user *buffer, size_t c
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%x %x", &addr, &len);
 
@@ -941,7 +941,7 @@ ssize_t proc_set_roam_flags(struct file *file, const char __user *buffer, size_t
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhx", &flags);
 
@@ -990,7 +990,7 @@ ssize_t proc_set_roam_param(struct file *file, const char __user *buffer, size_t
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhu %u %u %hhu", &rssi_diff_th, &scanr_exp_ms, &scan_int, &rssi_threshold);
 
@@ -1024,7 +1024,7 @@ ssize_t proc_set_roam_tgt_addr(struct file *file, const char __user *buffer, siz
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", addr, addr + 1, addr + 2, addr + 3, addr + 4, addr + 5);
 		if (num == 6)
@@ -1054,7 +1054,7 @@ ssize_t proc_set_ft_flags(struct file *file, const char __user *buffer, size_t c
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		int num = sscanf(tmp, "%hhx", &flags);
 
 		if (num == 1)
@@ -1211,7 +1211,7 @@ ssize_t proc_set_scan_param(struct file *file, const char __user *buffer, size_t
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp,
 			SCAN_PARAM_INPUT_FMT
@@ -1600,7 +1600,7 @@ ssize_t proc_set_rate_ctl(struct file *file, const char __user *buffer, size_t c
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 #ifdef 	CONFIG_PHDYM_FW_FIXRATE
 		struct dm_struct *dm = adapter_to_phydm(adapter);
 		u8 en = 1, macid = 255;
@@ -1703,7 +1703,7 @@ ssize_t proc_set_bmc_tx_rate(struct file *file, const char __user *buffer, size_
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhx", &bmc_tx_rate);
 
@@ -1741,7 +1741,7 @@ ssize_t proc_set_tx_power_offset(struct file *file, const char __user *buffer, s
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhu", &power_offset);
 
@@ -1786,7 +1786,7 @@ ssize_t proc_set_bw_ctl(struct file *file, const char __user *buffer, size_t cou
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		int num = sscanf(tmp, "%hhu", &fix_bw);
 
 		if (num >= 1) {
@@ -1832,7 +1832,7 @@ ssize_t proc_set_rx_cnt_dump(struct file *file, const char __user *buffer, size_
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhx", &dump_rx_cnt_mode);
 
@@ -1881,7 +1881,7 @@ ssize_t proc_set_fwdl_test_case(struct file *file, const char __user *buffer, si
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count))
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count))
 		sscanf(tmp, "%hhu %hhu", &fwdl_test_chksum_fail, &fwdl_test_wintint_rdy_fail);
 
 	return count;
@@ -1911,7 +1911,7 @@ ssize_t proc_set_del_rx_ampdu_test_case(struct file *file, const char __user *bu
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count))
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count))
 		sscanf(tmp, "%hhu", &del_rx_ampdu_test_no_tx_fail);
 
 	return count;
@@ -1936,7 +1936,7 @@ ssize_t proc_set_wait_hiq_empty(struct file *file, const char __user *buffer, si
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count))
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count))
 		sscanf(tmp, "%u", &g_wait_hiq_empty_ms);
 
 	return count;
@@ -1973,7 +1973,7 @@ ssize_t proc_set_sta_linking_test(struct file *file, const char __user *buffer, 
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		u32 wait_ms = 0;
 		u8 force_fail = 0;
 		int num = sscanf(tmp, "%u %hhu", &wait_ms, &force_fail);
@@ -2013,7 +2013,7 @@ ssize_t proc_set_ap_linking_test(struct file *file, const char __user *buffer, s
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		u16 force_auth_fail = 0;
 		u16 force_asoc_fail = 0;
 		int num = sscanf(tmp, "%hu %hu", &force_auth_fail, &force_asoc_fail);
@@ -2084,7 +2084,7 @@ ssize_t proc_set_ps_dbg_info(struct file *file, const char __user *buffer, size_
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhx", &ps_dbg_cmd_id);
 
@@ -2400,7 +2400,7 @@ ssize_t proc_set_hw_status(struct file *file, const char __user *buffer, size_t 
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &enable);
 
@@ -2542,7 +2542,7 @@ ssize_t proc_set_rx_signal(struct file *file, const char __user *buffer, size_t 
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%u %u", &is_signal_dbg, &signal_strength);
 
@@ -2605,7 +2605,7 @@ ssize_t proc_set_ht_enable(struct file *file, const char __user *buffer, size_t 
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &mode);
 
@@ -2649,7 +2649,7 @@ ssize_t proc_set_bw_mode(struct file *file, const char __user *buffer, size_t co
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%x ", &mode);
 		bw_5g = mode >> 4;
@@ -2693,7 +2693,7 @@ ssize_t proc_set_ampdu_enable(struct file *file, const char __user *buffer, size
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &mode);
 
@@ -2768,7 +2768,7 @@ ssize_t proc_set_rx_ampdu(struct file *file, const char __user *buffer, size_t c
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhu %hhu", &accept, &size);
 
@@ -2811,7 +2811,7 @@ ssize_t proc_set_rx_ampdu_factor(struct file *file, const char __user *buffer
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &factor);
 
@@ -2856,7 +2856,7 @@ ssize_t proc_set_tx_max_agg_num(struct file *file, const char __user *buffer
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhx ", &agg_num);
 
@@ -2897,7 +2897,7 @@ ssize_t proc_set_rx_ampdu_density(struct file *file, const char __user *buffer, 
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &density);
 
@@ -2941,7 +2941,7 @@ ssize_t proc_set_tx_ampdu_density(struct file *file, const char __user *buffer, 
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &density);
 
@@ -2993,7 +2993,7 @@ ssize_t proc_set_tx_amsdu(struct file *file, const char __user *buffer, size_t c
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &amsdu);
 
@@ -3043,7 +3043,7 @@ ssize_t proc_set_tx_amsdu_rate(struct file *file, const char __user *buffer, siz
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &amsdu_rate);
 
@@ -3087,7 +3087,7 @@ ssize_t proc_set_en_fwps(struct file *file, const char __user *buffer, size_t co
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &mode);
 
@@ -3230,7 +3230,7 @@ ssize_t proc_set_stbc_cap(struct file *file, const char __user *buffer, size_t c
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &mode);
 
@@ -3270,7 +3270,7 @@ ssize_t proc_set_rx_stbc(struct file *file, const char __user *buffer, size_t co
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &mode);
 
@@ -3311,7 +3311,7 @@ ssize_t proc_set_ldpc_cap(struct file *file, const char __user *buffer, size_t c
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &mode);
 
@@ -3352,7 +3352,7 @@ ssize_t proc_set_txbf_cap(struct file *file, const char __user *buffer, size_t c
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &mode);
 
@@ -3392,7 +3392,7 @@ ssize_t proc_set_txbf_cap(struct file *file, const char __user *buffer, size_t c
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%x", &enable);
 
@@ -3633,7 +3633,7 @@ ssize_t proc_set_best_channel(struct file *file, const char __user *buffer, size
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		int i;
 		for (i = 0; i < rfctl->max_chan_nums && rfctl->channel_set[i].ChannelNum != 0; i++)
 			rfctl->channel_set[i].rx_count = 0;
@@ -3777,7 +3777,7 @@ ssize_t proc_set_rf4ce_state(struct file *file, const char __user *buffer, size_
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhx", &state);
 
@@ -3829,7 +3829,7 @@ ssize_t proc_set_sreset(struct file *file, const char __user *buffer, size_t cou
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d", &trigger_point);
 
@@ -3940,7 +3940,7 @@ ssize_t proc_set_pattern_info(struct file *file, const char __user *buffer,
 		return -ENOMEM;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		if (strncmp(tmp, "clean", 5) == 0) {
 			poidparam.subcode = WOWLAN_PATTERN_CLEAN;
 			rtw_hal_set_hwreg(padapter,
@@ -3990,7 +3990,7 @@ ssize_t proc_set_wakeup_event(struct file *file, const char __user *buffer,
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count))
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count))
 		num = sscanf(tmp, "%u", &wakeup_event);
 	else
 		return -EFAULT;
@@ -4060,7 +4060,7 @@ ssize_t proc_set_wowlan_gpio_info(struct file *file, const char __user *buffer,
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		num = sscanf(tmp, "%u", &is_high_active);
 
@@ -4151,7 +4151,7 @@ ssize_t proc_set_new_bcn_max(struct file *file, const char __user *buffer, size_
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count))
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count))
 		sscanf(tmp, "%d ", &new_bcn_max);
 
 	return count;
@@ -4235,7 +4235,7 @@ ssize_t proc_set_ps_info(struct file *file, const char __user *buffer, size_t co
 		return -EFAULT;
 	}
 
-	if (!buffer || copy_from_user(tmp, buffer, count))
+	if (!buffer || rtw_copy_user_input(tmp, sizeof(tmp), buffer, count))
 		goto exit;
 
 	num = sscanf(tmp, "%d %d", &mode, &en);
@@ -4330,7 +4330,7 @@ ssize_t proc_set_wmmps_info(struct file *file, const char __user *buffer, size_t
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhu %hhx", &uapsd_max_sp_len_setting, &uapsd_ac_setting);
 
@@ -4381,7 +4381,7 @@ ssize_t proc_set_tdls_enable(struct file *file, const char __user *buffer, size_
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d ", &en_tdls);
 
@@ -4837,7 +4837,7 @@ ssize_t proc_set_monitor(struct file *file, const char __user *buffer, size_t co
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		int num = sscanf(tmp, "%hhu %hhu %hhu", &target_chan, &target_offset, &target_bw);
 
 		if (num != 3) {
@@ -4877,7 +4877,7 @@ ssize_t proc_set_xmit_block(struct file *file, const char __user *buffer, size_t
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%hhx %hhx", &xb_mode, &xb_reason);
 
@@ -4991,8 +4991,10 @@ ssize_t proc_set_tx_sa_query(struct file *file, const char __user *buffer, size_
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
+	if (rtw_copy_user_input(tmp, sizeof(tmp), buffer, count))
+		return -EFAULT;
 
+	{
 		int num = sscanf(tmp, "%x", &key_type);
 
 		if (num !=  1) {
@@ -5070,8 +5072,10 @@ ssize_t proc_set_tx_deauth(struct file *file, const char __user *buffer, size_t 
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
+	if (rtw_copy_user_input(tmp, sizeof(tmp), buffer, count))
+		return -EFAULT;
 
+	{
 		int num = sscanf(tmp, "%x", &key_type);
 
 		if (num !=  1) {
@@ -5161,8 +5165,10 @@ ssize_t proc_set_tx_auth(struct file *file, const char __user *buffer, size_t co
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
+	if (rtw_copy_user_input(tmp, sizeof(tmp), buffer, count))
+		return -EFAULT;
 
+	{
 		int num = sscanf(tmp, "%x", &tx_auth);
 
 		if (num !=  1) {
@@ -5223,7 +5229,7 @@ ssize_t proc_set_pathb_phase(struct file *file, const char __user *buffer, size_
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		num = sscanf(tmp, "%u", &tmp_idx);
 		if ((tmp_idx < 0) || (tmp_idx > 11)) {
 			RTW_INFO(FUNC_ADPT_FMT "Invalid input value\n", FUNC_ADPT_ARG(padapter));
@@ -5262,7 +5268,7 @@ ssize_t proc_set_ack_timeout(struct file *file, const char __user *buffer, size_
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		int num = sscanf(tmp, "%u %u", &ack_timeout_ms, &ack_timeout_ms_cck);
 
 		if (num < 1) {
@@ -5303,7 +5309,7 @@ ssize_t proc_set_fw_offload(struct file *file, const char __user *buffer, size_t
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		int num = sscanf(tmp, "%d %d", &iqk_offload_enable, &ch_switch_offload_enable);
 
 		if (num < 2) {
@@ -5360,7 +5366,7 @@ ssize_t proc_set_fw_tbtt_rpt(struct file *file, const char __user *buffer, size_
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		int num = sscanf(tmp, "%d %x",&fw_bcn_offload, &fw_tbtt_rpt);
 
 		if (num < 2) {
@@ -5414,7 +5420,7 @@ ssize_t proc_set_txss_tp(struct file *file, const char __user *buffer, size_t co
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		int num = sscanf(tmp, "%u %u %d",
 			&enable, &txss_tx_tp, &txss_chk_cnt);
 
@@ -5476,7 +5482,7 @@ ssize_t proc_set_txss_ctrl(struct file *file, const char __user *buffer, size_t 
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		int num = sscanf(tmp, "%u",	&tx_1ss);
 
 		if (num < 1) {
@@ -5531,7 +5537,7 @@ ssize_t proc_set_iqk(struct file *file, const char __user *buffer, size_t count,
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d %d %d", &recovery, &clear, &segment);
 
@@ -5570,7 +5576,7 @@ ssize_t proc_set_lck(struct file *file, const char __user *buffer, size_t count,
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 
 		int num = sscanf(tmp, "%d", &trigger);
 
@@ -5614,7 +5620,7 @@ ssize_t proc_set_lps_chk_tp(struct file *file, const char __user *buffer, size_t
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		int num = sscanf(tmp, "%u %u %u %u %d %u %u",
 			&enable, &lps_tx_tp, &lps_rx_tp, &lps_bi_tp,
 			&lps_chk_cnt_th, &lps_tx_pkts, &lps_rx_pkts);
@@ -5698,7 +5704,7 @@ ssize_t proc_set_smps(struct file *file, const char __user *buffer, size_t count
 		return -EFAULT;
 	}
 
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
+	if (buffer && !rtw_copy_user_input(tmp, sizeof(tmp), buffer, count)) {
 		int num = sscanf(tmp, "%u %u %u %u %u", &smps_en, &smps_tx_tp, &smps_rx_tp,
 			&smps_test, &smps_test_en);
 

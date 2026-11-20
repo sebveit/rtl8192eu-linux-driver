@@ -44,15 +44,6 @@ void	rtl8192eu_free_xmit_priv(_adapter *padapter)
 {
 }
 
-u8 urb_zero_packet_chk(_adapter *padapter, int sz)
-{
-	u8 blnSetTxDescOffset;
-	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(padapter);
-	blnSetTxDescOffset = (((sz + TXDESC_SIZE) %  pHalData->UsbBulkOutSize) == 0) ? 1 : 0;
-
-	return blnSetTxDescOffset;
-}
-
 static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 bagg_pkt)
 {
 	int	pull = 0;

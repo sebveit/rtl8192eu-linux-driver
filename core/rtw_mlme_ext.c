@@ -1097,7 +1097,7 @@ static void init_mlme_ext_priv_value(_adapter *padapter)
 #endif /* ROKU_PRIVATE */
 }
 
-void init_mlme_ext_timer(_adapter *padapter)
+static void init_mlme_ext_timer(_adapter *padapter)
 {
 	struct	mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 
@@ -1315,7 +1315,7 @@ void mgt_dispatcher(_adapter *padapter, union recv_frame *precv_frame)
 }
 
 #ifdef CONFIG_P2P
-u32 p2p_listen_state_process(_adapter *padapter, unsigned char *da)
+static u32 p2p_listen_state_process(_adapter *padapter, unsigned char *da)
 {
 	bool response = _TRUE;
 
@@ -1693,7 +1693,6 @@ static void rtw_check_legacy_ap(_adapter *padapter, u8 *pframe, u32 len)
 		unsigned char *pos;
 		struct rtw_ieee802_11_elems elems;
 #ifdef CONFIG_80211N_HT
-		u16 cur_op_mode; 
 #endif
 		/* checking IEs */
 		left = len - sizeof(struct rtw_ieee80211_hdr_3addr) - _BEACON_IE_OFFSET_;
@@ -1703,7 +1702,6 @@ static void rtw_check_legacy_ap(_adapter *padapter, u8 *pframe, u32 len)
 			return;
 		}
 #ifdef CONFIG_80211N_HT
-		cur_op_mode = pmlmepriv->ht_op_mode & HT_INFO_OPERATION_MODE_OP_MODE_MASK;
 #endif
 		/* for legacy ap */
 		if (elems.ht_capabilities == NULL && elems.ht_capabilities_len == 0) {
@@ -2045,13 +2043,8 @@ unsigned int OnAuth(_adapter *padapter, union recv_frame *precv_frame)
 			if (rtw_is_list_empty(&pstat->asoc_list) == _FALSE) {
 				rtw_list_delete(&pstat->asoc_list);
 				pstapriv->asoc_list_cnt--;
-				if (pstat->expire_to > 0)
-					;/* TODO: STA re_auth within expire_to */
 			}
 			_exit_critical_bh(&pstapriv->asoc_list_lock, &irqL);
-
-			if (seq == 1)
-				; /* TODO: STA re_auth and auth timeout */
 
 		}
 	}
@@ -2942,63 +2935,6 @@ unsigned int OnAtim(_adapter *padapter, union recv_frame *precv_frame)
 	return _SUCCESS;
 }
 
-unsigned int on_action_spct_ch_switch(_adapter *padapter, struct sta_info *psta, u8 *ies, uint ies_len)
-{
-	unsigned int ret = _FAIL;
-	struct mlme_ext_priv *mlmeext = &padapter->mlmeextpriv;
-	struct mlme_ext_info	*pmlmeinfo = &(mlmeext->mlmext_info);
-
-	if (!(pmlmeinfo->state & WIFI_FW_ASSOC_SUCCESS)) {
-		ret = _SUCCESS;
-		goto exit;
-	}
-
-	if ((pmlmeinfo->state & 0x03) == WIFI_FW_STATION_STATE) {
-
-		int ch_switch_mode = -1, ch = -1, ch_switch_cnt = -1;
-		int ch_offset = -1;
-		u8 bwmode;
-		struct ieee80211_info_element *ie;
-
-		RTW_INFO(FUNC_NDEV_FMT" from "MAC_FMT"\n",
-			FUNC_NDEV_ARG(padapter->pnetdev), MAC_ARG(psta->cmn.mac_addr));
-
-		for_each_ie(ie, ies, ies_len) {
-			if (ie->id == WLAN_EID_CHANNEL_SWITCH) {
-				ch_switch_mode = ie->data[0];
-				ch = ie->data[1];
-				ch_switch_cnt = ie->data[2];
-				RTW_INFO("ch_switch_mode:%d, ch:%d, ch_switch_cnt:%d\n",
-					 ch_switch_mode, ch, ch_switch_cnt);
-			} else if (ie->id == WLAN_EID_SECONDARY_CHANNEL_OFFSET) {
-				ch_offset = secondary_ch_offset_to_hal_ch_offset(ie->data[0]);
-				RTW_INFO("ch_offset:%d\n", ch_offset);
-			}
-		}
-
-		if (ch == -1)
-			return _SUCCESS;
-
-		if (ch_offset == -1)
-			bwmode = mlmeext->cur_bwmode;
-		else
-			bwmode = (ch_offset == HAL_PRIME_CHNL_OFFSET_DONT_CARE) ?
-				 CHANNEL_WIDTH_20 : CHANNEL_WIDTH_40;
-
-		ch_offset = (ch_offset == -1) ? mlmeext->cur_ch_offset : ch_offset;
-
-		/* todo:
-		 * 1. the decision of channel switching
-		 * 2. things after channel switching
-		 */
-
-		ret = rtw_set_chbw_cmd(padapter, ch, bwmode, ch_offset, 0);
-	}
-
-exit:
-	return ret;
-}
-
 unsigned int on_action_spct(_adapter *padapter, union recv_frame *precv_frame)
 {
 	unsigned int ret = _FAIL;
@@ -3214,11 +3150,7 @@ exit:
 bool rtw_rx_ampdu_set_size(_adapter *adapter, u8 size, u8 reason)
 {
 	bool is_adj = _FALSE;
-	struct mlme_ext_priv *mlmeext;
-	struct mlme_ext_info *mlmeinfo;
 
-	mlmeext = &adapter->mlmeextpriv;
-	mlmeinfo = &mlmeext->mlmext_info;
 
 	if (reason == RX_AMPDU_DRV_FIXED) {
 		if (adapter->fix_rx_ampdu_size != size) {
@@ -3250,11 +3182,7 @@ bool rtw_rx_ampdu_set_size(_adapter *adapter, u8 size, u8 reason)
 bool rtw_rx_ampdu_set_accept(_adapter *adapter, u8 accept, u8 reason)
 {
 	bool is_adj = _FALSE;
-	struct mlme_ext_priv *mlmeext;
-	struct mlme_ext_info *mlmeinfo;
 
-	mlmeext = &adapter->mlmeextpriv;
-	mlmeinfo = &mlmeext->mlmext_info;
 
 	if (reason == RX_AMPDU_DRV_FIXED) {
 		if (adapter->fix_rx_ampdu_accept != accept) {
@@ -3982,7 +3910,7 @@ void issue_p2p_GO_request(_adapter *padapter, u8 *raddr)
 }
 
 
-void issue_p2p_GO_response(_adapter *padapter, u8 *raddr, u8 *frame_body, uint len, u8 result)
+static void issue_p2p_GO_response(_adapter *padapter, u8 *raddr, u8 *frame_body, uint len, u8 result)
 {
 	struct p2p_channels *ch_list = &(adapter_to_rfctl(padapter)->channel_list);
 	unsigned char category = RTW_WLAN_CATEGORY_PUBLIC;
@@ -4399,7 +4327,7 @@ void issue_p2p_GO_response(_adapter *padapter, u8 *raddr, u8 *frame_body, uint l
 
 }
 
-void issue_p2p_GO_confirm(_adapter *padapter, u8 *raddr, u8 result)
+static void issue_p2p_GO_confirm(_adapter *padapter, u8 *raddr, u8 result)
 {
 
 	unsigned char category = RTW_WLAN_CATEGORY_PUBLIC;
@@ -5277,7 +5205,7 @@ void issue_p2p_provision_request(_adapter *padapter, u8 *pssid, u8 ussidlen, u8 
 }
 
 
-u8 is_matched_in_profilelist(u8 *peermacaddr, struct profile_info *profileinfo)
+static u8 is_matched_in_profilelist(u8 *peermacaddr, struct profile_info *profileinfo)
 {
 	u8 i, match_result = 0;
 
@@ -5594,7 +5522,7 @@ void issue_probersp_p2p(_adapter *padapter, unsigned char *da)
 
 }
 
-int _issue_probereq_p2p(_adapter *padapter, u8 *da, int wait_ack)
+static int _issue_probereq_p2p(_adapter *padapter, u8 *da, int wait_ack)
 {
 	int ret = _FAIL;
 	struct xmit_frame		*pmgntframe;
@@ -5971,7 +5899,7 @@ exit:
 
 #endif /* CONFIG_P2P */
 
-s32 rtw_action_public_decache(union recv_frame *rframe, u8 token_offset)
+static s32 rtw_action_public_decache(union recv_frame *rframe, u8 token_offset)
 {
 	_adapter *adapter = rframe->u.hdr.adapter;
 	struct mlme_ext_priv *mlmeext = &(adapter->mlmeextpriv);
@@ -5996,7 +5924,7 @@ s32 rtw_action_public_decache(union recv_frame *rframe, u8 token_offset)
 	return _SUCCESS;
 }
 
-unsigned int on_action_public_p2p(union recv_frame *precv_frame)
+static unsigned int on_action_public_p2p(union recv_frame *precv_frame)
 {
 	_adapter *padapter = precv_frame->u.hdr.adapter;
 	u8 *pframe = precv_frame->u.hdr.rx_data;
@@ -6347,7 +6275,7 @@ exit:
 	return _SUCCESS;
 }
 
-unsigned int on_action_public_vendor(union recv_frame *precv_frame)
+static unsigned int on_action_public_vendor(union recv_frame *precv_frame)
 {
 	unsigned int ret = _FAIL;
 	u8 *pframe = precv_frame->u.hdr.rx_data;
@@ -6367,7 +6295,7 @@ exit:
 	return ret;
 }
 
-unsigned int on_action_public_default(union recv_frame *precv_frame, u8 action)
+static unsigned int on_action_public_default(union recv_frame *precv_frame, u8 action)
 {
 	unsigned int ret = _FAIL;
 	u8 *pframe = precv_frame->u.hdr.rx_data;
@@ -7141,7 +7069,7 @@ unsigned int OnAction_p2p(_adapter *padapter, union recv_frame *precv_frame)
 {
 #ifdef CONFIG_P2P
 	u8 *frame_body;
-	u8 category, OUI_Subtype, dialogToken = 0;
+	u8 category, OUI_Subtype;
 	u8 *pframe = precv_frame->u.hdr.rx_data;
 	uint len = precv_frame->u.hdr.len;
 	struct	wifidirect_info	*pwdinfo = &(padapter->wdinfo);
@@ -7170,7 +7098,6 @@ unsigned int OnAction_p2p(_adapter *padapter, union recv_frame *precv_frame)
 	{
 		len -= sizeof(struct rtw_ieee80211_hdr_3addr);
 		OUI_Subtype = frame_body[5];
-		dialogToken = frame_body[6];
 
 		switch (OUI_Subtype) {
 		case P2P_NOTICE_OF_ABSENCE:
@@ -7233,7 +7160,7 @@ unsigned int DoReserved(_adapter *padapter, union recv_frame *precv_frame)
 	return _SUCCESS;
 }
 
-struct xmit_frame *_alloc_mgtxmitframe(struct xmit_priv *pxmitpriv, bool once)
+static struct xmit_frame *_alloc_mgtxmitframe(struct xmit_priv *pxmitpriv, bool once)
 {
 	struct xmit_frame *pmgntframe;
 	struct xmit_buf *pxmitbuf;
@@ -8148,7 +8075,7 @@ void issue_probersp(_adapter *padapter, unsigned char *da, u8 is_valid_p2p_probe
 
 }
 
-int _issue_probereq(_adapter *padapter, const NDIS_802_11_SSID *pssid, const u8 *da, u8 ch, bool append_wps, int wait_ack)
+static int _issue_probereq(_adapter *padapter, const NDIS_802_11_SSID *pssid, const u8 *da, u8 ch, bool append_wps, int wait_ack)
 {
 	int ret = _FAIL;
 	struct xmit_frame		*pmgntframe;
@@ -10217,7 +10144,7 @@ void issue_action_BSSCoexistPacket(_adapter *padapter)
 }
 
 /* Spatial Multiplexing Powersave (SMPS) action frame */
-int _issue_action_SM_PS(_adapter *padapter ,  unsigned char *raddr , u8 NewMimoPsMode ,  u8 wait_ack)
+static int _issue_action_SM_PS(_adapter *padapter ,  unsigned char *raddr , u8 NewMimoPsMode ,  u8 wait_ack)
 {
 
 	int ret = _FAIL;
@@ -12136,45 +12063,7 @@ When station does not receive any packet in MAX_CONTINUAL_NORXPACKET_COUNT*2 sec
 recipient station will teardown the block ack by issuing DELBA frame.
 
 *********************************************************************/
-void rtw_delba_check(_adapter *padapter, struct sta_info *psta, u8 from_timer)
-{
-	int	i = 0;
-	int ret = _SUCCESS;
-	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
-	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
-
-	/*
-		IOT issue,occur Broadcom ap(Buffalo WZR-D1800H,Netgear R6300).
-		AP is originator.AP does not transmit unicast packets when STA response its BAR.
-		This case probably occur ap issue BAR after AP builds BA.
-
-		Follow 802.11 spec, STA shall maintain an inactivity timer for every negotiated Block Ack setup.
-		The inactivity timer is not reset when MPDUs corresponding to other TIDs are received.
-	*/
-	if (pmlmeinfo->assoc_AP_vendor == HT_IOT_PEER_BROADCOM) {
-		for (i = 0; i < TID_NUM ; i++) {
-			if ((psta->recvreorder_ctrl[i].enable) && 
-			(sta_rx_data_qos_pkts(psta, i) == sta_last_rx_data_qos_pkts(psta, i)) ) {			
-					if (_TRUE == rtw_inc_and_chk_continual_no_rx_packet(psta, i)) {					
-						/* send a DELBA frame to the peer STA with the Reason Code field set to TIMEOUT */
-						if (!from_timer)
-							ret = issue_del_ba_ex(padapter, psta->cmn.mac_addr, i, 39, 0, 3, 1);
-						else
-							issue_del_ba(padapter,  psta->cmn.mac_addr, i, 39, 0);
-						psta->recvreorder_ctrl[i].enable = _FALSE;
-						if (ret != _FAIL)
-							psta->recvreorder_ctrl[i].ampdu_size = RX_AMPDU_SIZE_INVALID;
-						rtw_reset_continual_no_rx_packet(psta, i);
-					}				
-			} else {
-				/* The inactivity timer is reset when MPDUs to the TID is received. */
-				rtw_reset_continual_no_rx_packet(psta, i);
-			}
-		}
-	}
-}
-
-u8 chk_ap_is_alive(_adapter *padapter, struct sta_info *psta)
+static u8 chk_ap_is_alive(_adapter *padapter, struct sta_info *psta)
 {
 	u8 ret = _FALSE;
 #ifdef DBG_EXPIRATION_CHK
@@ -12214,7 +12103,7 @@ u8 chk_ap_is_alive(_adapter *padapter, struct sta_info *psta)
 	return ret;
 }
 
-u8 chk_adhoc_peer_is_alive(struct sta_info *psta)
+static u8 chk_adhoc_peer_is_alive(struct sta_info *psta)
 {
 	u8 ret = _TRUE;
 
@@ -12723,7 +12612,7 @@ void addba_timer_hdl(void *ctx)
 }
 
 #ifdef CONFIG_IEEE80211W
-void report_sta_timeout_event(_adapter *padapter, u8 *MacAddr, unsigned short reason)
+static void report_sta_timeout_event(_adapter *padapter, u8 *MacAddr, unsigned short reason)
 {
 	struct cmd_obj *pcmd_obj;
 	u8	*pevtcmd;
@@ -12780,7 +12669,7 @@ void report_sta_timeout_event(_adapter *padapter, u8 *MacAddr, unsigned short re
 	return;
 }
 
-void clnt_sa_query_timeout(_adapter *padapter)
+static void clnt_sa_query_timeout(_adapter *padapter)
 {
 	struct mlme_ext_priv *mlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info *mlmeinfo = &(mlmeext->mlmext_info);
@@ -13733,7 +13622,7 @@ static bool scan_abort_hdl(_adapter *adapter)
 	return ret;
 }
 
-u8 rtw_scan_sparse(_adapter *adapter, struct rtw_ieee80211_channel *ch, u8 ch_num)
+static u8 rtw_scan_sparse(_adapter *adapter, struct rtw_ieee80211_channel *ch, u8 ch_num)
 {
 	/* interval larger than this is treated as backgroud scan */
 #ifndef RTW_SCAN_SPARSE_BG_INTERVAL_MS
@@ -13837,7 +13726,7 @@ exit:
 }
 
 #ifdef CONFIG_SCAN_BACKOP
-u8 rtw_scan_backop_decision(_adapter *adapter)
+static u8 rtw_scan_backop_decision(_adapter *adapter)
 {
 	struct mlme_ext_priv *mlmeext = &adapter->mlmeextpriv;
 	struct mi_state mstate;
@@ -14239,7 +14128,7 @@ void site_survey(_adapter *padapter, u8 survey_channel, RT_SCAN_TYPE ScanType)
 	return;
 }
 
-void survey_done_set_ch_bw(_adapter *padapter)
+static void survey_done_set_ch_bw(_adapter *padapter)
 {
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	u8 cur_channel = 0;
@@ -14298,7 +14187,7 @@ void survey_done_set_ch_bw(_adapter *padapter)
  *
  * Returns: 0: no ps announcement is doing. 1: ps announcement is doing
  */
-u8 rtw_ps_annc(_adapter *adapter, bool ps)
+static u8 rtw_ps_annc(_adapter *adapter, bool ps)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	_adapter *iface;
@@ -14364,7 +14253,7 @@ void rtw_back_opch(_adapter *adapter)
 	_exit_critical_mutex(&rfctl->offch_mutex, NULL);
 }
 
-void sitesurvey_set_igi(_adapter *adapter)
+static void sitesurvey_set_igi(_adapter *adapter)
 {
 	struct mlme_ext_priv *mlmeext = &adapter->mlmeextpriv;
 	struct ss_res *ss = &mlmeext->sitesurvey_res;
@@ -14424,7 +14313,7 @@ void sitesurvey_set_igi(_adapter *adapter)
 		break;
 	}
 }
-void sitesurvey_set_msr(_adapter *adapter, bool enter)
+static void sitesurvey_set_msr(_adapter *adapter, bool enter)
 {
 	u8 network_type;
 	struct mlme_ext_priv *pmlmeext = &adapter->mlmeextpriv;

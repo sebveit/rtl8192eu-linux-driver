@@ -25,25 +25,6 @@
 #endif /* !RTW_HALMAC */
 
 
-u8 MgntQuery_NssTxRate(u16 Rate)
-{
-	u8	NssNum = RF_TX_NUM_NONIMPLEMENT;
-
-	if ((Rate >= MGN_MCS8 && Rate <= MGN_MCS15) ||
-	    (Rate >= MGN_VHT2SS_MCS0 && Rate <= MGN_VHT2SS_MCS9))
-		NssNum = RF_2TX;
-	else if ((Rate >= MGN_MCS16 && Rate <= MGN_MCS23) ||
-		 (Rate >= MGN_VHT3SS_MCS0 && Rate <= MGN_VHT3SS_MCS9))
-		NssNum = RF_3TX;
-	else if ((Rate >= MGN_MCS24 && Rate <= MGN_MCS31) ||
-		 (Rate >= MGN_VHT4SS_MCS0 && Rate <= MGN_VHT4SS_MCS9))
-		NssNum = RF_4TX;
-	else
-		NssNum = RF_1TX;
-
-	return NssNum;
-}
-
 void hal_mpt_SwitchRfSetting(PADAPTER	pAdapter)
 {
 	PMPT_CONTEXT		pMptCtx = &(pAdapter->mppriv.mpt_ctx);
@@ -324,7 +305,7 @@ void hal_mpt_SetBandwidth(PADAPTER pAdapter)
 
 }
 
-void mpt_SetTxPower_Old(PADAPTER pAdapter, MPT_TXPWR_DEF Rate, u8 *pTxPower)
+static void mpt_SetTxPower_Old(PADAPTER pAdapter, MPT_TXPWR_DEF Rate, u8 *pTxPower)
 {
 	switch (Rate) {
 	case MPT_CCK: {
@@ -381,7 +362,7 @@ void mpt_SetTxPower_Old(PADAPTER pAdapter, MPT_TXPWR_DEF Rate, u8 *pTxPower)
 	RTW_INFO("<===mpt_SetTxPower_Old()\n");
 }
 
-void
+static void
 mpt_SetTxPower(
 	PADAPTER		pAdapter,
 	MPT_TXPWR_DEF	Rate,
@@ -533,7 +514,7 @@ void hal_mpt_SetDataRate(PADAPTER pAdapter)
 
 
 
-VOID mpt_SetRFPath_819X(PADAPTER	pAdapter)
+static VOID mpt_SetRFPath_819X(PADAPTER	pAdapter)
 {
 	HAL_DATA_TYPE			*pHalData	= GET_HAL_DATA(pAdapter);
 	PMPT_CONTEXT		pMptCtx = &(pAdapter->mppriv.mpt_ctx);

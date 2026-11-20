@@ -58,7 +58,7 @@ void halrf_rf_lna_setting_8192e(struct dm_struct *dm, enum halrf_lna_set type)
 	}
 }
 
-void set_iqk_matrix_8192e(struct dm_struct *dm, u8 OFDM_index, u8 rf_path,
+static void set_iqk_matrix_8192e(struct dm_struct *dm, u8 OFDM_index, u8 rf_path,
 			  s32 iqk_result_x, s32 iqk_result_y)
 {
 	s32 ele_A = 0, ele_D, ele_C = 0, value32;
@@ -1141,7 +1141,7 @@ u8 /* bit0 = 1 => Tx OK, bit1 = 1 => Rx OK */
 	return result;
 }
 
-void _phy_path_a_fill_iqk_matrix_92e(struct dm_struct *dm, boolean is_iqk_ok,
+static void _phy_path_a_fill_iqk_matrix_92e(struct dm_struct *dm, boolean is_iqk_ok,
 				     s32 result[][8], u8 final_candidate,
 				     boolean is_tx_only)
 {
@@ -1195,7 +1195,7 @@ void _phy_path_a_fill_iqk_matrix_92e(struct dm_struct *dm, boolean is_iqk_ok,
 	}
 }
 
-void _phy_path_b_fill_iqk_matrix_92e(struct dm_struct *dm, boolean is_iqk_ok,
+static void _phy_path_b_fill_iqk_matrix_92e(struct dm_struct *dm, boolean is_iqk_ok,
 				     s32 result[][8], u8 final_candidate,
 				     boolean is_tx_only /* do Tx only */)
 {
@@ -1255,7 +1255,7 @@ void _phy_save_adda_registers_92e(struct dm_struct *dm, u32 *adda_reg,
 		adda_backup[i] = odm_get_bb_reg(dm, adda_reg[i], MASKDWORD);
 }
 
-void _phy_save_mac_registers_92e(struct dm_struct *dm, u32 *mac_reg,
+static void _phy_save_mac_registers_92e(struct dm_struct *dm, u32 *mac_reg,
 				 u32 *mac_backup)
 {
 	u32 i;
@@ -1266,7 +1266,7 @@ void _phy_save_mac_registers_92e(struct dm_struct *dm, u32 *mac_reg,
 	mac_backup[i] = odm_read_4byte(dm, mac_reg[i]);
 }
 
-void _phy_reload_adda_registers_92e(struct dm_struct *dm, u32 *adda_reg,
+static void _phy_reload_adda_registers_92e(struct dm_struct *dm, u32 *adda_reg,
 				    u32 *adda_backup, u32 regiester_num)
 {
 	u32 i;
@@ -1276,7 +1276,7 @@ void _phy_reload_adda_registers_92e(struct dm_struct *dm, u32 *adda_reg,
 		odm_set_bb_reg(dm, adda_reg[i], MASKDWORD, adda_backup[i]);
 }
 
-void _phy_reload_mac_registers_92e(struct dm_struct *dm, u32 *mac_reg,
+static void _phy_reload_mac_registers_92e(struct dm_struct *dm, u32 *mac_reg,
 				   u32 *mac_backup)
 {
 	u32 i;
@@ -1327,7 +1327,7 @@ void _phy_mac_setting_calibration_92e(struct dm_struct *dm, u32 *mac_reg,
 	/*	odm_set_bb_reg(dm, R_0x550, 0x0000ffff, 0x0015); */
 }
 
-void _phy_path_a_stand_by_92e(struct dm_struct *dm)
+static void _phy_path_a_stand_by_92e(struct dm_struct *dm)
 {
 	RF_DBG(dm, DBG_RF_IQK, "path-A standby mode!\n");
 	odm_set_bb_reg(dm, REG_FPGA0_IQK, 0xffffff00, 0x000000);
@@ -1336,7 +1336,7 @@ void _phy_path_a_stand_by_92e(struct dm_struct *dm)
 	odm_set_bb_reg(dm, REG_FPGA0_IQK, 0xffffff00, 0x808000);
 }
 
-void _phy_path_b_stand_by_92e(struct dm_struct *dm)
+static void _phy_path_b_stand_by_92e(struct dm_struct *dm)
 {
 	RF_DBG(dm, DBG_RF_IQK, "path-A standby mode!\n");
 	odm_set_bb_reg(dm, REG_FPGA0_IQK, 0xffffff00, 0x000000);
@@ -1344,16 +1344,7 @@ void _phy_path_b_stand_by_92e(struct dm_struct *dm)
 	odm_set_bb_reg(dm, REG_FPGA0_IQK, 0xffffff00, 0x808000);
 }
 
-void _phy_pi_mode_switch_92e(struct dm_struct *dm, boolean pi_mode)
-{
-	u32 mode;
-	/*	RF_DBG(dm,DBG_RF_IQK, "BB Switch to %s mode!\n", (pi_mode ? "PI" : "SI")); */
-	mode = pi_mode ? 0x01000100 : 0x01000000;
-	odm_set_bb_reg(dm, REG_FPGA0_XA_HSSI_PARAMETER1, MASKDWORD, mode);
-	odm_set_bb_reg(dm, REG_FPGA0_XB_HSSI_PARAMETER1, MASKDWORD, mode);
-}
-
-boolean
+static boolean
 phy_simularity_compare_8192e(struct dm_struct *dm, s32 result[][8], u8 c1,
 			     u8 c2)
 {
@@ -1439,7 +1430,7 @@ phy_simularity_compare_8192e(struct dm_struct *dm, s32 result[][8], u8 c1,
 	return false;
 }
 
-void _phy_iq_calibrate_8192e(struct dm_struct *dm, s32 result[][8], u8 t,
+static void _phy_iq_calibrate_8192e(struct dm_struct *dm, s32 result[][8], u8 t,
 			     boolean is2T)
 {
 	u32 i;
@@ -1632,7 +1623,7 @@ void _phy_iq_calibrate_8192e(struct dm_struct *dm, s32 result[][8], u8 t,
 	RF_DBG(dm, DBG_RF_IQK, "%s <==\n", __func__);
 }
 
-void _phy_lc_calibrate_8192e(struct dm_struct *dm, boolean is2T)
+static void _phy_lc_calibrate_8192e(struct dm_struct *dm, boolean is2T)
 {
 	u8 tmp_reg, bb_clk;
 	u32 rf_amode = 0, rf_bmode = 0, lc_cal;
@@ -1834,7 +1825,7 @@ void phy_lc_calibrate_8192e(void *dm_void)
 	_phy_lc_calibrate_8192e(dm, true);
 }
 
-void _phy_set_rf_path_switch_8192e(
+static void _phy_set_rf_path_switch_8192e(
 				   struct dm_struct *dm,
 				   boolean is_main, boolean is2T)
 {

@@ -511,7 +511,7 @@ thread_return rtw_cmd_thread(thread_context context)
 {
 	u8 ret;
 	struct cmd_obj *pcmd;
-	u8 *pcmdbuf, *prspbuf;
+	u8 *pcmdbuf;
 	systime cmd_start_time;
 	u32 cmd_process_time;
 	u8(*cmd_hdl)(_adapter *padapter, u8 *pbuf);
@@ -524,7 +524,6 @@ thread_return rtw_cmd_thread(thread_context context)
 	thread_enter("RTW_CMD_THREAD");
 
 	pcmdbuf = pcmdpriv->cmd_buf;
-	prspbuf = pcmdpriv->rsp_buf;
 	ATOMIC_SET(&(pcmdpriv->cmdthd_running), _TRUE);
 	_rtw_up_sema(&pcmdpriv->start_cmdthread_sema);
 
@@ -1336,7 +1335,7 @@ static void rtw_ft_validate_akm_type(_adapter  *padapter,
 
 u8 rtw_joinbss_cmd(_adapter  *padapter, struct wlan_network *pnetwork)
 {
-	u8	*auth, res = _SUCCESS;
+	u8 res = _SUCCESS;
 	uint	t_len = 0;
 	WLAN_BSSID_EX		*psecnetwork;
 	struct cmd_obj		*pcmd;
@@ -1413,7 +1412,6 @@ u8 rtw_joinbss_cmd(_adapter  *padapter, struct wlan_network *pnetwork)
 
 	_rtw_memcpy(psecnetwork, &pnetwork->network, get_WLAN_BSSID_EX_sz(&pnetwork->network));
 
-	auth = &psecuritypriv->authenticator_ie[0];
 	psecuritypriv->authenticator_ie[0] = (unsigned char)psecnetwork->IELength;
 
 	if ((psecnetwork->IELength - 12) < (256 - 1))
@@ -2026,7 +2024,7 @@ exit:
 
 }
 
-void free_assoc_resources_hdl(_adapter *padapter, u8 lock_scanned_queue)
+static void free_assoc_resources_hdl(_adapter *padapter, u8 lock_scanned_queue)
 {
 	rtw_free_assoc_resources(padapter, lock_scanned_queue);
 }
@@ -2189,7 +2187,7 @@ exit:
 	return res;
 }
 
-u8 _rtw_set_chplan_cmd(_adapter *adapter, int flags, u8 chplan, const struct country_chplan *country_ent, u8 swconfig)
+static u8 _rtw_set_chplan_cmd(_adapter *adapter, int flags, u8 chplan, const struct country_chplan *country_ent, u8 swconfig)
 {
 	struct cmd_obj *cmdobj;
 	struct	SetChannelPlan_param *parm;
@@ -2461,7 +2459,7 @@ u8 rtw_periodic_tsf_update_end_cmd(_adapter *adapter)
 exit:
 	return res;
 }
-u8 rtw_ssmps_wk_hdl(_adapter *adapter, struct ssmps_cmd_parm *ssmp_param)
+static u8 rtw_ssmps_wk_hdl(_adapter *adapter, struct ssmps_cmd_parm *ssmp_param)
 {
 	u8 res = _SUCCESS;
 	struct sta_info *sta = ssmp_param->sta;
@@ -3239,7 +3237,7 @@ void rtw_iface_dynamic_chk_wk_hdl(_adapter *padapter)
 
 
 }
-void rtw_dynamic_chk_wk_hdl(_adapter *padapter)
+static void rtw_dynamic_chk_wk_hdl(_adapter *padapter)
 {
 	rtw_mi_dynamic_chk_wk_hdl(padapter);
 
@@ -3278,7 +3276,7 @@ struct lps_ctrl_wk_parm {
 	u8 lps_level;
 };
 
-void lps_ctrl_wk_hdl(_adapter *padapter, u8 lps_ctrl_type, u8 *buf)
+static void lps_ctrl_wk_hdl(_adapter *padapter, u8 lps_ctrl_type, u8 *buf)
 {
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
@@ -3441,7 +3439,7 @@ u8 rtw_lps_ctrl_leave_set_level_cmd(_adapter *adapter, u8 lps_level, u8 flags)
 	return _rtw_lps_ctrl_wk_cmd(adapter, LPS_CTRL_LEAVE_SET_LEVEL, lps_level, flags);
 }
 
-void rtw_dm_in_lps_hdl(_adapter *padapter)
+static void rtw_dm_in_lps_hdl(_adapter *padapter)
 {
 	rtw_hal_set_hwreg(padapter, HW_VAR_DM_IN_LPS_LCLK, NULL);
 }
@@ -3482,7 +3480,7 @@ exit:
 
 }
 
-void rtw_lps_change_dtim_hdl(_adapter *padapter, u8 dtim)
+static void rtw_lps_change_dtim_hdl(_adapter *padapter, u8 dtim)
 {
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
 
@@ -3661,7 +3659,7 @@ exit:
 }
 #endif
 
-void rtw_dm_ra_mask_hdl(_adapter *padapter, struct sta_info *psta)
+static void rtw_dm_ra_mask_hdl(_adapter *padapter, struct sta_info *psta)
 {
 	if (psta)
 		set_sta_rate(padapter, psta);
@@ -3703,13 +3701,13 @@ exit:
 
 }
 
-void power_saving_wk_hdl(_adapter *padapter)
+static void power_saving_wk_hdl(_adapter *padapter)
 {
 	rtw_ps_processor(padapter);
 }
 
 /* add for CONFIG_IEEE80211W, none 11w can use it */
-void reset_securitypriv_hdl(_adapter *padapter)
+static void reset_securitypriv_hdl(_adapter *padapter)
 {
 	rtw_reset_securitypriv(padapter);
 }
@@ -4519,37 +4517,6 @@ struct btinfo {
 	u8 rsvd_7;
 };
 
-void btinfo_evt_dump(void *sel, void *buf)
-{
-	struct btinfo *info = (struct btinfo *)buf;
-
-	RTW_PRINT_SEL(sel, "cid:0x%02x, len:%u\n", info->cid, info->len);
-
-	if (info->len > 2)
-		RTW_PRINT_SEL(sel, "byte2:%s%s%s%s%s%s%s%s\n"
-			      , info->bConnection ? "bConnection " : ""
-			      , info->bSCOeSCO ? "bSCOeSCO " : ""
-			      , info->bInQPage ? "bInQPage " : ""
-			      , info->bACLBusy ? "bACLBusy " : ""
-			      , info->bSCOBusy ? "bSCOBusy " : ""
-			      , info->bHID ? "bHID " : ""
-			      , info->bA2DP ? "bA2DP " : ""
-			      , info->bFTP ? "bFTP" : ""
-			     );
-
-	if (info->len > 3)
-		RTW_PRINT_SEL(sel, "retry_cnt:%u\n", info->retry_cnt);
-
-	if (info->len > 4)
-		RTW_PRINT_SEL(sel, "rssi:%u\n", info->rssi);
-
-	if (info->len > 5)
-		RTW_PRINT_SEL(sel, "byte5:%s%s\n"
-			      , info->eSCO_SCO ? "eSCO_SCO " : ""
-			      , info->Master_Slave ? "Master_Slave " : ""
-			     );
-}
-
 static void rtw_btinfo_hdl(_adapter *adapter, u8 *buf, u16 buf_len)
 {
 #define BTINFO_WIFI_FETCH 0x23
@@ -4935,7 +4902,7 @@ inline u8 rtw_customer_str_write_cmd(_adapter *adapter, const u8 *cstr)
 }
 #endif /* CONFIG_RTW_CUSTOMER_STR */
 
-u8 rtw_c2h_wk_cmd(PADAPTER padapter, u8 *pbuf, u16 length, u8 type)
+static u8 rtw_c2h_wk_cmd(PADAPTER padapter, u8 *pbuf, u16 length, u8 type)
 {
 	struct cmd_obj *ph2c;
 	struct drvextra_cmd_parm *pdrvextra_cmd_parm;
@@ -5053,7 +5020,7 @@ exit:
 }
 #endif /* CONFIG_FW_C2H_REG */
 
-u8 session_tracker_cmd(_adapter *adapter, u8 cmd, struct sta_info *sta, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port)
+static u8 session_tracker_cmd(_adapter *adapter, u8 cmd, struct sta_info *sta, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port)
 {
 	struct cmd_priv	*cmdpriv = &adapter->cmdpriv;
 	struct cmd_obj *cmdobj;
@@ -5119,7 +5086,7 @@ inline u8 session_tracker_del_cmd(_adapter *adapter, struct sta_info *sta, u8 *l
 	return session_tracker_cmd(adapter, ST_CMD_DEL, sta, local_naddr, local_port, remote_naddr, remote_port);
 }
 
-void session_tracker_chk_for_sta(_adapter *adapter, struct sta_info *sta)
+static void session_tracker_chk_for_sta(_adapter *adapter, struct sta_info *sta)
 {
 	struct st_ctl_t *st_ctl = &sta->st_ctl;
 	int i;
@@ -5201,7 +5168,7 @@ exit:
 	return;
 }
 
-void session_tracker_chk_for_adapter(_adapter *adapter)
+static void session_tracker_chk_for_adapter(_adapter *adapter)
 {
 	struct sta_priv *stapriv = &adapter->stapriv;
 	struct sta_info *sta;
@@ -5233,7 +5200,7 @@ void session_tracker_chk_for_adapter(_adapter *adapter)
 #endif
 }
 
-void session_tracker_cmd_hdl(_adapter *adapter, struct st_cmd_parm *parm)
+static void session_tracker_cmd_hdl(_adapter *adapter, struct st_cmd_parm *parm)
 {
 	u8 cmd = parm->cmd;
 	struct sta_info *sta = parm->sta;

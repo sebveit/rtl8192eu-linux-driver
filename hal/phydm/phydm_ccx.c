@@ -25,7 +25,7 @@
 
 #include "phydm_precomp.h"
 
-void phydm_ccx_hw_restart(void *dm_void)
+static void phydm_ccx_hw_restart(void *dm_void)
 			  /*@Will Restart NHM/CLM/FAHM simultaneously*/
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -327,7 +327,7 @@ void phydm_fahm_dbg(void *dm_void, char input[][16], u32 *_used, char *output,
 
 #ifdef NHM_SUPPORT
 
-void phydm_nhm_racing_release(void *dm_void)
+static void phydm_nhm_racing_release(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct ccx_info *ccx = &dm->dm_ccx_info;
@@ -347,7 +347,7 @@ void phydm_nhm_racing_release(void *dm_void)
 	ccx->nhm_app = NHM_BACKGROUND;
 }
 
-u8 phydm_nhm_racing_ctrl(void *dm_void, enum phydm_nhm_level nhm_lv)
+static u8 phydm_nhm_racing_ctrl(void *dm_void, enum phydm_nhm_level nhm_lv)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct ccx_info *ccx = &dm->dm_ccx_info;
@@ -396,7 +396,7 @@ void phydm_nhm_trigger(void *dm_void)
 	ccx->nhm_ongoing = true;
 }
 
-boolean
+static boolean
 phydm_nhm_check_rdy(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -486,7 +486,7 @@ phydm_nhm_check_rdy(void *dm_void)
 	return is_ready;
 }
 
-void phydm_nhm_get_utility(void *dm_void)
+static void phydm_nhm_get_utility(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct ccx_info *ccx = &dm->dm_ccx_info;
@@ -503,7 +503,7 @@ void phydm_nhm_get_utility(void *dm_void)
 	PHYDM_DBG(dm, DBG_ENV_MNTR, "nhm_ratio=%d\n", ccx->nhm_ratio);
 }
 
-boolean
+static boolean
 phydm_nhm_get_result(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -628,7 +628,7 @@ phydm_nhm_get_result(void *dm_void)
 	return true;
 }
 
-void phydm_nhm_set_th_reg(void *dm_void)
+static void phydm_nhm_set_th_reg(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct ccx_info *ccx = &dm->dm_ccx_info;
@@ -678,7 +678,7 @@ void phydm_nhm_set_th_reg(void *dm_void)
 		  ccx->nhm_th[1], ccx->nhm_th[0]);
 }
 
-boolean
+static boolean
 phydm_nhm_th_update_chk(void *dm_void, enum nhm_application nhm_app, u8 *nhm_th,
 			u32 *igi_new)
 {
@@ -762,7 +762,7 @@ phydm_nhm_th_update_chk(void *dm_void, enum nhm_application nhm_app, u8 *nhm_th,
 	return is_update;
 }
 
-void phydm_nhm_set(void *dm_void, enum nhm_option_txon_all include_tx,
+static void phydm_nhm_set(void *dm_void, enum nhm_option_txon_all include_tx,
 		   enum nhm_option_cca_all include_cca,
 		   enum nhm_divider_opt_all divi_opt,
 		   enum nhm_application nhm_app, u16 period)
@@ -845,7 +845,7 @@ void phydm_nhm_set(void *dm_void, enum nhm_option_txon_all include_tx,
 	}
 }
 
-u8 phydm_nhm_mntr_set(void *dm_void, struct nhm_para_info *nhm_para)
+static u8 phydm_nhm_mntr_set(void *dm_void, struct nhm_para_info *nhm_para)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u16 nhm_time = 0; /*unit: 4us*/
@@ -875,7 +875,7 @@ u8 phydm_nhm_mntr_set(void *dm_void, struct nhm_para_info *nhm_para)
 }
 
 /*@Environment Monitor*/
-boolean
+static boolean
 phydm_nhm_mntr_chk(void *dm_void, u16 monitor_time /*unit ms*/)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -1058,7 +1058,7 @@ void phydm_nhm_dbg(void *dm_void, char input[][16], u32 *_used, char *output,
 
 #ifdef CLM_SUPPORT
 
-void phydm_clm_racing_release(void *dm_void)
+static void phydm_clm_racing_release(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct ccx_info *ccx = &dm->dm_ccx_info;
@@ -1071,7 +1071,7 @@ void phydm_clm_racing_release(void *dm_void)
 	ccx->clm_app = CLM_BACKGROUND;
 }
 
-u8 phydm_clm_racing_ctrl(void *dm_void, enum phydm_nhm_level clm_lv)
+static u8 phydm_clm_racing_ctrl(void *dm_void, enum phydm_clm_level clm_lv)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct ccx_info *ccx = &dm->dm_ccx_info;
@@ -1300,7 +1300,7 @@ phydm_clm_get_result(void *dm_void)
 	return true;
 }
 
-void phydm_clm_mntr_fw(void *dm_void, u16 monitor_time /*unit ms*/)
+static void phydm_clm_mntr_fw(void *dm_void, u16 monitor_time /*unit ms*/)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct ccx_info *ccx = &dm->dm_ccx_info;
@@ -1360,7 +1360,7 @@ u8 phydm_clm_mntr_set(void *dm_void, struct clm_para_info *clm_para)
 	return PHYDM_SET_SUCCESS;
 }
 
-boolean
+static boolean
 phydm_clm_mntr_chk(void *dm_void, u16 monitor_time /*unit ms*/)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -1423,7 +1423,7 @@ void phydm_set_clm_mntr_mode(void *dm_void, enum clm_monitor_mode mode)
 	}
 }
 
-void phydm_clm_init(void *dm_void)
+static void phydm_clm_init(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct ccx_info *ccx = &dm->dm_ccx_info;

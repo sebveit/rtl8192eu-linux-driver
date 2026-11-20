@@ -101,7 +101,7 @@ void odm_clear_txpowertracking_state(void *dm_void)
 	cali_info->modify_tx_agc_value_ofdm = 0;
 }
 
-void odm_get_tracking_table(void *dm_void, u8 thermal_value, u8 delta)
+static void odm_get_tracking_table(void *dm_void, u8 thermal_value, u8 delta)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct dm_rf_calibration_struct *cali_info = &dm->rf_calibrate_info;
@@ -301,7 +301,7 @@ void odm_get_tracking_table(void *dm_void, u8 thermal_value, u8 delta)
 	}
 }
 
-void odm_pwrtrk_method(void *dm_void)
+static void odm_pwrtrk_method(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u8 p, idxforchnl = 0;
@@ -656,32 +656,6 @@ u8 odm_get_right_chnl_place_for_iqk(u8 chnl)
 		}
 	}
 	return 0;
-}
-
-void odm_iq_calibrate(struct dm_struct *dm)
-{
-	void *adapter = dm->adapter;
-	struct dm_iqk_info *iqk_info = &dm->IQK_info;
-
-
-	if (IS_HARDWARE_TYPE_8812AU(adapter))
-		return;
-
-	if (dm->is_linked && !iqk_info->rfk_forbidden) {
-		if ((*dm->channel != dm->pre_channel) &&
-		    (!*dm->is_scan_in_process)) {
-			dm->pre_channel = *dm->channel;
-			dm->linked_interval = 0;
-		}
-
-		if (dm->linked_interval < 3)
-			dm->linked_interval++;
-
-		if (dm->linked_interval == 2)
-			halrf_iqk_trigger(dm, false);
-	} else {
-		dm->linked_interval = 0;
-	}
 }
 
 void phydm_rf_init(void *dm_void)

@@ -150,7 +150,7 @@ u8 init_channel_set(_adapter *padapter, u8 ChannelPlan, struct _RT_CHANNEL_INFO 
 #define RTW_MODULE_RTL8821CE			BIT10	/* RTL8821CE */
 
 struct country_chplan {
-	char alpha2[2];
+	char alpha2[2] __nonstring; /* not NUL terminated */
 	u8 chplan;
 #ifdef CONFIG_80211AC_VHT
 	u8 en_11ac;

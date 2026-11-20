@@ -58,7 +58,7 @@ void rtw_init_xmit_block(_adapter *padapter)
 	dvobj->xmit_block = XMIT_BLOCK_NONE;
 
 }
-void rtw_free_xmit_block(_adapter *padapter)
+static void rtw_free_xmit_block(_adapter *padapter)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
 
@@ -487,7 +487,7 @@ void rtw_get_adapter_tx_rate_bmp_by_bw(_adapter *adapter, u8 bw, u16 *r_bmp_cck_
 		*r_bmp_vht = bmp_vht;
 }
 
-void rtw_get_shared_macid_tx_rate_bmp_by_bw(struct dvobj_priv *dvobj, u8 bw, u16 *r_bmp_cck_ofdm, u32 *r_bmp_ht, u32 *r_bmp_vht)
+static void rtw_get_shared_macid_tx_rate_bmp_by_bw(struct dvobj_priv *dvobj, u8 bw, u16 *r_bmp_cck_ofdm, u32 *r_bmp_ht, u32 *r_bmp_vht)
 {
 	struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
 	u16 bmp_cck_ofdm = 0;
@@ -3252,7 +3252,7 @@ s32 rtw_free_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
 	return _SUCCESS;
 }
 
-void rtw_init_xmitframe(struct xmit_frame *pxframe)
+static void rtw_init_xmitframe(struct xmit_frame *pxframe)
 {
 	if (pxframe !=  NULL) { /* default value setting */
 		pxframe->buf_addr = NULL;
@@ -3521,79 +3521,6 @@ static struct xmit_frame *dequeue_one_xmitframe(struct xmit_priv *pxmitpriv, str
 	return pxmitframe;
 }
 
-static struct xmit_frame *get_one_xmitframe(struct xmit_priv *pxmitpriv, struct hw_xmit *phwxmit, struct tx_servq *ptxservq, _queue *pframe_queue)
-{
-	_list	*xmitframe_plist, *xmitframe_phead;
-	struct	xmit_frame	*pxmitframe = NULL;
-
-	xmitframe_phead = get_list_head(pframe_queue);
-	xmitframe_plist = get_next(xmitframe_phead);
-
-	while ((rtw_end_of_queue_search(xmitframe_phead, xmitframe_plist)) == _FALSE) {
-		pxmitframe = LIST_CONTAINOR(xmitframe_plist, struct xmit_frame, list);
-		break;
-	}
-
-	return pxmitframe;
-}
-
-struct xmit_frame *rtw_get_xframe(struct xmit_priv *pxmitpriv, int *num_frame)
-{
-	_irqL irqL0;
-	_list *sta_plist, *sta_phead;
-	struct hw_xmit *phwxmit_i = pxmitpriv->hwxmits;
-	sint entry =  pxmitpriv->hwxmit_entry;
-
-	struct hw_xmit *phwxmit;
-	struct tx_servq *ptxservq = NULL;
-	_queue *pframe_queue = NULL;
-	struct xmit_frame *pxmitframe = NULL;
-	_adapter *padapter = pxmitpriv->adapter;
-	struct registry_priv	*pregpriv = &padapter->registrypriv;
-	int i, inx[4];
-
-	inx[0] = 0;
-	inx[1] = 1;
-	inx[2] = 2;
-	inx[3] = 3;
-
-	*num_frame = 0;
-
-	/*No amsdu when wifi_spec on*/
-	if (pregpriv->wifi_spec == 1) {
-		return NULL;
-	}
-
-	_enter_critical_bh(&pxmitpriv->lock, &irqL0);
-
-	for (i = 0; i < entry; i++) {
-		phwxmit = phwxmit_i + inx[i];
-
-		sta_phead = get_list_head(phwxmit->sta_queue);
-		sta_plist = get_next(sta_phead);
-
-		while ((rtw_end_of_queue_search(sta_phead, sta_plist)) == _FALSE) {
-
-			ptxservq = LIST_CONTAINOR(sta_plist, struct tx_servq, tx_pending);
-			pframe_queue = &ptxservq->sta_pending;
-
-			if(ptxservq->qcnt)
-			{
-				*num_frame = ptxservq->qcnt;
-				pxmitframe = get_one_xmitframe(pxmitpriv, phwxmit, ptxservq, pframe_queue);
-				goto exit;
-			}
-			sta_plist = get_next(sta_plist);
-		}
-	}
-
-exit:
-
-	_exit_critical_bh(&pxmitpriv->lock, &irqL0);
-
-	return pxmitframe;
-}
-
 
 struct xmit_frame *rtw_dequeue_xframe(struct xmit_priv *pxmitpriv, struct hw_xmit *phwxmit_i, sint entry)
 {
@@ -3856,7 +3783,7 @@ void rtw_init_hwxmits(struct hw_xmit *phwxmit, sint entry)
 }
 
 #ifdef CONFIG_BR_EXT
-int rtw_br_client_tx(_adapter *padapter, struct sk_buff **pskb)
+static int rtw_br_client_tx(_adapter *padapter, struct sk_buff **pskb)
 {
 	struct sk_buff *skb = *pskb;
 	_irqL irqL;
@@ -5402,7 +5329,7 @@ int rtw_sctx_wait(struct submit_ctx *sctx, const char *msg)
 	return ret;
 }
 
-bool rtw_sctx_chk_waring_status(int status)
+static bool rtw_sctx_chk_waring_status(int status)
 {
 	switch (status) {
 	case RTW_SCTX_DONE_UNKNOWN:

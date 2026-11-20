@@ -588,7 +588,7 @@ void odm_txpowertracking_init(void *dm_void)
 	odm_txpowertracking_thermal_meter_init(dm);
 }
 
-u8 get_swing_index(void *dm_void)
+static u8 get_swing_index(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u8 i = 0;
@@ -620,7 +620,7 @@ u8 get_swing_index(void *dm_void)
 	return i;
 }
 
-u8 get_cck_swing_index(void *dm_void)
+static u8 get_cck_swing_index(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 

@@ -16,7 +16,7 @@
 
 #include <drv_types.h>
 
-bool test_st_match_rule(_adapter *adapter, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port)
+static bool test_st_match_rule(_adapter *adapter, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port)
 {
 	if (ntohs(*((u16 *)local_port)) == 5001 || ntohs(*((u16 *)remote_port)) == 5001)
 		return _TRUE;
@@ -935,7 +935,6 @@ u32 rtw_init_bcmc_stainfo(_adapter *padapter)
 
 	struct sta_info	*psta;
 	struct tx_servq	*ptxservq;
-	u32 res = _SUCCESS;
 	NDIS_802_11_MAC_ADDRESS	bcast_addr = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
 	struct	sta_priv *pstapriv = &padapter->stapriv;
@@ -945,7 +944,6 @@ u32 rtw_init_bcmc_stainfo(_adapter *padapter)
 	psta = rtw_alloc_stainfo(pstapriv, bcast_addr);
 
 	if (psta == NULL) {
-		res = _FAIL;
 		goto exit;
 	}
 #ifdef CONFIG_BEAMFORMING
@@ -1048,7 +1046,7 @@ const char *const _acl_mode_str[RTW_ACL_MODE_MAX] = {
 	"DENY_UNLESS_LISTED",
 };
 
-u8 _rtw_access_ctrl(_adapter *adapter, u8 period, const u8 *mac_addr)
+static u8 _rtw_access_ctrl(_adapter *adapter, u8 period, const u8 *mac_addr)
 {
 	u8 res = _TRUE;
 	_irqL irqL;

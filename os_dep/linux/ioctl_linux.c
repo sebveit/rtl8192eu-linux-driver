@@ -61,10 +61,6 @@ extern u8 convert_ip_addr(u8 hch, u8 mch, u8 lch);
 u32 rtw_rates[] = {1000000, 2000000, 5500000, 11000000,
 	6000000, 9000000, 12000000, 18000000, 24000000, 36000000, 48000000, 54000000};
 
-static const char *const iw_operation_mode[] = {
-	"Auto", "Ad-Hoc", "Managed",  "Master", "Repeater", "Secondary", "Monitor"
-};
-
 /**
  * hwaddr_aton - Convert ASCII string to MAC address
  * @txt: MAC address as a string (e.g., "00:11:22:33:44:55")

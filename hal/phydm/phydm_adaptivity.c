@@ -30,7 +30,7 @@
 
 #ifdef PHYDM_SUPPORT_ADAPTIVITY
 
-void phydm_dig_up_bound_lmt_en(void *dm_void)
+static void phydm_dig_up_bound_lmt_en(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct phydm_adaptivity_struct *adapt = &dm->adaptivity;
@@ -59,7 +59,7 @@ void phydm_dig_up_bound_lmt_en(void *dm_void)
 		  adapt->igi_up_bound_lmt_cnt);
 }
 
-void phydm_check_adaptivity(void *dm_void)
+static void phydm_check_adaptivity(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct phydm_adaptivity_struct *adapt = &dm->adaptivity;
@@ -76,7 +76,7 @@ void phydm_check_adaptivity(void *dm_void)
 	adapt->is_adapt_en = true;
 }
 
-void phydm_set_edcca_threshold(void *dm_void, s8 H2L, s8 L2H)
+static void phydm_set_edcca_threshold(void *dm_void, s8 H2L, s8 L2H)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
@@ -92,7 +92,7 @@ void phydm_set_edcca_threshold(void *dm_void, s8 H2L, s8 L2H)
 	}
 }
 
-void phydm_mac_edcca_state(void *dm_void, enum phydm_mac_edcca_type state)
+static void phydm_mac_edcca_state(void *dm_void, enum phydm_mac_edcca_type state)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
@@ -104,7 +104,7 @@ void phydm_mac_edcca_state(void *dm_void, enum phydm_mac_edcca_type state)
 	PHYDM_DBG(dm, DBG_ADPTVTY, "EDCCA enable state = %d\n", state);
 }
 
-void phydm_search_pwdb_lower_bound(void *dm_void)
+static void phydm_search_pwdb_lower_bound(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct phydm_adaptivity_struct *adapt = &dm->adaptivity;
@@ -181,7 +181,7 @@ void phydm_search_pwdb_lower_bound(void *dm_void)
 	phydm_set_edcca_threshold(dm, 0x7f, 0x7f); /*resume to no link state*/
 }
 
-boolean
+static boolean
 phydm_re_search_condition(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -194,7 +194,7 @@ phydm_re_search_condition(void *dm_void)
 		return false;
 }
 
-void phydm_set_l2h_th_ini(void *dm_void)
+static void phydm_set_l2h_th_ini(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
@@ -213,7 +213,7 @@ void phydm_set_l2h_th_ini(void *dm_void)
 	}
 }
 
-void phydm_set_forgetting_factor(void *dm_void)
+static void phydm_set_forgetting_factor(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
@@ -223,7 +223,7 @@ void phydm_set_forgetting_factor(void *dm_void)
 		odm_set_bb_reg(dm, R_0x83c, BIT(31) | BIT(30) | BIT(29), 0x7);
 }
 
-void phydm_set_pwdb_mode(void *dm_void)
+static void phydm_set_pwdb_mode(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
@@ -341,7 +341,7 @@ void phydm_set_edcca_val(void *dm_void, u32 *val_buf, u8 val_len)
 	phydm_set_edcca_threshold(dm, (s8)val_buf[1], (s8)val_buf[0]);
 }
 
-boolean phydm_edcca_abort(void *dm_void)
+static boolean phydm_edcca_abort(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct phydm_adaptivity_struct *adapt = &dm->adaptivity;

@@ -90,7 +90,7 @@ void phydm_ant_weight_dbg(void *dm_void, char input[][16], u32 *_used,
 }
 #endif
 
-void phydm_iq_gen_en(void *dm_void)
+static void phydm_iq_gen_en(void *dm_void)
 {
 #ifdef PHYDM_COMPILE_IC_2SS
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -143,7 +143,7 @@ void phydm_iq_gen_en(void *dm_void)
 #endif
 }
 
-void phydm_dis_cdd(void *dm_void)
+static void phydm_dis_cdd(void *dm_void)
 {
 #ifdef PHYDM_COMPILE_IC_2SS
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -289,7 +289,7 @@ void phydm_trx_antenna_setting_init(void *dm_void, u8 num_rf_path)
 		  __func__, dm->tx_ant_status, dm->rx_ant_status);
 }
 
-void phydm_config_ofdm_tx_path(void *dm_void, u32 path)
+static void phydm_config_ofdm_tx_path(void *dm_void, u32 path)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
@@ -422,7 +422,7 @@ void phydm_config_cck_rx_path(void *dm_void, enum bb_path path)
 #endif
 }
 
-void phydm_config_cck_tx_path(void *dm_void, enum bb_path path)
+static void phydm_config_cck_tx_path(void *dm_void, enum bb_path path)
 {
 #if (defined(PHYDM_COMPILE_ABOVE_2SS))
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -436,12 +436,7 @@ void phydm_config_cck_tx_path(void *dm_void, enum bb_path path)
 #endif
 }
 
-void phydm_config_trx_path_v2(void *dm_void, char input[][16], u32 *_used,
-			      char *output, u32 *_out_len)
-{
-}
-
-void phydm_config_trx_path_v1(void *dm_void, char input[][16], u32 *_used,
+static void phydm_config_trx_path_v1(void *dm_void, char input[][16], u32 *_used,
 			      char *output, u32 *_out_len)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -754,7 +749,7 @@ void phydm_set_ext_switch(void *dm_void, u32 ext_ant_switch)
 {
 }
 
-void phydm_csi_mask_enable(void *dm_void, u32 enable)
+static void phydm_csi_mask_enable(void *dm_void, u32 enable)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	boolean en = false;
@@ -778,7 +773,7 @@ void phydm_csi_mask_enable(void *dm_void, u32 enable)
 	}
 }
 
-void phydm_clean_all_csi_mask(void *dm_void)
+static void phydm_clean_all_csi_mask(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
@@ -816,7 +811,7 @@ void phydm_clean_all_csi_mask(void *dm_void)
 	}
 }
 
-void phydm_set_csi_mask(void *dm_void, u32 tone_idx_tmp, u8 tone_direction)
+static void phydm_set_csi_mask(void *dm_void, u32 tone_idx_tmp, u8 tone_direction)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u8 byte_offset = 0, bit_offset = 0;
@@ -875,7 +870,7 @@ void phydm_set_csi_mask(void *dm_void, u32 tone_idx_tmp, u8 tone_direction)
 		  (tone_idx_tmp + tone_num_shift), target_reg, reg_tmp_value);
 }
 
-void phydm_set_nbi_reg(void *dm_void, u32 tone_idx_tmp, u32 bw)
+static void phydm_set_nbi_reg(void *dm_void, u32 tone_idx_tmp, u32 bw)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	/*tone_idx X 10*/
@@ -970,7 +965,7 @@ void phydm_nbi_enable(void *dm_void, u32 enable)
 	}
 }
 
-u8 phydm_find_fc(void *dm_void, u32 channel, u32 bw, u32 second_ch, u32 *fc_in)
+static u8 phydm_find_fc(void *dm_void, u32 channel, u32 bw, u32 second_ch, u32 *fc_in)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u32 fc = *fc_in;
@@ -1045,7 +1040,7 @@ u8 phydm_find_fc(void *dm_void, u32 channel, u32 bw, u32 second_ch, u32 *fc_in)
 	return PHYDM_SET_SUCCESS;
 }
 
-u8 phydm_find_intf_distance(void *dm_void, u32 bw, u32 fc, u32 f_interference,
+static u8 phydm_find_intf_distance(void *dm_void, u32 bw, u32 fc, u32 f_interference,
 			    u32 *tone_idx_tmp_in)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;

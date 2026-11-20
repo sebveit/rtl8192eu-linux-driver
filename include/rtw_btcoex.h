@@ -412,9 +412,7 @@ u8 rtw_btcoex_GetRf4ceLinkState(PADAPTER padapter);
 #endif
 
 #ifdef CONFIG_BT_COEXIST_SOCKET_TRX
-void rtw_btcoex_SetBtPatchVersion(PADAPTER padapter, u16 btHciVer, u16 btPatchVer);
 void rtw_btcoex_SetHciVersion(PADAPTER  padapter, u16 hciVersion);
-void rtw_btcoex_StackUpdateProfileInfo(void);
 void rtw_btcoex_init_socket(_adapter *padapter);
 void rtw_btcoex_close_socket(_adapter *padapter);
 void rtw_btcoex_dump_tx_msg(u8 *tx_msg, u8 len, u8 *msg_name);

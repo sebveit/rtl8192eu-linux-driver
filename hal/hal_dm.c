@@ -18,37 +18,6 @@
 #include <linux/etherdevice.h>
 
 /* A mapping from HalData to ODM. */
-enum odm_board_type boardType(u8 InterfaceSel)
-{
-	enum odm_board_type        board	= ODM_BOARD_DEFAULT;
-
-	INTERFACE_SELECT_USB    usb	= (INTERFACE_SELECT_USB)InterfaceSel;
-	switch (usb) {
-	case INTF_SEL1_USB_High_Power:
-		board |= ODM_BOARD_EXT_LNA;
-		board |= ODM_BOARD_EXT_PA;
-		break;
-	case INTF_SEL2_MINICARD:
-		board |= ODM_BOARD_MINICARD;
-		break;
-	case INTF_SEL4_USB_Combo:
-		board |= ODM_BOARD_BT;
-		break;
-	case INTF_SEL5_USB_Combo_MF:
-		board |= ODM_BOARD_BT;
-		break;
-	case INTF_SEL0_USB:
-	case INTF_SEL3_USB_Solo:
-	default:
-		board = ODM_BOARD_DEFAULT;
-		break;
-	}
-
-	/* RTW_INFO("===> boardType(): (pHalData->InterfaceSel, pDM_Odm->BoardType) = (%d, %d)\n", InterfaceSel, board); */
-
-	return board;
-}
-
 void rtw_hal_update_iqk_fw_offload_cap(_adapter *adapter)
 {
 	PHAL_DATA_TYPE hal = GET_HAL_DATA(adapter);
@@ -64,18 +33,6 @@ void rtw_hal_update_iqk_fw_offload_cap(_adapter *adapter)
 }
 
 
-void rtw_phydm_iqk_trigger_dbg(_adapter *adapter, bool recovery, bool clear, bool segment)
-{
-	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
-
-		halrf_iqk_trigger(p_dm_odm, recovery);
-}
-void rtw_phydm_lck_trigger(_adapter *adapter)
-{
-	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
-
-	halrf_lck_trigger(p_dm_odm);
-}
 #ifdef CONFIG_DBG_RF_CAL
 void rtw_hal_iqk_test(_adapter *adapter, bool recovery, bool clear, bool segment)
 {
@@ -219,7 +176,7 @@ void rtw_phydm_tx_2path_en(_adapter *adapter)
 }
 #endif
 
-void rtw_phydm_ops_func_init(struct dm_struct *p_phydm)
+static void rtw_phydm_ops_func_init(struct dm_struct *p_phydm)
 {
 	struct ra_table *p_ra_t = &p_phydm->dm_ra_table;
 

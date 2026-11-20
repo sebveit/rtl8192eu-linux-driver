@@ -143,25 +143,6 @@ exit:
 	return ret;
 }
 
-u8 rtl8192e_h2c_msg_hdl(_adapter *padapter, unsigned char *pbuf)
-{
-	u8 ElementID, CmdLen;
-	u8 *pCmdBuffer;
-	struct cmd_msg_parm  *pcmdmsg;
-
-	if (!pbuf)
-		return H2C_PARAMETERS_ERROR;
-
-	pcmdmsg = (struct cmd_msg_parm *)pbuf;
-	ElementID = pcmdmsg->eid;
-	CmdLen = pcmdmsg->sz;
-	pCmdBuffer = pcmdmsg->buf;
-
-	FillH2CCmd_8192E(padapter, ElementID, CmdLen, pCmdBuffer);
-
-	return H2C_SUCCESS;
-}
-
 void rtl8192e_set_FwPwrMode_cmd(PADAPTER padapter, u8 PSMode)
 {
 	u8	u1H2CSetPwrMode[H2C_PWRMODE_LEN] = {0};
@@ -299,7 +280,7 @@ GetTxBufferRsvdPageNum8192E(_adapter *padapter, bool wowlan)
 
 	return RsvdPageNum;
 }
-void rtl8192e_download_rsvd_page(PADAPTER padapter, u8 mstatus)
+static void rtl8192e_download_rsvd_page(PADAPTER padapter, u8 mstatus)
 {
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
@@ -412,16 +393,6 @@ void rtl8192e_set_FwJoinBssReport_cmd(PADAPTER padapter, u8 mstatus)
 }
 
 #ifdef CONFIG_P2P_PS
-void rtl8192e_set_p2p_ctw_period_cmd(_adapter *padapter, u8 ctwindow)
-{
-	struct P2P_PS_CTWPeriod_t p2p_ps_ctw;
-
-	p2p_ps_ctw.CTWPeriod = ctwindow;
-
-	FillH2CCmd_8192E(padapter, H2C_8192E_P2P_PS_OFFLOAD, 1, (u8 *)(&p2p_ps_ctw));
-
-}
-
 void rtl8192e_set_p2p_ps_offload_cmd(_adapter *padapter, u8 p2p_ps_state)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
@@ -507,61 +478,6 @@ void rtl8192e_set_p2p_ps_offload_cmd(_adapter *padapter, u8 p2p_ps_state)
 #endif /* CONFIG_P2P */
 
 
-
-void dump_txrpt_ccx_92e(IN	u8 *CmdBuf)
-{
-	u8 MacID, Unicast, LifeTimeOver, RetryOver, DataRetryCount, QueueTimeUs, FinalDataRateIndex;
-
-	RTW_INFO("============= %s ===========\n", __FUNCTION__);
-	switch (GET_8192E_C2H_TX_RPT_QUEUE_SELECT(CmdBuf)) {
-	/* AC Queue ------------------- */
-	case 0x01:
-	case 0x02:
-		RTW_INFO("QSEL: BK_QUEUE ");
-		break;
-	case 0x00:
-	case 0x03:
-		RTW_INFO("QSEL: BE_QUEUE ");
-		break;
-	case 0x04:
-	case 0x05:
-		RTW_INFO("QSEL:VI_QUEUE ");
-		break;
-	case 0x06:
-	case 0x07:
-		RTW_INFO("QSEL:VO_QUEUE ");
-		break;
-	/* --------------------------- */
-	case QSLT_BEACON:
-		RTW_INFO("QSEL:BEACON_QUEUE ");
-		break;
-	case QSLT_HIGH:
-		RTW_INFO("QSEL: HIGH_QUEUE ");
-		break;
-	case QSLT_MGNT:
-		RTW_INFO("QSEL:MGNT_QUEUE ");
-		break;
-	case QSLT_CMD:
-		RTW_INFO("QSEL:TXCMD_QUEUE ");
-		break;
-
-	default:
-		RTW_INFO("QSEL:Invalid Queue Select ID !");
-	}
-
-	MacID = GET_8192E_C2H_TX_RPT_MAC_ID(CmdBuf);
-	Unicast = GET_8192E_C2H_TX_RPT_PKT_BROCAST(CmdBuf);
-	LifeTimeOver = GET_8192E_C2H_TX_RPT_LIFE_TIME_OVER(CmdBuf);
-	RetryOver = GET_8192E_C2H_TX_RPT_RETRY_OVER(CmdBuf);
-	DataRetryCount  = GET_8192E_C2H_TX_RPT_DATA_RETRY_CNT(CmdBuf);
-	QueueTimeUs = GET_8192E_C2H_TX_RPT_QUEUE_TIME(CmdBuf) * USEC_UNIT_FOR_8192E_C2H_TX_RPT_QUEUE_TIME;
-	FinalDataRateIndex = GET_8192E_C2H_TX_RPT_FINAL_DATA_RATE(CmdBuf);
-
-	RTW_INFO("MacID:%u,Unicast:%u,LifeTimeOver:%u,RetryOver:%u,DataRetryCount:%u,QueueTimeUs:%u,FinalDataRateIndex:%u"
-		, MacID, Unicast, LifeTimeOver, RetryOver, DataRetryCount, QueueTimeUs, FinalDataRateIndex);
-
-
-}
 
 static VOID
 C2HTxFeedbackHandler_8192E(
