@@ -369,8 +369,8 @@ void rtw_mfree_stainfo(struct sta_info *psta);
 void rtw_mfree_stainfo(struct sta_info *psta)
 {
 
-       /* psta->lock is always valid, free it unconditionally */
-       _rtw_spinlock_free(&psta->lock);
+	/* psta->lock is always valid, free it unconditionally */
+	_rtw_spinlock_free(&psta->lock);
 
 	_rtw_free_sta_xmit_priv_lock(&psta->sta_xmitpriv);
 	_rtw_free_sta_recv_priv_lock(&psta->sta_recvpriv);
@@ -984,7 +984,7 @@ struct sta_info *rtw_get_bcmc_stainfo(_adapter *padapter)
 u16 rtw_aid_alloc(_adapter *adapter, struct sta_info *sta)
 {
 	struct sta_priv *stapriv = &adapter->stapriv;
-	u16 aid, i, used_cnt = 0;
+	u16 aid = 0, i, used_cnt = 0;
 
 	for (i = 0; i < stapriv->max_aid; i++) {
 		aid = ((i + stapriv->started_aid - 1) % stapriv->max_aid) + 1;

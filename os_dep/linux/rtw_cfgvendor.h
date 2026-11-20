@@ -216,9 +216,9 @@ enum gscan_ch_attributes {
 };
 
 enum wifi_rssi_monitor_attr {
-        RSSI_MONITOR_ATTRIBUTE_MAX_RSSI,
-        RSSI_MONITOR_ATTRIBUTE_MIN_RSSI,
-        RSSI_MONITOR_ATTRIBUTE_START,
+	RSSI_MONITOR_ATTRIBUTE_MAX_RSSI,
+	RSSI_MONITOR_ATTRIBUTE_MIN_RSSI,
+	RSSI_MONITOR_ATTRIBUTE_START,
 };
 
 
@@ -443,7 +443,7 @@ typedef struct {
    u32 nss        :2;   // 0:1x1, 1:2x2, 3:3x3, 4:4x4
    u32 bw         :3;   // 0:20MHz, 1:40Mhz, 2:80Mhz, 3:160Mhz
    u32 rateMcsIdx :8;   // OFDM/CCK rate code would be as per ieee std in the units of 0.5mbps
-                        // HT/VHT it would be mcs index
+			// HT/VHT it would be mcs index
    u32 reserved  :16;   // reserved
    u32 bitrate;         // units of 100 Kbps
 } wifi_rate;
@@ -584,7 +584,7 @@ typedef struct {
 /* configuration params */
 typedef struct {
    u32 mpdu_size_threshold;             // threshold to classify the pkts as short or long
-                                        // packet size < mpdu_size_threshold => short
+					// packet size < mpdu_size_threshold => short
    u32 aggressive_statistics_gathering; // set for field debug mode. Driver should collect all statistics regardless of performance impact.
 } wifi_link_layer_params;
 
@@ -612,11 +612,7 @@ typedef struct {
 extern int rtw_cfgvendor_attach(struct wiphy *wiphy);
 extern int rtw_cfgvendor_detach(struct wiphy *wiphy);
 extern int rtw_cfgvendor_send_async_event(struct wiphy *wiphy,
-        struct net_device *dev, int event_id, const void  *data, int len);
-#if defined(GSCAN_SUPPORT) && 0
-extern int rtw_cfgvendor_send_hotlist_event(struct wiphy *wiphy,
-        struct net_device *dev, void  *data, int len, rtw_vendor_event_t event);
-#endif
+	struct net_device *dev, int event_id, const void  *data, int len);
 
 #ifdef CONFIG_RTW_CFGVEDNOR_RSSIMONITOR
 void rtw_cfgvendor_rssi_monitor_evt(_adapter *padapter);

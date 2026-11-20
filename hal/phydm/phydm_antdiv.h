@@ -193,11 +193,6 @@ struct sw_antenna_switch {
 	u32		pkt_cnt_sw_ant_div_by_ctrl_frame;
 	boolean		is_sw_ant_div_by_ctrl_frame;
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-#if USE_WORKITEM
-	RT_WORK_ITEM	phydm_sw_antenna_switch_workitem;
-#endif
-#endif
 
 	/* @AntDect (Before link Antenna Switch check) need to be moved*/
 	u16		single_ant_counter;
@@ -214,36 +209,6 @@ struct sw_antenna_switch {
 	u8		ant_2g;
 };
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-#if (defined(CONFIG_PHYDM_ANTENNA_DIVERSITY))
-struct _BF_DIV_COEX_ {
-	boolean w_bfer_client[ODM_ASSOCIATE_ENTRY_NUM];
-	boolean w_bfee_client[ODM_ASSOCIATE_ENTRY_NUM];
-	u32 MA_rx_TP[ODM_ASSOCIATE_ENTRY_NUM];
-	u32 MA_rx_TP_DIV[ODM_ASSOCIATE_ENTRY_NUM];
-
-	u8 bd_ccoex_type_wbfer;
-	u8 num_txbfee_client;
-	u8 num_txbfer_client;
-	u8 bdc_try_counter;
-	u8 bdc_hold_counter;
-	u8 bdc_mode;
-	u8 bdc_active_mode;
-	u8 BDC_state;
-	u8 bdc_rx_idle_update_counter;
-	u8 num_client;
-	u8 pre_num_client;
-	u8 num_bf_tar;
-	u8 num_div_tar;
-
-	boolean is_all_div_sta_idle;
-	boolean is_all_bf_sta_idle;
-	boolean bdc_try_flag;
-	boolean BF_pass;
-	boolean DIV_pass;
-};
-#endif
-#endif
 
 struct phydm_fat_struct {
 	u8	bssid[6];
@@ -316,7 +281,6 @@ struct phydm_fat_struct {
 	u8	pre_antdiv_rssi;
 	u8	pre_antdiv_tp;
 #endif
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 	u32    cck_ctrl_frame_cnt_main;
 	u32    cck_ctrl_frame_cnt_aux;
 	u32    ofdm_ctrl_frame_cnt_main;
@@ -325,7 +289,6 @@ struct phydm_fat_struct {
 	u32	aux_ctrl_sum;
 	u32	main_ctrl_cnt;
 	u32	aux_ctrl_cnt;
-#endif
 	u8	b_fix_tx_ant;
 	boolean	fix_ant_bfee;
 	boolean	enable_ctrl_frame_antdiv;
@@ -420,18 +383,11 @@ void odm_update_rx_idle_ant_8723d(void *dm_void, u8 ant, u32 default_ant,
 
 #ifdef CONFIG_S0S1_SW_ANTENNA_DIVERSITY
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-void odm_sw_antdiv_callback(struct phydm_timer_list *timer);
-
-void odm_sw_antdiv_workitem_callback(void *context);
-
-#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 
 void odm_sw_antdiv_workitem_callback(void *context);
 
 void odm_sw_antdiv_callback(void *function_context);
 
-#endif
 
 void odm_s0s1_sw_ant_div_by_ctrl_frame(void *dm_void, u8 step);
 
@@ -447,19 +403,10 @@ void odm_s0s1_sw_ant_div_by_ctrl_frame_process_rssi(void *dm_void,
 #ifdef ODM_EVM_ENHANCE_ANTDIV
 void phydm_evm_sw_antdiv_init(void *dm_void);
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-void phydm_evm_antdiv_callback(struct phydm_timer_list *timer);
-
-void phydm_evm_antdiv_workitem_callback(void *context);
-
-#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 void phydm_evm_antdiv_callback(void *dm_void);
 
 void phydm_evm_antdiv_workitem_callback(void *context);
 
-#else
-void phydm_evm_antdiv_callback(void *dm_void);
-#endif
 
 #endif
 
@@ -486,22 +433,8 @@ void odm_antsel_statistics(void *dm_void, void *phy_info_void,
 void odm_process_rssi_for_ant_div(void *dm_void, void *phy_info_void,
 				  void *pkt_info_void);
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 void odm_set_tx_ant_by_tx_info(void *dm_void,	 u8 *desc, u8 mac_id);
 
-#elif (DM_ODM_SUPPORT_TYPE == ODM_AP)
-
-struct tx_desc;
-/*@declared tx_desc here or compile error happened when enabled 8822B*/
-
-void odm_set_tx_ant_by_tx_info(struct rtl8192cd_priv *priv,
-			       struct tx_desc *pdesc, unsigned short aid);
-
-#if 1 /*@def def CONFIG_WLAN_HAL*/
-void odm_set_tx_ant_by_tx_info_hal(struct rtl8192cd_priv *priv,
-				   void *pdesc_data, u16 aid);
-#endif /*@#ifdef CONFIG_WLAN_HAL*/
-#endif
 
 void odm_ant_div_config(void *dm_void);
 

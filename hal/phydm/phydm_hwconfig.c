@@ -59,10 +59,6 @@ odm_config_rf_with_header_file(struct dm_struct *dm,
 			       enum odm_rf_config_type config_type,
 			       u8 e_rf_path)
 {
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	void *adapter = dm->adapter;
-	PMGNT_INFO mgnt_info = &((PADAPTER)adapter)->MgntInfo;
-#endif
 	enum hal_status result = HAL_STATUS_SUCCESS;
 
 	PHYDM_DBG(dm, ODM_COMP_INIT, "===>%s (%s)\n", __func__,
@@ -72,7 +68,6 @@ odm_config_rf_with_header_file(struct dm_struct *dm,
 		  dm->support_platform, dm->support_interface, dm->board_type);
 
 /* @1 AP doesn't use PHYDM power tracking table in these ICs */
-#if (DM_ODM_SUPPORT_TYPE != ODM_AP)
 #if (RTL8812A_SUPPORT == 1)
 	if (dm->support_ic_type == ODM_RTL8812) {
 		if (config_type == CONFIG_RF_RADIO) {
@@ -81,14 +76,6 @@ odm_config_rf_with_header_file(struct dm_struct *dm,
 			else if (e_rf_path == RF_PATH_B)
 				READ_AND_CONFIG_MP(8812a, _radiob);
 		} else if (config_type == CONFIG_RF_TXPWR_LMT) {
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN) && (DEV_BUS_TYPE == RT_PCI_INTERFACE)
-			HAL_DATA_TYPE * hal_data = GET_HAL_DATA(((PADAPTER)adapter));
-			if ((hal_data->EEPROMSVID == 0x17AA && hal_data->EEPROMSMID == 0xA811) ||
-			    (hal_data->EEPROMSVID == 0x10EC && hal_data->EEPROMSMID == 0xA812) ||
-			    (hal_data->EEPROMSVID == 0x10EC && hal_data->EEPROMSMID == 0x8812))
-				READ_AND_CONFIG_MP(8812a, _txpwr_lmt_hm812a03);
-			else
-#endif
 				READ_AND_CONFIG_MP(8812a, _txpwr_lmt);
 		}
 	}
@@ -105,13 +92,6 @@ odm_config_rf_with_header_file(struct dm_struct *dm,
 				else
 					READ_AND_CONFIG_MP(8821a, _txpwr_lmt_8811a_u_ipa);
 			} else {
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-				if (mgnt_info->CustomerID == RT_CID_8821AE_ASUS_MB)
-					READ_AND_CONFIG_MP(8821a, _txpwr_lmt_8821a_sar_8mm);
-				else if (mgnt_info->CustomerID == RT_CID_ASUS_NB)
-					READ_AND_CONFIG_MP(8821a, _txpwr_lmt_8821a_sar_5mm);
-				else
-#endif
 					READ_AND_CONFIG_MP(8821a, _txpwr_lmt_8821a);
 			}
 		}
@@ -125,14 +105,6 @@ odm_config_rf_with_header_file(struct dm_struct *dm,
 			else if (e_rf_path == RF_PATH_B)
 				READ_AND_CONFIG_MP(8192e, _radiob);
 		} else if (config_type == CONFIG_RF_TXPWR_LMT) {
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN) && (DEV_BUS_TYPE == RT_PCI_INTERFACE) /*Refine by Vincent Lan for 5mm SAR pwr limit*/
-			HAL_DATA_TYPE * hal_data = GET_HAL_DATA(((PADAPTER)adapter));
-
-			if ((hal_data->EEPROMSVID == 0x11AD && hal_data->EEPROMSMID == 0x8192) ||
-			    (hal_data->EEPROMSVID == 0x11AD && hal_data->EEPROMSMID == 0x8193))
-				READ_AND_CONFIG_MP(8192e, _txpwr_lmt_8192e_sar_5mm);
-			else
-#endif
 				READ_AND_CONFIG_MP(8192e, _txpwr_lmt);
 		}
 	}
@@ -158,7 +130,6 @@ odm_config_rf_with_header_file(struct dm_struct *dm,
 	}
 #endif
 
-#endif /* @(DM_ODM_SUPPORT_TYPE !=  ODM_AP) */
 /* @1 All platforms support */
 #if (RTL8188E_SUPPORT == 1)
 	if (dm->support_ic_type == ODM_RTL8188E) {
@@ -370,12 +341,6 @@ odm_config_rf_with_header_file(struct dm_struct *dm,
 			if (e_rf_path == RF_PATH_A)
 				READ_AND_CONFIG(8195b, _radioa);
 		}
-		#if 0
-		else if (config_type == CONFIG_RF_TXPWR_LMT) {
-			READ_AND_CONFIG(8821c, _txpwr_lmt);
-			/*@*/
-		}
-		#endif
 	}
 #endif
 #if (RTL8198F_SUPPORT == 1)
@@ -477,7 +442,6 @@ odm_config_rf_with_tx_pwr_track_header_file(struct dm_struct *dm)
 		  dm->support_platform, dm->support_interface, dm->board_type);
 
 /* @1 AP doesn't use PHYDM power tracking table in these ICs */
-#if (DM_ODM_SUPPORT_TYPE != ODM_AP)
 #if RTL8821A_SUPPORT
 	if (dm->support_ic_type == ODM_RTL8821) {
 		if (dm->support_interface == ODM_ITRF_PCIE)
@@ -552,7 +516,6 @@ odm_config_rf_with_tx_pwr_track_header_file(struct dm_struct *dm)
 		}
 	}
 #endif
-#endif /* @(DM_ODM_SUPPORT_TYPE !=  ODM_AP) */
 /* @1 All platforms support */
 #if RTL8723B_SUPPORT
 	if (dm->support_ic_type == ODM_RTL8723B) {
@@ -728,12 +691,6 @@ odm_config_rf_with_tx_pwr_track_header_file(struct dm_struct *dm)
 
 #if RTL8721D_SUPPORT
 	if (dm->support_ic_type == ODM_RTL8721D) {
-		#if 0
-		if (dm->package_type == 1)
-			READ_AND_CONFIG_MP(8721d, _txpowertrack_qfn48m_smic);
-		else if (dm->package_type == 5)
-			READ_AND_CONFIG_MP(8721d, _txpowertrack_qfn48m_umc);
-		#endif
 		READ_AND_CONFIG_MP(8721d, _txpowertrack);
 		READ_AND_CONFIG_MP(8721d, _txxtaltrack);
 	}
@@ -778,14 +735,9 @@ enum hal_status
 odm_config_bb_with_header_file(struct dm_struct *dm,
 			       enum odm_bb_config_type config_type)
 {
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	void *adapter = dm->adapter;
-	PMGNT_INFO mgnt_info = &((PADAPTER)adapter)->MgntInfo;
-#endif
 	enum hal_status result = HAL_STATUS_SUCCESS;
 
 /* @1 AP doesn't use PHYDM initialization in these ICs */
-#if (DM_ODM_SUPPORT_TYPE != ODM_AP)
 #if (RTL8812A_SUPPORT == 1)
 	if (dm->support_ic_type == ODM_RTL8812) {
 		if (config_type == CONFIG_BB_PHY_REG)
@@ -795,10 +747,6 @@ odm_config_bb_with_header_file(struct dm_struct *dm,
 		else if (config_type == CONFIG_BB_PHY_REG_PG) {
 			if (dm->rfe_type == 3 && dm->is_mp_chip)
 				READ_AND_CONFIG_MP(8812a, _phy_reg_pg_asus);
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-			else if (mgnt_info->CustomerID == RT_CID_WNC_NEC && dm->is_mp_chip)
-				READ_AND_CONFIG_MP(8812a, _phy_reg_pg_nec);
-#endif
 			else
 				READ_AND_CONFIG_MP(8812a, _phy_reg_pg);
 		} else if (config_type == CONFIG_BB_PHY_REG_MP)
@@ -820,15 +768,6 @@ odm_config_bb_with_header_file(struct dm_struct *dm,
 		else if (config_type == CONFIG_BB_AGC_TAB)
 			READ_AND_CONFIG_MP(8821a, _agc_tab);
 		else if (config_type == CONFIG_BB_PHY_REG_PG) {
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-#if (DEV_BUS_TYPE == RT_PCI_INTERFACE)
-			HAL_DATA_TYPE * hal_data = GET_HAL_DATA(((PADAPTER)adapter));
-
-			if ((hal_data->EEPROMSVID == 0x1043 && hal_data->EEPROMSMID == 0x207F))
-				READ_AND_CONFIG_MP(8821a, _phy_reg_pg_e202_sa);
-			else
-#endif
-#endif
 				READ_AND_CONFIG_MP(8821a, _phy_reg_pg);
 		}
 	}
@@ -865,7 +804,6 @@ odm_config_bb_with_header_file(struct dm_struct *dm,
 	}
 #endif
 
-#endif /* @(DM_ODM_SUPPORT_TYPE !=  ODM_AP) */
 /* @1 All platforms support */
 #if (RTL8188E_SUPPORT == 1)
 	if (dm->support_ic_type == ODM_RTL8188E) {
@@ -1171,7 +1109,6 @@ odm_config_mac_with_header_file(struct dm_struct *dm)
 		  dm->support_platform, dm->support_interface, dm->board_type);
 
 /* @1 AP doesn't use PHYDM initialization in these ICs */
-#if (DM_ODM_SUPPORT_TYPE != ODM_AP)
 #if (RTL8812A_SUPPORT == 1)
 	if (dm->support_ic_type == ODM_RTL8812)
 		READ_AND_CONFIG_MP(8812a, _mac_reg);
@@ -1193,7 +1130,6 @@ odm_config_mac_with_header_file(struct dm_struct *dm)
 	if (dm->support_ic_type == ODM_RTL8710B)
 		READ_AND_CONFIG_MP(8710b, _mac_reg);
 #endif
-#endif /* @(DM_ODM_SUPPORT_TYPE !=  ODM_AP) */
 /* @1 All platforms support */
 #if (RTL8188E_SUPPORT == 1)
 	if (dm->support_ic_type == ODM_RTL8188E)
@@ -1283,7 +1219,6 @@ u32 odm_get_hw_img_version(struct dm_struct *dm)
 	u32 version = 0;
 
 /* @1 AP doesn't use PHYDM initialization in these ICs */
-#if (DM_ODM_SUPPORT_TYPE != ODM_AP)
 #if (RTL8821A_SUPPORT == 1)
 	if (dm->support_ic_type == ODM_RTL8821)
 		version = GET_VERSION_MP(8821a, _mac_reg);
@@ -1305,7 +1240,6 @@ u32 odm_get_hw_img_version(struct dm_struct *dm)
 	if (dm->support_ic_type == ODM_RTL8710B)
 		version = GET_VERSION_MP(8710b, _mac_reg);
 #endif
-#endif /* @(DM_ODM_SUPPORT_TYPE != ODM_AP) */
 
 /*@1 All platforms support*/
 #if (RTL8188E_SUPPORT == 1)

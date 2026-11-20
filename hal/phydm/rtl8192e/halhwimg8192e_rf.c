@@ -1069,68 +1069,6 @@ odm_get_version_mp_8192e_radiob(void)
  ******************************************************************************/
 
 #ifdef CONFIG_8192E_AP
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-const u8 delta_swingidx_mp_5gb_n_txpwrtrk_ap_8192e[][D_S_SIZE] = {
-	{0, 1, 1, 2, 2, 3, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10,
-	 11, 12, 12, 13, 13, 14, 14, 14, 14, 14, 14, 14},
-	{0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10,
-	 11, 11, 12, 12, 13, 13, 14, 14, 14, 14, 14, 14, 14},
-	{0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10,
-	 11, 11, 12, 12, 13, 13, 14, 14, 14, 14, 14, 14, 14},
-};
-
-const u8 delta_swingidx_mp_5gb_p_txpwrtrk_ap_8192e[][D_S_SIZE] = {
-	{0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 12, 12,
-	 13, 14, 15, 15, 16, 16, 17, 17, 18, 19, 20, 20, 20},
-	{0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 12, 12,
-	 13, 14, 15, 15, 16, 17, 18, 18, 19, 19, 20, 20, 20},
-	{0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 12, 12,
-	 13, 14, 15, 15, 16, 17, 18, 18, 19, 20, 21, 21, 21},
-};
-
-const u8 delta_swingidx_mp_5ga_n_txpwrtrk_ap_8192e[][D_S_SIZE] = {
-	{0, 1, 2, 3, 3, 4, 4, 5, 5, 6, 7, 8, 8, 9, 9, 10, 10,
-	 11, 11, 12, 12, 13, 13, 14, 14, 14, 14, 14, 14, 14},
-	{0, 1, 2, 3, 3, 4, 5, 6, 6, 6, 7, 7, 8, 8, 9, 10, 11,
-	 11, 12, 13, 13, 14, 15, 16, 16, 16, 16, 16, 16, 16},
-	{0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 10, 11, 11,
-	 12, 13, 14, 14, 15, 15, 16, 16, 16, 16, 16, 16, 16},
-};
-
-const u8 delta_swingidx_mp_5ga_p_txpwrtrk_ap_8192e[][D_S_SIZE] = {
-	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 12, 12,
-	 13, 14, 15, 15, 16, 17, 18, 18, 19, 20, 21, 21, 21},
-	{0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 12, 12,
-	 13, 14, 15, 15, 16, 17, 18, 18, 19, 20, 21, 21, 21},
-};
-
-const u8 delta_swingidx_mp_2gb_n_txpwrtrk_ap_8192e[]    = {
-	0, 0, 1, 2, 2, 2, 3, 3, 3, 4, 5, 5, 6, 6, 6, 6, 7,
-	 7, 7, 8, 8, 9, 9, 10, 10, 11, 12, 13, 14, 15};
-const u8 delta_swingidx_mp_2gb_p_txpwrtrk_ap_8192e[]    = {
-	0, 0, 1, 2, 2, 2, 3, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8,
-	 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15};
-const u8 delta_swingidx_mp_2ga_n_txpwrtrk_ap_8192e[]    = {
-	0, 0, 1, 2, 2, 2, 3, 3, 3, 4, 5, 5, 6, 6, 6, 6, 7,
-	 7, 7, 8, 8, 9, 9, 10, 10, 11, 12, 13, 14, 15};
-const u8 delta_swingidx_mp_2ga_p_txpwrtrk_ap_8192e[]    = {
-	0, 0, 1, 2, 2, 2, 3, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8,
-	 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15};
-const u8 delta_swingidx_mp_2g_cck_b_n_txpwrtrk_ap_8192e[] = {
-	0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 7, 7, 8, 8,
-	 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15};
-const u8 delta_swingidx_mp_2g_cck_b_p_txpwrtrk_ap_8192e[] = {
-	0, 0, 0, 0, 1, 1, 1, 3, 3, 4, 4, 4, 4, 6, 6, 6, 6,
-	 7, 7, 7, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15};
-const u8 delta_swingidx_mp_2g_cck_a_n_txpwrtrk_ap_8192e[] = {
-	0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 7, 7, 8, 8,
-	 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15};
-const u8 delta_swingidx_mp_2g_cck_a_p_txpwrtrk_ap_8192e[] = {
-	0, 0, 0, 0, 1, 1, 1, 3, 3, 4, 4, 4, 4, 6, 6, 6, 6,
-	 7, 7, 7, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15};
-#endif
 #endif
 
 void
@@ -1138,50 +1076,6 @@ odm_read_and_config_mp_8192e_txpowertrack_ap(struct dm_struct *dm)
 {
 #ifdef CONFIG_8192E_AP
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-struct dm_rf_calibration_struct  *cali_info = &dm->rf_calibrate_info;
-
-PHYDM_DBG(dm, ODM_COMP_INIT, "===> ODM_ReadAndConfig_MP_mp_8192e\n");
-
-odm_move_memory(dm, cali_info->delta_swing_table_idx_2ga_p,
-		(void *)delta_swingidx_mp_2ga_p_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE);
-odm_move_memory(dm, cali_info->delta_swing_table_idx_2ga_n,
-		(void *)delta_swingidx_mp_2ga_n_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE);
-odm_move_memory(dm, cali_info->delta_swing_table_idx_2gb_p,
-		(void *)delta_swingidx_mp_2gb_p_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE);
-odm_move_memory(dm, cali_info->delta_swing_table_idx_2gb_n,
-		(void *)delta_swingidx_mp_2gb_n_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE);
-
-odm_move_memory(dm, cali_info->delta_swing_table_idx_2g_cck_a_p,
-		(void *)delta_swingidx_mp_2g_cck_a_p_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE);
-odm_move_memory(dm, cali_info->delta_swing_table_idx_2g_cck_a_n,
-		(void *)delta_swingidx_mp_2g_cck_a_n_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE);
-odm_move_memory(dm, cali_info->delta_swing_table_idx_2g_cck_b_p,
-		(void *)delta_swingidx_mp_2g_cck_b_p_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE);
-odm_move_memory(dm, cali_info->delta_swing_table_idx_2g_cck_b_n,
-		(void *)delta_swingidx_mp_2g_cck_b_n_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE);
-
-odm_move_memory(dm, cali_info->delta_swing_table_idx_5ga_p,
-		(void *)delta_swingidx_mp_5ga_p_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE * 3);
-odm_move_memory(dm, cali_info->delta_swing_table_idx_5ga_n,
-		(void *)delta_swingidx_mp_5ga_n_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE * 3);
-odm_move_memory(dm, cali_info->delta_swing_table_idx_5gb_p,
-		(void *)delta_swingidx_mp_5gb_p_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE * 3);
-odm_move_memory(dm, cali_info->delta_swing_table_idx_5gb_n,
-		(void *)delta_swingidx_mp_5gb_n_txpwrtrk_ap_8192e,
-		DELTA_SWINGIDX_SIZE * 3);
-#endif
 #endif
 }
 
@@ -1983,38 +1877,14 @@ odm_read_and_config_mp_8192e_txpwr_lmt(struct dm_struct *dm)
 #ifdef CONFIG_8192E
 
 	u32	i = 0;
-#if (DM_ODM_SUPPORT_TYPE == ODM_IOT)
-	u32	array_len =
-			sizeof(array_mp_8192e_txpwr_lmt) / sizeof(u8);
-	u8	*array = (u8 *)array_mp_8192e_txpwr_lmt;
-#else
 	u32	array_len =
 			sizeof(array_mp_8192e_txpwr_lmt) / sizeof(u8 *);
 	u8	**array = (u8 **)array_mp_8192e_txpwr_lmt;
-#endif
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	void	*adapter = dm->adapter;
-	HAL_DATA_TYPE	*hal_data = GET_HAL_DATA(((PADAPTER)adapter));
-
-	odm_memory_set(dm, hal_data->BufOfLinesPwrLmt, 0,
-		       MAX_LINES_HWCONFIG_TXT *
-		       MAX_BYTES_LINE_HWCONFIG_TXT);
-	hal_data->nLinesReadPwrLmt = array_len / 7;
-#endif
 
 	PHYDM_DBG(dm, ODM_COMP_INIT, "===> %s\n", __func__);
 
 	for (i = 0; i < array_len; i += 7) {
-#if (DM_ODM_SUPPORT_TYPE == ODM_IOT)
-		u8	regulation = array[i];
-		u8	band = array[i + 1];
-		u8	bandwidth = array[i + 2];
-		u8	rate = array[i + 3];
-		u8	rf_path = array[i + 4];
-		u8	chnl = array[i + 5];
-		u8	val = array[i + 6];
-#else
 		u8	*regulation = array[i];
 		u8	*band = array[i + 1];
 		u8	*bandwidth = array[i + 2];
@@ -2022,14 +1892,9 @@ odm_read_and_config_mp_8192e_txpwr_lmt(struct dm_struct *dm)
 		u8	*rf_path = array[i + 4];
 		u8	*chnl = array[i + 5];
 		u8	*val = array[i + 6];
-#endif
 
 		odm_config_bb_txpwr_lmt_8192e(dm, regulation, band, bandwidth,
 					      rate, rf_path, chnl, val);
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-		rsprintf((char *)hal_data->BufOfLinesPwrLmt[i / 7], 100, "\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\",",
-			 regulation, band, bandwidth, rate, rf_path, chnl, val);
-#endif
 	}
 
 #endif
@@ -2470,38 +2335,14 @@ odm_read_and_config_mp_8192e_txpwr_lmt_8192e_sar_5mm(struct dm_struct *dm)
 #ifdef CONFIG_8192E_8192E_SAR_5MM
 
 	u32	i = 0;
-#if (DM_ODM_SUPPORT_TYPE == ODM_IOT)
-	u32	array_len =
-			sizeof(array_mp_8192e_txpwr_lmt_8192e_sar_5mm) / sizeof(u8);
-	u8	*array = (u8 *)array_mp_8192e_txpwr_lmt_8192e_sar_5mm;
-#else
 	u32	array_len =
 			sizeof(array_mp_8192e_txpwr_lmt_8192e_sar_5mm) / sizeof(u8 *);
 	u8	**array = (u8 **)array_mp_8192e_txpwr_lmt_8192e_sar_5mm;
-#endif
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	void	*adapter = dm->adapter;
-	HAL_DATA_TYPE	*hal_data = GET_HAL_DATA(((PADAPTER)adapter));
-
-	odm_memory_set(dm, hal_data->BufOfLinesPwrLmt, 0,
-		       MAX_LINES_HWCONFIG_TXT *
-		       MAX_BYTES_LINE_HWCONFIG_TXT);
-	hal_data->nLinesReadPwrLmt = array_len / 7;
-#endif
 
 	PHYDM_DBG(dm, ODM_COMP_INIT, "===> %s\n", __func__);
 
 	for (i = 0; i < array_len; i += 7) {
-#if (DM_ODM_SUPPORT_TYPE == ODM_IOT)
-		u8	regulation = array[i];
-		u8	band = array[i + 1];
-		u8	bandwidth = array[i + 2];
-		u8	rate = array[i + 3];
-		u8	rf_path = array[i + 4];
-		u8	chnl = array[i + 5];
-		u8	val = array[i + 6];
-#else
 		u8	*regulation = array[i];
 		u8	*band = array[i + 1];
 		u8	*bandwidth = array[i + 2];
@@ -2509,14 +2350,9 @@ odm_read_and_config_mp_8192e_txpwr_lmt_8192e_sar_5mm(struct dm_struct *dm)
 		u8	*rf_path = array[i + 4];
 		u8	*chnl = array[i + 5];
 		u8	*val = array[i + 6];
-#endif
 
 		odm_config_bb_txpwr_lmt_8192e(dm, regulation, band, bandwidth,
 					      rate, rf_path, chnl, val);
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-		rsprintf((char *)hal_data->BufOfLinesPwrLmt[i / 7], 100, "\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\",",
-			 regulation, band, bandwidth, rate, rf_path, chnl, val);
-#endif
 	}
 
 #endif

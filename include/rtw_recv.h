@@ -94,24 +94,6 @@ struct	stainfo_rxcache	{
 	u16	tid_rxseq[16];
 	u8 iv[16][8];
 	u8 last_tid;
-#if 0
-	unsigned short	tid0_rxseq;
-	unsigned short	tid1_rxseq;
-	unsigned short	tid2_rxseq;
-	unsigned short	tid3_rxseq;
-	unsigned short	tid4_rxseq;
-	unsigned short	tid5_rxseq;
-	unsigned short	tid6_rxseq;
-	unsigned short	tid7_rxseq;
-	unsigned short	tid8_rxseq;
-	unsigned short	tid9_rxseq;
-	unsigned short	tid10_rxseq;
-	unsigned short	tid11_rxseq;
-	unsigned short	tid12_rxseq;
-	unsigned short	tid13_rxseq;
-	unsigned short	tid14_rxseq;
-	unsigned short	tid15_rxseq;
-#endif
 };
 
 
@@ -367,27 +349,23 @@ struct recv_priv {
 	ATOMIC_T	rx_pending_cnt;
 
 #ifdef CONFIG_USB_INTERRUPT_IN_PIPE
-#ifdef PLATFORM_LINUX
 	PURB	int_in_urb;
-#endif
 
 	u8	*int_in_buf;
 #endif /* CONFIG_USB_INTERRUPT_IN_PIPE */
 
 #endif
-#ifdef PLATFORM_LINUX
-        struct tasklet_struct irq_prepare_beacon_tasklet;
-        struct tasklet_struct recv_tasklet;
-        struct sk_buff_head free_recv_skb_queue;
-        struct sk_buff_head rx_skb_queue;
+	struct tasklet_struct irq_prepare_beacon_tasklet;
+	struct tasklet_struct recv_tasklet;
+	struct sk_buff_head free_recv_skb_queue;
+	struct sk_buff_head rx_skb_queue;
 #ifdef CONFIG_RTW_NAPI
-                struct sk_buff_head rx_napi_skb_queue;
+		struct sk_buff_head rx_napi_skb_queue;
 #endif
 #ifdef CONFIG_RX_INDICATE_QUEUE
-        struct task rx_indicate_tasklet;
-        struct ifqueue rx_indicate_queue;
+	struct task rx_indicate_tasklet;
+	struct ifqueue rx_indicate_queue;
 #endif /* CONFIG_RX_INDICATE_QUEUE */
-#endif /* PLATFORM_LINUX */
 
 	u8 *pallocated_recv_buf;
 	u8 *precv_buf;    /* 4 alignment */
@@ -502,19 +480,15 @@ struct recv_buf {
 
 #ifdef CONFIG_USB_HCI
 
-#if defined(PLATFORM_LINUX)
 	PURB	purb;
 	dma_addr_t dma_transfer_addr;	/* (in) dma addr for transfer_buffer */
 	u32 alloc_sz;
-#endif
 	u8  irp_pending;
 	int  transfer_len;
 
 #endif
 
-#if defined(PLATFORM_LINUX)
-        _pkt *pskb;
-#endif
+	_pkt *pskb;
 };
 
 

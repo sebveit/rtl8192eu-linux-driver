@@ -459,36 +459,6 @@ struct turbo_edca_setting{
 
 #define TURBO_EDCA_ENT(UL, DL) {UL, DL}
 
-#if 0
-#define TURBO_EDCA_MODE_NUM 18
-static struct turbo_edca_setting rtw_turbo_edca[TURBO_EDCA_MODE_NUM] = {
-	TURBO_EDCA_ENT(0xa42b, 0xa42b), /* mode 0 */
-	TURBO_EDCA_ENT(0x431c, 0x431c), /* mode 1 */
-	TURBO_EDCA_ENT(0x4319, 0x4319), /* mode 2 */	
-	
-	TURBO_EDCA_ENT(0x5ea42b, 0x5ea42b), /* mode 3 */
-	TURBO_EDCA_ENT(0x5e431c, 0x5e431c), /* mode 4 */
-	TURBO_EDCA_ENT(0x5e4319, 0x5e4319), /* mode 5 */	
-	
-	TURBO_EDCA_ENT(0x6ea42b, 0x6ea42b), /* mode 6 */
-	TURBO_EDCA_ENT(0x6e431c, 0x6e431c), /* mode 7 */
-	TURBO_EDCA_ENT(0x6e4319, 0x6e4319), /* mode 8 */
-	
-	TURBO_EDCA_ENT(0x5ea42b, 0xa42b), /* mode 9 */
-	TURBO_EDCA_ENT(0x5e431c, 0x431c), /* mode 10 */
-	TURBO_EDCA_ENT(0x5e4319, 0x4319), /* mode 11 */
-	
-	TURBO_EDCA_ENT(0x6ea42b, 0xa42b), /* mode 12 */
-	TURBO_EDCA_ENT(0x6e431c, 0x431c), /* mode 13 */
-	TURBO_EDCA_ENT(0x6e4319, 0x4319), /* mode 14 */
-
-	TURBO_EDCA_ENT(0x431c, 0x5e431c), /* mode 15 */
-
-	TURBO_EDCA_ENT(0xa42b, 0x5ea42b), /* mode 16 */
-
-	TURBO_EDCA_ENT(0x138642b, 0x431c), /* mode 17 */
-};
-#else
 #define TURBO_EDCA_MODE_NUM 8
 static struct turbo_edca_setting rtw_turbo_edca[TURBO_EDCA_MODE_NUM] = {
 	/* { UL, DL } */
@@ -508,7 +478,6 @@ static struct turbo_edca_setting rtw_turbo_edca[TURBO_EDCA_MODE_NUM] = {
 	
 	TURBO_EDCA_ENT(0x5e431c, 0xa42b), /* mode 7 */
 };
-#endif
 
 void rtw_hal_turbo_edca(_adapter *adapter)
 {
@@ -520,10 +489,6 @@ void rtw_hal_turbo_edca(_adapter *adapter)
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 
 	/* Parameter suggested by Scott  */
-#if 0
-	u32	EDCA_BE_UL = edca_setting_UL[p_mgnt_info->iot_peer];
-	u32	EDCA_BE_DL = edca_setting_DL[p_mgnt_info->iot_peer];
-#endif
 	u32	EDCA_BE_UL = 0x5ea42b;
 	u32	EDCA_BE_DL = 0x00a42b;
 	u8	ic_type = rtw_get_chip_type(adapter);
@@ -593,10 +558,6 @@ void rtw_hal_turbo_edca(_adapter *adapter)
 				traffic_index = UP_LINK;
 			}
 		}
-#if 0
-		if ((p_dm_odm->dm_edca_table.prv_traffic_idx != traffic_index)
-			|| (!p_dm_odm->dm_edca_table.is_current_turbo_edca))
-#endif
 		{
 			if (interface_type == RTW_PCIE) {
 				EDCA_BE_UL = 0x6ea42b;
@@ -1236,11 +1197,6 @@ void dump_sta_traffic(void *sel, _adapter *adapter, struct sta_info *psta)
 	else
 		_RTW_PRINT_SEL(sel, "Total : %d(Kbps)\n", psta->sta_stats.smooth_tx_tp_kbits + psta->sta_stats.rx_tp_kbits);
 
-	#if 0
-	RTW_PRINT_SEL(sel, "Moving-AVG TP {Tx,Rx,Total} = { %d , %d , %d } Mbps\n\n",
-		(psta->cmn.tx_moving_average_tp << 3), (psta->cmn.rx_moving_average_tp << 3),
-		(psta->cmn.tx_moving_average_tp + psta->cmn.rx_moving_average_tp) << 3);
-	#endif
 }
 
 void dump_sta_info(void *sel, struct sta_info *psta)
@@ -1407,14 +1363,8 @@ static u8 _rtw_phydm_iqk_segment_chk(_adapter *adapter, u8 ifs_linked)
 {
 	u8 iqk_sgt = _FALSE;
 
-#if 0
-	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
-	if (ifs_linked && (dvobj->traffic_stat.cur_tx_tp > 2 || dvobj->traffic_stat.cur_rx_tp > 2))
-		rst = _TRUE;
-#else
 	if (ifs_linked)
 		iqk_sgt = _TRUE;
-#endif
 	return iqk_sgt;
 }
 #endif

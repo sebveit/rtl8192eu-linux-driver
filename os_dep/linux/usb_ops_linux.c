@@ -278,15 +278,15 @@ unsigned int ffaddr2pipehdl(struct dvobj_priv *pdvobj, u32 addr)
 
 #ifdef RTW_HALMAC
          /* halmac already translate queue id to bulk out id (addr 0~3) */
-        else if (addr < 4) {
-                ep_num = pdvobj->RtOutPipe[addr];
-                pipe = usb_sndbulkpipe(pusbd, ep_num);
-        }
+	else if (addr < 4) {
+		ep_num = pdvobj->RtOutPipe[addr];
+		pipe = usb_sndbulkpipe(pusbd, ep_num);
+	}
 #else
-        else if (addr < HW_QUEUE_ENTRY) {
-                ep_num = pdvobj->Queue2Pipe[addr];
-                pipe = usb_sndbulkpipe(pusbd, ep_num);
-        }
+	else if (addr < HW_QUEUE_ENTRY) {
+		ep_num = pdvobj->Queue2Pipe[addr];
+		pipe = usb_sndbulkpipe(pusbd, ep_num);
+	}
 #endif
 
 
@@ -636,10 +636,6 @@ u32 usb_write_port(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *wmem)
 #endif
 #endif
 
-#if 0
-	if (bwritezero)
-		purb->transfer_flags |= URB_ZERO_PACKET;
-#endif
 
 	status = usb_submit_urb(purb, GFP_ATOMIC);
 	if (!status) {

@@ -40,11 +40,7 @@
 #define	RA_RETRY_LIMIT_LOW	4
 #define	RA_RETRY_LIMIT_HIGH	32
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP)
-	#define	FIRST_MACID	1
-#else
 	#define	FIRST_MACID	0
-#endif
 
 /* @1 ============================================================
  * 1 enumrate
@@ -141,7 +137,6 @@ struct _odm_ra_info_ {
 	u8	ra_waiting_counter;
 	u8	ra_pending_counter;
 	u8	ra_drop_after_down;
-#if 1 /* POWER_TRAINING_ACTIVE == 1 */ /* For compile  pass only~! */
 	u8	pt_active;	/* on or off */
 	u8	pt_try_state;	/* @0 trying state, 1 for decision state */
 	u8	pt_stage;	/* @0~6 */
@@ -151,16 +146,6 @@ struct _odm_ra_info_ {
 	u8	pt_mode_ss;	/* @decide whitch rate should do PT */
 	u8	ra_stage;	/* @StageRA, decide how many times RA will be done between PT */
 	u8	pt_smooth_factor;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP) &&	((DEV_BUS_TYPE == RT_USB_INTERFACE) || (DEV_BUS_TYPE == RT_SDIO_INTERFACE))
-	u8	rate_down_counter;
-	u8	rate_up_counter;
-	u8	rate_direction;
-	u8	bounding_type;
-	u8	bounding_counter;
-	u8	bounding_learning_time;
-	u8	rate_down_start_time;
-#endif
 };
 #endif
 
@@ -176,13 +161,6 @@ struct ra_table {
 	u8	ra_ofst_direc; /*RA_offset_direction*/
 	u8	up_ramask_cnt; /*@force update_ra_mask counter*/
 	u8	up_ramask_cnt_tmp; /*@Just for debug, should be removed latter*/
-#if 0	/*@CONFIG_RA_DYNAMIC_RTY_LIMIT*/
-	u8	per_rate_retrylimit_20M[ODM_NUM_RATE_IDX];
-	u8	per_rate_retrylimit_40M[ODM_NUM_RATE_IDX];
-	u8	retry_descend_num;
-	u8	retrylimit_low;
-	u8	retrylimit_high;
-#endif
 	u8	ldpc_thres; /* @if RSSI > ldpc_th => switch from LPDC to BCC */
 	void (*record_ra_info)(void *dm_void, u8 macid,
 			       struct cmn_sta_info *sta, u64 ra_mask);
@@ -233,22 +211,8 @@ void phydm_modify_RA_PCR_threshold(void *dm_void, u8 ra_ofst_direc,
 u8 phydm_vht_en_mapping(void *dm_void, u32 wireless_mode);
 
 u8 phydm_rate_id_mapping(void *dm_void, u32 wireless_mode, u8 rf_type, u8 bw);
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP)
-void phydm_update_hal_ra_mask(
-	void *dm_void,
-	u32 wireless_mode,
-	u8 rf_type,
-	u8 BW,
-	u8 mimo_ps_enable,
-	u8 disable_cck_rate,
-	u32 *ratr_bitmap_msb_in,
-	u32 *ratr_bitmap_in,
-	u8 tx_rate_level);
-#endif
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 u8 phydm_get_plcp(void *dm_void, u16 macid);
-#endif
 
 void phydm_refresh_rate_adaptive_mask(void *dm_void);
 
@@ -269,8 +233,4 @@ void phydm_ra_offline(void *dm_void, u8 macid);
 
 void phydm_ra_mask_watchdog(void *dm_void);
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-void odm_refresh_basic_rate_mask(
-	void *dm_void);
-#endif
 #endif /*@#ifndef __PHYDMRAINFO_H__*/

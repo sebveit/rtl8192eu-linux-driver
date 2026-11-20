@@ -27,21 +27,12 @@
 
 #if (defined(CONFIG_BB_TXBF_API))
 
-#if (DM_ODM_SUPPORT_TYPE != ODM_AP)
-#if defined(DM_ODM_CE_MAC80211)
-#define tx_bf_nr(a, b) ({	\
-	u8 __tx_bf_nr_a = (a);	\
-	u8 __tx_bf_nr_b = (b);	\
-	((__tx_bf_nr_a > __tx_bf_nr_b) ? (__tx_bf_nr_b) : (__tx_bf_nr_a)); })
-#else
 #define tx_bf_nr(a, b) ((a > b) ? (b) : (a))
-#endif
 
 u8 beamforming_get_htndp_tx_rate(void *dm_void, u8 bfer_str_num);
 
 u8 beamforming_get_vht_ndp_tx_rate(void *dm_void, u8 bfer_str_num);
 
-#endif
 
 #if (RTL8822B_SUPPORT == 1 || RTL8822C_SUPPORT == 1 || RTL8192F_SUPPORT == 1 ||\
 	RTL8814B_SUPPORT == 1 || RTL8198F_SUPPORT == 1)

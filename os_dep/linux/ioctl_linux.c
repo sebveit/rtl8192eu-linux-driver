@@ -158,7 +158,7 @@ static void request_wps_pbc_event(_adapter *padapter)
 void rtw_request_wps_pbc_event(_adapter *padapter)
 {
 #ifdef RTK_DMP_PLATFORM
-       kobject_uevent(&padapter->pnetdev->dev.kobj, KOBJ_NET_PBC);
+	kobject_uevent(&padapter->pnetdev->dev.kobj, KOBJ_NET_PBC);
 #else
 
 	if (padapter->pid[0] == 0) {
@@ -1375,13 +1375,10 @@ static int rtw_wx_set_mode(struct net_device *dev, struct iw_request_info *a,
 	switch (wrqu->mode) {
 	case IW_MODE_MONITOR:
 		networkType = Ndis802_11Monitor;
-#if 0
-		dev->type = ARPHRD_IEEE80211; /* IEEE 802.11 : 801 */
-#endif
 
-               dev->type = ARPHRD_IEEE80211_RADIOTAP; /* IEEE 802.11 + radiotap header : 803 */
-               RTW_INFO("set_mode = IW_MODE_MONITOR\n");
-               break;
+		dev->type = ARPHRD_IEEE80211_RADIOTAP; /* IEEE 802.11 + radiotap header : 803 */
+		RTW_INFO("set_mode = IW_MODE_MONITOR\n");
+		break;
 
 	case IW_MODE_AUTO:
 		networkType = Ndis802_11AutoUnknown;
@@ -1463,17 +1460,6 @@ static int rtw_wx_set_pmkid(struct net_device *dev,
 	u8     strZeroMacAddress[ETH_ALEN] = { 0x00 };
 	u8     strIssueBssid[ETH_ALEN] = { 0x00 };
 
-#if 0
-	struct iw_pmksa {
-		__u32   cmd;
-		struct sockaddr bssid;
-		__u8    pmkid[IW_PMKID_LEN];   /* IW_PMKID_LEN=16 */
-	}
-	There are the BSSID information in the bssid.sa_data array.
-	If cmd is IW_PMKSA_FLUSH, it means the wpa_suppplicant wants to clear all the PMKID information.
-	If cmd is IW_PMKSA_ADD, it means the wpa_supplicant wants to add a PMKID / BSSID to driver.
-	If cmd is IW_PMKSA_REMOVE, it means the wpa_supplicant wants to remove a PMKID / BSSID from driver.
-#endif
 
 	_rtw_memcpy(strIssueBssid, pPMK->bssid.sa_data, ETH_ALEN);
 	if (pPMK->cmd == IW_PMKSA_ADD) {
@@ -1779,18 +1765,6 @@ static int rtw_wx_set_wap(struct net_device *dev,
 	while (1) {
 
 		if ((rtw_end_of_queue_search(phead, pmlmepriv->pscanned)) == _TRUE) {
-#if 0
-			ret = -EINVAL;
-			goto cancel_ps_deny;
-
-			if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == _TRUE) {
-				rtw_set_802_11_bssid(padapter, temp->sa_data);
-				goto cancel_ps_deny;
-			} else {
-				ret = -EINVAL;
-				goto cancel_ps_deny;
-			}
-#endif
 
 			break;
 		}
@@ -1862,14 +1836,6 @@ static int rtw_wx_set_mlme(struct net_device *dev,
 			   struct iw_request_info *info,
 			   union iwreq_data *wrqu, char *extra)
 {
-#if 0
-	/* SIOCSIWMLME data */
-	struct	iw_mlme {
-		__u16		cmd; /* IW_MLME_* */
-		__u16		reason_code;
-		struct sockaddr	addr;
-	};
-#endif
 
 	int ret = 0;
 	u16 reason;
@@ -1926,7 +1892,6 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 	RTW_INFO("DBG_IOCTL %s:%d\n", __FUNCTION__, __LINE__);
 #endif
 
-#if 1
 	ssc_chk = rtw_sitesurvey_condition_check(padapter, _FALSE);
 
 	#ifdef CONFIG_DOSCAN_IN_BUSYTRAFFIC
@@ -1960,67 +1925,6 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 		ret = -1;
 		goto cancel_ps_deny;
 	}
-#else
-
-#ifdef CONFIG_MP_INCLUDED
-	if (rtw_mp_mode_check(padapter)) {
-		RTW_INFO("MP mode block Scan request\n");
-		ret = -EPERM;
-		goto exit;
-	}
-#endif
-	if (rtw_is_scan_deny(padapter)) {
-		indicate_wx_scan_complete_event(padapter);
-		goto exit;
-	}
-
-	rtw_ps_deny(padapter, PS_DENY_SCAN);
-	if (_FAIL == rtw_pwr_wakeup(padapter)) {
-		ret = -1;
-		goto cancel_ps_deny;
-	}
-
-	if (!rtw_is_adapter_up(padapter)) {
-		ret = -1;
-		goto cancel_ps_deny;
-	}
-
-#ifndef CONFIG_DOSCAN_IN_BUSYTRAFFIC
-	/* When Busy Traffic, driver do not site survey. So driver return success. */
-	/* wpa_supplicant will not issue SIOCSIWSCAN cmd again after scan timeout. */
-	/* modify by thomas 2011-02-22. */
-	if (rtw_mi_busy_traffic_check(padapter, _FALSE)) {
-		indicate_wx_scan_complete_event(padapter);
-		goto cancel_ps_deny;
-	}
-#endif
-#ifdef CONFIG_RTW_REPEATER_SON
-	if (padapter->rtw_rson_scanstage == RSON_SCAN_PROCESS) {
-		RTW_INFO(FUNC_ADPT_FMT" blocking scan for under rson scanning process\n", FUNC_ADPT_ARG(padapter));
-		indicate_wx_scan_complete_event(padapter);
-		goto cancel_ps_deny;
-	}
-#endif
-	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) && check_fwstate(pmlmepriv, WIFI_UNDER_WPS)) {
-		RTW_INFO("AP mode process WPS\n");
-		indicate_wx_scan_complete_event(padapter);
-		goto cancel_ps_deny;
-	}
-
-	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY | _FW_UNDER_LINKING) == _TRUE) {
-		indicate_wx_scan_complete_event(padapter);
-		goto cancel_ps_deny;
-	}
-
-#ifdef CONFIG_CONCURRENT_MODE
-	if (rtw_mi_buddy_check_fwstate(padapter,
-		       _FW_UNDER_SURVEY | _FW_UNDER_LINKING | WIFI_UNDER_WPS)) {
-
-		indicate_wx_scan_complete_event(padapter);
-		goto cancel_ps_deny;
-	}
-#endif
-#endif
 
 #ifdef CONFIG_P2P
 	if (pwdinfo->p2p_state != P2P_STATE_NONE) {
@@ -2120,11 +2024,6 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 					pos += 1;
 					len -= 1;
 					break;
-#if 0
-				case WEXT_CSCAN_NPROBE_SECTION:
-					RTW_INFO("WEXT_CSCAN_NPROBE_SECTION\n");
-					break;
-#endif
 
 				default:
 					/* RTW_INFO("Unknown CSCAN section %c\n", section); */
@@ -2201,7 +2100,6 @@ static int rtw_wx_get_scan(struct net_device *dev, struct iw_request_info *a,
 	}
 #endif /* CONFIG_P2P */
 
-#if 1 /* Wireless Extension use EAGAIN to try */
 	wait_status = _FW_UNDER_SURVEY
 #ifndef CONFIG_ANDROID
 		      | _FW_UNDER_LINKING
@@ -2210,20 +2108,6 @@ static int rtw_wx_get_scan(struct net_device *dev, struct iw_request_info *a,
 
 	while (check_fwstate(pmlmepriv, wait_status) == _TRUE)
 		return -EAGAIN;
-#else
-	wait_status = _FW_UNDER_SURVEY
-#ifndef CONFIG_ANDROID
-		      | _FW_UNDER_LINKING
-#endif
-		      ;
-
-	while (check_fwstate(pmlmepriv, wait_status) == _TRUE) {
-		rtw_msleep_os(30);
-		cnt++;
-		if (cnt > wait_for_surveydone)
-			break;
-	}
-#endif
 	_enter_critical_bh(&(pmlmepriv->scanned_queue.lock), &irqL);
 
 	phead = get_list_head(queue);
@@ -2371,16 +2255,6 @@ static int rtw_wx_set_essid(struct net_device *dev,
 
 		while (1) {
 			if (rtw_end_of_queue_search(phead, pmlmepriv->pscanned) == _TRUE) {
-#if 0
-				if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == _TRUE) {
-					rtw_set_802_11_ssid(padapter, &ndis_ssid);
-
-					goto cancel_ps_deny;
-				} else {
-					ret = -EINVAL;
-					goto cancel_ps_deny;
-				}
-#endif
 
 				break;
 			}
@@ -2660,28 +2534,6 @@ static int rtw_wx_get_retry(struct net_device *dev,
 
 }
 
-#if 0
-	#define IW_ENCODE_INDEX		0x00FF	/* Token index (if needed) */
-	#define IW_ENCODE_FLAGS		0xFF00	/* Flags defined below */
-	#define IW_ENCODE_MODE		0xF000	/* Modes defined below */
-	#define IW_ENCODE_DISABLED	0x8000	/* Encoding disabled */
-	#define IW_ENCODE_ENABLED	0x0000	/* Encoding enabled */
-	#define IW_ENCODE_RESTRICTED	0x4000	/* Refuse non-encoded packets */
-	#define IW_ENCODE_OPEN		0x2000	/* Accept non-encoded packets */
-	#define IW_ENCODE_NOKEY		0x0800  /* Key is write only, so not present */
-	#define IW_ENCODE_TEMP		0x0400  /* Temporary key */
-	/*
-	iwconfig wlan0 key on->flags = 0x6001->maybe it means auto
-	iwconfig wlan0 key off->flags = 0x8800
-	iwconfig wlan0 key open->flags = 0x2800
-	iwconfig wlan0 key open 1234567890->flags = 0x2000
-	iwconfig wlan0 key restricted->flags = 0x4800
-	iwconfig wlan0 key open [3] 1234567890->flags = 0x2003
-	iwconfig wlan0 key restricted [2] 1234567890->flags = 0x4002
-	iwconfig wlan0 key open [3] -> flags = 0x2803
-	iwconfig wlan0 key restricted [2] -> flags = 0x4802
-	*/
-#endif
 
 static int rtw_wx_set_enc(struct net_device *dev,
 			  struct iw_request_info *info,
@@ -3021,7 +2873,6 @@ static int rtw_wx_set_auth(struct net_device *dev,
 
 	case IW_AUTH_80211_AUTH_ALG:
 
-#if defined(CONFIG_ANDROID) || 1
 		/*
 		 *  It's the starting point of a link layer connection using wpa_supplicant
 		*/
@@ -3032,7 +2883,6 @@ static int rtw_wx_set_auth(struct net_device *dev,
 			rtw_indicate_disconnect(padapter, 0, _FALSE);
 			rtw_free_assoc_resources_cmd(padapter, _TRUE, RTW_CMDF_WAIT_ACK);
 		}
-#endif
 
 
 		ret = wpa_set_auth_algs(dev, (u32)param->value);
@@ -3130,7 +2980,7 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
 		goto exit;
 	}
 
-       strscpy(param->u.crypt.alg, alg_name, IEEE_CRYPT_ALG_NAME_LEN);
+	strscpy(param->u.crypt.alg, alg_name, IEEE_CRYPT_ALG_NAME_LEN);
 
 	if (pext->ext_flags & IW_ENCODE_EXT_SET_TX_KEY)
 		param->u.crypt.set_tx = 1;
@@ -3197,13 +3047,6 @@ static int rtw_wx_get_nick(struct net_device *dev,
 	/* rtw_signal_process(pid, SIGUSR1); */ /* for test */
 
 	/* dump debug info here	 */
-#if 0
-	u32 dot11AuthAlgrthm;		/*  802.11 auth, could be open, shared, and 8021x */
-	u32 dot11PrivacyAlgrthm;	/*  This specify the privacy for shared auth. algorithm. */
-	u32 dot118021XGrpPrivacy;	/*  This specify the privacy algthm. used for Grp key */
-	u32 ndisauthtype;
-	u32 ndisencryptstatus;
-#endif
 
 	/* RTW_INFO("auth_alg=0x%x, enc_alg=0x%x, auth_type=0x%x, enc_type=0x%x\n",  */
 	/*		psecuritypriv->dot11AuthAlgrthm, psecuritypriv->dot11PrivacyAlgrthm, */
@@ -3213,33 +3056,6 @@ static int rtw_wx_get_nick(struct net_device *dev,
 	/* RTW_INFO("auth_type=0x%x\n", psecuritypriv->ndisauthtype); */
 	/* RTW_INFO("enc_type=0x%x\n", psecuritypriv->ndisencryptstatus); */
 
-#if 0
-	RTW_INFO("dbg(0x210)=0x%x\n", rtw_read32(padapter, 0x210));
-	RTW_INFO("dbg(0x608)=0x%x\n", rtw_read32(padapter, 0x608));
-	RTW_INFO("dbg(0x280)=0x%x\n", rtw_read32(padapter, 0x280));
-	RTW_INFO("dbg(0x284)=0x%x\n", rtw_read32(padapter, 0x284));
-	RTW_INFO("dbg(0x288)=0x%x\n", rtw_read32(padapter, 0x288));
-
-	RTW_INFO("dbg(0x664)=0x%x\n", rtw_read32(padapter, 0x664));
-
-
-	RTW_INFO("\n");
-
-	RTW_INFO("dbg(0x430)=0x%x\n", rtw_read32(padapter, 0x430));
-	RTW_INFO("dbg(0x438)=0x%x\n", rtw_read32(padapter, 0x438));
-
-	RTW_INFO("dbg(0x440)=0x%x\n", rtw_read32(padapter, 0x440));
-
-	RTW_INFO("dbg(0x458)=0x%x\n", rtw_read32(padapter, 0x458));
-
-	RTW_INFO("dbg(0x484)=0x%x\n", rtw_read32(padapter, 0x484));
-	RTW_INFO("dbg(0x488)=0x%x\n", rtw_read32(padapter, 0x488));
-
-	RTW_INFO("dbg(0x444)=0x%x\n", rtw_read32(padapter, 0x444));
-	RTW_INFO("dbg(0x448)=0x%x\n", rtw_read32(padapter, 0x448));
-	RTW_INFO("dbg(0x44c)=0x%x\n", rtw_read32(padapter, 0x44c));
-	RTW_INFO("dbg(0x450)=0x%x\n", rtw_read32(padapter, 0x450));
-#endif
 
 	return 0;
 
@@ -3266,20 +3082,9 @@ static int rtw_wx_read32(struct net_device *dev,
 	if (0 == len)
 		return -EINVAL;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 	ptmp = memdup_user(p->pointer, len);
 	if (IS_ERR(ptmp))
 		return PTR_ERR(ptmp);
-#else
-	ptmp = (u8 *)rtw_malloc(len);
-	if (NULL == ptmp)
-		return -ENOMEM;
-
-	if (copy_from_user(ptmp, p->pointer, len)) {
-		ret = -EFAULT;
-		goto exit;
-	}
-#endif
 
 	bytes = 0;
 	addr = 0;
@@ -3612,25 +3417,12 @@ static int rtw_mp_ioctl_hdl(struct net_device *dev, struct iw_request_info *info
 	pparmbuf = NULL;
 	bset = (u8)(p->flags & 0xFFFF);
 	len = p->length;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 	pparmbuf = memdup_user(p->pointer, len);
 	if (IS_ERR(pparmbuf)) {
 		ret = PTR_ERR(pparmbuf);
 		pparmbuf = NULL;
 		goto _rtw_mp_ioctl_hdl_exit;
 	}
-#else
-	pparmbuf = (u8 *)rtw_malloc(len);
-	if (pparmbuf == NULL) {
-		ret = -ENOMEM;
-		goto _rtw_mp_ioctl_hdl_exit;
-	}
-
-	if (copy_from_user(pparmbuf, p->pointer, len)) {
-		ret = -EFAULT;
-		goto _rtw_mp_ioctl_hdl_exit;
-	}
-#endif
 
 	poidparam = (struct mp_ioctl_param *)pparmbuf;
 
@@ -5760,11 +5552,11 @@ static int rtw_p2p_get2(struct net_device *dev,
 
 #ifdef CONFIG_P2P
 
-       u8 *buffer;
+	u8 *buffer;
 
-       buffer = memdup_user(wrqu->data.pointer, wrqu->data.length);
-       if (IS_ERR(buffer))
-               return PTR_ERR(buffer);
+	buffer = memdup_user(wrqu->data.pointer, wrqu->data.length);
+	if (IS_ERR(buffer))
+		return PTR_ERR(buffer);
 
 	RTW_INFO("[%s] buffer = %s\n", __FUNCTION__, buffer);
 
@@ -5778,12 +5570,12 @@ static int rtw_p2p_get2(struct net_device *dev,
 		ret = rtw_p2p_get_go_device_address(dev, info, wrqu, extra, &buffer[10]);
 	else if (_rtw_memcmp(buffer, "InvProc=", 8))
 		ret = rtw_p2p_get_invitation_procedure(dev, info, wrqu, extra, &buffer[8]);
-       else {
-               snprintf(extra, sizeof("Command not found."), "Command not found.");
-               wrqu->data.length = strlen(extra);
-       }
+	else {
+		snprintf(extra, sizeof("Command not found."), "Command not found.");
+		wrqu->data.length = strlen(extra);
+	}
 
-       kfree(buffer);
+	kfree(buffer);
 
 #endif /* CONFIG_P2P */
 
@@ -5830,7 +5622,7 @@ static int rtw_rereg_nd_name(struct net_device *dev,
 #endif
 			reg_ifname = padapter->registrypriv.if2name;
 
-               strscpy(rereg_priv->old_ifname, reg_ifname, IFNAMSIZ);
+		strscpy(rereg_priv->old_ifname, reg_ifname, IFNAMSIZ);
 	}
 
 	/* RTW_INFO("%s wrqu->data.length:%d\n", __FUNCTION__, wrqu->data.length); */
@@ -5854,7 +5646,7 @@ static int rtw_rereg_nd_name(struct net_device *dev,
 		/* rtw_ips_mode_req(&padapter->pwrctrlpriv, rereg_priv->old_ips_mode); */
 	}
 
-       strscpy(rereg_priv->old_ifname, new_ifname, IFNAMSIZ);
+	strscpy(rereg_priv->old_ifname, new_ifname, IFNAMSIZ);
 
 	if (_rtw_memcmp(new_ifname, "disable%d", 9) == _TRUE) {
 
@@ -6754,25 +6546,6 @@ static int wpa_set_param(struct net_device *dev, u8 name, u32 value)
 		 * be set.
 		 */
 
-#if 0
-		struct ieee80211_security sec = {
-			.flags = SEC_ENABLED,
-			.enabled = value,
-		};
-		ieee->drop_unencrypted = value;
-		/* We only change SEC_LEVEL for open mode. Others
-		 * are set by ipw_wpa_set_encryption.
-		 */
-		if (!value) {
-			sec.flags |= SEC_LEVEL;
-			sec.level = SEC_LEVEL_0;
-		} else {
-			sec.flags |= SEC_LEVEL;
-			sec.level = SEC_LEVEL_1;
-		}
-		if (ieee->set_security)
-			ieee->set_security(ieee->dev, &sec);
-#endif
 		break;
 
 	}
@@ -6865,25 +6638,11 @@ static int wpa_supplicant_ioctl(struct net_device *dev, struct iw_point *p)
 		goto out;
 	}
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 	param = memdup_user(p->pointer, p->length);
 	if (IS_ERR(param)) {
 		ret = PTR_ERR(param);
 		goto out;
 	}
-#else
-	param = (struct ieee_param *)rtw_malloc(p->length);
-	if (param == NULL) {
-		ret = -ENOMEM;
-		goto out;
-	}
-
-	if (copy_from_user(param, p->pointer, p->length)) {
-		rtw_mfree((u8 *)param, p->length);
-		ret = -EFAULT;
-		goto out;
-	}
-#endif
 
 	switch (param->cmd) {
 
@@ -7259,17 +7018,6 @@ static int rtw_add_sta(struct net_device *dev, struct ieee_param *param)
 	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff)
 		return -EINVAL;
 
-#if 0
-	psta = rtw_get_stainfo(pstapriv, param->sta_addr);
-	if (psta) {
-		RTW_INFO("rtw_add_sta(), free has been added psta=%p\n", psta);
-		/* _enter_critical_bh(&(pstapriv->sta_hash_lock), &irqL);		 */
-		rtw_free_stainfo(padapter,  psta);
-		/* _exit_critical_bh(&(pstapriv->sta_hash_lock), &irqL); */
-
-		psta = NULL;
-	}
-#endif
 	/* psta = rtw_alloc_stainfo(pstapriv, param->sta_addr); */
 	psta = rtw_get_stainfo(pstapriv, param->sta_addr);
 	if (psta) {
@@ -7390,23 +7138,6 @@ static int rtw_ioctl_get_sta_data(struct net_device *dev, struct ieee_param *par
 
 	psta = rtw_get_stainfo(pstapriv, param_ex->sta_addr);
 	if (psta) {
-#if 0
-		struct {
-			u16 aid;
-			u16 capability;
-			int flags;
-			u32 sta_set;
-			u8 tx_supp_rates[16];
-			u32 tx_supp_rates_len;
-			struct rtw_ieee80211_ht_cap ht_cap;
-			u64	rx_pkts;
-			u64	rx_bytes;
-			u64	rx_drops;
-			u64	tx_pkts;
-			u64	tx_bytes;
-			u64	tx_drops;
-		} get_sta;
-#endif
 		psta_data->aid = (u16)psta->cmn.aid;
 		psta_data->capability = psta->capability;
 		psta_data->flags = psta->flags;
@@ -7740,25 +7471,11 @@ static int rtw_hostapd_ioctl(struct net_device *dev, struct iw_point *p)
 		goto out;
 	}
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 	param = memdup_user(p->pointer, p->length);
 	if (IS_ERR(param)) {
 		ret = PTR_ERR(param);
 		goto out;
 	}
-#else
-	param = (struct ieee_param *)rtw_malloc(p->length);
-	if (param == NULL) {
-		ret = -ENOMEM;
-		goto out;
-	}
-
-	if (copy_from_user(param, p->pointer, p->length)) {
-		rtw_mfree((u8 *)param, p->length);
-		ret = -EFAULT;
-		goto out;
-	}
-#endif
 
 	/* RTW_INFO("%s, cmd=%d\n", __FUNCTION__, param->cmd); */
 
@@ -8334,20 +8051,9 @@ int rtw_vendor_ie_get(struct net_device *dev, struct iw_request_info *info, unio
 	if (0 == cmdlen)
 		return -EINVAL;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 	ptmp = memdup_user(p->pointer, cmdlen);
 	if (IS_ERR(ptmp))
 		return PTR_ERR(ptmp);
-#else
-	ptmp = (u8 *)rtw_malloc(cmdlen);
-	if (NULL == ptmp)
-		return -ENOMEM;
-
-	if (copy_from_user(ptmp, p->pointer, cmdlen)) {
-		ret = -EFAULT;
-		goto exit;
-	}
-#endif
 	ret = sscanf(ptmp , "%d", &vendor_ie_num);
 	if (vendor_ie_num > WLAN_MAX_VENDOR_IE_NUM - 1) {
 		ret = -EFAULT;
@@ -8587,19 +8293,6 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 			goto exit;
 		}
 
-#if 0
-		RTW_INFO("OFFSET\tVALUE(hex)\n");
-		for (i = 0; i < mapLen; i += 16) {
-			RTW_INFO("0x%02x\t", i);
-			for (j = 0; j < 8; j++)
-				RTW_INFO("%02X ", efuse[i + j]);
-			RTW_INFO("\t");
-			for (; j < 16; j++)
-				RTW_INFO("%02X ", efuse[i + j]);
-			RTW_INFO("\n");
-		}
-		RTW_INFO("\n");
-#endif
 
 		shift = blksz * order;
 		efuse += shift;
@@ -8630,33 +8323,33 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 			goto exit;
 		}
 
-               /* rmap addr cnts */
-               {
-                       unsigned long val;
-                       int ret;
+		/* rmap addr cnts */
+		{
+			unsigned long val;
+			int ret;
 
-                       ret = kstrtoul(tmp[1], 16, &val);
-                       if (ret) {
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       addr = (u16)val;
-               }
-               RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
+			ret = kstrtoul(tmp[1], 16, &val);
+			if (ret) {
+				err = -EINVAL;
+				goto exit;
+			}
+			addr = (u16)val;
+		}
+		RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
 
-               {
-                       int val;
-                       int ret;
+		{
+			int val;
+			int ret;
 
-                       ret = kstrtoint(tmp[2], 10, &val);
-                       if (ret || val == 0) {
-                               RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       cnts = (u16)val;
-               }
-               RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
+			ret = kstrtoint(tmp[2], 10, &val);
+			if (ret || val == 0) {
+				RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
+				err = -EINVAL;
+				goto exit;
+			}
+			cnts = (u16)val;
+		}
+		RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
 
 		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN , (PVOID)&max_available_len, _FALSE);
 		if ((addr + cnts) > max_available_len) {
@@ -8961,33 +8654,33 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 
 		BTEfuse_PowerSwitch(padapter, 1, _TRUE);
 
-               /* rmap addr cnts */
-               {
-                       unsigned long val;
-                       int ret;
+		/* rmap addr cnts */
+		{
+			unsigned long val;
+			int ret;
 
-                       ret = kstrtoul(tmp[1], 16, &val);
-                       if (ret) {
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       addr = (u16)val;
-               }
-               RTW_INFO("%s: addr=0x%X\n", __FUNCTION__, addr);
+			ret = kstrtoul(tmp[1], 16, &val);
+			if (ret) {
+				err = -EINVAL;
+				goto exit;
+			}
+			addr = (u16)val;
+		}
+		RTW_INFO("%s: addr=0x%X\n", __FUNCTION__, addr);
 
-               {
-                       int val;
-                       int ret;
+		{
+			int val;
+			int ret;
 
-                       ret = kstrtoint(tmp[2], 10, &val);
-                       if (ret || val == 0) {
-                               RTW_INFO("%s: btrmap Fail!! cnts error!\n", __FUNCTION__);
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       cnts = (u16)val;
-               }
-               RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
+			ret = kstrtoint(tmp[2], 10, &val);
+			if (ret || val == 0) {
+				RTW_INFO("%s: btrmap Fail!! cnts error!\n", __FUNCTION__);
+				err = -EINVAL;
+				goto exit;
+			}
+			cnts = (u16)val;
+		}
+		RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
 #ifndef RTW_HALMAC
 		EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_MAP_LEN, (PVOID)&max_available_len, _FALSE);
 		if ((addr + cnts) > max_available_len) {
@@ -9091,33 +8784,33 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 			err = -EINVAL;
 			goto exit;
 		}
-               /* rmap addr cnts */
-               {
-                       unsigned long val;
-                       int ret;
+		/* rmap addr cnts */
+		{
+			unsigned long val;
+			int ret;
 
-                       ret = kstrtoul(tmp[1], 16, &val);
-                       if (ret) {
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       addr = (u16)val;
-               }
-               RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
+			ret = kstrtoul(tmp[1], 16, &val);
+			if (ret) {
+				err = -EINVAL;
+				goto exit;
+			}
+			addr = (u16)val;
+		}
+		RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
 
-               {
-                       int val;
-                       int ret;
+		{
+			int val;
+			int ret;
 
-                       ret = kstrtoint(tmp[2], 10, &val);
-                       if (ret || val == 0) {
-                               RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       cnts = (u16)val;
-               }
-               RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
+			ret = kstrtoint(tmp[2], 10, &val);
+			if (ret || val == 0) {
+				RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
+				err = -EINVAL;
+				goto exit;
+			}
+			cnts = (u16)val;
+		}
+		RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
 
 		/*		RTW_INFO("%s: data={", __FUNCTION__); */
 		*extra = 0;
@@ -9132,33 +8825,33 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 			err = -EINVAL;
 			goto exit;
 		}
-               /* rmap addr cnts */
-               {
-                       unsigned long val;
-                       int ret;
+		/* rmap addr cnts */
+		{
+			unsigned long val;
+			int ret;
 
-                       ret = kstrtoul(tmp[1], 16, &val);
-                       if (ret) {
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       addr = (u16)val;
-               }
-               RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
+			ret = kstrtoul(tmp[1], 16, &val);
+			if (ret) {
+				err = -EINVAL;
+				goto exit;
+			}
+			addr = (u16)val;
+		}
+		RTW_INFO("%s: addr=%x\n", __FUNCTION__, addr);
 
-               {
-                       int val;
-                       int ret;
+		{
+			int val;
+			int ret;
 
-                       ret = kstrtoint(tmp[2], 10, &val);
-                       if (ret || val == 0) {
-                               RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       cnts = (u16)val;
-               }
-               RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
+			ret = kstrtoint(tmp[2], 10, &val);
+			if (ret || val == 0) {
+				RTW_INFO("%s: rmap Fail!! cnts error!\n", __FUNCTION__);
+				err = -EINVAL;
+				goto exit;
+			}
+			cnts = (u16)val;
+		}
+		RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
 
 		/*		RTW_INFO("%s: data={", __FUNCTION__); */
 		*extra = 0;
@@ -9314,19 +9007,19 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		rtw_read8(padapter, EFUSE_CTRL);
 #endif /* RTW_HALMAC */
 
-               {
-                       unsigned long val;
-                       int ret;
+		{
+			unsigned long val;
+			int ret;
 
-                       ret = kstrtoul(tmp[1], 16, &val);
-                       if (ret) {
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       addr = (u16)val & 0xFFF;
-               }
+			ret = kstrtoul(tmp[1], 16, &val);
+			if (ret) {
+				err = -EINVAL;
+				goto exit;
+			}
+			addr = (u16)val & 0xFFF;
+		}
 
-               cnts = strlen(tmp[2]);
+		cnts = strlen(tmp[2]);
 		if (cnts % 2) {
 			err = -EINVAL;
 			goto exit;
@@ -9378,17 +9071,17 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			goto exit;
 		}
 
-               {
-                       unsigned long val;
-                       int ret;
+		{
+			unsigned long val;
+			int ret;
 
-                       ret = kstrtoul(tmp[1], 16, &val);
-                       if (ret) {
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       addr = (u16)val & 0xFFF;
-               }
+			ret = kstrtoul(tmp[1], 16, &val);
+			if (ret) {
+				err = -EINVAL;
+				goto exit;
+			}
+			addr = (u16)val & 0xFFF;
+		}
 
 		cnts = strlen(tmp[2]);
 		if (cnts % 2) {
@@ -9419,17 +9112,17 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			goto exit;
 		}
 
-               {
-                       unsigned long val;
-                       int ret;
+		{
+			unsigned long val;
+			int ret;
 
-                       ret = kstrtoul(tmp[1], 16, &val);
-                       if (ret) {
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       addr = (u16)val & 0xFFF;
-               }
+			ret = kstrtoul(tmp[1], 16, &val);
+			if (ret) {
+				err = -EINVAL;
+				goto exit;
+			}
+			addr = (u16)val & 0xFFF;
+		}
 
 		cnts = strlen(tmp[2]);
 		if (cnts % 2) {
@@ -9631,17 +9324,17 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		BTEfuse_PowerSwitch(padapter, 1, _FALSE);
 #endif /* RTW_HALMAC */
 
-               {
-                       unsigned long val;
-                       int ret;
+		{
+			unsigned long val;
+			int ret;
 
-                       ret = kstrtoul(tmp[1], 16, &val);
-                       if (ret) {
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       addr = (u16)val & 0xFFF;
-               }
+			ret = kstrtoul(tmp[1], 16, &val);
+			if (ret) {
+				err = -EINVAL;
+				goto exit;
+			}
+			addr = (u16)val & 0xFFF;
+		}
 
 		cnts = strlen(tmp[2]);
 		if (cnts % 2) {
@@ -9694,17 +9387,17 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			goto exit;
 		}
 
-               {
-                       unsigned long val;
-                       int ret;
+		{
+			unsigned long val;
+			int ret;
 
-                       ret = kstrtoul(tmp[1], 16, &val);
-                       if (ret) {
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       addr = (u16)val & 0xFFF;
-               }
+			ret = kstrtoul(tmp[1], 16, &val);
+			if (ret) {
+				err = -EINVAL;
+				goto exit;
+			}
+			addr = (u16)val & 0xFFF;
+		}
 
 		cnts = strlen(tmp[2]);
 		if (cnts % 2) {
@@ -9770,7 +9463,6 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			printk("\n");
 		}
 		printk("\n");
-#if 1
 		err = -EFAULT;
 		RTW_INFO("%s: rtw_BT_efuse_map_read _rtw_memcmp\n", __FUNCTION__);
 		if ((rtw_BT_efuse_map_read(padapter, 0x00, EFUSE_BT_MAX_MAP_LEN, pEfuseHal->fakeBTEfuseInitMap) == _SUCCESS)) {
@@ -9802,7 +9494,6 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 				goto exit;
 			}
 		}
-#endif
 
 	} else if (strcmp(tmp[0], "wlfk2map") == 0) {
 		*extra = 0;
@@ -9868,17 +9559,17 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			goto exit;
 		}
 
-               {
-                       unsigned long val;
-                       int ret;
+		{
+			unsigned long val;
+			int ret;
 
-                       ret = kstrtoul(tmp[1], 16, &val);
-                       if (ret) {
-                               err = -EINVAL;
-                               goto exit;
-                       }
-                       addr = (u16)val & 0xFFF;
-               }
+			ret = kstrtoul(tmp[1], 16, &val);
+			if (ret) {
+				err = -EINVAL;
+				goto exit;
+			}
+			addr = (u16)val & 0xFFF;
+		}
 
 		cnts = strlen(tmp[2]);
 		if (cnts % 2) {
@@ -11289,11 +10980,9 @@ static int rtw_tdls_get_best_ch(struct net_device *dev,
 				best_channel_5G = rfctl->channel_set[i].ChannelNum;
 			}
 		}
-#if 1 /* debug */
 		RTW_INFO("The rx cnt of channel %3d = %d\n",
 			 rfctl->channel_set[i].ChannelNum,
 			 rfctl->channel_set[i].rx_count);
-#endif
 	}
 
 	snprintf(extra, 4096, "\nbest_channel_24G = %d\n", best_channel_24G);
@@ -11611,11 +11300,6 @@ static s32 createpseudoadhoc(PADAPTER padapter)
 
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
-#if 0
-	err = rtw_create_ibss_cmd(padapter, 0);
-	if (err == _FAIL)
-		return _FAIL;
-#else
 	{
 		struct wlan_network *pcur_network;
 		struct sta_info *psta;
@@ -11642,7 +11326,6 @@ static s32 createpseudoadhoc(PADAPTER padapter)
 		Set_MSR(padapter, WIFI_FW_ADHOC_STATE);
 
 	}
-#endif
 
 	return _SUCCESS;
 }
@@ -11807,11 +11490,6 @@ static void printdata(u8 *pbuf, u32 len)
 		for (; i < len, i++)
 			printk("%02X", pbuf + i);
 #else /* CONFIG_LITTLE_ENDIAN */
-#if 0
-		val = 0;
-		_rtw_memcpy(&val, pbuf + i, len - i);
-		printk("%8X", val);
-#else
 		u8 str[9];
 		u8 n;
 		val = 0;
@@ -11820,7 +11498,6 @@ static void printdata(u8 *pbuf, u32 len)
 		sprintf(str, "%08X", val);
 		n = (4 - n) * 2;
 		printk("%8s", str + n);
-#endif
 #endif /* CONFIG_LITTLE_ENDIAN */
 	}
 	printk("\n");
@@ -11912,7 +11589,7 @@ thread_return lbk_thread(thread_context context)
 	ok = 0;
 	fail = 0;
 
-       allow_signal(SIGTERM);
+	allow_signal(SIGTERM);
 
 	do {
 		if (ploopback->size == 0) {
@@ -12284,11 +11961,6 @@ static const struct iw_priv_args rtw_private_args[] = {
 		SIOCIWFIRSTPRIV + 0xD,
 		IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 2, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_FIXED | IFNAMSIZ, "rfr"
 	},
-#if 0
-	{
-		SIOCIWFIRSTPRIV + 0xE, 0, 0, "wowlan_ctrl"
-	},
-#endif
 	{
 		SIOCIWFIRSTPRIV + 0x10,
 		IW_PRIV_TYPE_CHAR | 1024, 0, "p2p_set"
@@ -12526,7 +12198,7 @@ static struct iw_statistics *rtw_get_wireless_stats(struct net_device *dev)
 		piwstats->qual.qual = tmp_qual;
 		piwstats->qual.noise = tmp_noise;
 	}
-       piwstats->qual.updated = IW_QUAL_ALL_UPDATED;
+	piwstats->qual.updated = IW_QUAL_ALL_UPDATED;
 
 #ifdef CONFIG_SIGNAL_DISPLAY_DBM
 	piwstats->qual.updated = piwstats->qual.updated | IW_QUAL_DBM;
@@ -12976,11 +12648,11 @@ static int rtw_ioctl_standard_wext_private(struct net_device *dev, struct ifreq 
 static int rtw_ioctl_wext_private(struct net_device *dev, struct ifreq *rq)
 {
 #ifdef CONFIG_COMPAT
-       if (in_compat_syscall())
-               return rtw_ioctl_compat_wext_private(dev, rq);
-       else
+	if (in_compat_syscall())
+		return rtw_ioctl_compat_wext_private(dev, rq);
+	else
 #endif /* CONFIG_COMPAT */
-               return rtw_ioctl_standard_wext_private(dev, rq);
+		return rtw_ioctl_standard_wext_private(dev, rq);
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)

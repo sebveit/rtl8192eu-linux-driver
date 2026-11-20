@@ -25,21 +25,6 @@
 #ifndef __HAL_COM_TXBF_H__
 #define __HAL_COM_TXBF_H__
 
-#if 0
-typedef	bool
-(*TXBF_GET)(
-	void*			adapter,
-	u8			get_type,
-	void*			p_out_buf
-	);
-
-typedef	bool
-(*TXBF_SET)(
-	void*			adapter,
-	u8			set_type,
-	void*			p_in_buf
-	);
-#endif
 
 enum txbf_set_type {
 	TXBF_SET_SOUNDING_ENTER,
@@ -67,16 +52,6 @@ struct _HAL_TXBF_INFO {
 	u8 rate;
 
 	struct phydm_timer_list txbf_fw_ndpa_timer;
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	RT_WORK_ITEM txbf_enter_work_item;
-	RT_WORK_ITEM txbf_leave_work_item;
-	RT_WORK_ITEM txbf_fw_ndpa_work_item;
-	RT_WORK_ITEM txbf_clk_work_item;
-	RT_WORK_ITEM txbf_status_work_item;
-	RT_WORK_ITEM txbf_rate_work_item;
-	RT_WORK_ITEM txbf_reset_tx_path_work_item;
-	RT_WORK_ITEM txbf_get_tx_rate_work_item;
-#endif
 };
 
 #ifdef PHYDM_BEAMFORMING_SUPPORT
@@ -88,70 +63,38 @@ void hal_com_txbf_config_gtab(
 	void *dm_void);
 
 void hal_com_txbf_enter_work_item_callback(
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	void *adapter
-#else
 	void *dm_void
-#endif
 	);
 
 void hal_com_txbf_leave_work_item_callback(
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	void *adapter
-#else
 	void *dm_void
-#endif
 	);
 
 void hal_com_txbf_fw_ndpa_work_item_callback(
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	void *adapter
-#else
 	void *dm_void
-#endif
 	);
 
 void hal_com_txbf_clk_work_item_callback(
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	void *adapter
-#else
 	void *dm_void
-#endif
 	);
 
 void hal_com_txbf_reset_tx_path_work_item_callback(
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	void *adapter
-#else
 	void *dm_void
-#endif
 	);
 
 void hal_com_txbf_get_tx_rate_work_item_callback(
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	void *adapter
-#else
 	void *dm_void
-#endif
 	);
 
 void hal_com_txbf_rate_work_item_callback(
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	void *adapter
-#else
 	void *dm_void
-#endif
 	);
 
 void hal_com_txbf_fw_ndpa_timer_callback(
 	struct phydm_timer_list *timer);
 
 void hal_com_txbf_status_work_item_callback(
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	void *adapter
-#else
 	void *dm_void
-#endif
 	);
 
 boolean

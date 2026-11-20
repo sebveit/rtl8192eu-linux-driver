@@ -106,15 +106,14 @@ __inline static __u64 __arch__swab64(__u64 x)
 
 __inline static __u16 __fswab16(__u16 x)
 {
-        return __arch__swab16(x);
+	return __arch__swab16(x);
 }
 
 __inline static __u32 __fswab32(__u32 x)
 {
-        return __arch__swab32(x);
+	return __arch__swab32(x);
 }
 
-#ifdef PLATFORM_LINUX
 	#define swab16 __swab16
 	#define swab32 __swab32
 	#define swab64 __swab64
@@ -124,6 +123,5 @@ __inline static __u32 __fswab32(__u32 x)
 	#define swab16s __swab16s
 	#define swab32s __swab32s
 	#define swab64s __swab64s
-#endif
 
 #endif /* _LINUX_BYTEORDER_SWAB_H */

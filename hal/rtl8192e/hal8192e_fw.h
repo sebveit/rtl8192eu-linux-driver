@@ -29,14 +29,12 @@ extern u8 array_mp_8192e_fw_ap[25816];
 extern u32 array_length_mp_8192e_fw_ap;
 #endif
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN)) || (DM_ODM_SUPPORT_TYPE & (ODM_CE))
 extern u8 array_mp_8192e_fw_nic[32286];
 extern u32 array_length_mp_8192e_fw_nic;
 extern u8 array_mp_8192e_fw_nic_setupbox[28554];
 extern u32 array_length_mp_8192e_fw_nic_setupbox;
 extern u8 array_mp_8192e_fw_wowlan[29008];
 extern u32 array_length_mp_8192e_fw_wowlan;
-#endif
 #endif /* end of LOAD_FW_HEADER_FROM_DRIVER */
 
 #endif

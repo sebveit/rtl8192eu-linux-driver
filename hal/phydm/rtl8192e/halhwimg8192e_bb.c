@@ -1551,15 +1551,6 @@ odm_read_and_config_mp_8192e_phy_reg_pg(struct dm_struct *dm)
 		 sizeof(array_mp_8192e_phy_reg_pg) / sizeof(u32);
 	u32 *array = (u32 *)array_mp_8192e_phy_reg_pg;
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	void	*adapter = dm->adapter;
-	HAL_DATA_TYPE	*hal_data = GET_HAL_DATA(((PADAPTER)adapter));
-
-	odm_memory_set(dm, hal_data->BufOfLinesPwrByRate, 0,
-		       MAX_LINES_HWCONFIG_TXT *
-		       MAX_BYTES_LINE_HWCONFIG_TXT);
-	hal_data->nLinesReadPwrByRate = array_len / 6;
-#endif
 
 	PHYDM_DBG(dm, ODM_COMP_INIT, "===> %s\n", __func__);
 
@@ -1576,12 +1567,6 @@ odm_read_and_config_mp_8192e_phy_reg_pg(struct dm_struct *dm)
 
 		odm_config_bb_phy_reg_pg_8192e(dm, v1, v2, v3, v4, v5, v6);
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	rsprintf((char *)hal_data->BufOfLinesPwrByRate[i / 6], 100,
-		 "%s, %s, %s, 0x%X, 0x%08X, 0x%08X,",
-		 (v1 == 0 ? "2.4G" : "  5G"), (v2 == 0 ? "A" : "B"),
-		 (v3 == 0 ? "1Tx" : "2Tx"), v4, v5, v6);
-#endif
 	}
 #endif
 }

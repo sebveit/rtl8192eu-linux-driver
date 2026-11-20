@@ -370,28 +370,6 @@ void phydm_dynamic_tx_path(
 		return;
 
 /* @2 [Check Bfer] */
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-#ifdef PHYDM_BEAMFORMING_SUPPORT
-	{
-		enum beamforming_cap beamform_cap = (dm->beamforming_info.beamform_cap);
-
-		if (beamform_cap & BEAMFORMER_CAP) { /* @BFmer On  &&   Div On->Div Off */
-			if (p_div->fix_path_bfer == 0) {
-				PHYDM_DBG(dm, DBG_PATH_DIV,
-					  "[ PathDiv : OFF ]   BFmer ==1\n");
-				p_div->fix_path_bfer = 1;
-			}
-			return;
-		} else { /* @BFmer Off   &&   Div Off->Div On */
-			if (p_div->fix_path_bfer == 1) {
-				PHYDM_DBG(dm, DBG_PATH_DIV,
-					  "[ PathDiv : ON ]   BFmer ==0\n");
-				p_div->fix_path_bfer = 0;
-			}
-		}
-	}
-#endif
-#endif
 
 	if (p_div->use_path_a_as_default_ant == 1) {
 		phydm_find_default_path(dm);
@@ -411,15 +389,6 @@ void phydm_dynamic_tx_path(
 				p_div->dtp_check_patha_counter = 0;
 				p_div->phydm_dtp_state = PHYDM_DTP_INIT;
 			}
-#if 0
-			/* @2 Search space update */
-			else {
-				/* @1.  find the worst candidate */
-
-
-				/* @2. repalce the worst candidate */
-			}
-#endif
 		}
 	}
 
@@ -447,13 +416,7 @@ void phydm_dynamic_tx_path_init(
 	u8 search_space_2[NUM_CHOOSE2_FROM4] = {BB_PATH_AB, BB_PATH_AC, BB_PATH_AD, BB_PATH_BC, BB_PATH_BD, BB_PATH_CD};
 	u8 search_space_3[NUM_CHOOSE3_FROM4] = {BB_PATH_BCD, BB_PATH_ACD, BB_PATH_ABD, BB_PATH_ABC};
 
-#if ((DM_ODM_SUPPORT_TYPE == ODM_WIN) && USB_SWITCH_SUPPORT)
-	p_div->is_u3_mode = (*dm->hub_usb_mode == 2) ? 1 : 0;
-	PHYDM_DBG(dm, DBG_PATH_DIV, "[WIN USB] is_u3_mode = (( %d ))\n",
-		  p_div->is_u3_mode);
-#else
 	p_div->is_u3_mode = 1;
-#endif
 	PHYDM_DBG(dm, DBG_PATH_DIV, "Dynamic TX path Init 8814\n");
 
 	memcpy(&p_div->search_space_2[0], &search_space_2[0],

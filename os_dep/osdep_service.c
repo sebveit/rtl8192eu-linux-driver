@@ -21,14 +21,11 @@
 #define RT_TAG	'1178'
 
 #ifdef DBG_MEMORY_LEAK
-#ifdef PLATFORM_LINUX
 atomic_t _malloc_cnt = ATOMIC_INIT(0);
 atomic_t _malloc_size = ATOMIC_INIT(0);
-#endif
 #endif /* DBG_MEMORY_LEAK */
 
 
-#if defined(PLATFORM_LINUX)
 /*
 * Translate the OS dependent @param error_code to OS independent RTW_STATUS_CODE
 * @return: one of RTW_STATUS_CODE
@@ -45,12 +42,6 @@ inline int RTW_STATUS_CODE(int error_code)
 		return _FAIL;
 	}
 }
-#else
-inline int RTW_STATUS_CODE(int error_code)
-{
-	return error_code;
-}
-#endif
 
 u32 rtw_atoi(u8 *s)
 {
@@ -75,19 +66,15 @@ u32 rtw_atoi(u8 *s)
 
 inline void *_rtw_vmalloc(u32 sz)
 {
-       void *pbuf;
-#ifdef PLATFORM_LINUX
-       pbuf = kvmalloc(sz, GFP_KERNEL);
-#endif
+	void *pbuf;
+	pbuf = kvmalloc(sz, GFP_KERNEL);
 
 
 #ifdef DBG_MEMORY_LEAK
-#ifdef PLATFORM_LINUX
 	if (pbuf != NULL) {
 		atomic_inc(&_malloc_cnt);
 		atomic_add(sz, &_malloc_size);
 	}
-#endif
 #endif /* DBG_MEMORY_LEAK */
 
 	return pbuf;
@@ -95,25 +82,19 @@ inline void *_rtw_vmalloc(u32 sz)
 
 inline void *_rtw_zvmalloc(u32 sz)
 {
-       void *pbuf;
-#ifdef PLATFORM_LINUX
-       pbuf = kvzalloc(sz, GFP_KERNEL);
-#endif
+	void *pbuf;
+	pbuf = kvzalloc(sz, GFP_KERNEL);
 
-       return pbuf;
+	return pbuf;
 }
 
 inline void _rtw_vmfree(void *pbuf, u32 sz)
 {
-#ifdef PLATFORM_LINUX
-       kvfree(pbuf);
-#endif
+	kvfree(pbuf);
 
 #ifdef DBG_MEMORY_LEAK
-#ifdef PLATFORM_LINUX
 	atomic_dec(&_malloc_cnt);
 	atomic_sub(sz, &_malloc_size);
-#endif
 #endif /* DBG_MEMORY_LEAK */
 }
 
@@ -121,7 +102,6 @@ void *_rtw_malloc(u32 sz)
 {
 	void *pbuf = NULL;
 
-#ifdef PLATFORM_LINUX
 #ifdef RTK_DMP_PLATFORM
 	if (sz > 0x4000)
 		pbuf = dvr_malloc(sz);
@@ -129,15 +109,12 @@ void *_rtw_malloc(u32 sz)
 #endif
 		pbuf = kmalloc(sz, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 
-#endif
 
 #ifdef DBG_MEMORY_LEAK
-#ifdef PLATFORM_LINUX
 	if (pbuf != NULL) {
 		atomic_inc(&_malloc_cnt);
 		atomic_add(sz, &_malloc_size);
 	}
-#endif
 #endif /* DBG_MEMORY_LEAK */
 
 	return pbuf;
@@ -147,21 +124,18 @@ void *_rtw_malloc(u32 sz)
 
 void *_rtw_zmalloc(u32 sz)
 {
-       void *pbuf = _rtw_malloc(sz);
+	void *pbuf = _rtw_malloc(sz);
 
-       if (pbuf != NULL) {
-#ifdef PLATFORM_LINUX
-               memset(pbuf, 0, sz);
-#endif
-       }
+	if (pbuf != NULL) {
+		memset(pbuf, 0, sz);
+	}
 
-       return pbuf;
+	return pbuf;
 }
 
 void _rtw_mfree(void *pbuf, u32 sz)
 {
 
-#ifdef PLATFORM_LINUX
 #ifdef RTK_DMP_PLATFORM
 	if (sz > 0x4000)
 		dvr_free(pbuf);
@@ -169,13 +143,10 @@ void _rtw_mfree(void *pbuf, u32 sz)
 #endif
 		kfree(pbuf);
 
-#endif
 
 #ifdef DBG_MEMORY_LEAK
-#ifdef PLATFORM_LINUX
 	atomic_dec(&_malloc_cnt);
 	atomic_sub(sz, &_malloc_size);
-#endif
 #endif /* DBG_MEMORY_LEAK */
 
 }
@@ -183,9 +154,7 @@ void _rtw_mfree(void *pbuf, u32 sz)
 
 inline struct sk_buff *_rtw_skb_alloc(u32 sz)
 {
-#ifdef PLATFORM_LINUX
-        return __dev_alloc_skb(sz, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
-#endif /* PLATFORM_LINUX */
+	return __dev_alloc_skb(sz, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 }
 
 inline void _rtw_skb_free(struct sk_buff *skb)
@@ -195,56 +164,35 @@ inline void _rtw_skb_free(struct sk_buff *skb)
 
 inline struct sk_buff *_rtw_skb_copy(const struct sk_buff *skb)
 {
-#ifdef PLATFORM_LINUX
-        return skb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
-#endif /* PLATFORM_LINUX */
+	return skb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 }
 
 inline struct sk_buff *_rtw_skb_clone(struct sk_buff *skb)
 {
-#ifdef PLATFORM_LINUX
-        return skb_clone(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
-#endif /* PLATFORM_LINUX */
+	return skb_clone(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 }
 inline struct sk_buff *_rtw_pskb_copy(struct sk_buff *skb)
 {
-#ifdef PLATFORM_LINUX
-        return pskb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
-#endif /* PLATFORM_LINUX */
+	return pskb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 }
 
 inline int _rtw_netif_rx(_nic_hdl ndev, struct sk_buff *skb)
 {
-#ifdef PLATFORM_LINUX
-        skb->dev = ndev;
-        return netif_rx(skb);
-#else
-        rtw_warn_on(1);
-        return -1;
-#endif
+	skb->dev = ndev;
+	return netif_rx(skb);
 }
 
 #ifdef CONFIG_RTW_NAPI
 inline int _rtw_netif_receive_skb(_nic_hdl ndev, struct sk_buff *skb)
 {
-#ifdef PLATFORM_LINUX
-        skb->dev = ndev;
-        return netif_receive_skb(skb);
-#else
-        rtw_warn_on(1);
-        return -1;
-#endif
+	skb->dev = ndev;
+	return netif_receive_skb(skb);
 }
 
 #ifdef CONFIG_RTW_GRO
 inline gro_result_t _rtw_napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
 {
-#if defined(PLATFORM_LINUX)
-        return napi_gro_receive(napi, skb);
-#else
-        rtw_warn_on(1);
-        return -1;
-#endif
+	return napi_gro_receive(napi, skb);
 }
 #endif /* CONFIG_RTW_GRO */
 #endif /* CONFIG_RTW_NAPI */
@@ -260,16 +208,12 @@ void _rtw_skb_queue_purge(struct sk_buff_head *list)
 #ifdef CONFIG_USB_HCI
 inline void *_rtw_usb_buffer_alloc(struct usb_device *dev, size_t size, dma_addr_t *dma)
 {
-#ifdef PLATFORM_LINUX
-        return usb_alloc_coherent(dev, size, (in_interrupt() ? GFP_ATOMIC : GFP_KERNEL), dma);
-#endif /* PLATFORM_LINUX */
+	return usb_alloc_coherent(dev, size, (in_interrupt() ? GFP_ATOMIC : GFP_KERNEL), dma);
 
 }
 inline void _rtw_usb_buffer_free(struct usb_device *dev, size_t size, void *addr, dma_addr_t dma)
 {
-#ifdef PLATFORM_LINUX
-        usb_free_coherent(dev, size, addr, dma);
-#endif /* PLATFORM_LINUX */
+	usb_free_coherent(dev, size, addr, dma);
 
 }
 #endif /* CONFIG_USB_HCI */
@@ -750,72 +694,48 @@ void rtw_mfree2d(void *pbuf, int h, int w, int size)
 
 inline void rtw_os_pkt_free(_pkt *pkt)
 {
-#if defined(PLATFORM_LINUX)
-       rtw_skb_free(pkt);
-#else
-       #error "TBD\n"
-#endif
+	rtw_skb_free(pkt);
 }
 
 inline _pkt *rtw_os_pkt_copy(_pkt *pkt)
 {
-#if defined(PLATFORM_LINUX)
-       return rtw_skb_copy(pkt);
-#else
-       #error "TBD\n"
-#endif
+	return rtw_skb_copy(pkt);
 }
 
 inline void *rtw_os_pkt_data(_pkt *pkt)
 {
-#if defined(PLATFORM_LINUX)
-       return pkt->data;
-#else
-       #error "TBD\n"
-#endif
+	return pkt->data;
 }
 
 inline u32 rtw_os_pkt_len(_pkt *pkt)
 {
-#if defined(PLATFORM_LINUX)
-       return pkt->len;
-#else
-       #error "TBD\n"
-#endif
+	return pkt->len;
 }
 
 void _rtw_memcpy(void *dst, const void *src, u32 sz)
 {
 
-#if defined(PLATFORM_LINUX)
 
 	memcpy(dst, src, sz);
 
-#endif
 
 
 }
 
 inline void _rtw_memmove(void *dst, const void *src, u32 sz)
 {
-#if defined(PLATFORM_LINUX)
 	memmove(dst, src, sz);
-#else
-	#error "TBD\n"
-#endif
 }
 
 int	_rtw_memcmp(const void *dst, const void *src, u32 sz)
 {
 
-#if defined(PLATFORM_LINUX)
 	/* under Linux/GNU/GLibc, the return value of memcmp for two same mem. chunk is 0 */
 
 	if (!(memcmp(dst, src, sz)))
 		return _TRUE;
 	else
 		return _FALSE;
-#endif
 
 
 
@@ -826,11 +746,9 @@ int	_rtw_memcmp(const void *dst, const void *src, u32 sz)
 void _rtw_memset(void *pbuf, int c, u32 sz)
 {
 
-#if defined(PLATFORM_LINUX)
 
 	memset(pbuf, c, sz);
 
-#endif
 
 
 }
@@ -840,11 +758,9 @@ void _rtw_memset(void *pbuf, int c, u32 sz)
 void _rtw_init_listhead(_list *list)
 {
 
-#ifdef PLATFORM_LINUX
 
 	INIT_LIST_HEAD(list);
 
-#endif
 
 
 }
@@ -858,14 +774,12 @@ Otherwise, there will be racing condition.
 u32	rtw_is_list_empty(_list *phead)
 {
 
-#ifdef PLATFORM_LINUX
 
 	if (list_empty(phead))
 		return _TRUE;
 	else
 		return _FALSE;
 
-#endif
 
 
 
@@ -875,9 +789,7 @@ u32	rtw_is_list_empty(_list *phead)
 void rtw_list_insert_head(_list *plist, _list *phead)
 {
 
-#ifdef PLATFORM_LINUX
 	list_add(plist, phead);
-#endif
 
 
 }
@@ -885,93 +797,57 @@ void rtw_list_insert_head(_list *plist, _list *phead)
 void rtw_list_insert_tail(_list *plist, _list *phead)
 {
 
-#ifdef PLATFORM_LINUX
 
 	list_add_tail(plist, phead);
 
-#endif
 
 }
 
 inline void rtw_list_splice(_list *list, _list *head)
 {
-#ifdef PLATFORM_LINUX
 	list_splice(list, head);
-#else
-	#error "TBD\n"
-#endif
 }
 
 inline void rtw_list_splice_init(_list *list, _list *head)
 {
-#ifdef PLATFORM_LINUX
 	list_splice_init(list, head);
-#else
-	#error "TBD\n"
-#endif
 }
 
 inline void rtw_list_splice_tail(_list *list, _list *head)
 {
-#ifdef PLATFORM_LINUX
-        list_splice_tail(list, head);
-#else
-        #error "TBD\n"
-#endif
+	list_splice_tail(list, head);
 }
 
 inline void rtw_hlist_head_init(rtw_hlist_head *h)
 {
-#ifdef PLATFORM_LINUX
 	INIT_HLIST_HEAD(h);
-#else
-	#error "TBD\n"
-#endif
 }
 
 inline void rtw_hlist_add_head(rtw_hlist_node *n, rtw_hlist_head *h)
 {
-#ifdef PLATFORM_LINUX
 	hlist_add_head(n, h);
-#else
-	#error "TBD\n"
-#endif
 }
 
 inline void rtw_hlist_del(rtw_hlist_node *n)
 {
-#ifdef PLATFORM_LINUX
 	hlist_del(n);
-#else
-	#error "TBD\n"
-#endif
 }
 
 inline void rtw_hlist_add_head_rcu(rtw_hlist_node *n, rtw_hlist_head *h)
 {
-#ifdef PLATFORM_LINUX
 	hlist_add_head_rcu(n, h);
-#else
-	#error "TBD\n"
-#endif
 }
 
 inline void rtw_hlist_del_rcu(rtw_hlist_node *n)
 {
-#ifdef PLATFORM_LINUX
 	hlist_del_rcu(n);
-#else
-	#error "TBD\n"
-#endif
 }
 
 void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc, void *ctx)
 {
 	_adapter *adapter = (_adapter *)padapter;
 
-#ifdef PLATFORM_LINUX
 	_init_timer(ptimer, adapter->pnetdev, pfunc, ctx);
-#endif
 }
 
 /*
@@ -984,11 +860,9 @@ Caller must check if the list is empty before calling rtw_list_delete
 void _rtw_init_sema(_sema	*sema, int init_val)
 {
 
-#ifdef PLATFORM_LINUX
 
 	sema_init(sema, init_val);
 
-#endif
 
 
 }
@@ -1001,36 +875,30 @@ void _rtw_free_sema(_sema	*sema)
 void _rtw_up_sema(_sema	*sema)
 {
 
-#ifdef PLATFORM_LINUX
 
 	up(sema);
 
-#endif
 
 }
 
 u32 _rtw_down_sema(_sema *sema)
 {
 
-#ifdef PLATFORM_LINUX
 
 	if (down_interruptible(sema))
 		return _FAIL;
 	else
 		return _SUCCESS;
 
-#endif
 
 }
 
 inline void thread_exit(_completion *comp)
 {
-#ifdef PLATFORM_LINUX
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0)
 	kthread_complete_and_exit(comp, 0);
 #else
 	complete_and_exit(comp, 0);
-#endif
 #endif
 
 
@@ -1039,38 +907,28 @@ inline void thread_exit(_completion *comp)
 
 inline void _rtw_init_completion(_completion *comp)
 {
-#ifdef PLATFORM_LINUX
 	init_completion(comp);
-#endif
 }
 inline void _rtw_wait_for_comp_timeout(_completion *comp)
 {
-#ifdef PLATFORM_LINUX
 	wait_for_completion_timeout(comp, msecs_to_jiffies(3000));
-#endif
 }
 inline void _rtw_wait_for_comp(_completion *comp)
 {
-#ifdef PLATFORM_LINUX
 	wait_for_completion(comp);
-#endif
 }
 
 void	_rtw_mutex_init(_mutex *pmutex)
 {
-#ifdef PLATFORM_LINUX
-        mutex_init(pmutex);
-#endif
+	mutex_init(pmutex);
 
 }
 
 void	_rtw_mutex_free(_mutex *pmutex);
 void	_rtw_mutex_free(_mutex *pmutex)
 {
-#ifdef PLATFORM_LINUX
-        mutex_destroy(pmutex);
+	mutex_destroy(pmutex);
 
-#endif
 
 
 }
@@ -1078,11 +936,9 @@ void	_rtw_mutex_free(_mutex *pmutex)
 void	_rtw_spinlock_init(_lock *plock)
 {
 
-#ifdef PLATFORM_LINUX
 
 	spin_lock_init(plock);
 
-#endif
 
 }
 
@@ -1096,44 +952,36 @@ void	_rtw_spinlock_free(_lock *plock)
 void	_rtw_spinlock(_lock	*plock)
 {
 
-#ifdef PLATFORM_LINUX
 
 	spin_lock(plock);
 
-#endif
 
 }
 
 void	_rtw_spinunlock(_lock *plock)
 {
 
-#ifdef PLATFORM_LINUX
 
 	spin_unlock(plock);
 
-#endif
 }
 
 
 void	_rtw_spinlock_ex(_lock	*plock)
 {
 
-#ifdef PLATFORM_LINUX
 
 	spin_lock(plock);
 
-#endif
 
 }
 
 void	_rtw_spinunlock_ex(_lock *plock)
 {
 
-#ifdef PLATFORM_LINUX
 
 	spin_unlock(plock);
 
-#endif
 }
 
 
@@ -1167,32 +1015,22 @@ u32 rtw_end_of_queue_search(_list *head, _list *plist)
 systime _rtw_get_current_time(void)
 {
 
-#ifdef PLATFORM_LINUX
 	return jiffies;
-#endif
 }
 
 inline u32 _rtw_systime_to_ms(systime stime)
 {
-#ifdef PLATFORM_LINUX
 	return jiffies_to_msecs(stime);
-#endif
 }
 
 inline systime _rtw_ms_to_systime(u32 ms)
 {
-#ifdef PLATFORM_LINUX
 	return msecs_to_jiffies(ms);
-#endif
 }
 
 inline systime _rtw_us_to_systime(u32 us)
 {
-#ifdef PLATFORM_LINUX
 	return usecs_to_jiffies(us);
-#else
-	#error "TBD\n"
-#endif
 }
 
 /* the input parameter start use the same unit as returned by rtw_get_current_time */
@@ -1213,17 +1051,12 @@ inline s32 _rtw_get_time_interval_ms(systime start, systime end)
 
 inline bool _rtw_time_after(systime a, systime b)
 {
-#ifdef PLATFORM_LINUX
 	return time_after(a, b);
-#else
-	#error "TBD\n"
-#endif
 }
 
 void rtw_sleep_schedulable(int ms)
 {
 
-#ifdef PLATFORM_LINUX
 
 	u32 delta;
 
@@ -1236,7 +1069,6 @@ void rtw_sleep_schedulable(int ms)
 		return ;
 	return;
 
-#endif
 
 
 }
@@ -1245,22 +1077,18 @@ void rtw_sleep_schedulable(int ms)
 void rtw_msleep_os(int ms)
 {
 
-#ifdef PLATFORM_LINUX
-        if (ms < 20) {
-                unsigned long us = ms * 1000UL;
-                usleep_range(us, us + 1000UL);
-        } else
-                msleep((unsigned int)ms);
+	if (ms < 20) {
+		unsigned long us = ms * 1000UL;
+		usleep_range(us, us + 1000UL);
+	} else
+		msleep((unsigned int)ms);
 
-#endif
 
 
 }
 void rtw_usleep_os(int us)
 {
-#ifdef PLATFORM_LINUX
-        usleep_range(us, us + 1);
-#endif
+	usleep_range(us, us + 1);
 
 
 
@@ -1270,75 +1098,52 @@ void rtw_usleep_os(int us)
 #ifdef DBG_DELAY_OS
 void _rtw_mdelay_os(int ms, const char *func, const int line)
 {
-#if 0
-	if (ms > 10)
-		RTW_INFO("%s:%d %s(%d)\n", func, line, __FUNCTION__, ms);
-	rtw_msleep_os(ms);
-	return;
-#endif
 
 
 	RTW_INFO("%s:%d %s(%d)\n", func, line, __FUNCTION__, ms);
 
-#if defined(PLATFORM_LINUX)
 
 	mdelay((unsigned long)ms);
 
-#endif
 
 
 }
 void _rtw_udelay_os(int us, const char *func, const int line)
 {
 
-#if 0
-	if (us > 1000) {
-		RTW_INFO("%s:%d %s(%d)\n", func, line, __FUNCTION__, us);
-		rtw_usleep_os(us);
-		return;
-	}
-#endif
 
 
 	RTW_INFO("%s:%d %s(%d)\n", func, line, __FUNCTION__, us);
 
 
-#if defined(PLATFORM_LINUX)
 
 	udelay((unsigned long)us);
 
-#endif
 
 }
 #else
 void rtw_mdelay_os(int ms)
 {
 
-#ifdef PLATFORM_LINUX
 
 	mdelay((unsigned long)ms);
 
-#endif
 
 
 }
 void rtw_udelay_os(int us)
 {
 
-#ifdef PLATFORM_LINUX
 
 	udelay((unsigned long)us);
 
-#endif
 
 }
 #endif
 
 void rtw_yield_os(void)
 {
-#ifdef PLATFORM_LINUX
 	yield();
-#endif
 }
 
 bool rtw_macaddr_is_larger(const u8 *a, const u8 *b)
@@ -1364,156 +1169,119 @@ static struct wakeup_source *rtw_suspend_resume_lock;
 
 inline void rtw_suspend_lock_init(void)
 {
-       rtw_suspend_lock = wakeup_source_register(NULL, RTW_SUSPEND_LOCK_NAME);
-       rtw_suspend_traffic_lock = wakeup_source_register(NULL, RTW_SUSPEND_TRAFFIC_LOCK_NAME);
-       rtw_suspend_resume_lock = wakeup_source_register(NULL, RTW_SUSPEND_RESUME_LOCK_NAME);
+	rtw_suspend_lock = wakeup_source_register(NULL, RTW_SUSPEND_LOCK_NAME);
+	rtw_suspend_traffic_lock = wakeup_source_register(NULL, RTW_SUSPEND_TRAFFIC_LOCK_NAME);
+	rtw_suspend_resume_lock = wakeup_source_register(NULL, RTW_SUSPEND_RESUME_LOCK_NAME);
 }
 
 inline void rtw_suspend_lock_uninit(void)
 {
-       wakeup_source_unregister(rtw_suspend_lock);
-       wakeup_source_unregister(rtw_suspend_traffic_lock);
-       wakeup_source_unregister(rtw_suspend_resume_lock);
+	wakeup_source_unregister(rtw_suspend_lock);
+	wakeup_source_unregister(rtw_suspend_traffic_lock);
+	wakeup_source_unregister(rtw_suspend_resume_lock);
 }
 
 inline void rtw_lock_suspend(void)
 {
-       __pm_stay_awake(rtw_suspend_lock);
+	__pm_stay_awake(rtw_suspend_lock);
 }
 
 inline void rtw_unlock_suspend(void)
 {
-       __pm_relax(rtw_suspend_lock);
+	__pm_relax(rtw_suspend_lock);
 }
 
 inline void rtw_resume_lock_suspend(void)
 {
-       __pm_stay_awake(rtw_suspend_resume_lock);
+	__pm_stay_awake(rtw_suspend_resume_lock);
 }
 
 inline void rtw_resume_unlock_suspend(void)
 {
-       __pm_relax(rtw_suspend_resume_lock);
+	__pm_relax(rtw_suspend_resume_lock);
 }
 
 inline void rtw_lock_suspend_timeout(u32 timeout_ms)
 {
-       __pm_wakeup_event(rtw_suspend_lock, timeout_ms);
+	__pm_wakeup_event(rtw_suspend_lock, timeout_ms);
 }
 
 
 inline void rtw_lock_traffic_suspend_timeout(u32 timeout_ms)
 {
-       __pm_wakeup_event(rtw_suspend_traffic_lock, timeout_ms);
-       /* RTW_INFO("traffic lock timeout:%d\n", timeout_ms); */
+	__pm_wakeup_event(rtw_suspend_traffic_lock, timeout_ms);
+	/* RTW_INFO("traffic lock timeout:%d\n", timeout_ms); */
 }
 
 inline void rtw_set_bit(int nr, unsigned long *addr)
 {
-#ifdef PLATFORM_LINUX
 	set_bit(nr, addr);
-#else
-	#error "TBD\n";
-#endif
 }
 
 inline void rtw_clear_bit(int nr, unsigned long *addr)
 {
-#ifdef PLATFORM_LINUX
 	clear_bit(nr, addr);
-#else
-	#error "TBD\n";
-#endif
 }
 
 inline int rtw_test_and_clear_bit(int nr, unsigned long *addr)
 {
-#ifdef PLATFORM_LINUX
 	return test_and_clear_bit(nr, addr);
-#else
-	#error "TBD\n";
-#endif
 }
 
 inline void ATOMIC_SET(ATOMIC_T *v, int i)
 {
-#ifdef PLATFORM_LINUX
 	atomic_set(v, i);
-#endif
 }
 
 inline int ATOMIC_READ(ATOMIC_T *v)
 {
-#ifdef PLATFORM_LINUX
 	return atomic_read(v);
-#endif
 }
 
 inline void ATOMIC_ADD(ATOMIC_T *v, int i)
 {
-#ifdef PLATFORM_LINUX
 	atomic_add(i, v);
-#endif
 }
 inline void ATOMIC_SUB(ATOMIC_T *v, int i)
 {
-#ifdef PLATFORM_LINUX
 	atomic_sub(i, v);
-#endif
 }
 
 inline void ATOMIC_INC(ATOMIC_T *v)
 {
-#ifdef PLATFORM_LINUX
 	atomic_inc(v);
-#endif
 }
 
 inline void ATOMIC_DEC(ATOMIC_T *v)
 {
-#ifdef PLATFORM_LINUX
 	atomic_dec(v);
-#endif
 }
 
 inline int ATOMIC_ADD_RETURN(ATOMIC_T *v, int i)
 {
-#ifdef PLATFORM_LINUX
 	return atomic_add_return(i, v);
-#endif
 }
 
 inline int ATOMIC_SUB_RETURN(ATOMIC_T *v, int i)
 {
-#ifdef PLATFORM_LINUX
 	return atomic_sub_return(i, v);
-#endif
 }
 
 inline int ATOMIC_INC_RETURN(ATOMIC_T *v)
 {
-#ifdef PLATFORM_LINUX
 	return atomic_inc_return(v);
-#endif
 }
 
 inline int ATOMIC_DEC_RETURN(ATOMIC_T *v)
 {
-#ifdef PLATFORM_LINUX
 	return atomic_dec_return(v);
-#endif
 }
 
 inline bool ATOMIC_INC_UNLESS(ATOMIC_T *v, int u)
 {
-#ifdef PLATFORM_LINUX
-        return atomic_add_unless(v, 1, u);
-#else
-        #error "TBD\n"
-#endif
+	return atomic_add_unless(v, 1, u);
 }
 
-#ifdef PLATFORM_LINUX
 /*
 * Open a file with the specific @param path, @param flag, @param mode
 * @param fpp the pointer of struct file pointer to get struct file pointer while file opening is success
@@ -1551,16 +1319,16 @@ static int readFile(struct file *fp, char *buf, int len)
 {
 	int rlen = 0, sum = 0;
 
-       if (!(fp->f_mode & FMODE_CAN_READ))
-               return -EPERM;
+	if (!(fp->f_mode & FMODE_CAN_READ))
+		return -EPERM;
 
-       while (sum < len) {
-               rlen = kernel_read(fp, buf + sum, len - sum, &fp->f_pos);
-               if (rlen > 0)
-                       sum += rlen;
-               else if (0 != rlen)
-                       return rlen;
-               else
+	while (sum < len) {
+		rlen = kernel_read(fp, buf + sum, len - sum, &fp->f_pos);
+		if (rlen > 0)
+			sum += rlen;
+		else if (0 != rlen)
+			return rlen;
+		else
 			break;
 	}
 
@@ -1678,7 +1446,6 @@ static int storeToFile(const char *path, u8 *buf, u32 sz)
 	}
 	return ret;
 }
-#endif /* PLATFORM_LINUX */
 
 /*
 * Test if the specifi @param path is a file and readable
@@ -1687,15 +1454,10 @@ static int storeToFile(const char *path, u8 *buf, u32 sz)
 */
 int rtw_is_file_readable(const char *path)
 {
-#ifdef PLATFORM_LINUX
 	if (isFileReadable(path, NULL) == 0)
 		return _TRUE;
 	else
 		return _FALSE;
-#else
-	/* Todo... */
-	return _FALSE;
-#endif
 }
 
 /*
@@ -1706,15 +1468,10 @@ int rtw_is_file_readable(const char *path)
 */
 int rtw_is_file_readable_with_size(const char *path, u32 *sz)
 {
-#ifdef PLATFORM_LINUX
 	if (isFileReadable(path, sz) == 0)
 		return _TRUE;
 	else
 		return _FALSE;
-#else
-	/* Todo... */
-	return _FALSE;
-#endif
 }
 
 /*
@@ -1726,13 +1483,8 @@ int rtw_is_file_readable_with_size(const char *path, u32 *sz)
 */
 int rtw_retrieve_from_file(const char *path, u8 *buf, u32 sz)
 {
-#ifdef PLATFORM_LINUX
 	int ret = retriveFromFile(path, buf, sz);
 	return ret >= 0 ? ret : 0;
-#else
-	/* Todo... */
-	return 0;
-#endif
 }
 
 /*
@@ -1744,22 +1496,16 @@ int rtw_retrieve_from_file(const char *path, u8 *buf, u32 sz)
 */
 int rtw_store_to_file(const char *path, u8 *buf, u32 sz)
 {
-#ifdef PLATFORM_LINUX
 	int ret = storeToFile(path, buf, sz);
 	return ret >= 0 ? ret : 0;
-#else
-	/* Todo... */
-	return 0;
-#endif
 }
 
-#ifdef PLATFORM_LINUX
 struct net_device *rtw_alloc_etherdev_with_old_priv(int sizeof_priv, void *old_priv)
 {
 	struct net_device *pnetdev;
 	struct rtw_netdev_priv_indicator *pnpi;
 
-       pnetdev = alloc_etherdev_mq(sizeof(struct rtw_netdev_priv_indicator), 4);
+	pnetdev = alloc_etherdev_mq(sizeof(struct rtw_netdev_priv_indicator), 4);
 	if (!pnetdev)
 		goto RETURN;
 
@@ -1776,7 +1522,7 @@ struct net_device *rtw_alloc_etherdev(int sizeof_priv)
 	struct net_device *pnetdev;
 	struct rtw_netdev_priv_indicator *pnpi;
 
-       pnetdev = alloc_etherdev_mq(sizeof(struct rtw_netdev_priv_indicator), 4);
+	pnetdev = alloc_etherdev_mq(sizeof(struct rtw_netdev_priv_indicator), 4);
 	if (!pnetdev)
 		goto RETURN;
 
@@ -1875,7 +1621,6 @@ error:
 	return -1;
 
 }
-#endif
 
 
 #ifdef CONFIG_PLATFORM_SPRD
@@ -1887,27 +1632,21 @@ error:
 
 u64 rtw_modular64(u64 x, u64 y)
 {
-#ifdef PLATFORM_LINUX
 	return do_div(x, y);
-#endif
 }
 
 u64 rtw_division64(u64 x, u64 y)
 {
-#ifdef PLATFORM_LINUX
 	do_div(x, y);
 	return x;
-#endif
 }
 
 inline u32 rtw_random32(void)
 {
-#ifdef PLATFORM_LINUX
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
-        return get_random_u32();
+	return get_random_u32();
 #else
-        return prandom_u32();
-#endif
+	return prandom_u32();
 #endif
 }
 

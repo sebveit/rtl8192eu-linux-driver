@@ -27,11 +27,7 @@
  *	Increase the scanning timeout because of increasing the SURVEY_TO value. */
 
 
-#ifdef PALTFORM_OS_WINCE
-#define	SCANQUEUE_LIFETIME 12000000 /* unit:us */
-#else
 #define	SCANQUEUE_LIFETIME 20000 /* 20sec, unit:msec */
-#endif
 
 #define WIFI_NULL_STATE					0x00000000
 #define WIFI_ASOC_STATE					0x00000001 /* Linked */

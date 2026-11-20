@@ -100,25 +100,12 @@ struct rt_adcsmp {
 	boolean			is_la_print;
 	boolean			en_fake_trig;
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	RT_WORK_ITEM	adc_smp_work_item;
-	RT_WORK_ITEM	adc_smp_work_item_1;
-#endif
 };
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-void adc_smp_work_item_callback(
-	void *context);
-#endif
 
 void adc_smp_set(void *dm_void, u8 trig_mode, u32 trig_sig_sel,
 		 u8 dma_data_sig_sel, u32 trig_time, u16 polling_time);
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-enum rt_status
-adc_smp_query(void *dm_void, ULONG info_buf_length, void *info_buf,
-	      PULONG bytes_written);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_CE)
 void adc_smp_query(void *dm_void, void *output, u32 out_len, u32 *pused);
 
 s32 adc_smp_get_sample_counts(void *dm_void);
@@ -126,16 +113,13 @@ s32 adc_smp_get_sample_counts(void *dm_void);
 s32 adc_smp_query_single_data(void *dm_void, void *output, u32 out_len,
 			      u32 idx);
 
-#endif
 void adc_smp_stop(void *dm_void);
 
 void phydm_la_bb_adv_reset_jgr3(void *dm_void);
 
 void adc_smp_init(void *dm_void);
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 void adc_smp_de_init(void *dm_void);
-#endif
 
 void phydm_la_set_buff_mode(void *dm_void, enum la_buff_mode mode);
 

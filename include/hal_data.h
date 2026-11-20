@@ -15,7 +15,6 @@
 #ifndef __HAL_DATA_H__
 #define __HAL_DATA_H__
 
-#if 1/* def  CONFIG_SINGLE_IMG */
 
 #include "../hal/phydm/phydm_precomp.h"
 #ifdef CONFIG_BT_COEXIST
@@ -801,7 +800,6 @@ typedef struct hal_com_data HAL_DATA_TYPE, *PHAL_DATA_TYPE;
 #define rtw_get_hw_init_completed(adapter)		(GET_HAL_DATA(adapter)->hw_init_completed)
 #define rtw_set_hw_init_completed(adapter, cmp)	(GET_HAL_DATA(adapter)->hw_init_completed = cmp)
 #define rtw_is_hw_init_completed(adapter)		(GET_HAL_DATA(adapter)->hw_init_completed == _TRUE)
-#endif
 
 #ifdef RTW_HALMAC
 int rtw_halmac_deinit_adapter(struct dvobj_priv *);

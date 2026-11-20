@@ -29,4 +29,4 @@ The Realtek Corporation is the copyright holder of this software.
 
 See [TESTING.md](TESTING.md) for instructions on building the driver against a
 cross‑compiled Linux kernel. The required packages listed there must be
-installed before running `tests/test_kernel_5.4.sh`.
+installed before running `kernel-tests/simple-test-5.4.sh`.

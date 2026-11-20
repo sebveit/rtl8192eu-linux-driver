@@ -40,11 +40,6 @@
 #include "halrf/rtl8822c/halrf_dpk_8822c.h"
 #endif
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-#if (RTL8198F_SUPPORT == 1)
-#include "halrf/rtl8198f/halrf_rfk_init_8198f.h"
-#endif
-#endif
 
 #if (RTL8814B_SUPPORT == 1)
 #include "halrf/rtl8814b/halrf_rfk_init_8814b.h"
@@ -55,35 +50,12 @@
 /*@Definition */
 /*@============================================================*/
 /*IQK version*/
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
-#define IQK_VER_8188E "0x14"
-#define IQK_VER_8192E "0x01"
-#define IQK_VER_8192F "0x01"
-#define IQK_VER_8723B "0x1e"
-#define IQK_VER_8812A "0x02"
-#define IQK_VER_8821A "0x01"
-#elif (DM_ODM_SUPPORT_TYPE & (ODM_CE))
 #define IQK_VER_8188E "0x01"
 #define IQK_VER_8192E "0x01"
 #define IQK_VER_8192F "0x01"
 #define IQK_VER_8723B "0x1e"
 #define IQK_VER_8812A "0x01"
 #define IQK_VER_8821A "0x01"
-#elif (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-#define IQK_VER_8188E "0x01"
-#define IQK_VER_8192E "0x01"
-#define IQK_VER_8192F "0x01"
-#define IQK_VER_8723B "0x1e"
-#define IQK_VER_8812A "0x01"
-#define IQK_VER_8821A "0x01"
-#elif (DM_ODM_SUPPORT_TYPE & (ODM_IOT))
-#define IQK_VER_8188E "0x01"
-#define IQK_VER_8192E "0x01"
-#define IQK_VER_8192F "0x01"
-#define IQK_VER_8723B "0x1e"
-#define IQK_VER_8812A "0x01"
-#define IQK_VER_8821A "0x01"
-#endif
 #define IQK_VER_8814A "0x0f"
 #define IQK_VER_8188F "0x01"
 #define IQK_VER_8197F "0x1d"
@@ -446,9 +418,6 @@ struct _hal_rf_ {
 	u32 p_rate_index;
 	u8 pwt_type;
 	u32 rf_dbg_comp;
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	struct _halrf_psd_data halrf_psd_data;
-#endif
 };
 
 /*@============================================================*/

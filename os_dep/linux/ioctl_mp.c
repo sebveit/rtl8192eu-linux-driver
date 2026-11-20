@@ -37,9 +37,9 @@
  *	1st %d is address(offset)
  *	2st %d is data to write
  */
-int rtw_mp_write_reg(struct net_device *dev,
-		     struct iw_request_info *info,
-		     struct iw_point *wrqu, char *extra)
+static int __rtw_mp_write_reg(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, char *input)
 {
 	char *pch, *pnext;
 	char *width_str;
@@ -47,9 +47,8 @@ int rtw_mp_write_reg(struct net_device *dev,
 	u32 addr, data;
 	int ret;
 	PADAPTER padapter = rtw_netdev_priv(dev);
-	char input[MP_MAX_IOCTL_BUF_SIZE];
 
-	_rtw_memset(input, 0, sizeof(input));
+	_rtw_memset(input, 0, MP_MAX_IOCTL_BUF_SIZE);
 
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
@@ -123,6 +122,23 @@ int rtw_mp_write_reg(struct net_device *dev,
 	return ret;
 }
 
+int rtw_mp_write_reg(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	char *input;
+	int ret;
+
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_write_reg(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
 
 /*
  * Input Format: %s,%d
@@ -135,11 +151,10 @@ int rtw_mp_write_reg(struct net_device *dev,
  * Return:
  *	%d for data readed
  */
-int rtw_mp_read_reg(struct net_device *dev,
-		    struct iw_request_info *info,
-		    struct iw_point *wrqu, char *extra)
+static int __rtw_mp_read_reg(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, char *input)
 {
-	char input[MP_MAX_IOCTL_BUF_SIZE];
 	char *pch, *pnext;
 	char *width_str;
 	char width;
@@ -152,7 +167,7 @@ int rtw_mp_read_reg(struct net_device *dev,
 	if (wrqu->length > 128)
 		return -EFAULT;
 
-	_rtw_memset(input, 0, sizeof(input));
+	_rtw_memset(input, 0, MP_MAX_IOCTL_BUF_SIZE);
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
 
@@ -264,6 +279,23 @@ int rtw_mp_read_reg(struct net_device *dev,
 	return ret;
 }
 
+int rtw_mp_read_reg(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	char *input;
+	int ret;
+
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_read_reg(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
 
 /*
  * Input Format: %d,%x,%x
@@ -271,15 +303,14 @@ int rtw_mp_read_reg(struct net_device *dev,
  *	1st %x is address(offset)
  *	2st %x is data to write
  */
-int rtw_mp_write_rf(struct net_device *dev,
-		    struct iw_request_info *info,
-		    struct iw_point *wrqu, char *extra)
+static int __rtw_mp_write_rf(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, char *input)
 {
 
 	u32 path, addr, data;
 	int ret;
 	PADAPTER padapter = rtw_netdev_priv(dev);
-	char input[MP_MAX_IOCTL_BUF_SIZE];
 
 
 	_rtw_memset(input, 0, wrqu->length);
@@ -311,6 +342,23 @@ int rtw_mp_write_rf(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_write_rf(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	char *input;
+	int ret;
+
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_write_rf(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
 
 /*
  * Input Format: %d,%x
@@ -320,11 +368,10 @@ int rtw_mp_write_rf(struct net_device *dev,
  * Return:
  *	%d for data readed
  */
-int rtw_mp_read_rf(struct net_device *dev,
-		   struct iw_request_info *info,
-		   struct iw_point *wrqu, char *extra)
+static int __rtw_mp_read_rf(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, char *input)
 {
-	char input[MP_MAX_IOCTL_BUF_SIZE];
 	char *pch, *pnext;
 	char data[20], tmp[20];
 	u32 path, addr, strtou;
@@ -383,6 +430,23 @@ int rtw_mp_read_rf(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_read_rf(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	char *input;
+	int ret;
+
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_read_rf(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
 
 int rtw_mp_start(struct net_device *dev,
 		 struct iw_request_info *info,
@@ -427,16 +491,15 @@ int rtw_mp_stop(struct net_device *dev,
 }
 
 
-int rtw_mp_rate(struct net_device *dev,
+static int __rtw_mp_rate(struct net_device *dev,
 		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra)
+		struct iw_point *wrqu, char *extra, u8 *input)
 {
 	u32 rate = MPT_RATE_1M;
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	PMPT_CONTEXT		pMptCtx = &(padapter->mppriv.mpt_ctx);
 
-	_rtw_memset(input, 0, sizeof(input));
+	_rtw_memset(input, 0, MP_MAX_IOCTL_BUF_SIZE);
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
 
@@ -480,18 +543,34 @@ int rtw_mp_rate(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_rate(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
 
-int rtw_mp_channel(struct net_device *dev,
-		   struct iw_request_info *info,
-		   struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_rate(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_channel(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, u8 *input)
 {
 
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(padapter);
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 	u32	channel = 1;
 
-	_rtw_memset(input, 0, sizeof(input));
+	_rtw_memset(input, 0, MP_MAX_IOCTL_BUF_SIZE);
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
 
@@ -514,17 +593,33 @@ int rtw_mp_channel(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_channel(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
 
-int rtw_mp_ch_offset(struct net_device *dev,
-		   struct iw_request_info *info,
-		   struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_channel(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_ch_offset(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, u8 *input)
 {
 
 	PADAPTER padapter = rtw_netdev_priv(dev);
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 	u32	ch_offset = 0;
 
-	_rtw_memset(input, 0, sizeof(input));
+	_rtw_memset(input, 0, MP_MAX_IOCTL_BUF_SIZE);
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
 
@@ -546,15 +641,31 @@ int rtw_mp_ch_offset(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_ch_offset(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
 
-int rtw_mp_bandwidth(struct net_device *dev,
-		     struct iw_request_info *info,
-		     struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_ch_offset(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_bandwidth(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, u8 *input)
 {
 	u32 bandwidth = 0, sg = 0;
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(padapter);
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
@@ -583,21 +694,37 @@ int rtw_mp_bandwidth(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_bandwidth(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
 
-int rtw_mp_txpower_index(struct net_device *dev,
-			 struct iw_request_info *info,
-			 struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_bandwidth(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_txpower_index(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, char *input)
 {
 	PADAPTER padapter = rtw_netdev_priv(dev);
  	HAL_DATA_TYPE	*phal_data	= GET_HAL_DATA(padapter);
-	char input[MP_MAX_IOCTL_BUF_SIZE];
 	u32 rfpath;
 	u32 txpower_inx;
 
 	if (wrqu->length > 128)
 		return -EFAULT;
 
-	_rtw_memset(input, 0, sizeof(input));
+	_rtw_memset(input, 0, MP_MAX_IOCTL_BUF_SIZE);
 
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
@@ -619,15 +746,15 @@ int rtw_mp_txpower_index(struct net_device *dev,
 		snprintf(extra, 4096, "patha=%d", txpower_inx);
 		if (phal_data->rf_type > RF_1T2R) {
 			txpower_inx = mpt_ProQueryCalTxPower(padapter, 1);
-               sprintf(extra + strlen(extra), ",pathb=%d", txpower_inx);
+		sprintf(extra + strlen(extra), ",pathb=%d", txpower_inx);
 		}
 		if (phal_data->rf_type > RF_2T4R) {
 			txpower_inx = mpt_ProQueryCalTxPower(padapter, 2);
-               sprintf(extra + strlen(extra), ",pathc=%d", txpower_inx);
+		sprintf(extra + strlen(extra), ",pathc=%d", txpower_inx);
 		}
 		if (phal_data->rf_type > RF_3T4R) {
 			txpower_inx = mpt_ProQueryCalTxPower(padapter, 3);
-               sprintf(extra + strlen(extra), ",pathd=%d", txpower_inx);
+		sprintf(extra + strlen(extra), ",pathd=%d", txpower_inx);
 		}
 	}
 	wrqu->length = strlen(extra);
@@ -635,14 +762,30 @@ int rtw_mp_txpower_index(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_txpower_index(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	char *input;
+	int ret;
 
-int rtw_mp_txpower(struct net_device *dev,
-		   struct iw_request_info *info,
-		   struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_txpower_index(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_txpower(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, u8 *input)
 {
 	u32 idx_a = 0, idx_b = 0, idx_c = 0, idx_d = 0;
 	int MsetPower = 1;
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	PMPT_CONTEXT		pMptCtx = &(padapter->mppriv.mpt_ctx);
@@ -677,18 +820,34 @@ int rtw_mp_txpower(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_txpower(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
 
-int rtw_mp_ant_tx(struct net_device *dev,
-		  struct iw_request_info *info,
-		  struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_txpower(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_ant_tx(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, u8 *input)
 {
 	u8 i;
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 	u16 antenna = 0;
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 
-	_rtw_memset(input, 0, sizeof(input));
+	_rtw_memset(input, 0, MP_MAX_IOCTL_BUF_SIZE);
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
 
@@ -730,18 +889,34 @@ int rtw_mp_ant_tx(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_ant_tx(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
 
-int rtw_mp_ant_rx(struct net_device *dev,
-		  struct iw_request_info *info,
-		  struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_ant_tx(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_ant_rx(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, u8 *input)
 {
 	u8 i;
 	u16 antenna = 0;
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 
-	_rtw_memset(input, 0, sizeof(input));
+	_rtw_memset(input, 0, MP_MAX_IOCTL_BUF_SIZE);
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
 
@@ -783,6 +958,23 @@ int rtw_mp_ant_rx(struct net_device *dev,
 	wrqu->length = strlen(extra);
 
 	return 0;
+}
+
+int rtw_mp_ant_rx(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
+
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_ant_rx(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
 }
 
 
@@ -915,18 +1107,17 @@ int rtw_mp_ctx(struct net_device *dev,
 
 
 
-int rtw_mp_disable_bt_coexist(struct net_device *dev,
-			      struct iw_request_info *info,
-			      union iwreq_data *wrqu, char *extra)
+static int __rtw_mp_disable_bt_coexist(struct net_device *dev,
+		struct iw_request_info *info,
+		union iwreq_data *wrqu, char *extra, u8 *input)
 {
 #ifdef CONFIG_BT_COEXIST
 	PADAPTER padapter = (PADAPTER)rtw_netdev_priv(dev);
 
 #endif
-	u8 input[MP_MAX_IOCTL_BUF_SIZE];
 	u32 bt_coexist;
 
-	_rtw_memset(input, 0, sizeof(input));
+	_rtw_memset(input, 0, MP_MAX_IOCTL_BUF_SIZE);
 
 	if (wrqu->data.length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
@@ -960,14 +1151,30 @@ int rtw_mp_disable_bt_coexist(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_disable_bt_coexist(struct net_device *dev,
+		struct iw_request_info *info,
+		union iwreq_data *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
 
-int rtw_mp_arx(struct net_device *dev,
-	       struct iw_request_info *info,
-	       struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_disable_bt_coexist(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_arx(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, u8 *input)
 {
 	int bStartRx = 0, bStopRx = 0, bQueryPhy = 0, bQueryMac = 0, bSetBssid = 0, bSetRxframe = 0;
 	int bmac_filter = 0, bmon = 0, bSmpCfg = 0;
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 	char *pch, *token, *tmp[2] = {0x00, 0x00};
 	u32 i = 0, jj = 0, kk = 0, cnts = 0, ret;
 	PADAPTER padapter = rtw_netdev_priv(dev);
@@ -1117,6 +1324,23 @@ int rtw_mp_arx(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_arx(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
+
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_arx(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
 
 int rtw_mp_trx_query(struct net_device *dev,
 		     struct iw_request_info *info,
@@ -1147,15 +1371,14 @@ int rtw_mp_trx_query(struct net_device *dev,
 }
 
 
-int rtw_mp_pwrtrk(struct net_device *dev,
-		  struct iw_request_info *info,
-		  struct iw_point *wrqu, char *extra)
+static int __rtw_mp_pwrtrk(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, u8 *input)
 {
 	u8 enable;
 	u32 thermal;
 	s32 ret;
 	PADAPTER padapter = rtw_netdev_priv(dev);
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
@@ -1189,43 +1412,60 @@ int rtw_mp_pwrtrk(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_pwrtrk(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
+
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_pwrtrk(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
 
 
 int rtw_mp_psd(struct net_device *dev,
 	       struct iw_request_info *info,
 	       struct iw_point *wrqu, char *extra)
 {
-        PADAPTER padapter = rtw_netdev_priv(dev);
-        u8 *input = NULL;
-        int ret = 0;
+	PADAPTER padapter = rtw_netdev_priv(dev);
+	u8 *input = NULL;
+	int ret = 0;
 
-        if (wrqu->length > 128)
-                return -EFAULT;
+	if (wrqu->length > 128)
+		return -EFAULT;
 
-        input = rtw_zmalloc(wrqu->length + 1);
-        if (!input)
-                return -ENOMEM;
+	input = rtw_zmalloc(wrqu->length + 1);
+	if (!input)
+		return -ENOMEM;
 
-        if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
+	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
         	return -EINVAL;
 
-        if (copy_from_user(input, wrqu->pointer, wrqu->length)) {
-                ret = -EFAULT;
-                goto exit;
-        }
+	if (copy_from_user(input, wrqu->pointer, wrqu->length)) {
+		ret = -EFAULT;
+		goto exit;
+	}
 
-        if (wrqu->length < MP_MAX_IOCTL_BUF_SIZE)
+	if (wrqu->length < MP_MAX_IOCTL_BUF_SIZE)
 		input[wrqu->length] = '\0';
 	else
 		input[MP_MAX_IOCTL_BUF_SIZE - 1] = '\0';
-       strscpy(extra, (char *)input, wrqu->length + 1);
+	strscpy(extra, (char *)input, wrqu->length + 1);
 
-        wrqu->length = mp_query_psd(padapter, extra);
+	wrqu->length = mp_query_psd(padapter, extra);
 
 exit:
-        if (input)
-                rtw_mfree(input, wrqu->length + 1);
-        return ret;
+	if (input)
+		rtw_mfree(input, wrqu->length + 1);
+	return ret;
 }
 
 
@@ -1330,12 +1570,11 @@ int rtw_mp_reset_stats(struct net_device *dev,
 }
 
 
-int rtw_mp_dump(struct net_device *dev,
+static int __rtw_mp_dump(struct net_device *dev,
 		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra)
+		struct iw_point *wrqu, char *extra, u8 *input)
 {
 	struct mp_priv *pmp_priv;
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 	PADAPTER padapter = rtw_netdev_priv(dev);
 
 	pmp_priv = &padapter->mppriv;
@@ -1354,15 +1593,31 @@ int rtw_mp_dump(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_dump(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
 
-int rtw_mp_phypara(struct net_device *dev,
-		   struct iw_request_info *info,
-		   struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_dump(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_phypara(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, char *input)
 {
 
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(padapter);
-	char	input[MP_MAX_IOCTL_BUF_SIZE];
 	u32		valxcap, ret;
 
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
@@ -1386,13 +1641,29 @@ int rtw_mp_phypara(struct net_device *dev,
 
 }
 
+int rtw_mp_phypara(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	char *input;
+	int ret;
 
-int rtw_mp_SetRFPath(struct net_device *dev,
-		     struct iw_request_info *info,
-		     struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_phypara(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_SetRFPath(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, char *input)
 {
 	PADAPTER padapter = rtw_netdev_priv(dev);
-	char	input[MP_MAX_IOCTL_BUF_SIZE];
 	int		bMain = 1, bTurnoff = 1;
 #ifdef CONFIG_ANTENNA_DIVERSITY
 	u8 ret = _TRUE;
@@ -1440,14 +1711,30 @@ int rtw_mp_SetRFPath(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_SetRFPath(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	char *input;
+	int ret;
 
-int rtw_mp_switch_rf_path(struct net_device *dev,
-			struct iw_request_info *info,
-			struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_SetRFPath(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_switch_rf_path(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, char *input)
 {
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	struct mp_priv *pmp_priv;
-	char	input[MP_MAX_IOCTL_BUF_SIZE];
 	int		bwlg = 1, bwla = 1, btg = 1, bbt=1;
 	u8 ret = 0;
 
@@ -1495,12 +1782,28 @@ int rtw_mp_switch_rf_path(struct net_device *dev,
 	return ret;
 
 }
-int rtw_mp_QueryDrv(struct net_device *dev,
-		    struct iw_request_info *info,
-		    union iwreq_data *wrqu, char *extra)
+
+int rtw_mp_switch_rf_path(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	char *input;
+	int ret;
+
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_switch_rf_path(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+static int __rtw_mp_QueryDrv(struct net_device *dev,
+		struct iw_request_info *info,
+		union iwreq_data *wrqu, char *extra, char *input)
 {
 	PADAPTER padapter = rtw_netdev_priv(dev);
-	char	input[MP_MAX_IOCTL_BUF_SIZE];
 	int	qAutoLoad = 1;
 
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(padapter);
@@ -1526,13 +1829,29 @@ int rtw_mp_QueryDrv(struct net_device *dev,
 	return 0;
 }
 
+int rtw_mp_QueryDrv(struct net_device *dev,
+		struct iw_request_info *info,
+		union iwreq_data *wrqu, char *extra)
+{
+	char *input;
+	int ret;
 
-int rtw_mp_PwrCtlDM(struct net_device *dev,
-		    struct iw_request_info *info,
-		    struct iw_point *wrqu, char *extra)
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_QueryDrv(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
+}
+
+
+static int __rtw_mp_PwrCtlDM(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra, u8 *input)
 {
 	PADAPTER padapter = rtw_netdev_priv(dev);
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 	int		bstart = 1;
 
 	if (wrqu->length >= MP_MAX_IOCTL_BUF_SIZE)
@@ -1552,6 +1871,23 @@ int rtw_mp_PwrCtlDM(struct net_device *dev,
 	wrqu->length = strlen(extra);
 
 	return 0;
+}
+
+int rtw_mp_PwrCtlDM(struct net_device *dev,
+		struct iw_request_info *info,
+		struct iw_point *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
+
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_PwrCtlDM(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
 }
 
 int rtw_mp_iqk(struct net_device *dev,
@@ -2176,16 +2512,15 @@ int rtw_mp_rx(struct net_device *dev,
 }
 
 
-int rtw_mp_hwtx(struct net_device *dev,
+static int __rtw_mp_hwtx(struct net_device *dev,
 		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra)
+		union iwreq_data *wrqu, char *extra, u8 *input)
 {
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	struct mp_priv *pmp_priv = &padapter->mppriv;
 	PMPT_CONTEXT		pMptCtx = &(padapter->mppriv.mpt_ctx);
 
 #if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8821B) || defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
-	u8		input[MP_MAX_IOCTL_BUF_SIZE];
 
 	if (wrqu->data.length >= MP_MAX_IOCTL_BUF_SIZE)
 		return -EINVAL;
@@ -2209,6 +2544,23 @@ int rtw_mp_hwtx(struct net_device *dev,
 #endif
 	return 0;
 
+}
+
+int rtw_mp_hwtx(struct net_device *dev,
+		struct iw_request_info *info,
+		union iwreq_data *wrqu, char *extra)
+{
+	u8 *input;
+	int ret;
+
+	input = kzalloc(MP_MAX_IOCTL_BUF_SIZE, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	ret = __rtw_mp_hwtx(dev, info, wrqu, extra, input);
+	kfree(input);
+
+	return ret;
 }
 
 int rtw_mp_pwrlmt(struct net_device *dev,
@@ -2324,12 +2676,12 @@ int rtw_efuse_mask_file(struct net_device *dev,
 
 		 } while (count < 64);
 
-               for (i = 0; i < count; i++)
-                       sprintf(extra + strlen(extra), ":%02x", maskfileBuffer[i]);
+		for (i = 0; i < count; i++)
+			sprintf(extra + strlen(extra), ":%02x", maskfileBuffer[i]);
 
 		padapter->registrypriv.bFileMaskEfuse = _TRUE;
 
-               sprintf(extra + strlen(extra), "\nLoad Efuse Mask data %d hex ok\n", count);
+		sprintf(extra + strlen(extra), "\nLoad Efuse Mask data %d hex ok\n", count);
 		wrqu->data.length = strlen(extra);
 		return 0;
 	}

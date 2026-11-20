@@ -812,14 +812,6 @@ void phydm_nhm_set(void *dm_void, enum nhm_option_txon_all include_tx,
 		ccx->nhm_include_txon = include_tx;
 		ccx->nhm_include_cca = include_cca;
 		ccx->nhm_divider_opt = divi_opt;
-		#if 0
-		PHYDM_DBG(dm, DBG_ENV_MNTR,
-			  "val_tmp=%d, incld{tx, cca}={%d, %d}, divi_opt=%d, period=%d\n",
-			  val_tmp, include_tx, include_cca, divi_opt, period);
-
-		PHYDM_DBG(dm, DBG_ENV_MNTR, "0x994=0x%x\n",
-			  odm_get_bb_reg(dm, 0x994, 0xf00));
-		#endif
 	}
 
 	/*Set NHM period*/
@@ -1012,7 +1004,7 @@ void phydm_nhm_dbg(void *dm_void, char input[][16], u32 *_used, char *output,
 		ccx->nhm_manual_ctrl = 1;
 
 		for (i = 1; i < 7; i++) {
-			if (input[i + 1]) {
+			if (input[i + 1][0]) {
 				PHYDM_SSCANF(input[i + 1], DCMD_DECIMAL,
 					     &var1[i]);
 			}
@@ -1138,15 +1130,6 @@ void phydm_clm_h2c(void *dm_void, u16 obs_time, u8 fw_clm_en)
 			break;
 		}
 	}
-#if 0
-	obs_time = (2 ^ 16 - 1)~(2 ^ 15)  => obs_time_idx = 15  (65535 ~32768)
-	obs_time = (2 ^ 15 - 1)~(2 ^ 14)  => obs_time_idx = 14
-	...
-	...
-	...
-	obs_time = (2 ^ 1 - 1)~(2 ^ 0)  => obs_time_idx = 0
-
-#endif
 
 	h2c_val[0] = obs_time_idx | (((fw_clm_en) ? 1 : 0) << 7);
 	h2c_val[1] = CLM_MAX_REPORT_TIME;
@@ -1468,7 +1451,7 @@ void phydm_clm_dbg(void *dm_void, char input[][16], u32 *_used, char *output,
 	u32 i;
 
 	for (i = 0; i < 4; i++) {
-		if (input[i + 1])
+		if (input[i + 1][0])
 			PHYDM_SSCANF(input[i + 1], DCMD_DECIMAL, &var1[i]);
 	}
 

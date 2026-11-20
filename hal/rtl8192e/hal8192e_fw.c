@@ -3260,7 +3260,6 @@ u32 array_length_mp_8192e_fw_ap = 25816;
 
 #endif /*defined(CONFIG_AP_WOWLAN) || (DM_ODM_SUPPORT_TYPE & (ODM_AP))*/
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN)) || (DM_ODM_SUPPORT_TYPE & (ODM_CE))
 
 u8 array_mp_8192e_fw_nic[] = {
 0xE1, 0x92, 0x10, 0x00, 0x23, 0x00, 0x07, 0x00,
@@ -14509,7 +14508,6 @@ u8 array_mp_8192e_fw_wowlan[] = {
 
 u32 array_length_mp_8192e_fw_wowlan = 29008;
 
-#endif
 
 #endif /* end of LOAD_FW_HEADER_FROM_DRIVER */
 

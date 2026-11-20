@@ -31,11 +31,6 @@
 #define KFREE_BAND_NUM 6
 #define KFREE_CH_NUM 3
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_AP))
-
-#define BB_GAIN_NUM 6
-
-#endif
 
 #define KFREE_FLAG_ON BIT(0)
 #define KFREE_FLAG_THERMAL_K_ON BIT(1)

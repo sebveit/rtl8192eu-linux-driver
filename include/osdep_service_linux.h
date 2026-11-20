@@ -18,6 +18,24 @@
 #include <linux/version.h>
 #include <linux/spinlock.h>
 #include <linux/compiler.h>
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)
+#error "This driver requires Linux kernel 5.4 or newer"
+#endif
+
+
+/*
+ * The "fallthrough" pseudo keyword was introduced in Linux 5.7.
+ * linux/compiler_attributes.h guarantees __has_attribute() since 5.4.
+ */
+#ifndef fallthrough
+#if __has_attribute(__fallthrough__)
+#define fallthrough __attribute__((__fallthrough__))
+#else
+#define fallthrough do {} while (0) /* fallthrough */
+#endif
+#endif
+
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/init.h>
@@ -53,8 +71,8 @@
 #include <uapi/linux/limits.h>
 
 #ifdef RTK_DMP_PLATFORM
-       #include <linux/pageremap.h>
-       #include <asm/io.h>
+	#include <linux/pageremap.h>
+	#include <asm/io.h>
 #endif
 
 #ifdef CONFIG_NET_RADIO
@@ -82,8 +100,8 @@
 #endif
 
 #ifdef CONFIG_USB_HCI
-       #include <linux/usb.h>
-       #include <linux/usb/ch9.h>
+	#include <linux/usb.h>
+	#include <linux/usb/ch9.h>
 #endif
 
 #ifdef CONFIG_BT_COEXIST_SOCKET_TRX
@@ -252,7 +270,6 @@ __inline static _list	*get_list_head(_queue	*queue)
 	return &(queue->queue);
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
 static inline void timer_hdl(struct timer_list *in_timer)
 {
 	_timer *ptimer = from_timer(ptimer, in_timer, timer);
@@ -266,23 +283,6 @@ __inline static void _init_timer(_timer *ptimer, _nic_hdl nic_hdl, void *pfunc, 
 
 	timer_setup(&ptimer->timer, timer_hdl, 0);
 }
-#else
-static inline void timer_hdl(unsigned long cntx)
-{
-	_timer *ptimer = (_timer *)cntx;
-	ptimer->function(ptimer->arg);
-}
-
-__inline static void _init_timer(_timer *ptimer, _nic_hdl nic_hdl, void *pfunc, void *cntx)
-{
-	ptimer->function = pfunc;
-	ptimer->arg = cntx;
-	
-	init_timer(&ptimer->timer);
-	ptimer->timer.function = timer_hdl;
-	ptimer->timer.data = (unsigned long)ptimer;
-}
-#endif
 
 __inline static void _set_timer(_timer *ptimer, u32 delay_time)
 {
@@ -328,9 +328,9 @@ cancel_work_sync(pwork);
 static inline int rtw_netif_queue_stopped(struct net_device *pnetdev)
 {
 return (netif_tx_queue_stopped(netdev_get_tx_queue(pnetdev, 0)) &&
-       netif_tx_queue_stopped(netdev_get_tx_queue(pnetdev, 1)) &&
-       netif_tx_queue_stopped(netdev_get_tx_queue(pnetdev, 2)) &&
-       netif_tx_queue_stopped(netdev_get_tx_queue(pnetdev, 3)));
+	netif_tx_queue_stopped(netdev_get_tx_queue(pnetdev, 1)) &&
+	netif_tx_queue_stopped(netdev_get_tx_queue(pnetdev, 2)) &&
+	netif_tx_queue_stopped(netdev_get_tx_queue(pnetdev, 3)));
 }
 
 static inline void rtw_netif_wake_queue(struct net_device *pnetdev)

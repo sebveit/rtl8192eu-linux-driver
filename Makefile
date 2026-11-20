@@ -2328,8 +2328,5 @@ clean:
 endif
 
 test:
-	./tests/test_kernel_5.4.sh
-	./tests/test_kernel_5.10.sh
-	./tests/test_kernel_5.15.sh
-	./tests/test_kernel_6.1.sh
+	./kernel-tests/simple-test-all.sh
 

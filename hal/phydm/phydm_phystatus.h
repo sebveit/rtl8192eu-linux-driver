@@ -33,14 +33,7 @@
 #define RA_RSSI_STATE_SEND 1
 #define RA_RSSI_STATE_HOLD 2
 
-#if defined(DM_ODM_CE_MAC80211)
-#define CFO_HW_RPT_2_KHZ(val) ({		\
-	s32 cfo_hw_rpt_2_khz_tmp = (val);	\
-	(cfo_hw_rpt_2_khz_tmp << 1) + (cfo_hw_rpt_2_khz_tmp >> 1);	\
-	})
-#else
 #define CFO_HW_RPT_2_KHZ(val) ((val << 1) + (val >> 1))
-#endif
 
 /* @(X* 312.5 Khz)>>7 ~=  X*2.5 Khz= (X<<1 + X>>1)Khz  */
 
@@ -732,18 +725,6 @@ __PACK struct phy_sts_rpt_jgr3_type1 {
 	u8 paid_msb : 1;
 #endif
 	u16 rsvd_4;
-#if 0
-	/*@
-	u8		rsvd_4;
-#if (ODM_ENDIAN_TYPE == ODM_ENDIAN_LITTLE)
-	u8		rsvd_5: 6;
-	u8		rf_mode: 2;
-#else
-	u8		rf_mode: 2;
-	u8		rsvd_5: 6;
-#endif
-*/
-#endif
 	/* @DW4 : Offset 16 */
 	s8 rxevm[4]; /* s(8,1) */
 
@@ -1114,18 +1095,8 @@ void phydm_reset_rssi_for_dm(struct dm_struct *dm, u8 station_id);
 
 void phydm_get_cck_rssi_table_from_reg(struct dm_struct *dm);
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-void phydm_normal_driver_rx_sniffer(
-	struct dm_struct *dm,
-	u8 *desc,
-	PRT_RFD_STATUS rt_rfd_status,
-	u8 *drv_info,
-	u8 phy_status);
-#endif
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 s32 phydm_signal_scale_mapping(struct dm_struct *dm, s32 curr_sig);
-#endif
 
 void odm_phy_status_query(struct dm_struct *dm,
 			  struct phydm_phyinfo_struct *phy_info,

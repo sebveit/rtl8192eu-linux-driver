@@ -95,13 +95,7 @@ void configure_txpower_track(void *dm_void, struct txpwrtrack_cfg *config);
 
 void odm_clear_txpowertracking_state(void *dm_void);
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-void odm_txpowertracking_callback_thermal_meter(void *dm_void);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_CE)
 void odm_txpowertracking_callback_thermal_meter(void *dm);
-#else
-void odm_txpowertracking_callback_thermal_meter(void *adapter);
-#endif
 
 #define ODM_TARGET_CHNL_NUM_2G_5G 59
 

@@ -1252,7 +1252,7 @@ u8 rtw_mi_buddy_set_tx_beacon_cmd(_adapter *padapter)
 static u8 _rtw_mi_p2p_chk_state(_adapter *adapter, void *data)
 {
 	struct wifidirect_info *pwdinfo = &(adapter->wdinfo);
-	enum P2P_STATE state = *(enum P2P_STATE *)data;
+	enum P2P_STATE state = *(u8 *)data;
 
 	return rtw_p2p_chk_state(pwdinfo, state);
 }
@@ -1557,15 +1557,11 @@ u8 rtw_mi_get_assoc_if_num(_adapter *adapter)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	u8 n_assoc_iface = 0;
-#if 1
 	u8 i;
 
 	for (i = 0; i < dvobj->iface_nums; i++) {
 		if (check_fwstate(&(dvobj->padapters[i]->mlmepriv), WIFI_ASOC_STATE))
 			n_assoc_iface++;
 	}
-#else
-	n_assoc_iface = DEV_STA_LD_NUM(dvobj) + DEV_AP_NUM(dvobj) + DEV_ADHOC_NUM(dvobj) + DEV_MESH_NUM(dvobj);
-#endif
 	return n_assoc_iface;
 }

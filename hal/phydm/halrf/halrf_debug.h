@@ -36,51 +36,6 @@
 
 #if DBG
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP)
-#define RF_DBG(dm, comp, fmt, args...)                     \
-	do {                                               \
-		if ((comp) & dm->rf_table.rf_dbg_comp) { \
-			pr_debug("[RF] ");                 \
-			RT_PRINTK(fmt, ##args);            \
-		}                                          \
-	} while (0)
-
-#elif (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-
-static __inline void RF_DBG(PDM_ODM_T dm, int comp, char *fmt, ...)
-{
-	RT_STATUS rt_status;
-	va_list args;
-	char buf[PRINT_MAX_SIZE] = {0};
-
-	if ((comp & dm->rf_table.rf_dbg_comp) == 0)
-		return;
-
-	if (fmt == NULL)
-		return;
-
-	va_start(args, fmt);
-	rt_status = (RT_STATUS)RtlStringCbVPrintfA(buf, PRINT_MAX_SIZE, fmt, args);
-	va_end(args);
-
-	if (rt_status != RT_STATUS_SUCCESS) {
-		DbgPrint("Failed (%d) to print message to buffer\n", rt_status);
-		return;
-	}
-
-	DbgPrint("[RF] %s", buf);
-}
-
-#elif (DM_ODM_SUPPORT_TYPE == ODM_IOT)
-
-#define RF_DBG(dm, comp, fmt, args...)                     \
-	do {                                               \
-		if ((comp) & dm->rf_table.rf_dbg_comp) { \
-			RT_DEBUG(COMP_PHYDM, DBG_DMESG, "[RF] " fmt, ##args);  \
-		}                                          \
-	} while (0)
-
-#else
 #define RF_DBG(dm, comp, fmt, args...)                                         \
 	do {                                                                   \
 		struct dm_struct *__dm = dm;                                   \
@@ -89,17 +44,10 @@ static __inline void RF_DBG(PDM_ODM_T dm, int comp, char *fmt, ...)
 				 COMP_PHYDM, DBG_DMESG, "[RF] " fmt, ##args);  \
 		}                                                              \
 	} while (0)
-#endif
 
 #else /*#if DBG*/
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-static __inline void RF_DBG(struct dm_struct *dm, int comp, char *fmt, ...)
-{
-}
-#else
 #define RF_DBG(dm, comp, fmt, args...)
-#endif
 
 #endif /*#if DBG*/
 

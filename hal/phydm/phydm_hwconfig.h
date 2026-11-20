@@ -35,8 +35,6 @@
 	(odm_read_and_config_tc_##ic##_agc_tab_diff(dm,		\
 	array_tc_##ic##_agc_tab_diff_##band,			\
 	sizeof(array_tc_##ic##_agc_tab_diff_##band) / sizeof(u32)))
-#if defined(DM_ODM_CE_MAC80211)
-#else
 #define AGC_DIFF_CONFIG(ic, band)                     \
 	do {                                          \
 		if (dm->is_mp_chip)                   \
@@ -44,7 +42,6 @@
 		else                                  \
 			AGC_DIFF_CONFIG_TC(ic, band); \
 	} while (0)
-#endif
 /*@************************************************************
  * structure and define
  ************************************************************/

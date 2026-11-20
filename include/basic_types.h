@@ -32,7 +32,6 @@
 #endif
 
 
-#ifdef PLATFORM_LINUX
 	#include <linux/version.h>
 	#include <linux/types.h>
 	#include <linux/module.h>
@@ -94,7 +93,6 @@
 #define ULONG u32
 #define PULONG u32*
 
-#endif
 
 
 #define MEM_ALIGNMENT_OFFSET	(sizeof (SIZE_T))

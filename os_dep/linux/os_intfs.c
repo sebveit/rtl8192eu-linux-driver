@@ -25,9 +25,6 @@ MODULE_DESCRIPTION("Realtek Wireless Lan Driver");
 MODULE_AUTHOR("Realtek Semiconductor Corp.");
 MODULE_VERSION(DRIVERVERSION);
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)
-#error "Kernel versions below 5.4 are not supported"
-#endif
 
 
 /* module param defaults */
@@ -1317,20 +1314,6 @@ static int rtw_net_set_mac_address(struct net_device *pnetdev, void *addr)
 	_rtw_memcpy(pnetdev->dev_addr, sa->sa_data, ETH_ALEN); /* set mac addr to net_device */
 #endif
 
-#if 0
-	if (rtw_is_hw_init_completed(padapter)) {
-		rtw_ps_deny(padapter, PS_DENY_IOCTL);
-		LeaveAllPowerSaveModeDirect(padapter); /* leave PS mode for guaranteeing to access hw register successfully */
-
-#ifdef CONFIG_MI_WITH_MBSSID_CAM
-		rtw_hal_change_macaddr_mbid(padapter, sa->sa_data);
-#else
-		rtw_hal_set_hwreg(padapter, HW_VAR_MAC_ADDR, sa->sa_data); /* set mac addr to mac register */
-#endif
-
-		rtw_ps_deny_cancel(padapter, PS_DENY_IOCTL);
-	}
-#else
 	rtw_ps_deny(padapter, PS_DENY_IOCTL);
 	LeaveAllPowerSaveModeDirect(padapter); /* leave PS mode for guaranteeing to access hw register successfully */
 #ifdef CONFIG_MI_WITH_MBSSID_CAM
@@ -1339,7 +1322,6 @@ static int rtw_net_set_mac_address(struct net_device *pnetdev, void *addr)
 	rtw_hal_set_hwreg(padapter, HW_VAR_MAC_ADDR, sa->sa_data); /* set mac addr to mac register */
 #endif
 	rtw_ps_deny_cancel(padapter, PS_DENY_IOCTL);
-#endif
 
 	RTW_INFO(FUNC_ADPT_FMT": Set Mac Addr to "MAC_FMT" Successfully\n"
 		 , FUNC_ADPT_ARG(padapter), MAC_ARG(sa->sa_data));
@@ -1444,13 +1426,13 @@ u16 rtw_recv_select_queue(struct sk_buff *skb)
 static u8 is_rtw_ndev(struct net_device *ndev)
 {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
-        return ndev->netdev_ops
-                && ndev->netdev_ops->ndo_siocdevprivate
-                && ndev->netdev_ops->ndo_siocdevprivate == rtw_siocdevprivate;
+	return ndev->netdev_ops
+		&& ndev->netdev_ops->ndo_siocdevprivate
+		&& ndev->netdev_ops->ndo_siocdevprivate == rtw_siocdevprivate;
 #else
-        return ndev->netdev_ops
-                && ndev->netdev_ops->ndo_do_ioctl
-                && ndev->netdev_ops->ndo_do_ioctl == rtw_ioctl;
+	return ndev->netdev_ops
+		&& ndev->netdev_ops->ndo_do_ioctl
+		&& ndev->netdev_ops->ndo_do_ioctl == rtw_ioctl;
 #endif
 }
 
@@ -1461,7 +1443,7 @@ static int rtw_ndev_notifier_call(struct notifier_block *nb, unsigned long state
 	if (ptr == NULL)
 		return NOTIFY_DONE;
 
-       ndev = netdev_notifier_info_to_dev(ptr);
+	ndev = netdev_notifier_info_to_dev(ptr);
 
 	if (ndev == NULL)
 		return NOTIFY_DONE;
@@ -1509,7 +1491,7 @@ int rtw_ndev_init(struct net_device *dev)
 
 	RTW_PRINT(FUNC_ADPT_FMT" if%d mac_addr="MAC_FMT"\n"
 		, FUNC_ADPT_ARG(adapter), (adapter->iface_id + 1), MAC_ARG(dev->dev_addr));
-       strscpy(adapter->old_ifname, dev->name, IFNAMSIZ);
+	strscpy(adapter->old_ifname, dev->name, IFNAMSIZ);
 	rtw_adapter_proc_init(dev);
 
 	return 0;
@@ -1530,7 +1512,7 @@ static const struct net_device_ops rtw_netdev_ops = {
 	.ndo_open = netdev_open,
 	.ndo_stop = netdev_close,
 	.ndo_start_xmit = rtw_xmit_entry,
-        .ndo_select_queue       = rtw_select_queue,
+	.ndo_select_queue       = rtw_select_queue,
 	.ndo_set_mac_address = rtw_net_set_mac_address,
 	.ndo_get_stats = rtw_net_get_stats,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
@@ -1612,9 +1594,9 @@ int rtw_init_netdev_name(struct net_device *pnetdev, const char *ifname)
 	_adapter			*TargetAdapter = NULL;
 	struct net		*devnet = NULL;
 
-       if (padapter->bDongle == 1) {
-               devnet = dev_net(pnetdev);
-               TargetNetdev = dev_get_by_name(devnet, "wlan0");
+	if (padapter->bDongle == 1) {
+		devnet = dev_net(pnetdev);
+		TargetNetdev = dev_get_by_name(devnet, "wlan0");
 		if (TargetNetdev) {
 			RTW_INFO("Force onboard module driver disappear !!!\n");
 			TargetAdapter = rtw_netdev_priv(TargetNetdev);
@@ -1643,9 +1625,9 @@ int rtw_init_netdev_name(struct net_device *pnetdev, const char *ifname)
 
 void rtw_hook_if_ops(struct net_device *ndev)
 {
-        ndev->netdev_ops = &rtw_netdev_ops;
+	ndev->netdev_ops = &rtw_netdev_ops;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
-        ndev->ethtool_ops = &rtw_ethtool_ops;
+	ndev->ethtool_ops = &rtw_ethtool_ops;
 #endif
 }
 
@@ -1714,7 +1696,7 @@ int rtw_os_ndev_alloc(_adapter *adapter)
 		rtw_warn_on(1);
 		goto exit;
 	}
-        SET_NETDEV_DEV(ndev, dvobj_to_dev(adapter_to_dvobj(adapter)));
+	SET_NETDEV_DEV(ndev, dvobj_to_dev(adapter_to_dvobj(adapter)));
 
 #ifdef CONFIG_PCI_HCI
 	if (adapter_to_dvobj(adapter)->bdma64)
@@ -1779,7 +1761,7 @@ int rtw_os_ndev_register(_adapter *adapter, const char *name)
 	}
 #endif
 #ifdef CONFIG_PCI_HCI
-       ndev->gro_flush_timeout = 100000;
+	ndev->gro_flush_timeout = 100000;
 #endif
 	/* alloc netdev name */
 	rtw_init_netdev_name(ndev, name);
@@ -2377,7 +2359,7 @@ u8 rtw_reset_drv_sw(_adapter *padapter)
 	_clr_fwstate_(pmlmepriv, _FW_UNDER_SURVEY | _FW_UNDER_LINKING);
 
 #ifdef CONFIG_AUTOSUSPEND
-        adapter_to_dvobj(padapter)->pusbdev->autosuspend_disabled = 1;
+	adapter_to_dvobj(padapter)->pusbdev->autosuspend_disabled = 1;
 #endif
 
 #ifdef DBG_CONFIG_ERROR_DETECT
@@ -2760,9 +2742,6 @@ int _netdev_vir_if_open(struct net_device *pnetdev)
 
 	if (padapter->bup == _FALSE && primary_padapter->bup == _TRUE &&
 	    rtw_is_hw_init_completed(primary_padapter)) {
-#if 0 /*#ifdef CONFIG_MI_WITH_MBSSID_CAM*/
-		rtw_hal_set_hwreg(padapter, HW_VAR_MAC_ADDR, adapter_mac_addr(padapter)); /* set mac addr to mac register */
-#endif
 
 	}
 
@@ -2873,11 +2852,11 @@ static int netdev_vir_if_close(struct net_device *pnetdev)
 #else
 	.ndo_do_ioctl = rtw_ioctl,
 #endif
-        .ndo_select_queue       = rtw_select_queue,
+	.ndo_select_queue       = rtw_select_queue,
 };
  static void rtw_hook_vir_if_ops(struct net_device *ndev)
 {
-        ndev->netdev_ops = &rtw_netdev_vir_if_ops;
+	ndev->netdev_ops = &rtw_netdev_vir_if_ops;
 
 	ndev->set_mac_address = rtw_net_set_mac_address;
 }
@@ -3301,26 +3280,26 @@ void netdev_br_init(struct net_device *netdev)
 {
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(netdev);
 
-        rcu_read_lock();
+	rcu_read_lock();
 
 	/* if(check_fwstate(pmlmepriv, WIFI_STATION_STATE|WIFI_ADHOC_STATE) == _TRUE) */
 	{
 		/* struct net_bridge	*br = netdev->br_port->br; */ /* ->dev->dev_addr; */
-                if (rcu_dereference(adapter->pnetdev->rx_handler_data)) {
-                        struct net_device *br_netdev;
-                        struct net *devnet = dev_net(netdev);
-                        br_netdev = dev_get_by_name(devnet, CONFIG_BR_EXT_BRNAME);
-                        if (br_netdev) {
-                                memcpy(adapter->br_mac, br_netdev->dev_addr, ETH_ALEN);
-                                dev_put(br_netdev);
-                        } else
-                                printk("%s()-%d: dev_get_by_name(%s) failed!", __FUNCTION__, __LINE__, CONFIG_BR_EXT_BRNAME);
-                }
+		if (rcu_dereference(adapter->pnetdev->rx_handler_data)) {
+			struct net_device *br_netdev;
+			struct net *devnet = dev_net(netdev);
+			br_netdev = dev_get_by_name(devnet, CONFIG_BR_EXT_BRNAME);
+			if (br_netdev) {
+				memcpy(adapter->br_mac, br_netdev->dev_addr, ETH_ALEN);
+				dev_put(br_netdev);
+			} else
+				printk("%s()-%d: dev_get_by_name(%s) failed!", __FUNCTION__, __LINE__, CONFIG_BR_EXT_BRNAME);
+		}
 
-                adapter->ethBrExtInfo.addPPPoETag = 1;
-        }
+		adapter->ethBrExtInfo.addPPPoETag = 1;
+	}
 
-        rcu_read_unlock();
+	rcu_read_unlock();
 }
 #endif /* CONFIG_BR_EXT */
 
@@ -3480,9 +3459,6 @@ int _netdev_open(struct net_device *pnetdev)
 		if (status == _FAIL) {
 			goto netdev_open_error;
 		}
-#if 0/*#ifdef CONFIG_MI_WITH_MBSSID_CAM*/
-		rtw_hal_set_hwreg(padapter, HW_VAR_MAC_ADDR, adapter_mac_addr(padapter)); /* set mac addr to mac register */
-#endif
 
 		RTW_INFO("MAC Address = "MAC_FMT"\n", MAC_ARG(pnetdev->dev_addr));
 
@@ -3651,9 +3627,6 @@ int  ips_netdrv_open(_adapter *padapter)
 	if (status == _FAIL) {
 		goto netdev_open_error;
 	}
-#endif
-#if 0
-	rtw_mi_set_mac_addr(padapter);
 #endif
 #ifndef RTW_HALMAC
 	rtw_intf_start(padapter);
@@ -4030,8 +4003,8 @@ static int route_dump(u32 *gw_addr , int *gw_index)
 		struct nlmsghdr nlh;
 		struct rtgenmsg g;
 	} req;
-       struct msghdr msg;
-       struct kvec iov;
+	struct msghdr msg;
+	struct kvec iov;
 	struct sockaddr_nl nladdr;
 	char *pg;
 	int size = 0;
@@ -4056,11 +4029,11 @@ static int route_dump(u32 *gw_addr , int *gw_index)
 
 	msg.msg_name = &nladdr;
 	msg.msg_namelen = sizeof(nladdr);
-       msg.msg_control = NULL;
-       msg.msg_controllen = 0;
-       msg.msg_flags = MSG_DONTWAIT;
+	msg.msg_control = NULL;
+	msg.msg_controllen = 0;
+	msg.msg_flags = MSG_DONTWAIT;
 
-       err = kernel_sendmsg(sock, &msg, &iov, 1, sizeof(req));
+	err = kernel_sendmsg(sock, &msg, &iov, 1, sizeof(req));
 
 	if (err < 0)
 		goto out_sock;
@@ -4081,7 +4054,7 @@ restart:
 		iov.iov_base = pg;
 		iov.iov_len = PAGE_SIZE;
 
-               err = kernel_recvmsg(sock, &msg, &iov, 1, PAGE_SIZE, MSG_DONTWAIT);
+		err = kernel_recvmsg(sock, &msg, &iov, 1, PAGE_SIZE, MSG_DONTWAIT);
 
 		if (err < 0)
 			goto out_sock_pg;
@@ -4142,11 +4115,11 @@ done:
 
 		msg.msg_name = &nladdr;
 		msg.msg_namelen = sizeof(nladdr);
-               msg.msg_control = NULL;
-               msg.msg_controllen = 0;
-               msg.msg_flags = MSG_DONTWAIT;
+		msg.msg_control = NULL;
+		msg.msg_controllen = 0;
+		msg.msg_flags = MSG_DONTWAIT;
 
-               err = kernel_sendmsg(sock, &msg, &iov, 1, sizeof(req));
+		err = kernel_sendmsg(sock, &msg, &iov, 1, sizeof(req));
 
 		if (err > 0)
 			goto restart;
@@ -4451,7 +4424,6 @@ int rtw_suspend_wow(_adapter *padapter)
 			clr_fwstate(pmlmepriv, _FW_UNDER_SURVEY);
 		}
 
-#if 1
 		if (rtw_mi_check_status(padapter, MI_LINKED)) {
 			ch =  rtw_mi_get_union_chan(padapter);
 			bw = rtw_mi_get_union_bw(padapter);
@@ -4460,14 +4432,6 @@ int rtw_suspend_wow(_adapter *padapter)
 				 FUNC_ADPT_ARG(padapter), ch, bw, offset);
 			set_channel_bwmode(padapter, ch, offset, bw);
 		}
-#else
-		if (rtw_mi_get_ch_setting_union(padapter, &ch, &bw, &offset) != 0) {
-			RTW_INFO(FUNC_ADPT_FMT" back to linked/linking union - ch:%u, bw:%u, offset:%u\n",
-				 FUNC_ADPT_ARG(padapter), ch, bw, offset);
-			set_channel_bwmode(padapter, ch, offset, bw);
-			rtw_mi_update_union_chan_inf(padapter, ch, offset, bw);
-		}
-#endif
 #ifdef CONFIG_CONCURRENT_MODE
 		rtw_mi_buddy_suspend_free_assoc_resource(padapter);
 #endif
@@ -4550,7 +4514,6 @@ int rtw_suspend_ap_wow(_adapter *padapter)
 	rtw_hal_set_hwreg(padapter, HW_VAR_WOWLAN, (u8 *)&poidparam);
 
 	RTW_PRINT("%s: wowmode suspending\n", __func__);
-#if 1
 	if (rtw_mi_check_status(padapter, MI_LINKED)) {
 		ch =  rtw_mi_get_union_chan(padapter);
 		bw = rtw_mi_get_union_bw(padapter);
@@ -4558,13 +4521,6 @@ int rtw_suspend_ap_wow(_adapter *padapter)
 		RTW_INFO("back to linked/linking union - ch:%u, bw:%u, offset:%u\n", ch, bw, offset);
 		set_channel_bwmode(padapter, ch, offset, bw);
 	}
-#else
-	if (rtw_mi_get_ch_setting_union(padapter, &ch, &bw, &offset) != 0) {
-		RTW_INFO("back to linked/linking union - ch:%u, bw:%u, offset:%u\n", ch, bw, offset);
-		set_channel_bwmode(padapter, ch, offset, bw);
-		rtw_mi_update_union_chan_inf(padapter, ch, offset, bw);
-	}
-#endif
 
 	/*FOR ONE AP - TODO :Multi-AP*/
 	{
@@ -4941,7 +4897,6 @@ int rtw_resume_process_ap_wow(_adapter *padapter)
 
 	rtw_mi_start_drv_threads(padapter);
 
-#if 1
 	if (rtw_mi_check_status(padapter, MI_LINKED)) {
 		ch =  rtw_mi_get_union_chan(padapter);
 		bw = rtw_mi_get_union_bw(padapter);
@@ -4949,13 +4904,6 @@ int rtw_resume_process_ap_wow(_adapter *padapter)
 		RTW_INFO(FUNC_ADPT_FMT" back to linked/linking union - ch:%u, bw:%u, offset:%u\n", FUNC_ADPT_ARG(padapter), ch, bw, offset);
 		set_channel_bwmode(padapter, ch, offset, bw);
 	}
-#else
-	if (rtw_mi_get_ch_setting_union(padapter, &ch, &bw, &offset) != 0) {
-		RTW_INFO(FUNC_ADPT_FMT" back to linked/linking union - ch:%u, bw:%u, offset:%u\n", FUNC_ADPT_ARG(padapter), ch, bw, offset);
-		set_channel_bwmode(padapter, ch, offset, bw);
-		rtw_mi_update_union_chan_inf(padapter, ch, offset, bw);
-	}
-#endif
 
 	/*FOR ONE AP - TODO :Multi-AP*/
 	{

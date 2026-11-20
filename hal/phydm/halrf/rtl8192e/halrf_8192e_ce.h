@@ -17,11 +17,7 @@
 #define __HALRF_8192E_H__
 
 /*--------------------------Define Parameters-------------------------------*/
-#if (DM_ODM_SUPPORT_TYPE & ODM_CE)
 #define IQK_DELAY_TIME_92E 15 /* ms */
-#else
-#define IQK_DELAY_TIME_92E 10
-#endif
 
 #define index_mapping_NUM_92E 15
 #define AVG_THERMAL_NUM_92E 4
@@ -59,9 +55,6 @@ void _phy_path_adda_on_92e(struct dm_struct *dm, u32 *adda_reg,
 void _phy_mac_setting_calibration_92e(struct dm_struct *dm, u32 *mac_reg,
 				      u32 *mac_backup);
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-void _phy_path_a_stand_by(struct dm_struct *dm);
-#endif
 
 void halrf_rf_lna_setting_8192e(struct dm_struct *dm, enum halrf_lna_set type);
 

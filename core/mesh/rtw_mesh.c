@@ -2594,7 +2594,7 @@ void _rtw_mesh_expire_peer_ent(_adapter *adapter, struct mesh_plink_ent *plink)
 		struct wireless_dev *wdev = adapter->rtw_wdev;
 		s32 freq = rtw_ch2freq(mlmeext->cur_channel);
 
-               rtw_cfg80211_rx_mgmt(wdev, freq, 0, frame, flen, GFP_ATOMIC);
+		rtw_cfg80211_rx_mgmt(wdev, freq, 0, frame, flen, GFP_ATOMIC);
 
 		rtw_mfree(frame, flen);
 	} else {
@@ -2670,7 +2670,7 @@ exit:
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,9,0)
 static void mpath_tx_tasklet_hdl_compat(unsigned long data)
 {
-       mpath_tx_tasklet_hdl((struct tasklet_struct *)data);
+	mpath_tx_tasklet_hdl((struct tasklet_struct *)data);
 }
 #endif
 
@@ -2740,49 +2740,31 @@ static void rtw_mpath_tx_queue_flush(_adapter *adapter)
 	}
 }
 
-#ifdef PLATFORM_LINUX /* 3.10 ~ 4.13 checked */
 #if defined(CONFIG_SLUB)
 #include <linux/slub_def.h>
 #elif defined(CONFIG_SLAB)
 #include <linux/slab_def.h>
 #endif
 typedef struct kmem_cache rtw_mcache;
-#endif
 
 rtw_mcache *rtw_mcache_create(const char *name, size_t size)
 {
-#ifdef PLATFORM_LINUX /* 3.10 ~ 4.13 checked */
 	return kmem_cache_create(name, size, 0, 0, NULL);
-#else
-	#error "TBD\n";
-#endif
 }
 
 void rtw_mcache_destroy(rtw_mcache *s)
 {
-#ifdef PLATFORM_LINUX /* 3.10 ~ 4.13 checked */
 	kmem_cache_destroy(s);
-#else
-	#error "TBD\n";
-#endif
 }
 
 void *_rtw_mcache_alloc(rtw_mcache *cachep)
 {
-#ifdef PLATFORM_LINUX /* 3.10 ~ 4.13 checked */
 	return kmem_cache_alloc(cachep, GFP_ATOMIC);
-#else
-	#error "TBD\n";
-#endif
 }
 
 void _rtw_mcache_free(rtw_mcache *cachep, void *objp)
 {
-#ifdef PLATFORM_LINUX /* 3.10 ~ 4.13 checked */
 	kmem_cache_free(cachep, objp);
-#else
-	#error "TBD\n";
-#endif
 }
 
 #ifdef DBG_MEM_ALLOC
@@ -3094,12 +3076,12 @@ void rtw_mesh_init_mesh_info(_adapter *adapter)
 	ATOMIC_SET(&minfo->mpaths, 0);
 	rtw_mesh_pathtbl_init(adapter);
 
-       _rtw_init_queue(&minfo->mpath_tx_queue);
+	_rtw_init_queue(&minfo->mpath_tx_queue);
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,9,0)
-       tasklet_init(&minfo->mpath_tx_tasklet, mpath_tx_tasklet_hdl_compat,
+	tasklet_init(&minfo->mpath_tx_tasklet, mpath_tx_tasklet_hdl_compat,
                     (unsigned long)&minfo->mpath_tx_tasklet);
 #else
-       tasklet_setup(&minfo->mpath_tx_tasklet, mpath_tx_tasklet_hdl);
+	tasklet_setup(&minfo->mpath_tx_tasklet, mpath_tx_tasklet_hdl);
 #endif
 
 	rtw_mrc_init(adapter);
@@ -3788,12 +3770,6 @@ int rtw_mesh_rx_msdu_act_check(union recv_frame *rframe
 #endif
 
 	/* fwd info lifetime update */
-	#if 0
-	if (!is_mda_self)
-		mDA(A3) fwinfo.lifetime
-	mSA(A4) fwinfo.lifetime
-	Precursor-to-mDA(A2) fwinfo.lifetime
-	#endif
 
 	/* update/create pxoxy info for SA, mSA */
 	if ((mctrl->flags & MESH_FLAGS_AE)
@@ -3871,10 +3847,6 @@ int rtw_mesh_rx_msdu_act_check(union recv_frame *rframe
 
 		} else {
 			/* mDA is known in fwd info */
-			#if 0
-			if	(TA is not in precursors)
-				goto exit;
-			#endif
 			goto fwd_chk;
 		}
 
@@ -3966,14 +3938,6 @@ int rtw_mesh_rx_msdu_act_check(union recv_frame *rframe
 				, FUNC_ADPT_ARG(adapter), MAC_ARG(da));
 			#endif
 			/* DA is unknown */
-			#if 0 /* TODO: flags with AE bit */
-			rtw_mesh_path_error_tx(adapter
-				, adapter->mesh_cfg.element_ttl
-				, mda, adapter->mesh_info.last_sn_update
-				, WLAN_REASON_MESH_PATH_NOPROXY
-				, msa
-			);
-			#endif
 		}
 
 		/*

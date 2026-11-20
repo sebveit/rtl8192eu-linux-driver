@@ -292,16 +292,6 @@ u8 rm_add_nb_req(_adapter *padapter, struct sta_info *psta)
 
 	prm->q.action_code = RM_ACT_NB_REP_REQ;
 
-	#if 0
-	if (pmac) { /* find sta_info according to bssid */
-		pmac += 4; /* skip mac= */
-		if (hwaddr_parse(pmac, bssid) == NULL) {
-			snprintf(pstr(s), 4096 - strlen(s), "Err: \nincorrect mac format\n");
-			return _FAIL;
-		}
-		psta = rm_get_sta(padapter, 0xff, bssid);
-	}
-	#endif
 
 	/* enquee rmobj */
 	rm_enqueue_rmobj(padapter, prm, _FALSE);
@@ -768,18 +758,6 @@ int rm_recv_radio_mens_req(_adapter *padapter,
 	u8 rmid, update = 0;
 
 
-#if 0
-	/* search existing rm_obj */
-	rmid = psta->cmn.aid << 16
-		| pdiag_body[2] << 8
-		| RM_SLAVE;
-
-	prm = rm_get_rmobj(padapter, rmid);
-	if (prm) {
-		RTW_INFO("RM: Found an exist meas rmid=%u\n", rmid);
-		update = 1;
-	} else
-#endif
 	prm = rm_alloc_rmobj(padapter);
 
 	if (prm == NULL) {
@@ -846,7 +824,7 @@ int rm_recv_radio_mens_req(_adapter *padapter,
 			prm->q.m_type);
 		rm_set_rep_mode(prm, MEAS_REP_MOD_INCAP);
 		goto done;
-       }
+	}
 	rm_parse_meas_req(prm, pmeas_body);
 done:
 	if (!update)
@@ -971,10 +949,10 @@ unsigned int rm_on_action(_adapter *padapter, union recv_frame *precv_frame)
 
 	psta = rtw_get_stainfo(&padapter->stapriv, whdr->addr2);
 
-        if (!psta) {
+	if (!psta) {
 		RTW_ERR("RM: psta not found\n");
-                goto exit;
-        }
+		goto exit;
+	}
 
 	pframe_body = (unsigned char *)(pframe +
 		sizeof(struct rtw_ieee80211_hdr_3addr));
@@ -2180,12 +2158,8 @@ static int rm_dbg_modify_meas(_adapter *padapter, char *s)
 	if (psta) {
 		prm->psta = psta;
 
-#if 0
-		prm->q.diag_token = psta->rm_diag_token++;
-#else
 		/* TODO dialog should base on sta_info */
 		prm->q.diag_token = pmlmeinfo->dialogToken++;
-#endif
 		prm->rmid = psta->cmn.aid << 16
 			| prm->q.diag_token << 8
 			| RM_MASTER;
@@ -2269,7 +2243,7 @@ static void rm_dbg_add_meas(_adapter *padapter, char *s)
 		return;
 	}
 
-        prmpriv->prm_sel = prm;
+	prmpriv->prm_sel = prm;
 
 	pact = strstr(s, "act");
 	if (rm_dbg_modify_meas(padapter, s) == _FAIL) {

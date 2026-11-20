@@ -43,7 +43,6 @@
 #define PMKID_LEN 16
 
 
-#ifdef PLATFORM_LINUX
 struct wpa_ie_hdr {
 	u8 elem_id;
 	u8 len;
@@ -98,7 +97,6 @@ struct wme_parameter_element {
 
 } __attribute__((packed));
 
-#endif
 
 
 #define WPA_PUT_LE16(a, val)			\
@@ -175,7 +173,6 @@ enum ieee80211_back_parties {
 	WLAN_BACK_TIMER = 2,
 };
 
-#ifdef PLATFORM_LINUX
 
 struct ieee80211_mgmt {
 	u16 frame_control;
@@ -247,21 +244,6 @@ struct ieee80211_mgmt {
 					u8 status_code;
 					u8 variable[0];
 				}  __attribute__((packed)) wme_action;
-#if 0
-				struct {
-					u8 action_code;
-					u8 element_id;
-					u8 length;
-					struct ieee80211_channel_sw_ie sw_elem;
-				}  __attribute__((packed)) chan_switch;
-				struct {
-					u8 action_code;
-					u8 dialog_token;
-					u8 element_id;
-					u8 length;
-					struct ieee80211_msrment_ie msr_elem;
-				}  __attribute__((packed)) measurement;
-#endif
 				struct {
 					u8 action_code;
 					u8 dialog_token;
@@ -303,7 +285,6 @@ struct ieee80211_mgmt {
 	} __attribute__((packed)) u;
 } __attribute__((packed));
 
-#endif
 
 
 

@@ -21,8 +21,8 @@
 
 static void rtw_mpath_free_rcu(struct rtw_mesh_path *mpath)
 {
-        kfree_rcu(mpath, rcu);
-        rtw_mstat_update(MSTAT_TYPE_PHY, MSTAT_FREE, sizeof(struct rtw_mesh_path));
+	kfree_rcu(mpath, rcu);
+	rtw_mstat_update(MSTAT_TYPE_PHY, MSTAT_FREE, sizeof(struct rtw_mesh_path));
 }
 
 static void rtw_mesh_path_free_rcu(struct rtw_mesh_table *tbl, struct rtw_mesh_path *mpath);
@@ -185,20 +185,6 @@ static void rtw_mesh_path_move_to_queue(struct rtw_mesh_path *gate_mpath,
 		gate_mpath->frame_queue_len++;
 		_exit_critical_bh(&gate_mpath->frame_queue.lock, &flags);
 
-		#if 0 /* TODO: copy */
-		skb = rtw_skb_copy(fskb);
-		if (rtw_warn_on(!skb))
-			break;
-
-		rtw_prepare_for_gate(skb, gate_mpath->dst, gate_mpath);
-		skb_queue_tail(&gate_mpath->frame_queue, skb);
-
-		if (copy)
-			continue;
-
-		__skb_unlink(fskb, &failq);
-		rtw_skb_free(fskb);
-		#endif
 	}
 
 	RTW_MPATH_DBG(FUNC_ADPT_FMT" mpath queue for gate %pM has %d frames\n"

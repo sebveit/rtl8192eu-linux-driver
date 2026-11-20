@@ -110,7 +110,6 @@ u8 phydm_get_mu_bfee_snding_decision(void *dm_void, u16 throughput)
 }
 
 #endif
-#if (DM_ODM_SUPPORT_TYPE != ODM_AP)
 u8 beamforming_get_htndp_tx_rate(void *dm_void, u8 bfer_str_num)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -178,7 +177,6 @@ u8 beamforming_get_vht_ndp_tx_rate(void *dm_void, u8 bfer_str_num)
 
 	return ndp_tx_rate;
 }
-#endif
 #ifdef PHYDM_IC_JGR3_SERIES_SUPPORT
 /*this function is only used for BFer*/
 void phydm_txbf_rfmode(void *dm_void, u8 su_bfee_cnt, u8 mu_bfee_cnt)

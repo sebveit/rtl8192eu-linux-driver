@@ -36,44 +36,16 @@
 
 #define DIVIDED_2(X) ((X) >> 1)
 /*@1/3 ~ 11/32*/
-#if defined(DM_ODM_CE_MAC80211)
-#define DIVIDED_3(X) ({	\
-	u32 div_3_tmp = (X);	\
-	(((div_3_tmp) + ((div_3_tmp) << 1) + ((div_3_tmp) << 3)) >> 5); })
-#else
 #define DIVIDED_3(X) (((X) + ((X) << 1) + ((X) << 3)) >> 5)
-#endif
 #define DIVIDED_4(X) ((X) >> 2)
 
 /*Store Ori Value*/
-#if defined(DM_ODM_CE_MAC80211)
-#define WEIGHTING_AVG(v1, w1, v2, w2)	\
-	__WEIGHTING_AVG(v1, w1, v2, w2, typeof(v1), typeof(w1), typeof(v2), \
-			typeof(w2))
-#define __WEIGHTING_AVG(v1, w1, v2, w2, t1, t2, t3, t4)	({	\
-	t1 __w_a_v1 = (v1);	\
-	t2 __w_a_w1 = (w1);	\
-	t3 __w_a_v2 = (v2);	\
-	t4 __w_a_w2 = (w2);	\
-	((__w_a_v1) * (__w_a_w1) + (__w_a_v2) * (__w_a_w2))	\
-	/ ((__w_a_w2) + (__w_a_w1)); })
-#else
 #define WEIGHTING_AVG(v1, w1, v2, w2) \
 	(((v1) * (w1) + (v2) * (w2)) / ((w2) + (w1)))
-#endif
 
 /*Store 2^ma x Value*/
-#if defined(DM_ODM_CE_MAC80211)
-#define MA_ACC(old, new_val, ma) ({	\
-	s16 __ma_acc_o = (old);		\
-	(__ma_acc_o) - ((__ma_acc_o) >> (ma)) + (new_val); })
-#define GET_MA_VAL(val, ma) ({	\
-	s16 __get_ma_tmp = (ma);\
-	((val) + (1 << ((__get_ma_tmp) - 1))) >> (__get_ma_tmp); })
-#else
 #define MA_ACC(old, new_val, ma) ((old) - ((old) >> (ma)) + (new_val))
 #define GET_MA_VAL(val, ma) (((val) + (1 << ((ma) - 1))) >> (ma))
-#endif
 #define FRAC_BITS 3
 /*@
  * 1 ============================================================

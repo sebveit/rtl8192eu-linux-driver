@@ -279,9 +279,6 @@ void phydm_trx_antenna_setting_init(void *dm_void, u8 num_rf_path)
 	u8 path_bitmap = 1;
 
 	path_bitmap = (u8)phydm_gen_bitmask(num_rf_path);
-#if 0
-	/*PHYDM_DBG(dm, ODM_COMP_INIT, "path_bitmap=0x%x\n", path_bitmap);*/
-#endif
 
 	dm->tx_ant_status = path_bitmap;
 	dm->rx_ant_status = path_bitmap;
@@ -557,7 +554,7 @@ void phydm_config_trx_path_v1(void *dm_void, char input[][16], u32 *_used,
 		return;
 
 	for (i = 0; i < 5; i++) {
-		if (input[i + 1]) {
+		if (input[i + 1][0]) {
 			PHYDM_SSCANF(input[i + 1], DCMD_HEX, &val[i]);
 			input_idx++;
 		}
@@ -1850,7 +1847,7 @@ void phydm_nbi_debug(void *dm_void, char input[][16], u32 *_used, char *output,
 	else
 		idx_lmt = 5;
 	for (i = 0; i < idx_lmt; i++) {
-		if (input[i + 1]) {
+		if (input[i + 1][0]) {
 			PHYDM_SSCANF(input[i + 1], DCMD_DECIMAL, &val[i]);
 			input_idx++;
 		}
@@ -1942,7 +1939,7 @@ void phydm_csi_debug(void *dm_void, char input[][16], u32 *_used, char *output,
 		idx_lmt = 5;
 
 	for (i = 0; i < idx_lmt; i++) {
-		if (input[i + 1]) {
+		if (input[i + 1][0]) {
 			PHYDM_SSCANF(input[i + 1], DCMD_DECIMAL, &val[i]);
 			input_idx++;
 		}
@@ -2193,9 +2190,6 @@ phydm_api_set_txagc(void *dm_void, u32 pwr_idx, enum rf_path path,
 	s8 pw_by_rate_tmp = 0;
 	s8 pw_by_rate_new = 0;
 	#endif
-	#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	u8 i = 0;
-	#endif
 
 #if (RTL8822B_SUPPORT || RTL8821C_SUPPORT || RTL8195B_SUPPORT)
 	if (dm->support_ic_type &
@@ -2219,9 +2213,6 @@ phydm_api_set_txagc(void *dm_void, u32 pwr_idx, enum rf_path path,
 								    path, rate);
 			#endif
 
-			#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-			set_current_tx_agc(dm->priv, path, rate, (u8)pwr_idx);
-			#endif
 
 		} else {
 			#if (RTL8822B_SUPPORT)
@@ -2248,11 +2239,6 @@ phydm_api_set_txagc(void *dm_void, u32 pwr_idx, enum rf_path path,
 								     rate);
 			#endif
 
-			#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-			for (i = 0; i < 4; i++)
-				set_current_tx_agc(dm->priv, path, (rate + i),
-						   (u8)pwr_idx);
-			#endif
 		}
 	}
 #endif
@@ -2847,103 +2833,3 @@ u8 config_phydm_read_txagc_n(void *dm_void, enum rf_path path, u8 hw_rate)
 }
 #endif
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-void phydm_normal_driver_rx_sniffer(
-	struct dm_struct *dm,
-	u8 *desc,
-	PRT_RFD_STATUS rt_rfd_status,
-	u8 *drv_info,
-	u8 phy_status)
-{
-#if (defined(CONFIG_PHYDM_RX_SNIFFER_PARSING))
-	u32 *msg;
-	u16 seq_num;
-
-	if (rt_rfd_status->packet_report_type != NORMAL_RX)
-		return;
-
-	if (!dm->is_linked) {
-		if (rt_rfd_status->is_hw_error)
-			return;
-	}
-
-	if (phy_status == true) {
-		if (dm->rx_pkt_type == type_block_ack ||
-		    dm->rx_pkt_type == type_rts || dm->rx_pkt_type == type_cts)
-			seq_num = 0;
-		else
-			seq_num = rt_rfd_status->seq_num;
-
-		PHYDM_DBG_F(dm, ODM_COMP_SNIFFER,
-			    "%04d , %01s, rate=0x%02x, L=%04d , %s , %s",
-			    seq_num,
-			    /*rt_rfd_status->mac_id,*/
-			    (rt_rfd_status->is_crc ? "C" :
-			    rt_rfd_status->is_ampdu ? "A" : "_"),
-			    rt_rfd_status->data_rate,
-			    rt_rfd_status->length,
-			    ((rt_rfd_status->band_width == 0) ? "20M" :
-			    ((rt_rfd_status->band_width == 1) ? "40M" : "80M")),
-			    (rt_rfd_status->is_ldpc ? "LDP" : "BCC"));
-
-		if (dm->rx_pkt_type == type_asoc_req)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "AS_REQ");
-		else if (dm->rx_pkt_type == type_asoc_rsp)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "AS_RSP");
-		else if (dm->rx_pkt_type == type_probe_req)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "PR_REQ");
-		else if (dm->rx_pkt_type == type_probe_rsp)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "PR_RSP");
-		else if (dm->rx_pkt_type == type_deauth)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "DEAUTH");
-		else if (dm->rx_pkt_type == type_beacon)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "BEACON");
-		else if (dm->rx_pkt_type == type_block_ack_req)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "BA_REQ");
-		else if (dm->rx_pkt_type == type_rts)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "__RTS_");
-		else if (dm->rx_pkt_type == type_cts)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "__CTS_");
-		else if (dm->rx_pkt_type == type_ack)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "__ACK_");
-		else if (dm->rx_pkt_type == type_block_ack)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "__BA__");
-		else if (dm->rx_pkt_type == type_data)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "_DATA_");
-		else if (dm->rx_pkt_type == type_data_ack)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "Data_Ack");
-		else if (dm->rx_pkt_type == type_qos_data)
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [%s]", "QoS_Data");
-		else
-			PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [0x%x]",
-				    dm->rx_pkt_type);
-
-		PHYDM_DBG_F(dm, ODM_COMP_SNIFFER, " , [RSSI=%d,%d,%d,%d ]",
-			    dm->rssi_a,
-			    dm->rssi_b,
-			    dm->rssi_c,
-			    dm->rssi_d);
-
-		msg = (u32 *)drv_info;
-
-		PHYDM_DBG_F(dm, ODM_COMP_SNIFFER,
-			    " , P-STS[28:0]=%08x-%08x-%08x-%08x-%08x-%08x-%08x\n",
-			    msg[6], msg[5], msg[4], msg[3],
-			    msg[2], msg[1], msg[1]);
-	} else {
-		PHYDM_DBG_F(dm, ODM_COMP_SNIFFER,
-			    "%04d , %01s, rate=0x%02x, L=%04d , %s , %s\n",
-			    rt_rfd_status->seq_num,
-			    /*rt_rfd_status->mac_id,*/
-			    (rt_rfd_status->is_crc ? "C" :
-			    (rt_rfd_status->is_ampdu) ? "A" : "_"),
-			    rt_rfd_status->data_rate,
-			    rt_rfd_status->length,
-			    ((rt_rfd_status->band_width == 0) ? "20M" :
-			    ((rt_rfd_status->band_width == 1) ? "40M" : "80M")),
-			    (rt_rfd_status->is_ldpc ? "LDP" : "BCC"));
-	}
-
-#endif
-}
-#endif

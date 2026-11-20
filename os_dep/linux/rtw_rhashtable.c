@@ -19,7 +19,7 @@
 
 int rtw_rhashtable_walk_enter(rtw_rhashtable *ht, rtw_rhashtable_iter *iter)
 {
-       return rhashtable_walk_init(ht, iter, GFP_ATOMIC);
+	return rhashtable_walk_init(ht, iter, GFP_ATOMIC);
 }
 
 

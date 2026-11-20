@@ -61,7 +61,6 @@
 #define Rtl8821A_NIC_LPS_LEAVE_FLOW			rtl8821A_leave_lps_flow
 
 
-#if 1 /* download firmware related data structure */
 #define FW_SIZE_8812			0x8000 /* Compatible with RTL8723 Maximal RAM code size 24K.   modified to 32k, TO compatible with 92d maximal fw size 32k */
 #define FW_START_ADDRESS		0x1000
 #define FW_END_ADDRESS		0x5FFF
@@ -112,7 +111,6 @@ typedef struct _RT_FIRMWARE_8812 {
 #define GET_FIRMWARE_HDR_RSVD4_8812(__FwHdr)			LE_BITS_TO_4BYTE(__FwHdr+24, 0, 32)
 #define GET_FIRMWARE_HDR_RSVD5_8812(__FwHdr)			LE_BITS_TO_4BYTE(__FwHdr+28, 0, 32)
 
-#endif /* download firmware related data structure */
 
 
 #define DRIVER_EARLY_INT_TIME_8812		0x05
@@ -239,13 +237,8 @@ typedef struct _RT_FIRMWARE_8812 {
 #define	EFUSE_HIDDEN_812AU_VL				2
 #define	EFUSE_HIDDEN_812AU_VN				3
 
-#if 0
-#define EFUSE_REAL_CONTENT_LEN_JAGUAR		1024
-#define HWSET_MAX_SIZE_JAGUAR					1024
-#else
 #define EFUSE_REAL_CONTENT_LEN_JAGUAR		512
 #define HWSET_MAX_SIZE_JAGUAR					512
-#endif
 
 #define EFUSE_MAX_BANK_8812A					2
 #define EFUSE_MAP_LEN_JAGUAR					512

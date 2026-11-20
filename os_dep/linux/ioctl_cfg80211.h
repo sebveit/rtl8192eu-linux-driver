@@ -173,9 +173,9 @@ struct rtw_wdev_priv {
 #endif
 
 #ifdef CONFIG_RTW_CFGVEDNOR_RSSIMONITOR
-        s8 rssi_monitor_max;
-        s8 rssi_monitor_min;
-        u8 rssi_monitor_enable;
+	s8 rssi_monitor_max;
+	s8 rssi_monitor_min;
+	u8 rssi_monitor_enable;
 #endif
 
 };

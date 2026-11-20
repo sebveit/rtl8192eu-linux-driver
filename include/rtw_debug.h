@@ -63,11 +63,7 @@ enum {
 #undef _seqdump
 
 /* Use modern kernel logging APIs */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define _dbgdump(fmt, ...) pr_info(fmt, ##__VA_ARGS__)
-#else
-#define _dbgdump printk
-#endif
 /* KERN_CONT is available in kernels >= 2.6.24 */
 #define _seqdump seq_printf
 
@@ -84,91 +80,46 @@ extern uint rtw_drv_log_level;
 
 /* with driver-defined prefix */
 #undef RTW_PRINT
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define RTW_PRINT(fmt, arg...)     \
 	do {\
 		if (_DRV_ALWAYS_ <= rtw_drv_log_level) {\
 			pr_info(fmt, ##arg);\
 		} \
 	} while (0)
-#else
-#define RTW_PRINT(fmt, arg...)     \
-	do {\
-		if (_DRV_ALWAYS_ <= rtw_drv_log_level) {\
-			_dbgdump(KERN_INFO DRIVER_PREFIX fmt, ##arg);\
-		} \
-	} while (0)
-#endif
 
 #undef RTW_ERR
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define RTW_ERR(fmt, arg...)     \
 	do {\
 		if (_DRV_ERR_ <= rtw_drv_log_level) {\
 			pr_err(fmt, ##arg);\
 		} \
 	} while (0)
-#else
-#define RTW_ERR(fmt, arg...)     \
-	do {\
-		if (_DRV_ERR_ <= rtw_drv_log_level) {\
-			_dbgdump(KERN_ERR DRIVER_PREFIX"ERROR " fmt, ##arg);\
-		} \
-	} while (0)
-#endif
 
 
 #undef RTW_WARN
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define RTW_WARN(fmt, arg...)     \
 	do {\
 		if (_DRV_WARNING_ <= rtw_drv_log_level) {\
 			pr_warn(fmt, ##arg);\
 		} \
 	} while (0)
-#else
-#define RTW_WARN(fmt, arg...)     \
-	do {\
-		if (_DRV_WARNING_ <= rtw_drv_log_level) {\
-			_dbgdump(KERN_WARNING DRIVER_PREFIX"WARN " fmt, ##arg);\
-		} \
-	} while (0)
-#endif
 
 #undef RTW_INFO
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define RTW_INFO(fmt, arg...)     \
 	do {\
 		if (_DRV_INFO_ <= rtw_drv_log_level) {\
 			pr_info(fmt, ##arg);\
 		} \
 	} while (0)
-#else
-#define RTW_INFO(fmt, arg...)     \
-	do {\
-		if (_DRV_INFO_ <= rtw_drv_log_level) {\
-			_dbgdump(KERN_INFO DRIVER_PREFIX fmt, ##arg);\
-		} \
-	} while (0)
-#endif
 
 
 #undef RTW_DBG
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define RTW_DBG(fmt, arg...)     \
 	do {\
 		if (_DRV_DEBUG_ <= rtw_drv_log_level) {\
 			pr_debug(fmt, ##arg);\
 		} \
 	} while (0)
-#else
-#define RTW_DBG(fmt, arg...)     \
-	do {\
-		if (_DRV_DEBUG_ <= rtw_drv_log_level) {\
-			_dbgdump(KERN_DEBUG DRIVER_PREFIX fmt, ##arg);\
-		} \
-	} while (0)
-#endif
 
 #undef RTW_INFO_DUMP
 #define RTW_INFO_DUMP(_TitleString, _HexData, _HexDataLen)	\
@@ -454,11 +405,6 @@ ssize_t proc_set_tx_amsdu_rate(struct file *file, const char __user *buffer, siz
 int proc_get_en_fwps(struct seq_file *m, void *v);
 ssize_t proc_set_en_fwps(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 
-#if 0
-int proc_get_two_path_rssi(struct seq_file *m, void *v);
-int proc_get_rssi_disp(struct seq_file *m, void *v);
-ssize_t proc_set_rssi_disp(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
-#endif
 
 #ifdef CONFIG_BT_COEXIST
 int proc_get_btcoex_dbg(struct seq_file *m, void *v);

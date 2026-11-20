@@ -226,17 +226,14 @@ struct rtw_usb_drv usb_drv = {
 	.usbdrv.disconnect = rtw_dev_remove,
 	.usbdrv.id_table = rtw_usb_id_tbl,
 	.usbdrv.suspend =  rtw_suspend,
-       .usbdrv.resume = rtw_resume,
-       .usbdrv.reset_resume = rtw_resume,
+	.usbdrv.resume = rtw_resume,
+	.usbdrv.reset_resume = rtw_resume,
 #ifdef CONFIG_AUTOSUSPEND
 	.usbdrv.supports_autosuspend = 1,
 #endif
 
-       .usbdrv.drvwrap.driver.shutdown = rtw_dev_shutdown,
+	.usbdrv.drvwrap.driver.shutdown = rtw_dev_shutdown,
 /* Runtime PM disabled for kernel compatibility */
-#if 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
-       .usbdrv.drvwrap.driver.pm = &rtw_pm_ops,
-#endif
 };
 
 static inline int RT_usb_endpoint_dir_in(const struct usb_endpoint_descriptor *epd)
@@ -422,56 +419,16 @@ static struct dvobj_priv *usb_dvobj_init(struct usb_interface *usb_intf, const s
 
 	pdev_desc = &pusbd->descriptor;
 
-#if 0
-	RTW_INFO("\n8712_usb_device_descriptor:\n");
-	RTW_INFO("bLength=%x\n", pdev_desc->bLength);
-	RTW_INFO("bDescriptorType=%x\n", pdev_desc->bDescriptorType);
-	RTW_INFO("bcdUSB=%x\n", pdev_desc->bcdUSB);
-	RTW_INFO("bDeviceClass=%x\n", pdev_desc->bDeviceClass);
-	RTW_INFO("bDeviceSubClass=%x\n", pdev_desc->bDeviceSubClass);
-	RTW_INFO("bDeviceProtocol=%x\n", pdev_desc->bDeviceProtocol);
-	RTW_INFO("bMaxPacketSize0=%x\n", pdev_desc->bMaxPacketSize0);
-	RTW_INFO("idVendor=%x\n", pdev_desc->idVendor);
-	RTW_INFO("idProduct=%x\n", pdev_desc->idProduct);
-	RTW_INFO("bcdDevice=%x\n", pdev_desc->bcdDevice);
-	RTW_INFO("iManufacturer=%x\n", pdev_desc->iManufacturer);
-	RTW_INFO("iProduct=%x\n", pdev_desc->iProduct);
-	RTW_INFO("iSerialNumber=%x\n", pdev_desc->iSerialNumber);
-	RTW_INFO("bNumConfigurations=%x\n", pdev_desc->bNumConfigurations);
-#endif
 
 	phost_conf = pusbd->actconfig;
 	pconf_desc = &phost_conf->desc;
 
-#if 0
-	RTW_INFO("\n8712_usb_configuration_descriptor:\n");
-	RTW_INFO("bLength=%x\n", pconf_desc->bLength);
-	RTW_INFO("bDescriptorType=%x\n", pconf_desc->bDescriptorType);
-	RTW_INFO("wTotalLength=%x\n", pconf_desc->wTotalLength);
-	RTW_INFO("bNumInterfaces=%x\n", pconf_desc->bNumInterfaces);
-	RTW_INFO("bConfigurationValue=%x\n", pconf_desc->bConfigurationValue);
-	RTW_INFO("iConfiguration=%x\n", pconf_desc->iConfiguration);
-	RTW_INFO("bmAttributes=%x\n", pconf_desc->bmAttributes);
-	RTW_INFO("bMaxPower=%x\n", pconf_desc->bMaxPower);
-#endif
 
 	/* RTW_INFO("\n***** num of altsetting = (%d) *****\n", pusb_interface->num_altsetting); */
 
 	phost_iface = &usb_intf->altsetting[0];
 	piface_desc = &phost_iface->desc;
 
-#if 0
-	RTW_INFO("\n8712_usb_interface_descriptor:\n");
-	RTW_INFO("bLength=%x\n", piface_desc->bLength);
-	RTW_INFO("bDescriptorType=%x\n", piface_desc->bDescriptorType);
-	RTW_INFO("bInterfaceNumber=%x\n", piface_desc->bInterfaceNumber);
-	RTW_INFO("bAlternateSetting=%x\n", piface_desc->bAlternateSetting);
-	RTW_INFO("bNumEndpoints=%x\n", piface_desc->bNumEndpoints);
-	RTW_INFO("bInterfaceClass=%x\n", piface_desc->bInterfaceClass);
-	RTW_INFO("bInterfaceSubClass=%x\n", piface_desc->bInterfaceSubClass);
-	RTW_INFO("bInterfaceProtocol=%x\n", piface_desc->bInterfaceProtocol);
-	RTW_INFO("iInterface=%x\n", piface_desc->iInterface);
-#endif
 
 	pdvobjpriv->NumInterfaces = pconf_desc->bNumInterfaces;
 	pdvobjpriv->InterfaceNumber = piface_desc->bInterfaceNumber;
@@ -756,7 +713,7 @@ static void process_spec_devid(const struct usb_device_id *pdid)
 		/* It is used to distinguish between normal and PC-side wifi dongle/module. */
 		if ((pdid->idVendor == vid) && (pdid->idProduct == pid) && (flags & SPEC_DEV_ID_ASSIGN_IFNAME)) {
 			extern char *ifname;
-                       strscpy(ifname, "wlan10", IFNAMSIZ);
+			strscpy(ifname, "wlan10", IFNAMSIZ);
 			/* RTW_INFO("%s()-%d: ifname=%s, vid=%04X, pid=%04X\n", __FUNCTION__, __LINE__, ifname, vid, pid); */
 		}
 #endif /* RTK_DMP_PLATFORM */
@@ -1034,51 +991,6 @@ static int rtw_resume(struct usb_interface *pusb_intf)
 }
 
 /* Runtime PM disabled for kernel compatibility - can be re-enabled for 5.15+ */
-#if 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
-static int rtw_runtime_suspend(struct device *dev)
-{
-	struct usb_interface *pusb_intf = to_usb_interface(dev);
-	struct dvobj_priv *dvobj = usb_get_intfdata(pusb_intf);
-	_adapter *padapter = dvobj_get_primary_adapter(dvobj);
-	int ret = 0;
-
-	RTW_INFO("%s\n", __func__);
-
-	if (rtw_is_drv_stopped(padapter) || rtw_is_surprise_removed(padapter)) {
-		RTW_INFO("rtw_runtime_suspend: device stopped or removed\n");
-		return 0;
-	}
-
-	/* Put device into low power state */
-	ret = rtw_suspend_common(padapter);
-	
-	return ret;
-}
-
-static int rtw_runtime_resume(struct device *dev)
-{
-	struct usb_interface *pusb_intf = to_usb_interface(dev);
-	struct dvobj_priv *dvobj = usb_get_intfdata(pusb_intf);
-	_adapter *padapter = dvobj_get_primary_adapter(dvobj);
-	int ret = 0;
-
-	RTW_INFO("%s\n", __func__);
-
-	if (rtw_is_drv_stopped(padapter) || rtw_is_surprise_removed(padapter)) {
-		RTW_INFO("rtw_runtime_resume: device stopped or removed\n");
-		return 0;
-	}
-
-	/* Resume device from low power state */
-	ret = rtw_resume_process(padapter);
-	
-	return ret;
-}
-
-static const struct dev_pm_ops rtw_pm_ops = {
-	SET_RUNTIME_PM_OPS(rtw_runtime_suspend, rtw_runtime_resume, NULL)
-};
-#endif
 
 
 
@@ -1239,15 +1151,15 @@ _adapter *rtw_usb_primary_adapter_init(struct dvobj_priv *dvobj,
 #endif
 
 #ifdef CONFIG_AUTOSUSPEND
-        if (padapter->registrypriv.power_mgnt != PS_MODE_ACTIVE) {
-                if (padapter->registrypriv.usbss_enable) {      /* autosuspend (2s delay) */
-                        dvobj->pusbdev->dev.power.autosuspend_delay = 0 * HZ;
-                        usb_enable_autosuspend(dvobj->pusbdev);
-                        /* usb_autopm_get_interface(adapter_to_dvobj(padapter)->pusbintf ); */
-                        RTW_INFO("%s...pm_usage_cnt(%d).....\n", __FUNCTION__,
-                                atomic_read(&(dvobj->pusbintf->pm_usage_cnt)));
-                }
-        }
+	if (padapter->registrypriv.power_mgnt != PS_MODE_ACTIVE) {
+		if (padapter->registrypriv.usbss_enable) {      /* autosuspend (2s delay) */
+			dvobj->pusbdev->dev.power.autosuspend_delay = 0 * HZ;
+			usb_enable_autosuspend(dvobj->pusbdev);
+			/* usb_autopm_get_interface(adapter_to_dvobj(padapter)->pusbintf ); */
+			RTW_INFO("%s...pm_usage_cnt(%d).....\n", __FUNCTION__,
+				atomic_read(&(dvobj->pusbintf->pm_usage_cnt)));
+		}
+	}
 #endif
 	/* 2012-07-11 Move here to prevent the 8723AS-VAU BT auto suspend influence */
 	if (usb_autopm_get_interface(pusb_intf) < 0)
@@ -1423,18 +1335,7 @@ static int rtw_drv_init(struct usb_interface *pusb_intf, const struct usb_device
 	status = _SUCCESS;
 
 /* Runtime PM disabled for kernel compatibility */
-#if 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
-	/* Enable runtime power management for modern kernels */
-	pm_runtime_enable(&pusb_intf->dev);
-	pm_runtime_set_autosuspend_delay(&pusb_intf->dev, 2000);
-	pm_runtime_use_autosuspend(&pusb_intf->dev);
-#endif
 
-#if 0 /* not used now */
-os_ndevs_deinit:
-	if (status != _SUCCESS)
-		rtw_os_ndevs_deinit(dvobj);
-#endif
 free_if_vir:
 	if (status != _SUCCESS) {
 		#ifdef CONFIG_CONCURRENT_MODE
@@ -1517,11 +1418,6 @@ static void rtw_dev_remove(struct usb_interface *pusb_intf)
 	usb_dvobj_deinit(pusb_intf);
 
 /* Runtime PM disabled for kernel compatibility */
-#if 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
-	/* Disable runtime power management */
-	pm_runtime_dont_use_autosuspend(&pusb_intf->dev);
-	pm_runtime_disable(&pusb_intf->dev);
-#endif
 
 	RTW_INFO("-r871xu_dev_remove, done\n");
 
@@ -1557,7 +1453,7 @@ static int __init rtw_drv_entry(void)
 		ret = -1;
 		goto exit;
 	}
-       /* console_suspend_enabled=0; */
+	/* console_suspend_enabled=0; */
 
 	usb_drv.drv_registered = _TRUE;
 	rtw_suspend_lock_init();

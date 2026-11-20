@@ -82,7 +82,7 @@ const char *android_wifi_cmd_str[ANDROID_WIFI_CMD_MAX] = {
 	"HOSTAPD_ACL_ADD_STA",
 	"HOSTAPD_ACL_REMOVE_STA",
 #ifdef CONFIG_GTK_OL
-       "GTK_REKEY_OFFLOAD",
+	"GTK_REKEY_OFFLOAD",
 #endif /* CONFIG_GTK_OL */
 /*	Private command for	P2P disable*/
 	"P2P_DISABLE",
@@ -226,19 +226,19 @@ static int rtw_android_pno_setup(struct net_device *net, char *command, int tota
 					 __func__, tlv_size_left);
 				goto exit_proc;
 			}
-                       {
-                               unsigned long val;
-                               int ret;
+			{
+				unsigned long val;
+				int ret;
 
-                               str_ptr++;
-                               ret = kstrtoul(str_ptr, 16, &val);
-                               if (ret)
-                                       goto exit_proc;
-                               pno_time = (int)val;
-                               str_ptr += strspn(str_ptr,
-                                                "0123456789abcdefABCDEF");
-                       }
-                       RTW_INFO("%s: pno_time=%d\n", __func__, pno_time);
+				str_ptr++;
+				ret = kstrtoul(str_ptr, 16, &val);
+				if (ret)
+					goto exit_proc;
+				pno_time = (int)val;
+				str_ptr += strspn(str_ptr,
+						"0123456789abcdefABCDEF");
+			}
+			RTW_INFO("%s: pno_time=%d\n", __func__, pno_time);
 
 			if (str_ptr[0] != 0) {
 				if ((str_ptr[0] != PNO_TLV_FREQ_REPEAT)) {
@@ -246,38 +246,38 @@ static int rtw_android_pno_setup(struct net_device *net, char *command, int tota
 						 __func__);
 					goto exit_proc;
 				}
-                               {
-                                       unsigned long val;
-                                       int ret;
+				{
+					unsigned long val;
+					int ret;
 
-                                       str_ptr++;
-                                       ret = kstrtoul(str_ptr, 16, &val);
-                                       if (ret)
-                                               goto exit_proc;
-                                       pno_repeat = (int)val;
-                                       str_ptr += strspn(str_ptr,
-                                                        "0123456789abcdefABCDEF");
-                               }
-                               RTW_INFO("%s :got pno_repeat=%d\n", __FUNCTION__, pno_repeat);
+					str_ptr++;
+					ret = kstrtoul(str_ptr, 16, &val);
+					if (ret)
+						goto exit_proc;
+					pno_repeat = (int)val;
+					str_ptr += strspn(str_ptr,
+							"0123456789abcdefABCDEF");
+				}
+				RTW_INFO("%s :got pno_repeat=%d\n", __FUNCTION__, pno_repeat);
 				if (str_ptr[0] != PNO_TLV_FREQ_EXPO_MAX) {
 					RTW_INFO("%s FREQ_EXPO_MAX corrupted field size\n",
 						 __func__);
 					goto exit_proc;
 				}
-                               {
-                                       unsigned long val;
-                                       int ret;
+				{
+					unsigned long val;
+					int ret;
 
-                                       str_ptr++;
-                                       ret = kstrtoul(str_ptr, 16, &val);
-                                       if (ret)
-                                               goto exit_proc;
-                                       pno_freq_expo_max = (int)val;
-                                       str_ptr += strspn(str_ptr,
-                                                        "0123456789abcdefABCDEF");
-                               }
-                               RTW_INFO("%s: pno_freq_expo_max=%d\n",
-                                        __func__, pno_freq_expo_max);
+					str_ptr++;
+					ret = kstrtoul(str_ptr, 16, &val);
+					if (ret)
+						goto exit_proc;
+					pno_freq_expo_max = (int)val;
+					str_ptr += strspn(str_ptr,
+							"0123456789abcdefABCDEF");
+				}
+				RTW_INFO("%s: pno_freq_expo_max=%d\n",
+					__func__, pno_freq_expo_max);
 			}
 		}
 	} else {
@@ -330,8 +330,8 @@ int rtw_android_cfg80211_pno_setup(struct net_device *net,
 		memcpy(pno_ssids_local[index].SSID, ssids[index].ssid,
 		       ssids[index].ssid_len);
 	}
-       if (ssids)
-               rtw_mfree((u8 *)ssids, (n_ssids * sizeof(struct cfg80211_ssid)));
+	if (ssids)
+		rtw_mfree((u8 *)ssids, (n_ssids * sizeof(struct cfg80211_ssid)));
 	pno_time = (interval / 1000);
 
 	RTW_INFO("%s: nssids: %d, pno_time=%d\n", __func__, nssid, pno_time);
@@ -644,9 +644,9 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		goto exit;
 	}
 #ifdef CONFIG_COMPAT
-       if (in_compat_syscall()) {
-               /* User space is 32-bit, use compat ioctl */
-               compat_android_wifi_priv_cmd compat_priv_cmd;
+	if (in_compat_syscall()) {
+		/* User space is 32-bit, use compat ioctl */
+		compat_android_wifi_priv_cmd compat_priv_cmd;
 
 		if (copy_from_user(&compat_priv_cmd, ifr->ifr_data, sizeof(compat_android_wifi_priv_cmd))) {
 			ret = -EFAULT;
@@ -780,16 +780,6 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		/* TBD: BTCOEXSCAN-STOP */
 		break;
 	case ANDROID_WIFI_CMD_BTCOEXMODE:
-#if 0
-		uint mode = *(command + strlen(CMD_BTCOEXMODE) + 1) - '0';
-		if (mode == 1)
-			net_os_set_packet_filter(net, 0); /* DHCP starts */
-		else
-			net_os_set_packet_filter(net, 1); /* DHCP ends */
-#ifdef WL_CFG80211
-		bytes_written = wl_cfg80211_set_btcoex_dhcp(net, command);
-#endif
-#endif
 		break;
 
 	case ANDROID_WIFI_CMD_SETSUSPENDMODE:
@@ -932,9 +922,9 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 	}
 #endif /* CONFIG_RTW_MACADDR_ACL */
 #ifdef CONFIG_GTK_OL
-        case ANDROID_WIFI_CMD_GTK_REKEY_OFFLOAD:
-                rtw_gtk_offload(net, (u8 *)command);
-                break;
+	case ANDROID_WIFI_CMD_GTK_REKEY_OFFLOAD:
+		rtw_gtk_offload(net, (u8 *)command);
+		break;
 #endif /* CONFIG_GTK_OL          */
 	case ANDROID_WIFI_CMD_P2P_DISABLE: {
 #ifdef CONFIG_P2P
@@ -1090,7 +1080,7 @@ void *wifi_get_country_code(char *ccode, u32 flags)
 	if (!ccode)
 		return NULL;
 	if (wifi_control_data && wifi_control_data->get_country_code)
-               return wifi_control_data->get_country_code(ccode, flags);
+		return wifi_control_data->get_country_code(ccode, flags);
 	return NULL;
 }
 

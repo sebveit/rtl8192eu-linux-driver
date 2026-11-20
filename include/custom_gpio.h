@@ -19,9 +19,7 @@
 #include <osdep_service.h>
 
 
-#ifdef PLATFORM_LINUX
 	#include <drv_types_linux.h>
-#endif
 
 typedef enum cust_gpio_modes {
 	WLAN_PWDN_ON,

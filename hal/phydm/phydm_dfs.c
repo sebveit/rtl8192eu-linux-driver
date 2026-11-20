@@ -2305,19 +2305,3 @@ phydm_dfs_master_enabled(void *dm_void)
 #endif
 }
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-#ifdef PHYDM_IC_JGR3_SERIES_SUPPORT
-void phydm_dfs_ap_reset_radar_detect_counter_and_flag(void *dm_void)
-{
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
-
-	/* @Clear Radar Counter and Radar flag */
-	odm_set_bb_reg(dm, R_0xa40, BIT(15), 0);
-	odm_set_bb_reg(dm, R_0xa40, BIT(15), 1);
-
-	/* RT_TRACE(COMP_DFS, DBG_LOUD, ("[DFS], After reset radar counter, 0xcf8 = 0x%x, 0xcf4 = 0x%x\n", */
-	/* PHY_QueryBBReg(Adapter, 0xcf8, bMaskDWord), */
-	/* PHY_QueryBBReg(Adapter, 0xcf4, bMaskDWord))); */
-}
-#endif
-#endif

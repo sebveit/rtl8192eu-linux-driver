@@ -59,9 +59,6 @@ void phydm_dynamicsoftmletting(void *dm_void)
 					  "PHYDM_DynamicSoftMLSetting(): 0xF8C(== 0x%08X) < 0x16, enable SoML\n",
 					  ret_val);
 				phydm_somlrxhp_setting(dm, true);
-#if 0
-			/*odm_set_bb_reg(dm, R_0x19a8, MASKDWORD, 0xc10a0000);*/
-#endif
 				dm->bsomlenabled = true;
 			}
 		}
@@ -97,45 +94,6 @@ void phydm_soml_on_off(void *dm_void, u8 swch)
 	soml_tab->soml_on_off = swch;
 }
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-void phydm_adaptive_soml_callback(struct phydm_timer_list *timer)
-{
-	void *adapter = (void *)timer->Adapter;
-	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(((PADAPTER)adapter));
-	struct dm_struct *dm = &hal_data->DM_OutSrc;
-	struct adaptive_soml *soml_tab = &dm->dm_soml_table;
-
-	#if DEV_BUS_TYPE == RT_PCI_INTERFACE
-	#if USE_WORKITEM
-	odm_schedule_work_item(&soml_tab->phydm_adaptive_soml_workitem);
-	#else
-	{
-#if 0
-		/*@dbg_print("%s\n",__func__);*/
-#endif
-		phydm_adsl(dm);
-	}
-	#endif
-	#else
-	odm_schedule_work_item(&soml_tab->phydm_adaptive_soml_workitem);
-	#endif
-}
-
-void phydm_adaptive_soml_workitem_callback(void *context)
-{
-#ifdef CONFIG_ADAPTIVE_SOML
-	void *adapter = (void *)context;
-	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(((PADAPTER)adapter));
-	struct dm_struct *dm = &hal_data->DM_OutSrc;
-
-#if 0
-	/*@dbg_print("%s\n",__func__);*/
-#endif
-	phydm_adsl(dm);
-#endif
-}
-
-#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 void phydm_adaptive_soml_callback(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -157,21 +115,9 @@ void phydm_adaptive_soml_workitem_callback(void *context)
 {
 	struct dm_struct *dm = (void *)context;
 
-#if 0
-	/*@dbg_print("%s\n",__func__);*/
-#endif
 	phydm_adsl(dm);
 }
 
-#else
-void phydm_adaptive_soml_callback(void *dm_void)
-{
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
-
-	PHYDM_DBG(dm, DBG_ADPTV_SOML, "******SOML_Callback******\n");
-	phydm_adsl(dm);
-}
-#endif
 
 void phydm_rx_rate_for_soml(void *dm_void, void *pkt_info_void)
 {
@@ -891,27 +837,27 @@ void phydm_soml_bytes_acq(void *dm_void, u8 rate_id, u32 length)
 
 #if defined(CONFIG_RTL_TRIBAND_SUPPORT) && defined(CONFIG_USB_HCI)
 #define INIT_TIMER_EVENT_ENTRY(_entry, _func, _data) \
-       do { \
-               _rtw_init_listhead(&(_entry)->list); \
-               (_entry)->data = (_data); \
-               (_entry)->function = (_func); \
-       } while (0)
+	do { \
+		_rtw_init_listhead(&(_entry)->list); \
+		(_entry)->data = (_data); \
+		(_entry)->function = (_func); \
+	} while (0)
 
 static void pre_phydm_adaptive_soml_callback(struct timer_list *t)
 {
-       struct adaptive_soml *soml_tab =
-               from_timer(soml_tab, t, phydm_adaptive_soml_timer);
-       struct dm_struct *dm = container_of(soml_tab, struct dm_struct,
+	struct adaptive_soml *soml_tab =
+		from_timer(soml_tab, t, phydm_adaptive_soml_timer);
+	struct dm_struct *dm = container_of(soml_tab, struct dm_struct,
                                            dm_soml_table);
-       struct rtl8192cd_priv *priv = dm->priv;
-       struct priv_shared_info *pshare = priv->pshare;
+	struct rtl8192cd_priv *priv = dm->priv;
+	struct priv_shared_info *pshare = priv->pshare;
 
-       if (pshare->bDriverStopped || pshare->bSurpriseRemoved) {
-               printk("[%s] bDriverStopped(%d) OR bSurpriseRemoved(%d)\n",
+	if (pshare->bDriverStopped || pshare->bSurpriseRemoved) {
+		printk("[%s] bDriverStopped(%d) OR bSurpriseRemoved(%d)\n",
                       __func__, pshare->bDriverStopped,
                       pshare->bSurpriseRemoved);
-               return;
-       }
+		return;
+	}
 
 	rtw_enqueue_timer_event(priv, &pshare->adaptive_soml_event,
 				ENQUEUE_TO_TAIL);
@@ -923,10 +869,10 @@ void phydm_adaptive_soml_timers_usb(void *dm_void, u8 state)
 	struct adaptive_soml *soml_tab = &dm->dm_soml_table;
 	struct rtl8192cd_priv *priv = dm->priv;
 
-       if (state == INIT_SOML_TIMMER) {
-               timer_setup(&soml_tab->phydm_adaptive_soml_timer,
+	if (state == INIT_SOML_TIMMER) {
+		timer_setup(&soml_tab->phydm_adaptive_soml_timer,
                            pre_phydm_adaptive_soml_callback, 0);
-               INIT_TIMER_EVENT_ENTRY(&priv->pshare->adaptive_soml_event,
+		INIT_TIMER_EVENT_ENTRY(&priv->pshare->adaptive_soml_event,
                                       phydm_adaptive_soml_callback,
                                       (unsigned long)dm);
 	} else if (state == CANCEL_SOML_TIMMER) {
@@ -966,13 +912,6 @@ void phydm_adaptive_soml_init(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct adaptive_soml *soml_tab = &dm->dm_soml_table;
-#if 0
-	if (!(dm->support_ability & ODM_BB_ADAPTIVE_SOML)) {
-		PHYDM_DBG(dm, DBG_ADPTV_SOML,
-			  "[Return]   Not Support Adaptive SOML\n");
-		return;
-	}
-#endif
 	PHYDM_DBG(dm, DBG_ADPTV_SOML, "%s\n", __func__);
 
 	soml_tab->soml_state_cnt = 0;
@@ -981,11 +920,7 @@ void phydm_adaptive_soml_init(void *dm_void)
 	soml_tab->soml_train_num = 4;
 	soml_tab->is_soml_method_enable = 0;
 	soml_tab->soml_counter = 0;
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 	soml_tab->soml_period = 1;
-#else
-	soml_tab->soml_period = 4;
-#endif
 	soml_tab->soml_select = 0;
 	soml_tab->cfo_cnt = 0;
 	soml_tab->cfo_diff_sum_a = 0;
@@ -1090,9 +1025,6 @@ void phydm_init_soft_ml_setting(void *dm_void)
 #if (RTL8822B_SUPPORT == 1)
 	if (!*dm->mp_mode) {
 		if (dm->support_ic_type & ODM_RTL8822B) {
-#if 0
-			/*odm_set_bb_reg(dm, R_0x19a8, MASKDWORD, 0xd10a0000);*/
-#endif
 			phydm_somlrxhp_setting(dm, true);
 			dm->bsomlenabled = true;
 		}

@@ -32,21 +32,21 @@
 		#undef MAX_RECVBUF_SZ
 	#endif
 
-       /* recv_buffer must be large than usb agg size */
-       #ifndef MAX_RECVBUF_SZ
-               #ifndef CONFIG_MINIMAL_MEMORY_USAGE
-                       #ifdef CONFIG_PLATFORM_NOVATEK_NT72668
-                       #define MAX_RECVBUF_SZ (15360) /* 15k */
-                       #elif defined(CONFIG_PLATFORM_HISILICON)
-                       /* use 16k to workaround for HISILICON platform */
-                       #define MAX_RECVBUF_SZ (16384)
-                       #else
-                       #define MAX_RECVBUF_SZ (32768)
-                       #endif
-               #else
-                       #define MAX_RECVBUF_SZ (4000)
-               #endif
-       #endif /* !MAX_RECVBUF_SZ */
+	/* recv_buffer must be large than usb agg size */
+	#ifndef MAX_RECVBUF_SZ
+		#ifndef CONFIG_MINIMAL_MEMORY_USAGE
+			#ifdef CONFIG_PLATFORM_NOVATEK_NT72668
+			#define MAX_RECVBUF_SZ (15360) /* 15k */
+			#elif defined(CONFIG_PLATFORM_HISILICON)
+			/* use 16k to workaround for HISILICON platform */
+			#define MAX_RECVBUF_SZ (16384)
+			#else
+			#define MAX_RECVBUF_SZ (32768)
+			#endif
+		#else
+			#define MAX_RECVBUF_SZ (4000)
+		#endif
+	#endif /* !MAX_RECVBUF_SZ */
 
 	/* rtl8822bu_ops.c */
 	void rtl8822bu_set_hal_ops(PADAPTER padapter);

@@ -42,15 +42,8 @@
 #define	ODM_ENDIAN_BIG	0
 #define	ODM_ENDIAN_LITTLE	1
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	#define GET_PDM_ODM(__padapter)	((struct dm_struct*)(&(GET_HAL_DATA(__padapter))->DM_OutSrc))
-#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	#define GET_PDM_ODM(__padapter)	((struct dm_struct *)(&(GET_HAL_DATA(__padapter))->odmpriv))
-#elif (DM_ODM_SUPPORT_TYPE == ODM_AP)
-	#define GET_PDM_ODM(__padapter)	((struct dm_struct*)(&__padapter->pshare->_dmODM))
-#endif
 
-#if (DM_ODM_SUPPORT_TYPE != ODM_WIN)
 	#if defined(CONFIG_RTL_TRIBAND_SUPPORT) && defined(CONFIG_USB_HCI)
 	/* enable PCI & USB HCI at the same time */
   	#define RT_PCI_USB_INTERFACE			1
@@ -62,22 +55,12 @@
 	#define	RT_USB_INTERFACE			2
 	#define	RT_SDIO_INTERFACE			3
 	#endif
-#endif
 
 enum hal_status {
 	HAL_STATUS_SUCCESS,
 	HAL_STATUS_FAILURE,
-#if 0
-	RT_STATUS_PENDING,
-	RT_STATUS_RESOURCE,
-	RT_STATUS_INVALID_CONTEXT,
-	RT_STATUS_INVALID_PARAMETER,
-	RT_STATUS_NOT_SUPPORT,
-	RT_STATUS_OS_API_FAILED,
-#endif
 };
 
-#if (DM_ODM_SUPPORT_TYPE != ODM_WIN)
 
 #define		VISTA_USB_RX_REVISE			0
 
@@ -134,84 +117,7 @@ enum rt_spinlock_type {
 	RT_LAST_SPINLOCK,
 };
 
-#endif
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	#define sta_info 	_RT_WLAN_STA
-	#define	__func__		__FUNCTION__
-	#define	PHYDM_TESTCHIP_SUPPORT	TESTCHIP_SUPPORT
-	#define MASKH3BYTES			0xffffff00
-	#define SUCCESS	0
-	#define FAIL	(-1)
-
-	#define	u8 		u1Byte
-	#define	s8 		s1Byte
-
-	#define	u16		u2Byte
-	#define	s16		s2Byte
-
-	#define	u32 	u4Byte
-	#define	s32 		s4Byte
-
-	#define	u64		u8Byte
-	#define	s64		s8Byte
-
-	#define	phydm_timer_list	_RT_TIMER
-
-
-#elif (DM_ODM_SUPPORT_TYPE == ODM_AP)
-	#include "../typedef.h"
-
-	#ifdef CONFIG_PCI_HCI
-	#if defined(CONFIG_RTL_TRIBAND_SUPPORT) && defined(CONFIG_USB_HCI)
-		#define DEV_BUS_TYPE		RT_PCI_USB_INTERFACE
-	#else
-		#define DEV_BUS_TYPE		RT_PCI_INTERFACE
-	#endif
-	#endif
-
-	#if (defined(TESTCHIP_SUPPORT))
-		#define	PHYDM_TESTCHIP_SUPPORT 1
-	#else
-		#define	PHYDM_TESTCHIP_SUPPORT 0
-	#endif
-
-	#define	sta_info stat_info
-	#define	boolean	bool
-
-	#define	phydm_timer_list	timer_list
-
-#elif (DM_ODM_SUPPORT_TYPE == ODM_CE) && defined(DM_ODM_CE_MAC80211)
-
-	#include <asm/byteorder.h>
-
-	#define DEV_BUS_TYPE	RT_PCI_INTERFACE
-
-	#if defined(__LITTLE_ENDIAN)
-		#define	ODM_ENDIAN_TYPE			ODM_ENDIAN_LITTLE
-	#elif defined(__BIG_ENDIAN)
-		#define	ODM_ENDIAN_TYPE			ODM_ENDIAN_BIG
-	#else
-		#error
-	#endif
-
-	/* define useless flag to avoid compile warning */
-	#define	USE_WORKITEM 0
-	#define	FOR_BRAZIL_PRETEST 0
-	#define	FPGA_TWO_MAC_VERIFICATION	0
-	#define	RTL8881A_SUPPORT	0
-	#define	PHYDM_TESTCHIP_SUPPORT 0
-
-
-	#define RATE_ADAPTIVE_SUPPORT			0
-	#define POWER_TRAINING_ACTIVE			0
-
-	#define sta_info	rtl_sta_info
-	#define	boolean		bool
-
-	#define	phydm_timer_list	timer_list
-
-#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	#include <drv_types.h>
 
 	#ifdef CONFIG_USB_HCI
@@ -251,52 +157,6 @@ enum rt_spinlock_type {
 
 	#define	phydm_timer_list	rtw_timer_list
 
-#elif (DM_ODM_SUPPORT_TYPE == ODM_IOT)
-	#define	boolean	bool
-	#define true	_TRUE
-	#define false	_FALSE
-
-	// for power limit table
-	enum odm_pw_lmt_regulation_type {
-		PW_LMT_REGU_NULL = 0,
-		PW_LMT_REGU_FCC = 1,
-		PW_LMT_REGU_ETSI = 2,
-		PW_LMT_REGU_MKK = 3,
-		PW_LMT_REGU_WW13 = 4
-	};
-
-	enum odm_pw_lmt_band_type {
-		PW_LMT_BAND_NULL = 0,
-		PW_LMT_BAND_2_4G = 1,
-		PW_LMT_BAND_5G = 2
-	};
-
-	enum odm_pw_lmt_bandwidth_type {
-		PW_LMT_BW_NULL = 0,
-		PW_LMT_BW_20M = 1,
-		PW_LMT_BW_40M = 2,
-		PW_LMT_BW_80M = 3
-	};
-
-	enum odm_pw_lmt_ratesection_type {
-		PW_LMT_RS_NULL = 0,
-		PW_LMT_RS_CCK = 1,
-		PW_LMT_RS_OFDM = 2,
-		PW_LMT_RS_HT = 3,
-		PW_LMT_RS_VHT = 4
-	};
-
-	enum odm_pw_lmt_rfpath_type {
-		PW_LMT_PH_NULL = 0,
-		PW_LMT_PH_1T = 1,
-		PW_LMT_PH_2T = 2,
-		PW_LMT_PH_3T = 3,
-		PW_LMT_PH_4T = 4
-	};
-
-	#define	phydm_timer_list	timer_list
-
-#endif
 
 #define READ_NEXT_PAIR(v1, v2, i) do { if (i + 2 >= array_len) break; i += 2; v1 = array[i]; v2 = array[i + 1]; } while (0)
 #define COND_ELSE  2

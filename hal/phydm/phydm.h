@@ -86,9 +86,7 @@
 #ifdef PHYDM_MP_SUPPORT
 #include "phydm_mp.h"
 #endif
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 	#include "phydm_beamforming.h"
-#endif
 
 #include "phydm_regtable.h"
 
@@ -97,15 +95,7 @@
 #include "halrf/halrf_dpk.h"
 #include "halrf/halrf.h"
 #include "halrf/halrf_powertracking.h"
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-	#include "halrf/halphyrf_ap.h"
-#elif(DM_ODM_SUPPORT_TYPE & (ODM_CE))
 	#include "halrf/halphyrf_ce.h"
-#elif (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
-	#include "halrf/halphyrf_win.h"
-#elif(DM_ODM_SUPPORT_TYPE & (ODM_IOT))
-	#include "halrf/halphyrf_iot.h"
-#endif
 
 extern const u16	phy_rate_table[28];
 
@@ -122,75 +112,26 @@ extern const u16	phy_rate_table[28];
 
 #define	NONE				0
 
-#if defined(DM_ODM_CE_MAC80211)
-#define MAX_2(x, y)					\
-	__max2(typeof(x), typeof(y),			\
-	      x, y)
-#define __max2(t1, t2, x, y) ({		\
-	t1 m80211_max1 = (x);					\
-	t2 m80211_max2 = (y);					\
-	m80211_max1 > m80211_max2 ? m80211_max1 : m80211_max2; })
-
-#define MIN_2(x, y)					\
-	__min2(typeof(x), typeof(y),			\
-	      x, y)
-#define __min2(t1, t2, x, y) ({		\
-	t1 m80211_min1 = (x);					\
-	t2 m80211_min2 = (y);					\
-	m80211_min1 < m80211_min2 ? m80211_min1 : m80211_min2; })
-
-#define DIFF_2(x, y)					\
-	__diff2(typeof(x), typeof(y),			\
-	      x, y)
-#define __diff2(t1, t2, x, y) ({		\
-	t1 __d1 = (x);					\
-	t2 __d2 = (y);					\
-	(__d1 >= __d2) ? (__d1 - __d2) : (__d2 - __d1); })
-#else
 #define MAX_2(_x_, _y_)	(((_x_) > (_y_)) ? (_x_) : (_y_))
 #define MIN_2(_x_, _y_)	(((_x_) < (_y_)) ? (_x_) : (_y_))
 #define DIFF_2(_x_, _y_)	((_x_ >= _y_) ? (_x_ - _y_) : (_y_ - _x_))
-#endif
 
 #define IS_GREATER(_x_, _y_)	(((_x_) >= (_y_)) ? true : false)
 #define IS_LESS(_x_, _y_)	(((_x_) < (_y_)) ? true : false)
 
-#if defined(DM_ODM_CE_MAC80211)
-#define BYTE_DUPLICATE_2_DWORD(B0) ({	\
-	u32 __b_dup = (B0);\
-	(((__b_dup) << 24) | ((__b_dup) << 16) | ((__b_dup) << 8) | (__b_dup));\
-	})
-#else
 #define BYTE_DUPLICATE_2_DWORD(B0)	\
 	(((B0) << 24) | ((B0) << 16) | ((B0) << 8) | (B0))
-#endif
 #define BYTE_2_DWORD(B3, B2, B1, B0)	\
 	(((B3) << 24) | ((B2) << 16) | ((B1) << 8) | (B0))
 #define BIT_2_BYTE(B3, B2, B1, B0)	\
 	(((B3) << 3) | ((B2) << 2) | ((B1) << 1) | (B0))
 
 /*@For cmn sta info*/
-#if defined(DM_ODM_CE_MAC80211)
-#define is_sta_active(sta) ({	\
-	struct cmn_sta_info *__sta = (sta);	\
-	((__sta) && (__sta->dm_ctrl & STA_DM_CTRL_ACTIVE));	\
-	})
-
-#define IS_FUNC_EN(name) ({	\
-	u8 *__is_func_name = (name);	\
-	(__is_func_name) && (*__is_func_name);	\
-	})
-#else
 #define is_sta_active(sta)	((sta) && (sta->dm_ctrl & STA_DM_CTRL_ACTIVE))
 
 #define IS_FUNC_EN(name)	((name) && (*name))
-#endif
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP)
-	#define PHYDM_WATCH_DOG_PERIOD	1 /*second*/
-#else
 	#define PHYDM_WATCH_DOG_PERIOD	2 /*second*/
-#endif
 
 #define PHY_HIST_SIZE		12
 
@@ -689,15 +630,7 @@ struct _phydm_mcc_dm_ {
 #endif
 
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	#if (RT_PLATFORM != PLATFORM_LINUX)
-		typedef
-	#endif
-
 struct dm_struct {
-#else/*for AP, CE Team*/
-struct dm_struct {
-#endif
 	/*@Add for different team use temporarily*/
 	void			*adapter;		/*@For CE/NIC team*/
 	struct rtl8192cd_priv	*priv;			/*@For AP team*/
@@ -995,9 +928,6 @@ struct dm_struct {
 	u32			n_iqk_ok_cnt;
 	u32			n_iqk_fail_cnt;
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	boolean			config_bbrf;
-#endif
 	boolean			is_disable_power_training;
 	boolean			is_bt_continuous_turn;
 	u8			enhance_pwr_th[3];
@@ -1045,14 +975,6 @@ struct dm_struct {
 
 /*@=== PHYDM Workitem ======================================= (start)*/
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-#if USE_WORKITEM
-	RT_WORK_ITEM		fast_ant_training_workitem;
-	RT_WORK_ITEM		ra_rpt_workitem;
-	RT_WORK_ITEM		sbdcnt_workitem;
-	RT_WORK_ITEM		phydm_evm_antdiv_workitem;
-#endif
-#endif
 
 /*@=== PHYDM Structure ======================================== (start)*/
 	struct	phydm_func_poiner	phydm_func_handler;
@@ -1073,9 +995,6 @@ struct dm_struct {
 #endif
 
 #if (defined(CONFIG_PHYDM_ANTENNA_DIVERSITY))
-	#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-	struct _BF_DIV_COEX_		dm_bdc_table;
-	#endif
 
 	#if (defined(CONFIG_HL_SMART_ANTENNA))
 	struct smt_ant_honbo		dm_sat_table;
@@ -1144,10 +1063,8 @@ struct dm_struct {
 	struct _ANT_DETECTED_INFO	ant_detected_info;
 #endif
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 #ifdef PHYDM_BEAMFORMING_SUPPORT
 	struct _RT_BEAMFORMING_INFO 	beamforming_info;
-#endif
 #endif
 #ifdef PHYDM_AUTO_DEGBUG
 	struct	phydm_auto_dbg_struct	auto_dbg_table;
@@ -1168,17 +1085,7 @@ struct dm_struct {
 #endif
 /*@==========================================================*/
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-
-#if (RT_PLATFORM != PLATFORM_LINUX)
-} dm_struct;	/*@DM_Dynamic_Mechanism_Structure*/
-#else
 };
-#endif
-
-#else	/*@for AP,CE Team*/
-};
-#endif
 
 enum phydm_adv_ota {
 	PHYDM_PATHB_1RCCA		= BIT(0),
@@ -1235,7 +1142,6 @@ enum odm_fw_config_type {
 };
 
 /*status code*/
-#if (DM_ODM_SUPPORT_TYPE != ODM_WIN)
 enum rt_status {
 	RT_STATUS_SUCCESS,
 	RT_STATUS_FAILURE,
@@ -1246,7 +1152,6 @@ enum rt_status {
 	RT_STATUS_NOT_SUPPORT,
 	RT_STATUS_OS_API_FAILED,
 };
-#endif	/*@end of enum rt_status definition*/
 
 void
 phydm_watchdog_lps(struct dm_struct *dm);
@@ -1326,32 +1231,9 @@ phydm_dc_cancellation(struct dm_struct *dm);
 void
 phydm_receiver_blocking(void *dm_void);
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-void
-odm_init_all_work_items(
-	struct dm_struct	*dm
-);
-void
-odm_free_all_work_items(
-	struct dm_struct	*dm
-);
-#endif	/*@#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)*/
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 void
 odm_dtc(struct dm_struct *dm);
-#endif
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP)
-void
-odm_init_all_threads(
-	struct dm_struct	*dm
-);
-
-void
-odm_stop_all_threads(
-	struct dm_struct	*dm
-);
-#endif
 
 #endif

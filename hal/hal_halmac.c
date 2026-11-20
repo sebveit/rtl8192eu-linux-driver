@@ -761,11 +761,6 @@ struct halmac_platform_api rtw_halmac_platform_api = {
 #endif /* CONFIG_USB_HCI || CONFIG_PCI_HCI */
 
 	/* Write data */
-#if 0
-	/* impletement in HAL-IC level */
-	.SEND_RSVD_PAGE = sdio_write_data_rsvd_page,
-	.SEND_H2C_PKT = sdio_write_data_h2c,
-#endif
 	/* Memory allocate */
 	.RTL_FREE = _halmac_mfree,
 	.RTL_MALLOC = _halmac_malloc,
@@ -827,7 +822,6 @@ u32 rtw_halmac_read32(struct intf_hdl *pintfhdl, u32 addr)
 
 static void _read_register(struct dvobj_priv *d, u32 addr, u32 cnt, u8 *buf)
 {
-#if 1
 	struct _ADAPTER *a;
 	u32 i, n;
 	u16 val16;
@@ -872,15 +866,6 @@ static void _read_register(struct dvobj_priv *d, u32 addr, u32 cnt, u8 *buf)
 			break;
 		}
 	}
-#else
-	struct _ADAPTER *a;
-	u32 i;
-
-
-	a = dvobj_get_primary_adapter(d);
-	for (i = 0; i < cnt; i++)
-		buf[i] = rtw_read8(a, addr + i);
-#endif
 }
 
 #ifdef CONFIG_SDIO_HCI
@@ -1819,30 +1804,6 @@ out:
  */
 int rtw_halmac_get_network_type(struct dvobj_priv *d, enum _hw_port hwport, u8 *type)
 {
-#if 0
-	struct halmac_adapter *halmac;
-	struct halmac_api *api;
-	enum halmac_portid port;
-	enum halmac_network_type_select network;
-	enum halmac_ret_status status;
-	int err = -1;
-
-
-	halmac = dvobj_to_halmac(d);
-	api = HALMAC_GET_API(halmac);
-	port = _hw_port_drv2halmac(hwport);
-	network = HALMAC_NETWORK_UNDEFINE;
-
-	status = api->halmac_get_net_type(halmac, port, &network);
-	if (status != HALMAC_RET_SUCCESS)
-		goto out;
-
-	*type = _network_type_halmac2drv(network);
-
-	err = 0;
-out:
-	return err;
-#else
 	struct _ADAPTER *a;
 	enum halmac_portid port;
 	enum halmac_network_type_select network;
@@ -1889,7 +1850,6 @@ out:
 	err = 0;
 out:
 	return err;
-#endif
 }
 
 /**
@@ -2259,11 +2219,6 @@ int rtw_halmac_set_aid(struct dvobj_priv *d, enum _hw_port hwport, u16 aid)
 	api = HALMAC_GET_API(halmac);
 	port = _hw_port_drv2halmac(hwport);
 
-#if 0
-	status = api->halmac_cfg_aid(halmac, port, aid);
-	if (status != HALMAC_RET_SUCCESS)
-		goto out;
-#else
 {
 	struct _ADAPTER *a;
 	u32 addr;
@@ -2311,7 +2266,6 @@ int rtw_halmac_set_aid(struct dvobj_priv *d, enum _hw_port hwport, u16 aid)
 		goto out;
 	}
 }
-#endif
 
 	err = 0;
 out:
@@ -2449,36 +2403,36 @@ static void _dump_pcie_cfg_space(struct dvobj_priv *d)
 	struct pci_dev  *pdev = pdvobjpriv->ppcidev;
 	struct pci_dev  *bridge_pdev = pdev->bus->self;
 
-        u32 tmp[4] = { 0 };
-        u32 i, j;
+	u32 tmp[4] = { 0 };
+	u32 i, j;
 
 	RTW_PRINT("\n*****  PCI Device Configuration Space *****\n\n");
 
-        for(i = 0; i < 0x100; i += 0x10)
-        {
-                for (j = 0 ; j < 4 ; j++)
-                        pci_read_config_dword(pdev, i + j * 4, tmp+j);
+	for(i = 0; i < 0x100; i += 0x10)
+	{
+		for (j = 0 ; j < 4 ; j++)
+			pci_read_config_dword(pdev, i + j * 4, tmp+j);
 
         	RTW_PRINT("%03x: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-                        i, tmp[0] & 0xFF, (tmp[0] >> 8) & 0xFF, (tmp[0] >> 16) & 0xFF, (tmp[0] >> 24) & 0xFF,
-                        tmp[1] & 0xFF, (tmp[1] >> 8) & 0xFF, (tmp[1] >> 16) & 0xFF, (tmp[1] >> 24) & 0xFF,
-                        tmp[2] & 0xFF, (tmp[2] >> 8) & 0xFF, (tmp[2] >> 16) & 0xFF, (tmp[2] >> 24) & 0xFF,
-                        tmp[3] & 0xFF, (tmp[3] >> 8) & 0xFF, (tmp[3] >> 16) & 0xFF, (tmp[3] >> 24) & 0xFF);
-        }
+			i, tmp[0] & 0xFF, (tmp[0] >> 8) & 0xFF, (tmp[0] >> 16) & 0xFF, (tmp[0] >> 24) & 0xFF,
+			tmp[1] & 0xFF, (tmp[1] >> 8) & 0xFF, (tmp[1] >> 16) & 0xFF, (tmp[1] >> 24) & 0xFF,
+			tmp[2] & 0xFF, (tmp[2] >> 8) & 0xFF, (tmp[2] >> 16) & 0xFF, (tmp[2] >> 24) & 0xFF,
+			tmp[3] & 0xFF, (tmp[3] >> 8) & 0xFF, (tmp[3] >> 16) & 0xFF, (tmp[3] >> 24) & 0xFF);
+	}
 
 	RTW_PRINT("\n*****  PCI Host Device Configuration Space*****\n\n");
 
-        for(i = 0; i < 0x100; i += 0x10)
-        {
-                for (j = 0 ; j < 4 ; j++)
-                        pci_read_config_dword(bridge_pdev, i + j * 4, tmp+j);
+	for(i = 0; i < 0x100; i += 0x10)
+	{
+		for (j = 0 ; j < 4 ; j++)
+			pci_read_config_dword(bridge_pdev, i + j * 4, tmp+j);
 
         	RTW_PRINT("%03x: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-                        i, tmp[0] & 0xFF, (tmp[0] >> 8) & 0xFF, (tmp[0] >> 16) & 0xFF, (tmp[0] >> 24) & 0xFF,
-                        tmp[1] & 0xFF, (tmp[1] >> 8) & 0xFF, (tmp[1] >> 16) & 0xFF, (tmp[1] >> 24) & 0xFF,
-                        tmp[2] & 0xFF, (tmp[2] >> 8) & 0xFF, (tmp[2] >> 16) & 0xFF, (tmp[2] >> 24) & 0xFF,
-                        tmp[3] & 0xFF, (tmp[3] >> 8) & 0xFF, (tmp[3] >> 16) & 0xFF, (tmp[3] >> 24) & 0xFF);
-        }
+			i, tmp[0] & 0xFF, (tmp[0] >> 8) & 0xFF, (tmp[0] >> 16) & 0xFF, (tmp[0] >> 24) & 0xFF,
+			tmp[1] & 0xFF, (tmp[1] >> 8) & 0xFF, (tmp[1] >> 16) & 0xFF, (tmp[1] >> 24) & 0xFF,
+			tmp[2] & 0xFF, (tmp[2] >> 8) & 0xFF, (tmp[2] >> 16) & 0xFF, (tmp[2] >> 24) & 0xFF,
+			tmp[3] & 0xFF, (tmp[3] >> 8) & 0xFF, (tmp[3] >> 16) & 0xFF, (tmp[3] >> 24) & 0xFF);
+	}
 }
 #endif
 
@@ -3344,11 +3298,6 @@ static int init_mac_flow(struct dvobj_priv *d)
 		goto out;
 #endif
 
-#if 0 /* It is not necessary to call this in normal driver */
-	status = api->halmac_cfg_la_mode(halmac, HALMAC_LA_MODE_DISABLE);
-	if (status != HALMAC_RET_SUCCESS)
-		goto out;
-#endif
 
 	err = _cfg_drv_rsvd_pg_num(d);
 	if (err)

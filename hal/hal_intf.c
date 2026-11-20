@@ -798,10 +798,6 @@ void	rtw_hal_set_chnl_bw(_adapter *padapter, u8 channel, enum channel_width Band
 	if (rtw_mp_mode_check(padapter) == _FALSE)
 #endif
 	{
-		#if 0
-		if (cch_160 != 0)
-			cch_80 = rtw_get_scch_by_cch_offset(cch_160, CHANNEL_WIDTH_160, Offset80);
-		#endif
 		if (cch_80 != 0)
 			cch_40 = rtw_get_scch_by_cch_offset(cch_80, CHANNEL_WIDTH_80, Offset80);
 		if (cch_40 != 0)
@@ -1074,11 +1070,11 @@ s32 c2h_handler(_adapter *adapter, u8 id, u8 seq, u8 plen, u8 *payload)
 		c2h_per_rate_rpt_hdl(adapter, payload, plen);
 		break;
 #endif
-       case C2H_EXTEND:
-               sub_id = payload[0];
-               /* fall through - handle by default */
+	case C2H_EXTEND:
+		sub_id = payload[0];
+		fallthrough;
 
-       default:
+	default:
 		if (phydm_c2H_content_parsing(adapter_to_phydm(adapter), id, plen, payload) != TRUE)
 			ret = _FAIL;
 		break;
@@ -1409,7 +1405,6 @@ bool rtw_hal_rfkill_poll(_adapter *adapter, u8 *valid)
 u8 rtw_hal_ops_check(_adapter *padapter)
 {
 	u8 ret = _SUCCESS;
-#if 1
 	/*** initialize section ***/
 	if (NULL == padapter->hal_func.read_chip_version) {
 		rtw_hal_error_msg("read_chip_version");
@@ -1706,7 +1701,6 @@ u8 rtw_hal_ops_check(_adapter *padapter)
 		rtw_hal_error_msg("hal_radio_onoff_check");
 		ret = _FAIL;
 	}
-#endif
 #endif
 	return  ret;
 }

@@ -181,10 +181,5 @@ phydm_is_dfs_band(void *dm_void);
 boolean
 phydm_dfs_master_enabled(void *dm_void);
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-#ifdef PHYDM_IC_JGR3_SERIES_SUPPORT
-void phydm_dfs_ap_reset_radar_detect_counter_and_flag(void *dm_void);
-#endif
-#endif
 
 #endif /*@#ifndef __PHYDM_DFS_H__ */

@@ -65,8 +65,6 @@
 	#define MAX_RECVBUF_SZ (4096 + RX_FIFO_EXPANDING) /* about 4K */
 	/*#endif*/
 
-#elif defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-	#define MAX_RECVBUF_SZ	(16384 + RX_FIFO_EXPANDING)
 #endif
 
 void init_hal_spec_rtl8821c(PADAPTER);

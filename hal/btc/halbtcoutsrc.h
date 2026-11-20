@@ -1060,10 +1060,10 @@ struct btc_coexist {
 		struct coex_dm_8821c_1ant	coex_dm_8821c_1ant;
 		struct coex_dm_8821c_2ant	coex_dm_8821c_2ant;
 		#endif /* 8821C */
-        #ifdef CONFIG_RTL8723D
-        struct coex_dm_8723d_1ant   coex_dm_8723d_1ant;
-        struct coex_dm_8723d_2ant   coex_dm_8723d_2ant;
-        #endif /* 8723D */
+	#ifdef CONFIG_RTL8723D
+	struct coex_dm_8723d_1ant   coex_dm_8723d_1ant;
+	struct coex_dm_8723d_2ant   coex_dm_8723d_2ant;
+	#endif /* 8723D */
 	};
 
 	union {
@@ -1075,10 +1075,10 @@ struct btc_coexist {
 		struct coex_sta_8821c_1ant	coex_sta_8821c_1ant;
 		struct coex_sta_8821c_2ant	coex_sta_8821c_2ant;
 		#endif /* 8821C */
-        #ifdef CONFIG_RTL8723D
-        struct coex_sta_8723d_1ant  coex_sta_8723d_1ant;
-        struct coex_sta_8723d_2ant  coex_sta_8723d_2ant;
-        #endif /* 8723D */
+	#ifdef CONFIG_RTL8723D
+	struct coex_sta_8723d_1ant  coex_sta_8723d_1ant;
+	struct coex_sta_8723d_2ant  coex_sta_8723d_2ant;
+	#endif /* 8723D */
 	};
 
 	union {
@@ -1241,12 +1241,6 @@ VOID
 EXhalbtcoutsrc_UpdateMinBtRssi(
 	IN	s1Byte	btRssi
 	);
-#if 0
-VOID
-EXhalbtcoutsrc_SetBtExist(
-	IN	BOOLEAN		bBtExist
-	);
-#endif
 VOID
 EXhalbtcoutsrc_SetChipType(
 	IN	u1Byte		chipType

@@ -129,9 +129,6 @@ void hal_txbf_8192e_download_ndpa(
 	struct _RT_BEAMFORMEE_ENTRY *p_beam_entry = beam_info->beamformee_entry + idx;
 
 	PHYDM_DBG(dm, DBG_TXBF, "[%s] Start!\n", __func__);
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	*dm->is_fw_dw_rsvd_page_in_progress = true;
-#endif
 	if (idx == 0)
 		head_page = 0xFE;
 	else
@@ -210,9 +207,6 @@ void hal_txbf_8192e_download_ndpa(
 	odm_write_1byte(dm, REG_CR_8192E + 1, (u1b_tmp & (~BIT(0))));
 
 	p_beam_entry->beamform_entry_state = BEAMFORMING_ENTRY_STATE_PROGRESSED;
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	*dm->is_fw_dw_rsvd_page_in_progress = false;
-#endif
 }
 
 void hal_txbf_8192e_enter(

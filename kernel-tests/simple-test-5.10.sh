@@ -36,7 +36,7 @@ EOF
 fi
 
 echo "Building driver..."
-make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE KSRC=$KSRC modules
+make -j"$(nproc)" ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE KSRC=$KSRC modules
 
 if [ -f "8192eu.ko" ]; then
     echo "✓ Successfully built 8192eu.ko"

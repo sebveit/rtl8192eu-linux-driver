@@ -36,17 +36,8 @@
 /*@#define DYNAMIC_TXPWR_VERSION	"1.3" */ /*@2015.08.26, Add 8814 Dynamic TX power*/
 #define DYNAMIC_TXPWR_VERSION "1.4" /*@2015.11.06, Add CE 8821A Dynamic TX power*/
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP)
 #define TX_POWER_NEAR_FIELD_THRESH_LVL2 74
 #define TX_POWER_NEAR_FIELD_THRESH_LVL1 60
-#define TX_POWER_NEAR_FIELD_THRESH_AP 0x3F
-#elif (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-#define TX_POWER_NEAR_FIELD_THRESH_LVL2 74
-#define TX_POWER_NEAR_FIELD_THRESH_LVL1 67
-#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
-#define TX_POWER_NEAR_FIELD_THRESH_LVL2 74
-#define TX_POWER_NEAR_FIELD_THRESH_LVL1 60
-#endif
 
 #define tx_high_pwr_level_normal 0
 #define tx_high_pwr_level_level1 1
@@ -95,9 +86,6 @@ void phydm_dynamic_tx_power_init(void *dm_void);
 void phydm_dtp_debug(void *dm_void, char input[][16], u32 *_used, char *output,
 			     u32 *_out_len);
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-void odm_dynamic_tx_power_win(void *dm_void);
-#endif
 
 #endif
 #endif

@@ -47,9 +47,9 @@ void dump_drv_version(void *sel)
 
 void dump_drv_cfg(void *sel)
 {
-       char *kernel_version = utsname()->release;
+	char *kernel_version = utsname()->release;
 
-       RTW_PRINT_SEL(sel, "\nKernel Version: %s\n", kernel_version);
+	RTW_PRINT_SEL(sel, "\nKernel Version: %s\n", kernel_version);
 
 	RTW_PRINT_SEL(sel, "Driver Version: %s\n", DRIVERVERSION);
 	RTW_PRINT_SEL(sel, "------------------------------------------------\n");
@@ -537,7 +537,7 @@ void dump_adapters_status(void *sel, struct dvobj_priv *dvobj)
 				char tmp_str[10] = {'\0'};
 
 				len = snprintf(tmp_str, sizeof(tmp_str), "%s", "ap_id:");
-                               memcpy(p, tmp_str, len);
+				memcpy(p, tmp_str, len);
 				p += len;
 				_rtw_memset(&tmp_str, '\0', sizeof(tmp_str));
 				#ifdef DBG_HW_PORT
@@ -545,7 +545,7 @@ void dump_adapters_status(void *sel, struct dvobj_priv *dvobj)
 				#else
 				len = snprintf(tmp_str, sizeof(tmp_str), "%d", iface->vap_id);
 				#endif
-                               memcpy(p, tmp_str, len);
+				memcpy(p, tmp_str, len);
 			}
 			#endif
 			#ifdef CONFIG_CLIENT_PORT_CFG
@@ -555,7 +555,7 @@ void dump_adapters_status(void *sel, struct dvobj_priv *dvobj)
 				char tmp_str[10] = {'\0'};
 
 				len = snprintf(tmp_str, sizeof(tmp_str), "%s", "c_pid:");
-                               memcpy(p, tmp_str, len);
+				memcpy(p, tmp_str, len);
 				p += len;
 				_rtw_memset(&tmp_str, '\0', sizeof(tmp_str));
 				#ifdef DBG_HW_PORT
@@ -563,7 +563,7 @@ void dump_adapters_status(void *sel, struct dvobj_priv *dvobj)
 				#else
 				len = snprintf(tmp_str, sizeof(tmp_str), "%d", iface->client_port);
 				#endif
-                               memcpy(p, tmp_str, len);
+				memcpy(p, tmp_str, len);
 			}
 			#endif
 
@@ -1483,7 +1483,6 @@ ssize_t proc_set_survey_info(struct file *file, const char __user *buffer, size_
 	if (count < 1)
 		return -EFAULT;
 
-#if 1
 	ssc_chk = rtw_sitesurvey_condition_check(padapter, _FALSE);
 	if (ssc_chk != SS_ALLOW)
 		goto exit;
@@ -1495,49 +1494,6 @@ ssize_t proc_set_survey_info(struct file *file, const char __user *buffer, size_
 		RTW_INFO("scan abort!! adapter cannot use\n");
 		goto cancel_ps_deny;
 	}
-#else
-#ifdef CONFIG_MP_INCLUDED
-	if (rtw_mp_mode_check(padapter)) {
-		RTW_INFO("MP mode block Scan request\n");
-		goto exit;
-	}
-#endif
-	if (rtw_is_scan_deny(padapter)) {
-		RTW_INFO(FUNC_ADPT_FMT  ": scan deny\n", FUNC_ADPT_ARG(padapter));
-		goto exit;
-	}
-
-	rtw_ps_deny(padapter, PS_DENY_SCAN);
-	if (_FAIL == rtw_pwr_wakeup(padapter))
-		goto cancel_ps_deny;
-
-	if (!rtw_is_adapter_up(padapter)) {
-		RTW_INFO("scan abort!! adapter cannot use\n");
-		goto cancel_ps_deny;
-	}
-
-	if (rtw_mi_busy_traffic_check(padapter, _FALSE)) {
-		RTW_INFO("scan abort!! BusyTraffic == _TRUE\n");
-		goto cancel_ps_deny;
-	}
-
-	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) && check_fwstate(pmlmepriv, WIFI_UNDER_WPS)) {
-		RTW_INFO("scan abort!! AP mode process WPS\n");
-		goto cancel_ps_deny;
-	}
-	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY | _FW_UNDER_LINKING) == _TRUE) {
-		RTW_INFO("scan abort!! fwstate=0x%x\n", pmlmepriv->fw_state);
-		goto cancel_ps_deny;
-	}
-
-#ifdef CONFIG_CONCURRENT_MODE
-	if (rtw_mi_buddy_check_fwstate(padapter,
-		       _FW_UNDER_SURVEY | _FW_UNDER_LINKING | WIFI_UNDER_WPS)) {
-		RTW_INFO("scan abort!! buddy_fwstate check failed\n");
-		goto cancel_ps_deny;
-	}
-#endif
-#endif
 	_status = rtw_set_802_11_bssid_list_scan(padapter, NULL);
 
 cancel_ps_deny:
@@ -3372,13 +3328,6 @@ void rtw_dump_drv_phy_cap(void *sel, _adapter *adapter)
 	struct registry_priv	*pregistry_priv = &adapter->registrypriv;
 
 	RTW_PRINT_SEL(sel, "\n ======== DRV's configuration ========\n");
-	#if 0
-	RTW_PRINT_SEL(sel, "[DRV CAP] TRx Capability : 0x%08x\n", phy_spec->trx_cap);
-	RTW_PRINT_SEL(sel, "[DRV CAP] Tx Stream Num Index : %d\n", (phy_spec->trx_cap >> 24) & 0xFF); /*Tx Stream Num Index [31:24]*/
-	RTW_PRINT_SEL(sel, "[DRV CAP] Rx Stream Num Index : %d\n", (phy_spec->trx_cap >> 16) & 0xFF); /*Rx Stream Num Index [23:16]*/
-	RTW_PRINT_SEL(sel, "[DRV CAP] Tx Path Num Index : %d\n", (phy_spec->trx_cap >> 8) & 0xFF);/*Tx Path Num Index	[15:8]*/
-	RTW_PRINT_SEL(sel, "[DRV CAP] Rx Path Num Index : %d\n", (phy_spec->trx_cap & 0xFF));/*Rx Path Num Index	[7:0]*/
-	#endif
 	#ifdef CONFIG_80211N_HT
 	RTW_PRINT_SEL(sel, "[DRV CAP] STBC Capability : 0x%02x\n", pregistry_priv->stbc_cap);
 	RTW_PRINT_SEL(sel, "[DRV CAP] VHT STBC Tx : %s\n", (TEST_FLAG(pregistry_priv->stbc_cap, BIT1)) ? "V" : "X"); /*BIT1: Enable VHT STBC Tx*/
@@ -3393,13 +3342,6 @@ void rtw_dump_drv_phy_cap(void *sel, _adapter *adapter)
 	RTW_PRINT_SEL(sel, "[DRV CAP] HT LDPC Rx : %s\n\n", (TEST_FLAG(pregistry_priv->ldpc_cap, BIT4)) ? "V" : "X"); /*BIT4: Enable HT LDPC Rx*/
 	#endif /* CONFIG_80211N_HT */
 	#ifdef CONFIG_BEAMFORMING
-	#if 0
-	RTW_PRINT_SEL(sel, "[DRV CAP] TxBF parameter : 0x%08x\n", phy_spec->txbf_param);
-	RTW_PRINT_SEL(sel, "[DRV CAP] VHT Sounding Dim : %d\n", (phy_spec->txbf_param >> 24) & 0xFF); /*VHT Sounding Dim [31:24]*/
-	RTW_PRINT_SEL(sel, "[DRV CAP] VHT Steering Ant : %d\n", (phy_spec->txbf_param >> 16) & 0xFF); /*VHT Steering Ant [23:16]*/
-	RTW_PRINT_SEL(sel, "[DRV CAP] HT Sounding Dim : %d\n", (phy_spec->txbf_param >> 8) & 0xFF); /*HT Sounding Dim [15:8]*/
-	RTW_PRINT_SEL(sel, "[DRV CAP] HT Steering Ant : %d\n", phy_spec->txbf_param & 0xFF); /*HT Steering Ant [7:0]*/
-	#endif
 
 	/*
 	 * BIT0: Enable VHT SU Beamformer
@@ -3828,10 +3770,8 @@ int proc_get_best_channel(struct seq_file *m, void *v)
 				best_channel_5G = rfctl->channel_set[i].ChannelNum;
 			}
 		}
-#if 1 /* debug */
 		RTW_PRINT_SEL(m, "The rx cnt of channel %3d = %d\n",
 			rfctl->channel_set[i].ChannelNum, rfctl->channel_set[i].rx_count);
-#endif
 	}
 
 	RTW_PRINT_SEL(m, "best_channel_5G = %d\n", best_channel_5G);
@@ -4444,7 +4384,6 @@ int proc_get_tx_ring_ext(struct seq_file *m, void *v)
 					RTW_PRINT_SEL(m, "\n");
 			}
 
-#if 1 /* data dump */
 			if (pbuf->tx_desc_size) {
 				RTW_PRINT_SEL(m, "  data[%03d]:\n", j);
 
@@ -4459,7 +4398,6 @@ int proc_get_tx_ring_ext(struct seq_file *m, void *v)
 				}
 				RTW_PRINT_SEL(m, "\n");
 			}
-#endif
 
 			RTW_PRINT_SEL(m, "  R/W pointer: %d/%d\n", pbuf->tx_bak_rp, pbuf->tx_bak_wp);
 
@@ -5631,43 +5569,6 @@ int proc_get_efuse_map(struct seq_file *m, void *v)
 
 ssize_t proc_set_efuse_map(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
 {
-#if 0
-	char tmp[256] = {0};
-	u32 addr, cnts;
-	u8 efuse_data;
-
-	int jj, kk;
-
-	struct net_device *dev = data;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	struct pwrctrl_priv *pwrctrlpriv  = adapter_to_pwrctl(padapter);
-	u8 ips_mode = IPS_NUM;
-
-	if (count < 3) {
-		RTW_INFO("argument size is less than 3\n");
-		return -EFAULT;
-	}
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		int num = sscanf(tmp, "%x %d %x", &addr, &cnts, &efuse_data);
-
-		if (num != 3) {
-			RTW_INFO("invalid write_reg parameter!\n");
-			return count;
-		}
-	}
-	ips_mode = pwrctrlpriv->ips_mode;
-	rtw_pm_set_ips(padapter, IPS_NONE);
-	if (rtw_efuse_map_write(padapter, addr, cnts, &efuse_data) == _FAIL)
-		RTW_INFO("WARN - rtw_efuse_map_write error!!\n");
-	rtw_pm_set_ips(padapter, ips_mode);
-#endif
 	return count;
 }
 
@@ -6910,7 +6811,6 @@ int proc_get_smps(struct seq_file *m, void *v)
 
 #endif /* CONFIG_PROC_DEBUG */
 #define RTW_BUFDUMP_BSIZE		16
-#if 1
 inline void RTW_BUF_DUMP_SEL(uint _loglevel, void *sel, u8 *_titlestring,
 					bool _idx_show, const u8 *_hexdata, int _hexdatalen)
 {
@@ -6942,89 +6842,3 @@ inline void RTW_BUF_DUMP_SEL(uint _loglevel, void *sel, u8 *_titlestring,
 	}
 #endif
 }
-#else
-inline void _RTW_STR_DUMP_SEL(void *sel, char *str_out)
-{
-	if (sel == RTW_DBGDUMP)
-		_dbgdump("%s\n", str_out);
-	#if defined(_seqdump)
-	else
-		_seqdump(sel, "%s\n", str_out);
-	#endif /*_seqdump*/
-}
-inline void RTW_BUF_DUMP_SEL(uint _loglevel, void *sel, u8 *_titlestring,
-					bool _idx_show, u8 *_hexdata, int _hexdatalen)
-{
-	int __i, len;
-	int __j, idx;
-	int block_num, remain_byte;
-	char str_out[128] = {'\0'};
-	char str_val[32] = {'\0'};
-	char *p = NULL;
-	u8 *ptr = (u8 *)_hexdata;
-
-	if (_loglevel <= rtw_drv_log_level) {
-		/*dump title*/
-		p = &str_out[0];
-		if (_titlestring) {
-			if (sel == RTW_DBGDUMP) {
-				len = snprintf(str_val, sizeof(str_val), "%s", DRIVER_PREFIX);
-                               memcpy(p, str_val, len);
-				p += len;
-			}
-                       len = snprintf(str_val, sizeof(str_val), "%s", _titlestring);
-                       memcpy(p, str_val, len);
-			p += len;
-		}
-		if (p != &str_out[0]) {
-			_RTW_STR_DUMP_SEL(sel, str_out);
-			_rtw_memset(&str_out, '\0', sizeof(str_out));
-		}
-
-		/*dump buffer*/
-		block_num = _hexdatalen / RTW_BUFDUMP_BSIZE;
-		remain_byte = _hexdatalen % RTW_BUFDUMP_BSIZE;
-		for (__i = 0; __i < block_num; __i++) {
-			p = &str_out[0];
-			if (sel == RTW_DBGDUMP) {
-				len = snprintf(str_val, sizeof(str_val), "%s", DRIVER_PREFIX);
-                               memcpy(p, str_val, len);
-				p += len;
-			}
-			if (_idx_show) {
-				len = snprintf(str_val, sizeof(str_val), "0x%03X: ", __i * RTW_BUFDUMP_BSIZE);
-                               memcpy(p, str_val, len);
-				p += len;
-			}
-			for (__j =0; __j < RTW_BUFDUMP_BSIZE; __j++) {
-				idx = __i * RTW_BUFDUMP_BSIZE + __j;
-				len = snprintf(str_val, sizeof(str_val), "%02X%s", ptr[idx], (((__j + 1) % 4) == 0) ? "  " : " ");
-                               memcpy(p, str_val, len);
-				p += len;
-			}
-			_RTW_STR_DUMP_SEL(sel, str_out);
-			_rtw_memset(&str_out, '\0', sizeof(str_out));
-		}
-
-		p = &str_out[0];
-		if ((sel == RTW_DBGDUMP) && remain_byte) {
-			len = snprintf(str_val, sizeof(str_val), "%s", DRIVER_PREFIX);
-                       memcpy(p, str_val, len);
-			p += len;
-		}
-		if (_idx_show && remain_byte) {
-			len = snprintf(str_val, sizeof(str_val), "0x%03X: ", block_num * RTW_BUFDUMP_BSIZE);
-                       memcpy(p, str_val, len);
-			p += len;
-		}
-		for (__i = 0; __i < remain_byte; __i++) {
-			idx = block_num * RTW_BUFDUMP_BSIZE + __i;
-			len = snprintf(str_val, sizeof(str_val), "%02X%s", ptr[idx], (((__i + 1) % 4) == 0) ? "  " : " ");
-                       memcpy(p, str_val, len);
-			p += len;
-		}
-		_RTW_STR_DUMP_SEL(sel, str_out);
-	}
-}
-
-#endif

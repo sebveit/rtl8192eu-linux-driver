@@ -1329,7 +1329,7 @@ void LeaveAllPowerSaveModeDirect(PADAPTER Adapter)
 		if (pwrpriv->rf_pwrstate == rf_off) {
 #ifdef CONFIG_AUTOSUSPEND
 			if (Adapter->registrypriv.usbss_enable) {
-                               usb_disable_autosuspend(adapter_to_dvobj(Adapter)->pusbdev);
+				usb_disable_autosuspend(adapter_to_dvobj(Adapter)->pusbdev);
 			} else
 #endif
 			{
@@ -1397,7 +1397,7 @@ void LeaveAllPowerSaveMode(IN PADAPTER Adapter)
 		if (adapter_to_pwrctl(Adapter)->rf_pwrstate == rf_off) {
 #ifdef CONFIG_AUTOSUSPEND
 			if (Adapter->registrypriv.usbss_enable) {
-                               usb_disable_autosuspend(adapter_to_dvobj(Adapter)->pusbdev);
+				usb_disable_autosuspend(adapter_to_dvobj(Adapter)->pusbdev);
 			} else
 #endif
 			{
@@ -1475,11 +1475,6 @@ void cpwm_int_hdl(
 		goto exit;
 
 	pwrpriv = adapter_to_pwrctl(padapter);
-#if 0
-	if (pwrpriv->cpwm_tog == (preportpwrstate->state & PS_TOGGLE)) {
-		goto exit;
-	}
-#endif
 
 	_enter_pwrlock(&pwrpriv->lock);
 
@@ -1608,16 +1603,11 @@ static void rpwmtimeout_workitem_callback(struct work_struct *work)
 #endif
 
 	if (rtw_read8(padapter, 0x100) != 0xEA) {
-#if 1
 		struct reportpwrstate_parm report;
 
 		report.state = PS_STATE_S2;
 		RTW_INFO("\n%s: FW already leave 32K!\n\n", __func__);
 		cpwm_int_hdl(padapter, &report);
-#else
-		RTW_INFO("\n%s: FW already leave 32K!\n\n", __func__);
-		cpwm_event_callback(&pwrpriv->cpwm_event);
-#endif
 		return;
 	}
 
@@ -2189,7 +2179,7 @@ void rtw_init_pwrctrl_priv(PADAPTER padapter)
 
 #ifdef CONFIG_RESUME_IN_WORKQUEUE
 	_init_workitem(&pwrctrlpriv->resume_work, resume_workitem_callback, NULL);
-       pwrctrlpriv->rtw_workqueue = alloc_workqueue("rtw_workqueue", WQ_UNBOUND | WQ_MEM_RECLAIM, 1);
+	pwrctrlpriv->rtw_workqueue = alloc_workqueue("rtw_workqueue", WQ_UNBOUND | WQ_MEM_RECLAIM, 1);
 #endif /* CONFIG_RESUME_IN_WORKQUEUE */
 
 #if defined(CONFIG_HAS_EARLYSUSPEND) || defined(CONFIG_ANDROID_POWER)
@@ -2328,11 +2318,7 @@ void rtw_resume_in_workqueue(struct pwrctrl_priv *pwrpriv)
 
 	rtw_resume_lock_suspend();
 
-#if 1
 	queue_work(pwrpriv->rtw_workqueue, &pwrpriv->resume_work);
-#else
-	_set_workitem(&pwrpriv->resume_work);
-#endif
 }
 #endif /* CONFIG_RESUME_IN_WORKQUEUE */
 
@@ -2558,8 +2544,8 @@ int _rtw_pwr_wakeup(_adapter *padapter, u32 ips_deffer_ms, const char *caller)
 #if defined(CONFIG_BT_COEXIST) && defined (CONFIG_AUTOSUSPEND)
 		if (_TRUE == pwrpriv->bInternalAutoSuspend) {
 			if (0 == pwrpriv->autopm_cnt) {
-                               if (usb_autopm_get_interface(adapter_to_dvobj(padapter)->pusbintf) < 0)
-                                       RTW_INFO("can't get autopm:\n");
+				if (usb_autopm_get_interface(adapter_to_dvobj(padapter)->pusbintf) < 0)
+					RTW_INFO("can't get autopm:\n");
 				pwrpriv->autopm_cnt++;
 			}
 #endif	/* #if defined (CONFIG_BT_COEXIST) && defined (CONFIG_AUTOSUSPEND) */

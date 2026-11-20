@@ -132,11 +132,7 @@ void odm_config_bb_phy_reg_pg_8192e(struct dm_struct *dm, u32 band, u32 rf_path,
 		ODM_delay_ms(50);
 #endif
 	else {
-#if (DM_ODM_SUPPORT_TYPE & ODM_CE)
 		phy_store_tx_power_by_rate(dm->adapter, band, rf_path, tx_num, addr, bitmask, data);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-		PHY_StoreTxPowerByRate(dm->adapter, band, rf_path, tx_num, addr, bitmask, data);
-#endif
 	}
 	PHYDM_DBG(dm, ODM_COMP_INIT,
 		  "===> odm_config_bb_with_header_file: [PHY_REG] %08X %08X %08X\n",
@@ -176,13 +172,8 @@ void odm_config_bb_txpwr_lmt_8192e(struct dm_struct *dm, u8 *regulation,
 				   u8 *band, u8 *bandwidth, u8 *rate_section,
 				   u8 *rf_path, u8 *channel, u8 *power_limit)
 {
-#if (DM_ODM_SUPPORT_TYPE & ODM_CE)
 	phy_set_tx_power_limit(dm, regulation, band,
 			       bandwidth, rate_section, rf_path, channel, power_limit);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	PHY_SetTxPowerLimit(dm, regulation, band,
-			    bandwidth, rate_section, rf_path, channel, power_limit);
-#endif
 }
 
 #endif

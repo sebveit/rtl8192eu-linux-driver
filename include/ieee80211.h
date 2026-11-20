@@ -414,7 +414,6 @@ struct ieee_ibss_seq {
 	_list	list;
 };
 
-#if defined(PLATFORM_LINUX) || defined(CONFIG_RTL8711FW)
 
 struct rtw_ieee80211_hdr {
 	u16 frame_ctl;
@@ -487,7 +486,6 @@ struct rtw_ieee80211s_hdr {
 	u32 rann_interval;
 	u32 rann_metric;
 } __attribute__((packed));
-#endif
 
 
 
@@ -602,7 +600,6 @@ enum eap_type {
 
 #define P80211_OUI_LEN 3
 
-#if defined(PLATFORM_LINUX) || defined(CONFIG_RTL8711FW)
 
 struct ieee80211_snap_hdr {
 
@@ -613,7 +610,6 @@ struct ieee80211_snap_hdr {
 
 } __attribute__((packed));
 
-#endif
 
 
 
@@ -1172,7 +1168,6 @@ struct ieee80211_softmac_stats {
 #define BIP_MAX_KEYID 5
 #define BIP_AAD_SIZE  20
 
-#if defined(PLATFORM_LINUX) || defined(CONFIG_RTL8711FW)
 
 struct ieee80211_security {
 	u16 active_key:2,
@@ -1186,7 +1181,6 @@ struct ieee80211_security {
 	u16 flags;
 } __attribute__((packed));
 
-#endif
 
 
 /*
@@ -1229,7 +1223,6 @@ struct ieee80211_header_data {
 #define MFIE_TYPE_RATES_EX   50
 #define MFIE_TYPE_GENERIC    221
 
-#if defined(PLATFORM_LINUX) || defined(CONFIG_RTL8711FW)
 
 struct ieee80211_info_element_hdr {
 	u8 id;
@@ -1241,7 +1234,6 @@ struct ieee80211_info_element {
 	u8 len;
 	u8 data[0];
 } __attribute__((packed));
-#endif
 
 
 
@@ -1266,7 +1258,6 @@ struct ieee80211_info_element {
 #define IEEE80211_DEFAULT_BASIC_RATE 10
 
 
-#if defined(PLATFORM_LINUX) || defined(CONFIG_RTL8711FW)
 
 
 struct ieee80211_authentication {
@@ -1306,7 +1297,6 @@ struct ieee80211_assoc_response_frame {
 	u16 aid;
 	/*	struct ieee80211_info_element info_element;  supported rates  */
 } __attribute__((packed));
-#endif
 
 
 
@@ -1358,49 +1348,6 @@ struct ieee80211_txb {
 #define IEEE80211_PS_UNICAST IEEE80211_DTIM_UCAST
 #define IEEE80211_PS_MBCAST IEEE80211_DTIM_MBCAST
 #define IW_ESSID_MAX_SIZE 32
-#if 0
-struct ieee80211_network {
-	/* These entries are used to identify a unique network */
-	u8 bssid[ETH_ALEN];
-	u8 channel;
-	/* Ensure null-terminated for any debug msgs */
-	u8 ssid[IW_ESSID_MAX_SIZE + 1];
-	u8 ssid_len;
-	u8	rssi;	/* relative signal strength */
-	u8	sq;		/* signal quality */
-
-	/* These are network statistics */
-	/* struct ieee80211_rx_stats stats; */
-	u16 capability;
-	u16	aid;
-	u8 rates[MAX_RATES_LENGTH];
-	u8 rates_len;
-	u8 rates_ex[MAX_RATES_EX_LENGTH];
-	u8 rates_ex_len;
-
-	u8 edca_parmsets[18];
-
-	u8 mode;
-	u8 flags;
-	u8 time_stamp[8];
-	u16 beacon_interval;
-	u16 listen_interval;
-	u16 atim_window;
-	u8 wpa_ie[MAX_WPA_IE_LEN];
-	size_t wpa_ie_len;
-	u8 rsn_ie[MAX_WPA_IE_LEN];
-	size_t rsn_ie_len;
-	u8 country[6];
-	u8 dtim_period;
-	u8 dtim_data;
-	u8 power_constraint;
-	u8 qosinfo;
-	u8 qbssload[5];
-	u8 network_type;
-	int join_res;
-	unsigned long	last_scanned;
-};
-#endif
 /*
 join_res:
 -1: authentication fail
@@ -1480,17 +1427,6 @@ typedef struct tx_pending_t {
 int ieee80211_is_empty_essid(const char *essid, int essid_len);
 int ieee80211_get_hdrlen(u16 fc);
 
-#if 0
-	/* Action frame categories (IEEE 802.11-2007, 7.3.1.11, Table 7-24) */
-	#define WLAN_ACTION_SPECTRUM_MGMT 0
-	#define WLAN_ACTION_QOS 1
-	#define WLAN_ACTION_DLS 2
-	#define WLAN_ACTION_BLOCK_ACK 3
-	#define WLAN_ACTION_RADIO_MEASUREMENT 5
-	#define WLAN_ACTION_FT 6
-	#define WLAN_ACTION_SA_QUERY 8
-	#define WLAN_ACTION_WMM 17
-#endif
 
 
 /* Action category code */

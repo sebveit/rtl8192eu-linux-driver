@@ -171,12 +171,8 @@ static inline u32 RTW_SN_DELTA(u32 x, u32 y)
 	rtw_ms_to_systime(adapter->mesh_cfg.dot11MeshHWMPconfirmationInterval)
 
 
-#ifdef PLATFORM_LINUX
 #define rtw_print_ratelimit()	printk_ratelimit()
 #define rtw_mod_timer(ptimer, expires) mod_timer(&(ptimer)->timer, expires)
-#else
-
-#endif
 
 #define RTW_MESH_EWMA_PRECISION 20
 #define RTW_MESH_EWMA_WEIGHT_RCP 8
@@ -1462,10 +1458,6 @@ void rtw_mesh_path_timer(void *ctx)
 	struct rtw_mesh_cfg *mshcfg = &adapter->mesh_cfg;
 #endif
 	/* TBD: Proctect for suspend */
-#if 0
-	if (suspending)
-		return;
-#endif
 	enter_critical_bh(&path->state_lock);
 	if (path->flags & RTW_MESH_PATH_RESOLVED ||
 			(!(path->flags & RTW_MESH_PATH_RESOLVING))) {

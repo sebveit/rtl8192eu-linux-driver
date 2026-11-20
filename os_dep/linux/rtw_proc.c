@@ -41,20 +41,20 @@ inline struct proc_dir_entry *get_rtw_drv_proc(void)
 
 inline struct proc_dir_entry *rtw_proc_create_dir(const char *name, struct proc_dir_entry *parent, void *data)
 {
-        return proc_mkdir_data(name, S_IRUGO | S_IXUGO, parent, data);
+	return proc_mkdir_data(name, S_IRUGO | S_IXUGO, parent, data);
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
 inline struct proc_dir_entry *rtw_proc_create_entry(const char *name, struct proc_dir_entry *parent,
-        const struct proc_ops *fops, void * data)
+	const struct proc_ops *fops, void * data)
 {
-        return proc_create_data(name,  S_IFREG | S_IRUGO | S_IWUGO, parent, fops, data);
+	return proc_create_data(name,  S_IFREG | S_IRUGO | S_IWUGO, parent, fops, data);
 }
 #else
 inline struct proc_dir_entry *rtw_proc_create_entry(const char *name, struct proc_dir_entry *parent,
-        const struct file_operations *fops, void * data)
+	const struct file_operations *fops, void * data)
 {
-        return proc_create_data(name,  S_IFREG | S_IRUGO | S_IWUGO, parent, fops, data);
+	return proc_create_data(name,  S_IFREG | S_IRUGO | S_IWUGO, parent, fops, data);
 }
 #endif
 

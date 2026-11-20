@@ -373,315 +373,7 @@ u8 phydm_pwr_2_percent(s8 ant_power)
 		return 100 + ant_power;
 }
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
 
-#if 0 /*(DM_ODM_SUPPORT_TYPE == ODM_CE)*/
-s32 phydm_signal_scale_mapping_92c_series(struct dm_struct *dm, s32 curr_sig)
-{
-	s32 ret_sig = 0;
-
-#if (DEV_BUS_TYPE == RT_PCI_INTERFACE)
-	if (dm->support_interface == ODM_ITRF_PCIE) {
-		/* step 1. Scale mapping. */
-		if (curr_sig >= 61 && curr_sig <= 100)
-			ret_sig = 90 + ((curr_sig - 60) / 4);
-		else if (curr_sig >= 41 && curr_sig <= 60)
-			ret_sig = 78 + ((curr_sig - 40) / 2);
-		else if (curr_sig >= 31 && curr_sig <= 40)
-			ret_sig = 66 + (curr_sig - 30);
-		else if (curr_sig >= 21 && curr_sig <= 30)
-			ret_sig = 54 + (curr_sig - 20);
-		else if (curr_sig >= 5 && curr_sig <= 20)
-			ret_sig = 42 + (((curr_sig - 5) * 2) / 3);
-		else if (curr_sig == 4)
-			ret_sig = 36;
-		else if (curr_sig == 3)
-			ret_sig = 27;
-		else if (curr_sig == 2)
-			ret_sig = 18;
-		else if (curr_sig == 1)
-			ret_sig = 9;
-		else
-			ret_sig = curr_sig;
-	}
-#endif
-
-#if ((DEV_BUS_TYPE == RT_USB_INTERFACE) || (DEV_BUS_TYPE == RT_SDIO_INTERFACE))
-	if (dm->support_interface == ODM_ITRF_USB ||
-	    dm->support_interface == ODM_ITRF_SDIO) {
-		if (curr_sig >= 51 && curr_sig <= 100)
-			ret_sig = 100;
-		else if (curr_sig >= 41 && curr_sig <= 50)
-			ret_sig = 80 + ((curr_sig - 40) * 2);
-		else if (curr_sig >= 31 && curr_sig <= 40)
-			ret_sig = 66 + (curr_sig - 30);
-		else if (curr_sig >= 21 && curr_sig <= 30)
-			ret_sig = 54 + (curr_sig - 20);
-		else if (curr_sig >= 10 && curr_sig <= 20)
-			ret_sig = 42 + (((curr_sig - 10) * 2) / 3);
-		else if (curr_sig >= 5 && curr_sig <= 9)
-			ret_sig = 22 + (((curr_sig - 5) * 3) / 2);
-		else if (curr_sig >= 1 && curr_sig <= 4)
-			ret_sig = 6 + (((curr_sig - 1) * 3) / 2);
-		else
-			ret_sig = curr_sig;
-	}
-
-#endif
-	return ret_sig;
-}
-
-s32 phydm_signal_scale_mapping(struct dm_struct *dm, s32 curr_sig)
-{
-#ifdef CONFIG_SIGNAL_SCALE_MAPPING
-	return phydm_signal_scale_mapping_92c_series(dm, curr_sig);
-#else
-	return curr_sig;
-#endif
-}
-#endif
-
-void phydm_process_signal_strength(struct dm_struct *dm,
-				   struct phydm_phyinfo_struct *phy_info,
-				   struct phydm_perpkt_info_struct *pktinfo)
-{
-	u8 avg_rssi = 0, tmp_rssi = 0, best_rssi = 0, second_rssi = 0;
-	u8 ss = 0; /*signal strenth after scale mapping*/
-	u8 pwdb = phy_info->rx_pwdb_all;
-	u8 i;
-
-	/*use the best two RSSI only*/
-	for (i = RF_PATH_A; i < PHYDM_MAX_RF_PATH; i++) {
-		tmp_rssi = phy_info->rx_mimo_signal_strength[i];
-
-		/*@Get the best two RSSI*/
-		if (tmp_rssi > best_rssi && tmp_rssi > second_rssi) {
-			second_rssi = best_rssi;
-			best_rssi = tmp_rssi;
-		} else if (tmp_rssi > second_rssi && tmp_rssi <= best_rssi) {
-			second_rssi = tmp_rssi;
-		}
-	}
-
-	if (best_rssi == 0)
-		return;
-
-	if (pktinfo->rate_ss == 1)
-		avg_rssi = best_rssi;
-	else
-		avg_rssi = (best_rssi + second_rssi) >> 1;
-
-	if (dm->support_ic_type & PHYSTS_3RD_TYPE_IC) {
-	#ifdef PHYSTS_3RD_TYPE_SUPPORT
-		/* Update signal strength to UI,
-		 * and phy_info->rx_pwdb_all is the maximum RSSI of all path
-		 */
-		#if 1 /*(DM_ODM_SUPPORT_TYPE == ODM_WIN)*/
-		ss = SignalScaleProc(dm->adapter, pwdb, false, false);
-		#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
-		ss = (u8)phydm_signal_scale_mapping(dm, pwdb);
-		#elif (DM_ODM_SUPPORT_TYPE == ODM_IOT)
-		ss = (u8)phydm_signal_scale_mapping(dm, pwdb);
-		#endif
-
-	#endif
-	} else if (dm->support_ic_type & PHYSTS_2ND_TYPE_IC) {
-	#if (ODM_PHY_STATUS_NEW_TYPE_SUPPORT)
-		/* Update signal strength to UI,
-		 * and phy_info->rx_pwdb_all is the maximum RSSI of all path
-		 */
-		#if 1 /*(DM_ODM_SUPPORT_TYPE == ODM_WIN)*/
-		ss = SignalScaleProc(dm->adapter, pwdb, false, false);
-		#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
-		ss = (u8)phydm_signal_scale_mapping(dm, pwdb);
-		#endif
-
-	#endif
-	} else if (dm->support_ic_type & ODM_IC_11AC_SERIES) {
-	#if ODM_IC_11AC_SERIES_SUPPORT
-		if (pktinfo->is_cck_rate)
-			#if 1/*(DM_ODM_SUPPORT_TYPE == ODM_WIN)*/
-			ss = SignalScaleProc(dm->adapter, pwdb, 0, 1);
-			#else
-			ss = (u8)phydm_signal_scale_mapping(dm, pwdb);
-			#endif
-		else
-			#if 1 /*(DM_ODM_SUPPORT_TYPE == ODM_WIN)*/
-			ss = SignalScaleProc(dm->adapter, avg_rssi, 0, 1);
-			#else
-			ss = (u8)phydm_signal_scale_mapping(dm, avg_rssi);
-			#endif
-	#endif
-	} else if (dm->support_ic_type & ODM_IC_11N_SERIES) {
-	#if ODM_IC_11N_SERIES_SUPPORT
-		if (pktinfo->is_cck_rate)
-			#if 1/*(DM_ODM_SUPPORT_TYPE == ODM_WIN)*/
-			ss = SignalScaleProc(dm->adapter, pwdb, 1, 1);
-			#else
-			ss = (u8)phydm_signal_scale_mapping(dm, pwdb);
-			#endif
-		else
-			#if 1 /*(DM_ODM_SUPPORT_TYPE == ODM_WIN)*/
-			ss = SignalScaleProc(dm->adapter, avg_rssi, 1, 0);
-			#else
-			ss = (u8)phydm_signal_scale_mapping(dm, avg_rssi);
-			#endif
-	#endif
-	}
-	phy_info->signal_strength = ss;
-}
-#endif
-
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-static u8 phydm_sq_patch_lenovo(
-	struct dm_struct *dm,
-	u8 is_cck_rate,
-	u8 pwdb_all,
-	u8 path,
-	u8 RSSI)
-{
-	u8 sq = 0;
-
-	if (is_cck_rate) {
-		if (dm->support_ic_type & ODM_RTL8192E) {
-/*@
- * <Roger_Notes>
- * Expected signal strength and bars indication at Lenovo lab. 2013.04.11
- * 802.11n, 802.11b, 802.11g only at channel 6
- *
- *	Attenuation (dB)	OS Signal Bars	RSSI by Xirrus (dBm)
- *		50				5			-49
- *		55				5			-49
- *		60				5			-50
- *		65				5			-51
- *		70				5			-52
- *		75				5			-54
- *		80				5			-55
- *		85				4			-60
- *		90				3			-63
- *		95				3			-65
- *		100				2			-67
- *		102				2			-67
- *		104				1			-70
- */
-			if (pwdb_all >= 50)
-				sq = 100;
-			else if (pwdb_all >= 35 && pwdb_all < 50)
-				sq = 80;
-			else if (pwdb_all >= 31 && pwdb_all < 35)
-				sq = 60;
-			else if (pwdb_all >= 22 && pwdb_all < 31)
-				sq = 40;
-			else if (pwdb_all >= 18 && pwdb_all < 22)
-				sq = 20;
-			else
-				sq = 10;
-		} else {
-			if (pwdb_all >= 50)
-				sq = 100;
-			else if (pwdb_all >= 35 && pwdb_all < 50)
-				sq = 80;
-			else if (pwdb_all >= 22 && pwdb_all < 35)
-				sq = 60;
-			else if (pwdb_all >= 18 && pwdb_all < 22)
-				sq = 40;
-			else
-				sq = 10;
-		}
-
-	} else {
-		/* OFDM rate */
-
-		if (dm->support_ic_type & ODM_RTL8192E) {
-			if (RSSI >= 45)
-				sq = 100;
-			else if (RSSI >= 22 && RSSI < 45)
-				sq = 80;
-			else if (RSSI >= 18 && RSSI < 22)
-				sq = 40;
-			else
-				sq = 20;
-		} else {
-			if (RSSI >= 45)
-				sq = 100;
-			else if (RSSI >= 22 && RSSI < 45)
-				sq = 80;
-			else if (RSSI >= 18 && RSSI < 22)
-				sq = 40;
-			else
-				sq = 20;
-		}
-	}
-	return sq;
-}
-
-static u8 phydm_sq_patch_rt_cid_819x_acer(
-	struct dm_struct *dm,
-	u8 is_cck_rate,
-	u8 pwdb_all,
-	u8 path,
-	u8 RSSI)
-{
-	u8 sq = 0;
-
-	if (is_cck_rate) {
-#if OS_WIN_FROM_WIN8(OS_VERSION)
-		if (pwdb_all >= 50)
-			sq = 100;
-		else if (pwdb_all >= 35 && pwdb_all < 50)
-			sq = 80;
-		else if (pwdb_all >= 30 && pwdb_all < 35)
-			sq = 60;
-		else if (pwdb_all >= 25 && pwdb_all < 30)
-			sq = 40;
-		else if (pwdb_all >= 20 && pwdb_all < 25)
-			sq = 20;
-		else
-			sq = 10;
-#else
-		if (pwdb_all >= 50)
-			sq = 100;
-		else if (pwdb_all >= 35 && pwdb_all < 50)
-			sq = 80;
-		else if (pwdb_all >= 30 && pwdb_all < 35)
-			sq = 60;
-		else if (pwdb_all >= 25 && pwdb_all < 30)
-			sq = 40;
-		else if (pwdb_all >= 20 && pwdb_all < 25)
-			sq = 20;
-		else
-			sq = 10;
-
-		/* @Abnormal case, do not indicate the value above 20 on Win7 */
-		if (pwdb_all == 0)
-			sq = 20;
-#endif
-
-	} else {
-		/* OFDM rate */
-		if (dm->support_ic_type & ODM_RTL8192E) {
-			if (RSSI >= 45)
-				sq = 100;
-			else if (RSSI >= 22 && RSSI < 45)
-				sq = 80;
-			else if (RSSI >= 18 && RSSI < 22)
-				sq = 40;
-			else
-				sq = 20;
-		} else {
-			if (RSSI >= 35)
-				sq = 100;
-			else if (RSSI >= 30 && RSSI < 35)
-				sq = 80;
-			else if (RSSI >= 25 && RSSI < 30)
-				sq = 40;
-			else
-				sq = 20;
-		}
-	}
-	return sq;
-}
-#endif
 
 static u8
 phydm_evm_2_percent(s8 value)
@@ -963,18 +655,8 @@ void phydm_phy_sts_n_parsing(struct dm_struct *dm,
 		phy_info->recv_signal_power = rx_pwr_all;
 
 		/* @(3) Get Signal Quality (EVM) */
-		#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-		if (dm->iot_table.win_patch_id == RT_CID_819X_LENOVO)
-			sq = phydm_sq_patch_lenovo(dm, pktinfo->is_cck_rate, pwdb_all, 0, 0);
-		else if (dm->iot_table.win_patch_id == RT_CID_819X_ACER)
-			sq = phydm_sq_patch_rt_cid_819x_acer(dm, pktinfo->is_cck_rate, pwdb_all, 0, 0);
-		else
-		#endif
 			sq = phydm_get_signal_quality(phy_info, dm, phy_sts);
 
-#if 0
-		/* @dbg_print("cck sq = %d\n", sq); */
-#endif
 		phy_info->signal_quality = sq;
 		phy_info->rx_mimo_signal_quality[RF_PATH_A] = sq;
 		phy_info->rx_mimo_signal_quality[RF_PATH_B] = -1;
@@ -1011,14 +693,6 @@ void phydm_phy_sts_n_parsing(struct dm_struct *dm,
 
 			/* Record Signal Strength for next packet */
 
-			#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-			if (i == RF_PATH_A) {
-				if (dm->iot_table.win_patch_id == RT_CID_819X_LENOVO) {
-					phy_info->signal_quality = phydm_sq_patch_lenovo(dm, pktinfo->is_cck_rate, pwdb_all, i, RSSI);
-				} else if (dm->iot_table.win_patch_id == RT_CID_819X_ACER)
-					phy_info->signal_quality = phydm_sq_patch_rt_cid_819x_acer(dm, pktinfo->is_cck_rate, pwdb_all, 0, RSSI);
-			}
-			#endif
 		}
 
 		/* @(2)PWDB, Average PWDB calculated by hardware (for RA) */
@@ -1110,18 +784,7 @@ void phydm_get_sq(struct dm_struct *dm, struct phydm_phyinfo_struct *phy_info,
 {
 	u8 sq = 0;
 	u8 pwdb_all = phy_info->rx_pwdb_all; /*precentage*/
-	#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	u8 rssi = phy_info->rx_mimo_signal_strength[0];
-	#endif
 
-	#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	if (dm->iot_table.win_patch_id == RT_CID_819X_LENOVO) {
-		if (is_cck_rate)
-			sq = phydm_sq_patch_lenovo(dm, 1, pwdb_all, 0, 0);
-		else
-			sq = phydm_sq_patch_lenovo(dm, 0, pwdb_all, 0, rssi);
-	} else
-	#endif
 	{
 		if (is_cck_rate) {
 			if (pwdb_all > 40 && !dm->is_in_hct_test) {
@@ -1139,9 +802,6 @@ void phydm_get_sq(struct dm_struct *dm, struct phydm_phyinfo_struct *phy_info,
 		}
 	}
 
-#if 0
-	/* @dbg_print("cck sq = %d\n", sq); */
-#endif
 	phy_info->signal_quality = sq;
 }
 
@@ -1367,9 +1027,6 @@ void phydm_process_rssi_for_dm(struct dm_struct *dm,
 	struct cmn_sta_info *sta = NULL;
 	struct rssi_info *rssi_t = NULL;
 	#ifdef CONFIG_PHYDM_ANTENNA_DIVERSITY
-	#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
-	struct phydm_fat_struct *fat_tab = &dm->dm_fat_table;
-	#endif
 	#endif
 
 	if (pktinfo->station_id >= ODM_ASSOCIATE_ENTRY_NUM)
@@ -1387,22 +1044,6 @@ void phydm_process_rssi_for_dm(struct dm_struct *dm,
 	rssi_t = &sta->rssi_stat;
 
 	#ifdef CONFIG_PHYDM_ANTENNA_DIVERSITY
-	#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
-	if ((dm->support_ability & ODM_BB_ANT_DIV) &&
-	    fat_tab->enable_ctrl_frame_antdiv) {
-		if (pktinfo->is_packet_match_bssid)
-			dm->data_frame_num++;
-
-		if (fat_tab->use_ctrl_frame_antdiv) {
-			if (!pktinfo->is_to_self) /*@data frame + CTRL frame*/
-				return;
-		} else {
-			/*@data frame only*/
-			if (!pktinfo->is_packet_match_bssid)
-				return;
-		}
-	} else
-	#endif
 	#endif
 	{
 		if (!pktinfo->is_packet_match_bssid) /*@data frame only*/
@@ -1569,11 +1210,6 @@ void phydm_process_rssi_for_dm(struct dm_struct *dm,
 			  rssi_all, rssi_t->ofdm_pkt_cnt, rssi_t->cck_pkt_cnt);
 	}
 
-#if 0
-	/* @dbg_print("ofdm_pkt=%d, weighting=%d\n", ofdm_pkt_cnt, weighting);*/
-	/* @dbg_print("rssi_ofdm_tmp=%d, rssi_all=%d, rssi_cck_tmp=%d\n", */
-	/*	rssi_ofdm_tmp, rssi_all, rssi_cck_tmp); */
-#endif
 }
 #endif
 
@@ -1843,15 +1479,6 @@ void phydm_common_phy_info_3rd(s8 rx_power, u8 channel, boolean is_beamformed,
 	phy_info->signal_quality = signal_quality; /* signal quality */
 	phy_info->band_width = bandwidth; /* @bandwidth */
 
-#if 0
-	/* @if (pktinfo->is_packet_match_bssid) */
-	{
-		dbg_print("rx_pwdb_all = %d, rx_power = %d, recv_signal_power = %d\n", phy_info->rx_pwdb_all, phy_info->rx_power, phy_info->recv_signal_power);
-		dbg_print("signal_quality = %d\n", phy_info->signal_quality);
-		dbg_print("is_beamformed = %d, is_mu_packet = %d, rx_count = %d\n", phy_info->is_beamformed, phy_info->is_mu_packet, phy_info->rx_count + 1);
-		dbg_print("channel = %d, rxsc = %d, band_width = %d\n", channel, rxsc, bandwidth);
-	}
-#endif
 }
 
 void phydm_get_physts_jarguar3_0(struct dm_struct *dm, u8 *phy_status_inf,
@@ -2486,10 +2113,6 @@ void phydm_print_phy_sts_jgr2(struct dm_struct *dm, u8 *phy_status_inf,
 	}
 
 	dbg->show_phy_sts_cnt++;
-	#if 0
-	dbg_print("cnt=%d, max=%d\n",
-		  dbg->show_phy_sts_cnt, dbg->show_phy_sts_max_cnt);
-	#endif
 
 	if (dbg->show_phy_sts_max_cnt != SHOW_PHY_STATUS_UNLIMITED) {
 		if (dbg->show_phy_sts_cnt > dbg->show_phy_sts_max_cnt)
@@ -2608,21 +2231,6 @@ void phydm_set_per_path_phy_info(u8 rx_path, s8 pwr, s8 rx_evm, s8 cfo_tail,
 	phy_info->rx_snr[rx_path] = rx_snr >> 1;
 	phy_info->ant_idx[rx_path] = ant_idx;
 
-#if 0
-	if (!pktinfo->is_packet_match_bssid)
-		return;
-
-	dbg_print("path (%d)--------\n", rx_path);
-	dbg_print("rx_pwr = %d, Signal strength = %d\n",
-		  phy_info->rx_pwr[rx_path],
-		  phy_info->rx_mimo_signal_strength[rx_path]);
-	dbg_print("evm_dbm = %d, Signal quality = %d\n",
-		  phy_info->rx_mimo_evm_dbm[rx_path],
-		  phy_info->rx_mimo_signal_quality[rx_path]);
-	dbg_print("CFO = %d, SNR = %d\n",
-		  phy_info->cfo_tail[rx_path], phy_info->rx_snr[rx_path]);
-
-#endif
 }
 
 void phydm_set_common_phy_info(s8 rx_power, u8 channel, boolean is_beamformed,
@@ -2642,21 +2250,6 @@ void phydm_set_common_phy_info(s8 rx_power, u8 channel, boolean is_beamformed,
 	phy_info->signal_quality = signal_quality; /* signal quality */
 	phy_info->band_width = bandwidth; /* @bandwidth */
 
-#if 0
-	if (!pktinfo->is_packet_match_bssid)
-		return;
-
-	dbg_print("rx_pwdb_all = %d, rx_power = %d, recv_signal_power = %d\n",
-		  phy_info->rx_pwdb_all, phy_info->rx_power,
-		  phy_info->recv_signal_power);
-	dbg_print("signal_quality = %d\n", phy_info->signal_quality);
-	dbg_print("is_beamformed = %d, is_mu_packet = %d, rx_count = %d\n",
-		  phy_info->is_beamformed, phy_info->is_mu_packet,
-		  phy_info->rx_count + 1);
-	dbg_print("channel = %d, rxsc = %d, band_width = %d\n", channel,
-		  rxsc, bandwidth);
-
-#endif
 }
 
 void phydm_get_phy_sts_type0(struct dm_struct *dm, u8 *phy_status_inf,
@@ -3025,16 +2618,6 @@ void phydm_process_rssi_for_dm_2nd_type(struct dm_struct *dm,
 		rssi_t->rssi = (s8)GET_MA_VAL(rssi_t->rssi_acc, RSSI_MA);
 	}
 
-	#if 0
-	PHYDM_DBG(dm, DBG_TMP, "RSSI[%d]{A,B,C,D}={%d, %d, %d, %d} AVG=%d\n",
-		  pktinfo->station_id,
-		  phy_info->rx_mimo_signal_strength[0],
-		  phy_info->rx_mimo_signal_strength[1],
-		  phy_info->rx_mimo_signal_strength[2],
-		  phy_info->rx_mimo_signal_strength[3], rssi_db);
-	PHYDM_DBG(dm, DBG_TMP, "rssi_acc = %d, rssi=%d\n",
-		  rssi_t->rssi_acc, rssi_t->rssi);
-	#endif
 
 	if (pktinfo->is_cck_rate)
 		rssi_t->rssi_cck = (s8)rssi_db;
@@ -3128,9 +2711,6 @@ void odm_phy_status_query(struct dm_struct *dm,
 		#endif
 	}
 	phy_info->signal_strength = phy_info->rx_pwdb_all;
-	#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	phydm_process_signal_strength(dm, phy_info, pktinfo);
-	#endif
 
 	if (pktinfo->is_packet_match_bssid) {
 		dm->curr_station_id = pktinfo->station_id;
