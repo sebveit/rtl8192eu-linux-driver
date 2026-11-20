@@ -1729,7 +1729,6 @@ unsigned int OnBeacon(_adapter *padapter, union recv_frame *precv_frame)
 	int ret = _SUCCESS;
 #ifdef CONFIG_TDLS
 	struct sta_info *ptdls_sta;
-	struct tdls_info *ptdlsinfo = &padapter->tdlsinfo;
 #ifdef CONFIG_TDLS_CH_SW
 	struct tdls_ch_switch *pchsw_info = &padapter->tdlsinfo.chsw_info;
 #endif
@@ -9675,7 +9674,7 @@ static int issue_action_ba(_adapter *padapter, unsigned char *raddr, unsigned ch
 	u16	start_seq;
 	u16	BA_para_set;
 	u16	BA_timeout_value;
-	u16	BA_starting_seqctrl;
+	u16	BA_starting_seqctrl = 0;
 	struct xmit_frame		*pmgntframe;
 	struct pkt_attrib		*pattrib;
 	u8					*pframe;
@@ -12152,7 +12151,6 @@ void linked_status_chk_tdls(_adapter *padapter)
 	};
 	struct sta_priv *pstapriv = &padapter->stapriv;
 	_irqL irqL;
-	u8 ack_chk;
 	struct sta_info *psta;
 	int i, num_teardown = 0, num_checkalive = 0;
 	_list	*plist, *phead;
@@ -12168,7 +12166,7 @@ void linked_status_chk_tdls(_adapter *padapter)
 	_rtw_memset(checkalive, 0x00, sizeof(checkalive));
 	_rtw_memset(teardown, 0x00, sizeof(teardown));
 
-	if ((padapter->tdlsinfo.link_established == _TRUE)) {
+	if (padapter->tdlsinfo.link_established == _TRUE) {
 		_enter_critical_bh(&pstapriv->sta_hash_lock, &irqL);
 		for (i = 0; i < NUM_STA; i++) {
 			phead = &(pstapriv->sta_hash[i]);
@@ -14545,14 +14543,10 @@ operation_by_state:
 
 #ifdef CONFIG_SCAN_BACKOP
 	case SCAN_BACKING_OP: {
-		u8 back_ch, back_bw, back_ch_offset;
-		u8 need_ch_setting_union = _TRUE;
+		u8 back_ch = 0, back_bw = 0, back_ch_offset = 0;
 
-
-		if (need_ch_setting_union) {
-			if (rtw_mi_get_ch_setting_union(padapter, &back_ch, &back_bw, &back_ch_offset) == 0)
-				rtw_warn_on(1);
-		}
+		if (rtw_mi_get_ch_setting_union(padapter, &back_ch, &back_bw, &back_ch_offset) == 0)
+			rtw_warn_on(1);
 
 		#ifdef DBG_SITESURVEY
 			RTW_INFO(FUNC_ADPT_FMT" %s ch:%u, bw:%u, offset:%u at %dms\n"
@@ -15737,8 +15731,6 @@ u8 set_csa_hdl(_adapter *adapter, unsigned char *pbuf)
 u8 tdls_hdl(_adapter *padapter, unsigned char *pbuf)
 {
 #ifdef CONFIG_TDLS
-	_irqL irqL;
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	struct tdls_info *ptdlsinfo = &padapter->tdlsinfo;
 #ifdef CONFIG_TDLS_CH_SW
 	struct tdls_ch_switch *pchsw_info = &ptdlsinfo->chsw_info;
@@ -15748,9 +15740,8 @@ u8 tdls_hdl(_adapter *padapter, unsigned char *pbuf)
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &pmlmeext->mlmext_info;
 	struct sta_info *ap_sta = rtw_get_stainfo(&padapter->stapriv, get_my_bssid(&(pmlmeinfo->network)));
-	u8 survey_channel, i, min, option;
+	u8 option;
 	struct tdls_txmgmt txmgmt;
-	u32 setchtime, resp_sleep = 0, wait_time;
 	u8 zaddr[ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 	u8 ret;
 	u8 doiqk;

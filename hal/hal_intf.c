@@ -234,8 +234,10 @@ void rtw_hal_sw_led_deinit(_adapter *padapter)
 
 u32 rtw_hal_power_on(_adapter *padapter)
 {
-	u32 ret = 0;
+#ifdef CONFIG_BT_COEXIST
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(padapter);
+#endif
+	u32 ret = 0;
 
 	ret = padapter->hal_func.hal_power_on(padapter);
 

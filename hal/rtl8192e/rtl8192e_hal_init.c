@@ -342,6 +342,9 @@ FirmwareDownload8192E(
 	u8	write_fw = 0;
 	systime fwdl_start_time;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
+#ifdef CONFIG_WOWLAN
+	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(Adapter);
+#endif
 
 	PRT_FIRMWARE_8192E	pFirmware = NULL;
 	u8				*pFwHdr = NULL;
@@ -2962,7 +2965,9 @@ _BeaconFunctionEnable(
 
 void _InitBeaconParameters_8192E(PADAPTER Adapter)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
+#ifdef CONFIG_BT_COEXIST
+	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
+#endif
 	u16 val16;
 	u8  val8;
 

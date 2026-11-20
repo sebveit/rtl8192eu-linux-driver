@@ -4239,7 +4239,6 @@ static u8 rtw_hal_pause_rx_dma(_adapter *adapter)
 	u8 ret = 0;
 	s8 trycnt = 100;
 	u32 tmp = 0;
-	int res = 0;
 	/* RX DMA stop */
 	RTW_PRINT("Pause DMA\n");
 	rtw_write32(adapter, REG_RXPKT_NUM,
@@ -4424,7 +4423,6 @@ static void rtw_hal_update_gtk_offload_info(_adapter *adapter)
 {
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(adapter);
 	struct aoac_report *paoac_rpt = &pwrctl->wowlan_aoac_rpt;
-	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
 	struct security_priv *psecuritypriv = &adapter->securitypriv;
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	struct cam_ctl_t *cam_ctl = &dvobj->cam_ctl;
@@ -4535,7 +4533,6 @@ static void rtw_dump_aoac_rpt(_adapter *adapter)
 {
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(adapter);
 	struct aoac_report *paoac_rpt = &pwrctl->wowlan_aoac_rpt;
-	int i = 0;
 
 	RTW_INFO_DUMP("[AOAC-RPT] IV -", paoac_rpt->iv, 8);
 	RTW_INFO_DUMP("[AOAC-RPT] Replay counter of EAPOL key - ",
@@ -4653,7 +4650,6 @@ static void rtw_hal_update_tx_iv(_adapter *adapter)
 static void rtw_hal_update_sw_security_info(_adapter *adapter)
 {
 	struct security_priv *psecpriv = &adapter->securitypriv;
-	u8 sz = sizeof (psecpriv->iv_seq);
 
 	rtw_hal_update_tx_iv(adapter);
 #ifdef CONFIG_GTK_OL
@@ -4667,12 +4663,13 @@ static void rtw_hal_update_sw_security_info(_adapter *adapter)
 
 static u8 rtw_hal_set_keep_alive_cmd(_adapter *adapter, u8 enable, u8 pkt_type)
 {
-	struct hal_ops *pHalFunc = &adapter->hal_func;
 
 	u8 u1H2CKeepAliveParm[H2C_KEEP_ALIVE_CTRL_LEN] = {0};
 	u8 adopt = 1, check_period = 5;
 	u8 ret = _FAIL;
+#ifdef CONFIG_FW_MULTI_PORT_SUPPORT
 	u8 hw_port = rtw_hal_get_port(adapter);
+#endif
 
 	SET_H2CCMD_KEEPALIVE_PARM_ENABLE(u1H2CKeepAliveParm, enable);
 	SET_H2CCMD_KEEPALIVE_PARM_ADOPT(u1H2CKeepAliveParm, adopt);
@@ -4694,11 +4691,12 @@ static u8 rtw_hal_set_keep_alive_cmd(_adapter *adapter, u8 enable, u8 pkt_type)
 
 static u8 rtw_hal_set_disconnect_decision_cmd(_adapter *adapter, u8 enable)
 {
-	struct hal_ops *pHalFunc = &adapter->hal_func;
 	u8 u1H2CDisconDecisionParm[H2C_DISCON_DECISION_LEN] = {0};
 	u8 adopt = 1, check_period = 30, trypkt_num = 5;
 	u8 ret = _FAIL;
+#ifdef CONFIG_FW_MULTI_PORT_SUPPORT
 	u8 hw_port = rtw_hal_get_port(adapter);
+#endif
 
 	SET_H2CCMD_DISCONDECISION_PARM_ENABLE(u1H2CDisconDecisionParm, enable);
 	SET_H2CCMD_DISCONDECISION_PARM_ADOPT(u1H2CDisconDecisionParm, adopt);
@@ -4724,7 +4722,6 @@ static u8 rtw_hal_set_wowlan_ctrl_cmd(_adapter *adapter, u8 enable, u8 change_un
 	struct registry_priv  *registry_par = &adapter->registrypriv;
 	struct security_priv *psecpriv = &adapter->securitypriv;
 	struct pwrctrl_priv *ppwrpriv = adapter_to_pwrctl(adapter);
-	struct hal_ops *pHalFunc = &adapter->hal_func;
 	struct mlme_priv	*pmlmepriv = &(adapter->mlmepriv);
 
 	u8 u1H2CWoWlanCtrlParm[H2C_WOWLAN_LEN] = {0};
@@ -4842,12 +4839,11 @@ static u8 rtw_hal_set_wowlan_ctrl_cmd(_adapter *adapter, u8 enable, u8 change_un
 
 static u8 rtw_hal_set_remote_wake_ctrl_cmd(_adapter *adapter, u8 enable)
 {
-	struct hal_ops *pHalFunc = &adapter->hal_func;
 	struct security_priv *psecuritypriv = &(adapter->securitypriv);
 	struct pwrctrl_priv *ppwrpriv = adapter_to_pwrctl(adapter);
 	struct registry_priv *pregistrypriv = &adapter->registrypriv;
 	u8 u1H2CRemoteWakeCtrlParm[H2C_REMOTE_WAKE_CTRL_LEN] = {0};
-	u8 ret = _FAIL, count = 0, no_wake = 0;
+	u8 ret = _FAIL, no_wake = 0;
 	struct mlme_priv	*pmlmepriv = &(adapter->mlmepriv);
 
 	RTW_INFO("%s(): enable=%d\n", __func__, enable);
@@ -4943,7 +4939,6 @@ static u8 rtw_hal_set_remote_wake_ctrl_cmd(_adapter *adapter, u8 enable)
 
 static u8 rtw_hal_set_global_info_cmd(_adapter *adapter, u8 group_alg, u8 pairwise_alg)
 {
-	struct hal_ops *pHalFunc = &adapter->hal_func;
 	u8 ret = _FAIL;
 	u8 u1H2CAOACGlobalInfoParm[H2C_AOAC_GLOBAL_INFO_LEN] = {0};
 
@@ -4969,10 +4964,7 @@ void rtw_hal_set_fw_wow_related_cmd(_adapter *padapter, u8 enable)
 	struct pwrctrl_priv *ppwrpriv = adapter_to_pwrctl(padapter);
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	struct registry_priv *pregistry = &padapter->registrypriv;
-	struct sta_info *psta = NULL;
-	u16 media_status_rpt;
 	u8	pkt_type = 0, no_wake = 0;
-	u8 ret = _SUCCESS;
 	
 	if(pregistry->suspend_type == FW_IPS_DISABLE_BBRF &&
 	!check_fwstate(pmlmepriv, _FW_LINKED))
@@ -6786,9 +6778,6 @@ static void rtw_hal_construct_ARPRsp(
 {
 	struct rtw_ieee80211_hdr	*pwlanhdr;
 	u16	*fctrl;
-	u32	pktlen;
-	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
-	struct wlan_network	*cur_network = &pmlmepriv->cur_network;
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct security_priv	*psecuritypriv = &padapter->securitypriv;
@@ -6903,13 +6892,10 @@ static void rtw_hal_construct_na_message(_adapter *padapter,
 				     u8 *pframe, u32 *pLength)
 {
 	struct rtw_ieee80211_hdr *pwlanhdr = NULL;
-	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
-	struct wlan_network	*cur_network = &pmlmepriv->cur_network;
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &pmlmeext->mlmext_info;
 	struct security_priv	*psecuritypriv = &padapter->securitypriv;
 
-	u32 pktlen = 0;
 	u16 *fctrl = NULL;
 
 	u8 ns_hdr[8] = {0xAA, 0xAA, 0x03, 0x00, 0x00, 0x00, 0x86, 0xDD};
@@ -7076,9 +7062,6 @@ static void rtw_hal_construct_GTKRsp(
 {
 	struct rtw_ieee80211_hdr	*pwlanhdr;
 	u16	*fctrl;
-	u32	pktlen;
-	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
-	struct wlan_network	*cur_network = &pmlmepriv->cur_network;
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct security_priv	*psecuritypriv = &padapter->securitypriv;
@@ -7251,19 +7234,21 @@ void rtw_hal_set_wow_fw_rsvd_page(_adapter *adapter, u8 *pframe, u16 index,
 		  u8 tx_desc, u32 page_size, u8 *page_num, u32 *total_pkt_len,
 				  RSVDPAGE_LOC *rsvd_page_loc)
 {
+#ifdef CONFIG_IPV6
+	u32 ns_len = 0;
+#endif
 	struct security_priv *psecuritypriv = &adapter->securitypriv;
 	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(adapter);
 	struct mlme_ext_priv	*pmlmeext;
 	struct mlme_ext_info	*pmlmeinfo;
-	u32	ARPLength = 0, GTKLength = 0, PNOLength = 0, ScanInfoLength = 0;
-	u32     SSIDLegnth = 0, ProbeReqLength = 0, ns_len = 0, rc_len = 0;
+	u32 ARPLength = 0, GTKLength = 0;
+	u32 rc_len = 0;
 	u8 CurtPktPageNum = 0;
 
 #ifdef CONFIG_GTK_OL
 	struct sta_priv *pstapriv = &adapter->stapriv;
 	struct sta_info *psta;
-	struct security_priv *psecpriv = &adapter->securitypriv;
 	u8 kek[RTW_KEK_LEN];
 	u8 kck[RTW_KCK_LEN];
 #endif /* CONFIG_GTK_OL */
@@ -7449,7 +7434,6 @@ static void rtw_hal_gate_bb(_adapter *adapter, bool stop)
 {
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(adapter);
 	u8 i = 0, val8 = 0, empty = _FAIL;
-	u16 val16 = 0;
 
 	if (stop) {
 		/* checking TX queue status */
@@ -7518,7 +7502,7 @@ static u8 rtw_hal_wow_pattern_generate(_adapter *adapter, u8 idx, struct rtl_wow
 	u8 mask_len = 0;
 	u8 mac_addr[ETH_ALEN] = {0};
 	u16 count = 0;
-	int i, j;
+	int i;
 
 	if (pwrctl->wowlan_pattern_idx > MAX_WKFM_CAM_NUM) {
 		RTW_INFO("%s pattern_idx is more than MAX_FMC_NUM: %d\n",
@@ -7835,7 +7819,6 @@ bool rtw_write_to_frame_mask(_adapter *adapter, u8 idx,
 }
 void rtw_clean_pattern(_adapter *adapter)
 {
-	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(adapter);
 	struct rtl_wow_pattern zero_pattern;
 	int i = 0;
 
@@ -7847,119 +7830,6 @@ void rtw_clean_pattern(_adapter *adapter)
 		rtw_write_to_frame_mask(adapter, i, &zero_pattern);
 
 	rtw_write8(adapter, REG_WKFMCAM_NUM, 0);
-}
-static int rtw_hal_set_pattern(_adapter *adapter, u8 *pattern,
-			       u8 len, u8 *mask, u8 idx)
-{
-	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(adapter);
-	struct mlme_ext_priv *pmlmeext = NULL;
-	struct mlme_ext_info *pmlmeinfo = NULL;
-	struct rtl_wow_pattern wow_pattern;
-	u8 mask_hw[MAX_WKFM_SIZE] = {0};
-	u8 content[MAX_WKFM_PATTERN_SIZE] = {0};
-	u8 broadcast_addr[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-	u8 multicast_addr1[2] = {0x33, 0x33};
-	u8 multicast_addr2[3] = {0x01, 0x00, 0x5e};
-	u8 res = _FALSE, index = 0, mask_len = 0;
-	u8 mac_addr[ETH_ALEN] = {0};
-	u16 count = 0;
-	int i, j;
-
-	if (pwrctl->wowlan_pattern_idx > MAX_WKFM_CAM_NUM) {
-		RTW_INFO("%s pattern_idx is more than MAX_FMC_NUM: %d\n",
-			 __func__, MAX_WKFM_CAM_NUM);
-		return _FALSE;
-	}
-
-	pmlmeext = &adapter->mlmeextpriv;
-	pmlmeinfo = &pmlmeext->mlmext_info;
-	_rtw_memcpy(mac_addr, adapter_mac_addr(adapter), ETH_ALEN);
-	_rtw_memset(&wow_pattern, 0, sizeof(struct rtl_wow_pattern));
-
-	mask_len = DIV_ROUND_UP(len, 8);
-
-	/* 1. setup A1 table */
-	if (memcmp(pattern, broadcast_addr, ETH_ALEN) == 0)
-		wow_pattern.type = PATTERN_BROADCAST;
-	else if (memcmp(pattern, multicast_addr1, 2) == 0)
-		wow_pattern.type = PATTERN_MULTICAST;
-	else if (memcmp(pattern, multicast_addr2, 3) == 0)
-		wow_pattern.type = PATTERN_MULTICAST;
-	else if (memcmp(pattern, mac_addr, ETH_ALEN) == 0)
-		wow_pattern.type = PATTERN_UNICAST;
-	else
-		wow_pattern.type = PATTERN_INVALID;
-
-	/* translate mask from os to mask for hw */
-
-/******************************************************************************
- * pattern from OS uses 'ethenet frame', like this:
-
-	|    6   |    6   |   2  |     20    |  Variable  |  4  |
-	|--------+--------+------+-----------+------------+-----|
-	|    802.3 Mac Header    | IP Header | TCP Packet | FCS |
-	|   DA   |   SA   | Type |
-
- * BUT, packet catched by our HW is in '802.11 frame', begin from LLC,
-
-	|     24 or 30      |    6   |   2  |     20    |  Variable  |  4  |
-	|-------------------+--------+------+-----------+------------+-----|
-	| 802.11 MAC Header |       LLC     | IP Header | TCP Packet | FCS |
-			    | Others | Tpye |
-
- * Therefore, we need translate mask_from_OS to mask_to_hw.
- * We should left-shift mask by 6 bits, then set the new bit[0~5] = 0,
- * because new mask[0~5] means 'SA', but our HW packet begins from LLC,
- * bit[0~5] corresponds to first 6 Bytes in LLC, they just don't match.
- ******************************************************************************/
-	/* Shift 6 bits */
-	for (i = 0; i < mask_len - 1; i++) {
-		mask_hw[i] = mask[i] >> 6;
-		mask_hw[i] |= (mask[i + 1] & 0x3F) << 2;
-	}
-
-	mask_hw[i] = (mask[i] >> 6) & 0x3F;
-	/* Set bit 0-5 to zero */
-	mask_hw[0] &= 0xC0;
-
-	for (i = 0; i < (MAX_WKFM_SIZE / 4); i++) {
-		wow_pattern.mask[i] = mask_hw[i * 4];
-		wow_pattern.mask[i] |= (mask_hw[i * 4 + 1] << 8);
-		wow_pattern.mask[i] |= (mask_hw[i * 4 + 2] << 16);
-		wow_pattern.mask[i] |= (mask_hw[i * 4 + 3] << 24);
-	}
-
-	/* To get the wake up pattern from the mask.
-	 * We do not count first 12 bits which means
-	 * DA[6] and SA[6] in the pattern to match HW design. */
-	count = 0;
-	for (i = 12; i < len; i++) {
-		if ((mask[i / 8] >> (i % 8)) & 0x01) {
-			content[count] = pattern[i];
-			count++;
-		}
-	}
-
-	wow_pattern.crc = rtw_calc_crc(content, count);
-
-	if (wow_pattern.crc != 0) {
-		if (wow_pattern.type == PATTERN_INVALID)
-			wow_pattern.type = PATTERN_VALID;
-	}
-
-	index = idx;
-
-	if (!pwrctl->bInSuspend)
-		index += 2;
-
-	/* write pattern */
-	res = rtw_write_to_frame_mask(adapter, index, &wow_pattern);
-
-	if (res == _FALSE)
-		RTW_INFO("%s: ERROR!! idx: %d write_to_frame_mask_cam fail\n",
-			 __func__, idx);
-
-	return res;
 }
 void rtw_fill_pattern(_adapter *adapter)
 {
@@ -8263,7 +8133,6 @@ static void rtw_hal_wow_enable(_adapter *adapter)
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(adapter);
 	struct security_priv *psecuritypriv = &adapter->securitypriv;
 	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
-	struct hal_ops *pHalFunc = &adapter->hal_func;
 	struct sta_info *psta = NULL;
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(adapter);
 	int res;
@@ -8408,14 +8277,11 @@ void _dbg_rtw_wake_up_reason(_adapter *adapter, u8 reason)
 static void rtw_hal_wow_disable(_adapter *adapter)
 {
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(adapter);
-	struct security_priv *psecuritypriv = &adapter->securitypriv;
 	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
-	struct hal_ops *pHalFunc = &adapter->hal_func;
 	struct sta_info *psta = NULL;
 	struct registry_priv  *registry_par = &adapter->registrypriv;
 	int res;
 	u16 media_status_rpt;
-	u8 val8;
 
 	RTW_PRINT("%s, WOWLAN_DISABLE\n", __func__);
 	
@@ -8905,8 +8771,62 @@ void rtw_hal_set_pathb_phase(_adapter *adapter, u8 phase_idx)
  */
 
 /*#define DBG_DUMP_SET_RSVD_PAGE*/
+#ifdef CONFIG_WOWLAN
+static void rtw_hal_set_FwAoacRsvdPage_cmd(PADAPTER padapter, PRSVDPAGE_LOC rsvdpageloc)
+{
+	struct	pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
+	struct	mlme_priv *pmlmepriv = &padapter->mlmepriv;
+	u8 ret = 0;
+#ifdef CONFIG_WOWLAN
+	u8 u1H2CAoacRsvdPageParm[H2C_AOAC_RSVDPAGE_LOC_LEN] = {0};
+
+	RTW_INFO("%s: RWC: %d ArpRsp: %d NbrAdv: %d LocNDPInfo: %d\n",
+		 __func__, rsvdpageloc->LocRemoteCtrlInfo,
+		 rsvdpageloc->LocArpRsp, rsvdpageloc->LocNbrAdv,
+		 rsvdpageloc->LocNDPInfo);
+	RTW_INFO("%s:GtkRsp: %d GtkInfo: %d ProbeReq: %d NetworkList: %d\n",
+		 __func__, rsvdpageloc->LocGTKRsp, rsvdpageloc->LocGTKInfo,
+		 rsvdpageloc->LocProbeReq, rsvdpageloc->LocNetList);
+
+	if (check_fwstate(pmlmepriv, _FW_LINKED)) {
+		SET_H2CCMD_AOAC_RSVDPAGE_LOC_REMOTE_WAKE_CTRL_INFO(u1H2CAoacRsvdPageParm, rsvdpageloc->LocRemoteCtrlInfo);
+		SET_H2CCMD_AOAC_RSVDPAGE_LOC_ARP_RSP(u1H2CAoacRsvdPageParm, rsvdpageloc->LocArpRsp);
+		SET_H2CCMD_AOAC_RSVDPAGE_LOC_NEIGHBOR_ADV(u1H2CAoacRsvdPageParm,
+							rsvdpageloc->LocNbrAdv);
+		SET_H2CCMD_AOAC_RSVDPAGE_LOC_NDP_INFO(u1H2CAoacRsvdPageParm,
+						      rsvdpageloc->LocNDPInfo);
+#ifdef CONFIG_GTK_OL
+		SET_H2CCMD_AOAC_RSVDPAGE_LOC_GTK_RSP(u1H2CAoacRsvdPageParm, rsvdpageloc->LocGTKRsp);
+		SET_H2CCMD_AOAC_RSVDPAGE_LOC_GTK_INFO(u1H2CAoacRsvdPageParm, rsvdpageloc->LocGTKInfo);
+		SET_H2CCMD_AOAC_RSVDPAGE_LOC_GTK_EXT_MEM(u1H2CAoacRsvdPageParm, rsvdpageloc->LocGTKEXTMEM);
+#endif /* CONFIG_GTK_OL */
+		ret = rtw_hal_fill_h2c_cmd(padapter,
+					   H2C_AOAC_RSVD_PAGE,
+					   H2C_AOAC_RSVDPAGE_LOC_LEN,
+					   u1H2CAoacRsvdPageParm);
+
+		RTW_INFO("AOAC Report=%d\n", rsvdpageloc->LocAOACReport);
+		_rtw_memset(&u1H2CAoacRsvdPageParm, 0, sizeof(u1H2CAoacRsvdPageParm));
+		SET_H2CCMD_AOAC_RSVDPAGE_LOC_AOAC_REPORT(u1H2CAoacRsvdPageParm,
+					 rsvdpageloc->LocAOACReport);
+		ret = rtw_hal_fill_h2c_cmd(padapter,
+				   H2C_AOAC_RSVDPAGE3,
+				   H2C_AOAC_RSVDPAGE_LOC_LEN,
+				   u1H2CAoacRsvdPageParm);
+		pwrpriv->wowlan_aoac_rpt_loc = rsvdpageloc->LocAOACReport;
+	}
+#endif /* CONFIG_WOWLAN */
+}
+#endif /* CONFIG_WOWLAN */
+
 static void _rtw_hal_set_fw_rsvd_page(_adapter *adapter, bool finished, u8 *page_num)
 {
+#ifdef CONFIG_BT_COEXIST
+	u32 BTQosNullLength = 0;
+#endif
+#ifdef CONFIG_BT_COEXIST
+	_adapter *ap_iface = NULL;
+#endif
 	PHAL_DATA_TYPE pHalData;
 	struct xmit_frame	*pcmdframe = NULL;
 	struct pkt_attrib	*pattrib;
@@ -8914,13 +8834,16 @@ static void _rtw_hal_set_fw_rsvd_page(_adapter *adapter, bool finished, u8 *page
 	struct pwrctrl_priv *pwrctl;
 	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
 	u32	BeaconLength = 0, ProbeRspLength = 0, PSPollLength = 0;
-	u32	NullDataLength = 0, QosNullLength = 0, BTQosNullLength = 0;
+	u32 NullDataLength = 0, QosNullLength = 0;
 	u8	TxDescLen = TXDESC_SIZE, TxDescOffset = TXDESC_OFFSET;
 	u8	TotalPageNum = 0 , CurtPktPageNum = 0 , RsvdPageNum = 0;
 	u8	*ReservedPagePacket;
 	u16	BufIndex = 0;
 	u32	TotalPacketLen = 0, MaxRsvdPageBufSize = 0, PageSize = 0;
 	RSVDPAGE_LOC	RsvdPageLoc;
+#ifdef CONFIG_WOWLAN
+	struct registry_priv  *registry_par = &adapter->registrypriv;
+#endif
 
 #ifdef DBG_FW_DEBUG_MSG_PKT
 	u32	fw_dbg_msg_pkt_len = 0;
@@ -8932,7 +8855,6 @@ static void _rtw_hal_set_fw_rsvd_page(_adapter *adapter, bool finished, u8 *page
 	u8 nr_assoc_if;
 
 	_adapter *sta_iface = NULL;
-	_adapter *ap_iface = NULL;
 
 	bool is_wow_mode = _FALSE;
 
@@ -10850,7 +10772,9 @@ void rtw_hal_check_rxfifo_full(_adapter *adapter)
 
 void linked_info_dump(_adapter *padapter, u8 benable)
 {
+#ifdef CONFIG_BT_COEXIST
 	struct pwrctrl_priv *pwrctrlpriv = adapter_to_pwrctl(padapter);
+#endif
 
 	if (padapter->bLinkInfoDump == benable)
 		return;

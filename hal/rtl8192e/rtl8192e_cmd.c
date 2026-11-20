@@ -145,10 +145,12 @@ exit:
 
 void rtl8192e_set_FwPwrMode_cmd(PADAPTER padapter, u8 PSMode)
 {
+#ifdef CONFIG_BT_COEXIST
+	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(padapter);
+#endif
 	u8	u1H2CSetPwrMode[H2C_PWRMODE_LEN] = {0};
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
 	u8	Mode = 0, RLBM = 0, PowerState = 0, LPSAwakeIntvl = 2;
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	u8 allQueueUAPSD = 0;
 
 

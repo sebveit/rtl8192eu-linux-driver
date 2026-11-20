@@ -989,7 +989,6 @@ static u32 rtl8192eu_hal_deinit(PADAPTER Adapter)
 #ifdef SUPPORT_HW_RFOFF_DETECTED
 	RTW_INFO("bkeepfwalive(%x)\n", pwrctl->bkeepfwalive);
 	if (pwrctl->bkeepfwalive) {
-		_ps_close_RF(Adapter);
 		if ((pwrctl->bHWPwrPindetect) && (pwrctl->bHWPowerdown))
 			rtl8192e_hw_power_down(Adapter);
 	} else

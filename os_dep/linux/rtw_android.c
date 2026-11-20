@@ -282,7 +282,6 @@ static int get_int_from_command(char *pcmd)
 #ifdef CONFIG_GTK_OL
 int rtw_gtk_offload(struct net_device *net, u8 *cmd_ptr)
 {
-	int i;
 	/* u8 *cmd_ptr = priv_cmd.buf; */
 	struct sta_info *psta;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(net);

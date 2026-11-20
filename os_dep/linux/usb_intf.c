@@ -612,7 +612,6 @@ error_exit:
 int rtw_hw_resume(_adapter *padapter)
 {
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
-	struct usb_interface *pusb_intf = adapter_to_dvobj(padapter)->pusbintf;
 	struct net_device *pnetdev = padapter->pnetdev;
 
 	RTW_INFO("==> rtw_hw_resume\n");

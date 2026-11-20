@@ -2580,7 +2580,6 @@ void update_beacon_info(_adapter *padapter, u8 *pframe, uint pkt_len, struct sta
 
 #ifdef CONFIG_TDLS
 	struct tdls_info *ptdlsinfo = &padapter->tdlsinfo;
-	u8 tdls_prohibited[] = { 0x00, 0x00, 0x00, 0x00, 0x10 }; /* bit(38): TDLS_prohibited */
 #endif /* CONFIG_TDLS */
 
 	len = pkt_len - (_BEACON_IE_OFFSET_ + WLAN_HDR_A3_LEN);
@@ -2729,6 +2728,7 @@ unsigned int is_ap_in_tkip(_adapter *padapter)
 			case _RSN_IE_2_:
 				if (_rtw_memcmp((pIE->data + 8), RSN_TKIP_CIPHER, 4))
 					return _TRUE;
+				break;
 
 			default:
 				break;
@@ -2766,6 +2766,7 @@ unsigned int should_forbid_n_rate(_adapter *padapter)
 				if ((_rtw_memcmp((pIE->data + 8), RSN_CIPHER_SUITE_CCMP, 4))  ||
 				    (_rtw_memcmp((pIE->data + 12), RSN_CIPHER_SUITE_CCMP, 4)))
 					return _FALSE;
+				break;
 
 			default:
 				break;
@@ -4096,7 +4097,7 @@ _adapter *dvobj_get_adapter_by_addr(struct dvobj_priv *dvobj, u8 *addr)
 bool rtw_wowlan_parser_pattern_cmd(u8 *input, char *pattern,
 				   int *pattern_len, char *bit_mask)
 {
-	char *cp = NULL, *end = NULL;
+	char *cp = NULL;
 	size_t len = 0;
 	int pos = 0, mask_pos = 0, res = 0;
 	u8 member[2] = {0};
@@ -4188,6 +4189,12 @@ void rtw_wow_pattern_sw_reset(_adapter *adapter)
 
 u8 rtw_set_default_pattern(_adapter *adapter)
 {
+#ifdef CONFIG_IPV6
+	u8 icmpv6_mask[7] = {0x00, 0x70, 0x10, 0x00, 0xc0, 0xc0, 0x3f};
+#endif
+#ifdef CONFIG_IPV6
+	u8 ipv6_protocol[3] = {0x86, 0xdd, 0x60};
+#endif
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(adapter);
 	struct mlme_ext_priv *pmlmeext = &adapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &pmlmeext->mlmext_info;
@@ -4196,11 +4203,9 @@ u8 rtw_set_default_pattern(_adapter *adapter)
 	u8 multicast_ip[4] = {0xe0, 0x28, 0x28, 0x2a};
 
 	u8 unicast_mask[5] = {0x3f, 0x70, 0x80, 0xc0, 0x03};
-	u8 icmpv6_mask[7] = {0x00, 0x70, 0x10, 0x00, 0xc0, 0xc0, 0x3f};
 	u8 multicast_mask[5] = {0x07, 0x70, 0x80, 0xc0, 0x03};
 
 	u8 ip_protocol[3] = {0x08, 0x00, 0x45};
-	u8 ipv6_protocol[3] = {0x86, 0xdd, 0x60};
 
 	u8 *target = NULL;
 

@@ -3084,8 +3084,10 @@ static u8 is_drv_in_lps(_adapter *adapter)
 }
 void rtw_iface_dynamic_check_timer_handlder(_adapter *adapter)
 {
-#ifdef CONFIG_AP_MODE
+#ifdef CONFIG_BR_EXT
 	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
+#endif
+#ifdef CONFIG_AP_MODE
 #endif /* CONFIG_AP_MODE */
 
 	if (adapter->net_closed == _TRUE)

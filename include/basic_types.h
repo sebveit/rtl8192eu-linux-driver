@@ -270,11 +270,11 @@
 		if (__BitOffset == 0 && __BitLen == 16) \
 			WriteBE2Byte(__pStart, __Value); \
 		else { \
-			WriteBE2Byte(__pStart, \
+			WriteBE2Byte(__pStart, (u16)( \
 				BE_BITS_CLEARED_TO_2BYTE(__pStart, __BitOffset, __BitLen) \
 				| \
 				((((u16)__Value) & BIT_LEN_MASK_16(__BitLen)) << (__BitOffset)) \
-			); \
+			)); \
 		} \
 	} while (0)
 

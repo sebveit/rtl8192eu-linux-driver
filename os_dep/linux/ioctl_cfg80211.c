@@ -5959,7 +5959,6 @@ static int cfg80211_rtw_tdls_oper(struct wiphy *wiphy,
 	enum nl80211_tdls_operation oper)
 {
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
-	struct tdls_info *ptdlsinfo = &padapter->tdlsinfo;
 	struct tdls_txmgmt	txmgmt;
 	struct sta_info *ptdls_sta = NULL;
 

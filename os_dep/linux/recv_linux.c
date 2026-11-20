@@ -390,7 +390,9 @@ void dynamic_napi_th_chk (_adapter *adapter)
 
 void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, union recv_frame *rframe)
 {
+#ifdef CONFIG_BR_EXT
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+#endif
 	struct recv_priv *precvpriv = &(padapter->recvpriv);
 	struct registry_priv	*pregistrypriv = &padapter->registrypriv;
 #ifdef CONFIG_BR_EXT

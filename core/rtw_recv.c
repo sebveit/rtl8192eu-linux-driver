@@ -1150,7 +1150,6 @@ static sint sta2sta_data_frame(
 	struct sta_info *ptdls_sta = NULL;
 	u8 *psnap_type = ptr + pattrib->hdrlen + pattrib->iv_len + SNAP_SIZE;
 	/* frame body located after [+2]: ether-type, [+1]: payload type */
-	u8 *pframe_body = psnap_type + 2 + 1;
 #endif
 
 

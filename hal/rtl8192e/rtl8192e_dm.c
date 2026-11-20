@@ -140,9 +140,11 @@ rtl8192e_HalDmWatchDog(
 	PADAPTER	Adapter
 )
 {
+#ifdef CONFIG_BT_COEXIST
+	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(Adapter);
+#endif
 	BOOLEAN		bFwCurrentInPSMode = _FALSE;
 	u8 bFwPSAwake = _TRUE;
-	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(Adapter);
 	u8 in_lps = _FALSE;
 
 	if (!rtw_is_hw_init_completed(Adapter))

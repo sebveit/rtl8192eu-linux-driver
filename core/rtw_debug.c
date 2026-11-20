@@ -3856,8 +3856,7 @@ int proc_get_pattern_info(struct seq_file *m, void *v)
 	struct net_device *dev = m->private;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
-	struct registry_priv *pregistrypriv = &padapter->registrypriv;
-	u8 pattern_num = 0, val8;
+	u8 val8;
 	char str_1[128];
 	char *p_str;
 	int i = 0 , j = 0, k = 0;
@@ -3920,7 +3919,7 @@ ssize_t proc_set_pattern_info(struct file *file, const char __user *buffer,
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
 	struct wowlan_ioctl_param poidparam;
 	u8 tmp[MAX_WKFM_PATTERN_SIZE] = {0};
-	int ret = 0, num = 0;
+	int ret = 0;
 	u8 index = 0;
 
 	poidparam.subcode = 0;
@@ -3979,8 +3978,7 @@ ssize_t proc_set_wakeup_event(struct file *file, const char __user *buffer,
 	u32 wakeup_event = 0;
 
 	u8 tmp[8] = {0};
-	int ret = 0, num = 0;
-	u8 index = 0;
+	int num = 0;
 
 	if (count < 1)
 		return -EFAULT;
@@ -4224,7 +4222,6 @@ ssize_t proc_set_ps_info(struct file *file, const char __user *buffer, size_t co
 {
 	struct net_device *dev = data;
 	struct _ADAPTER *adapter = (_adapter *)rtw_netdev_priv(dev);
-	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	char tmp[8];
 	int num = 0;
 	int mode = 0;
@@ -4599,7 +4596,6 @@ static int proc_tdls_display_tdls_sta_info(struct seq_file *m)
 	struct net_device *dev = m->private;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct sta_priv *pstapriv = &padapter->stapriv;
-	struct tdls_info *ptdlsinfo = &padapter->tdlsinfo;
 	struct sta_info *psta;
 	int i = 0, j = 0;
 	_irqL irqL;
@@ -4776,19 +4772,6 @@ int proc_get_tdls_info(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
-	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
-	struct wlan_network *cur_network = &(pmlmepriv->cur_network);
-	struct sta_priv *pstapriv = &padapter->stapriv;
-	struct tdls_info *ptdlsinfo = &padapter->tdlsinfo;
-	struct sta_info *psta;
-	int i = 0, j = 0;
-	_irqL irqL;
-	_list	*plist, *phead;
-	u8 SpaceBtwnItemAndValue = 41;
-	u8 SpaceBtwnItemAndValueTmp = 0;
-	u8 NumOfTdlsStaToShow = 0;
-	BOOLEAN FirstMatchFound = _FALSE;
 
 	if (hal_chk_wl_func(padapter, WL_FUNC_TDLS) == _FALSE) {
 		RTW_PRINT_SEL(m, "No tdls info can be shown since hal doesn't support tdls\n");

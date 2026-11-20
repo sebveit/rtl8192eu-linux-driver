@@ -1910,7 +1910,7 @@ phydm_set_bb_txagc_offset(void *dm_void, s8 power_offset, /*@(unit: dB)*/
 
 	#if ODM_IC_11N_SERIES_SUPPORT
 	if (dm->support_ic_type & ODM_IC_11N_SERIES) {
-		if (power_offset > -8 || power_offset < 7) {
+		if (power_offset > -8 && power_offset < 7) {
 			if (add_half_db)
 				power_idx += 1;
 
@@ -2032,8 +2032,8 @@ u8 config_phydm_read_txagc_n(void *dm_void, enum rf_path path, u8 hw_rate)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u8 read_back_data = INVALID_TXAGC_DATA;
-	u32 reg_txagc;
-	u32 reg_mask;
+	u32 reg_txagc = 0;
+	u32 reg_mask = 0;
 	/* This function is for 92E/88E etc... */
 	/* @Input need to be HW rate index, not driver rate index!!!! */
 
@@ -2291,6 +2291,9 @@ u8 config_phydm_read_txagc_n(void *dm_void, enum rf_path path, u8 hw_rate)
 	} else {
 		PHYDM_DBG(dm, ODM_PHY_CONFIG, "Invalid RF path!!\n");
 	}
+	if (!reg_mask)
+		return INVALID_TXAGC_DATA;
+
 	read_back_data = (u8)odm_get_bb_reg(dm, reg_txagc, reg_mask);
 	PHYDM_DBG(dm, ODM_PHY_CONFIG, "%s: path-%d rate index 0x%x = 0x%x\n",
 		  __func__, path, hw_rate, read_back_data);

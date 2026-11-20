@@ -2363,7 +2363,6 @@ u8 rtw_tdls_cmd(_adapter *padapter, u8 *addr, u8 option)
 #ifdef CONFIG_TDLS
 	struct	cmd_obj	*pcmdobj;
 	struct	TDLSoption_param	*TDLSoption;
-	struct	mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct	cmd_priv   *pcmdpriv = &padapter->cmdpriv;
 
 	pcmdobj = (struct	cmd_obj *)rtw_zmalloc(sizeof(struct	cmd_obj));
@@ -3027,9 +3026,6 @@ u8 traffic_status_watchdog(_adapter *padapter, u8 from_timer)
 
 	struct mlme_priv		*pmlmepriv = &(padapter->mlmepriv);
 #ifdef CONFIG_TDLS
-	struct tdls_info *ptdlsinfo = &(padapter->tdlsinfo);
-	struct tdls_txmgmt txmgmt;
-	u8 baddr[ETH_ALEN] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 #endif /* CONFIG_TDLS */
 #ifdef CONFIG_TRAFFIC_PROTECT
 	RT_LINK_DETECT_T *link_detect = &pmlmepriv->LinkDetectInfo;
