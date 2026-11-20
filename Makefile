@@ -48,9 +48,10 @@ CONFIG_WOWLAN ?= n
 CONFIG_WAKEUP_TYPE ?= 0x7
 CONFIG_SUSPEND_TYPE ?= 0
 
-# Default paths used at runtime by the driver
-EFUSE_MAP_PATH ?= /system/etc/wifi/wifi_efuse_8192eu.map
-WIFIMAC_PATH ?= /data/wifimac.txt
+# Files the driver loads at runtime (via the firmware loader, so they must
+# be below /lib/firmware/)
+EFUSE_MAP_PATH ?= /lib/firmware/rtl8192eu/wifi_efuse_8192eu.map
+WIFIMAC_PATH ?= /lib/firmware/rtl8192eu/wifimac.txt
 REALTEK_CONFIG_PATH ?= /lib/firmware/
 
 ########################## Debug ###########################

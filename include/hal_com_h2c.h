@@ -432,20 +432,9 @@ s32 rtw_hal_customer_str_write(_adapter *adapter, const u8 *cs);
 /* AOAC_RSVDPAGE_2_0x84 */
 
 /* AOAC_RSVDPAGE_3_0x88 */
-#ifdef CONFIG_PNO_SUPPORT
-#define SET_H2CCMD_AOAC_RSVDPAGE_LOC_NLO_INFO(__pH2CCmd, __Value)		SET_BITS_TO_LE_1BYTE((__pH2CCmd), 0, 8, __Value)
-#endif
 #define SET_H2CCMD_AOAC_RSVDPAGE_LOC_AOAC_REPORT(__pH2CCmd, __Value) \
 	SET_BITS_TO_LE_1BYTE((__pH2CCmd) + 1, 0, 8, __Value)
 
-#ifdef CONFIG_PNO_SUPPORT
-/* D0_Scan_Offload_Info_0x86 */
-#define SET_H2CCMD_AOAC_NLO_FUN_EN(__pH2CCmd, __Value)			SET_BITS_TO_LE_1BYTE((__pH2CCmd), 3, 1, __Value)
-#define SET_H2CCMD_AOAC_NLO_IPS_EN(__pH2CCmd, __Value)			SET_BITS_TO_LE_1BYTE((__pH2CCmd), 4, 1, __Value)
-#define SET_H2CCMD_AOAC_RSVDPAGE_LOC_PROBE_PACKET(__pH2CCmd, __Value)	SET_BITS_TO_LE_1BYTE((__pH2CCmd)+1, 0, 8, __Value)
-#define SET_H2CCMD_AOAC_RSVDPAGE_LOC_SCAN_INFO(__pH2CCmd, __Value)	SET_BITS_TO_LE_1BYTE((__pH2CCmd)+2, 0, 8, __Value)
-#define SET_H2CCMD_AOAC_RSVDPAGE_LOC_SSID_INFO(__pH2CCmd, __Value)	SET_BITS_TO_LE_1BYTE((__pH2CCmd)+3, 0, 8, __Value)
-#endif /* CONFIG_PNO_SUPPORT */
 
 #ifdef CONFIG_P2P_WOWLAN
 /* P2P_RsvdPage_0x8a */
@@ -493,12 +482,6 @@ typedef struct _RSVDPAGE_LOC {
 #endif /* CONFIG_GTK_OL */
 	u8 LocNDPInfo;
 	u8 LocAOACReport;
-#ifdef CONFIG_PNO_SUPPORT
-	u8 LocPNOInfo;
-	u8 LocScanInfo;
-	u8 LocSSIDInfo;
-	u8 LocProbePacket;
-#endif /* CONFIG_PNO_SUPPORT */
 #endif /* CONFIG_WOWLAN	 */
 	u8 LocApOffloadBCN;
 #ifdef CONFIG_P2P_WOWLAN

@@ -17,6 +17,7 @@
 #define _OSDEP_SERVICE_C_
 
 #include <drv_types.h>
+#include <linux/firmware.h>
 
 #define RT_TAG	'1178'
 
@@ -1279,221 +1280,87 @@ inline bool ATOMIC_INC_UNLESS(ATOMIC_T *v, int u)
 }
 
 /*
-* Open a file with the specific @param path, @param flag, @param mode
-* @param fpp the pointer of struct file pointer to get struct file pointer while file opening is success
-* @param path the path of the file to open
-* @param flag file operation flags, please refer to linux document
-* @param mode please refer to linux document
-* @return Linux specific error code
-*/
-static int openFile(struct file **fpp, const char *path, int flag, int mode)
-{
-	struct file *fp;
+ * File access goes through the kernel firmware loader instead of opening
+ * files from kernel context. Paths are expected below /lib/firmware/; the
+ * prefix is stripped and the remainder is used as the firmware name, so
+ * the usual firmware search path (including /lib/firmware/updates and the
+ * firmware_class.path parameter) applies.
+ */
+#define RTW_FW_PATH_PREFIX "/lib/firmware/"
 
-	fp = filp_open(path, flag, mode);
-	if (IS_ERR(fp)) {
-		*fpp = NULL;
-		return PTR_ERR(fp);
-	} else {
-		*fpp = fp;
-		return 0;
-	}
+static const char *rtw_path_to_fw_name(const char *path)
+{
+	if (!path || !*path)
+		return NULL;
+	if (strncmp(path, RTW_FW_PATH_PREFIX, strlen(RTW_FW_PATH_PREFIX)) == 0)
+		return path + strlen(RTW_FW_PATH_PREFIX);
+	if (path[0] != '/')
+		return path;
+
+	pr_warn_once("rtl8192eu: only files below " RTW_FW_PATH_PREFIX
+		     " can be loaded, ignoring %s\n", path);
+	return NULL;
+}
+
+static int rtw_request_file(const char *path, const struct firmware **fw)
+{
+	const char *name = rtw_path_to_fw_name(path);
+
+	if (!name)
+		return -ENOENT;
+	return firmware_request_nowarn(fw, name, NULL);
 }
 
 /*
-* Close the file with the specific @param fp
-* @param fp the pointer of struct file to close
-* @return always 0
-*/
-static int closeFile(struct file *fp)
-{
-	filp_close(fp, NULL);
-	return 0;
-}
-
-static int readFile(struct file *fp, char *buf, int len)
-{
-	int rlen = 0, sum = 0;
-
-	if (!(fp->f_mode & FMODE_CAN_READ))
-		return -EPERM;
-
-	while (sum < len) {
-		rlen = kernel_read(fp, buf + sum, len - sum, &fp->f_pos);
-		if (rlen > 0)
-			sum += rlen;
-		else if (0 != rlen)
-			return rlen;
-		else
-			break;
-	}
-
-	return  sum;
-
-}
-
-static int writeFile(struct file *fp, char *buf, int len)
-{
-	int wlen = 0, sum = 0;
-
-	if (!fp->f_op || !fp->f_op->write)
-		return -EPERM;
-
-	while (sum < len) {
-		wlen = fp->f_op->write(fp, buf + sum, len - sum, &fp->f_pos);
-		if (wlen > 0)
-			sum += wlen;
-		else if (0 != wlen)
-			return wlen;
-		else
-			break;
-	}
-
-	return sum;
-
-}
-
-/*
-* Test if the specifi @param path is a file and readable
-* If readable, @param sz is got
-* @param path the path of the file to test
-* @return Linux specific error code
-*/
-static int isFileReadable(const char *path, u32 *sz)
-{
-	struct file *fp;
-	int ret = 0;
-	char buf;
-
-	fp = filp_open(path, O_RDONLY, 0);
-	if (IS_ERR(fp))
-		ret = PTR_ERR(fp);
-	else {
-		if (1 != readFile(fp, &buf, 1))
-			ret = PTR_ERR(fp);
-
-		if (ret == 0 && sz) {
-                       *sz = i_size_read(fp->f_path.dentry->d_inode);
-		}
-
-		filp_close(fp, NULL);
-	}
-	return ret;
-}
-
-/*
-* Open the file with @param path and retrive the file content into memory starting from @param buf for @param sz at most
-* @param path the path of the file to open and read
-* @param buf the starting address of the buffer to store file content
-* @param sz how many bytes to read at most
-* @return the byte we've read, or Linux specific error code
-*/
-static int retriveFromFile(const char *path, u8 *buf, u32 sz)
-{
-	int ret = -1;
-	struct file *fp;
-
-	if (path && buf) {
-		ret = openFile(&fp, path, O_RDONLY, 0);
-		if (0 == ret) {
-			RTW_INFO("%s openFile path:%s fp=%p\n", __FUNCTION__, path , fp);
-
-			ret = readFile(fp, buf, sz);
-			closeFile(fp);
-
-			RTW_INFO("%s readFile, ret:%d\n", __FUNCTION__, ret);
-
-		} else
-			RTW_INFO("%s openFile path:%s Fail, ret:%d\n", __FUNCTION__, path, ret);
-	} else {
-		RTW_INFO("%s NULL pointer\n", __FUNCTION__);
-		ret =  -EINVAL;
-	}
-	return ret;
-}
-
-/*
-* Open the file with @param path and wirte @param sz byte of data starting from @param buf into the file
-* @param path the path of the file to open and write
-* @param buf the starting address of the data to write into file
-* @param sz how many bytes to write at most
-* @return the byte we've written, or Linux specific error code
-*/
-static int storeToFile(const char *path, u8 *buf, u32 sz)
-{
-	int ret = 0;
-	struct file *fp;
-
-	if (path && buf) {
-		ret = openFile(&fp, path, O_CREAT | O_WRONLY, 0666);
-		if (0 == ret) {
-			RTW_INFO("%s openFile path:%s fp=%p\n", __FUNCTION__, path , fp);
-
-			ret = writeFile(fp, buf, sz);
-			closeFile(fp);
-
-			RTW_INFO("%s writeFile, ret:%d\n", __FUNCTION__, ret);
-
-		} else
-			RTW_INFO("%s openFile path:%s Fail, ret:%d\n", __FUNCTION__, path, ret);
-	} else {
-		RTW_INFO("%s NULL pointer\n", __FUNCTION__);
-		ret =  -EINVAL;
-	}
-	return ret;
-}
-
-/*
-* Test if the specifi @param path is a file and readable
-* @param path the path of the file to test
-* @return _TRUE or _FALSE
-*/
+ * Test if the file at @path can be loaded.
+ * @return _TRUE or _FALSE
+ */
 int rtw_is_file_readable(const char *path)
 {
-	if (isFileReadable(path, NULL) == 0)
-		return _TRUE;
-	else
-		return _FALSE;
+	return rtw_is_file_readable_with_size(path, NULL);
 }
 
 /*
-* Test if the specifi @param path is a file and readable.
-* If readable, @param sz is got
-* @param path the path of the file to test
-* @return _TRUE or _FALSE
-*/
+ * Test if the file at @path can be loaded; if so, store its size in @sz.
+ * @return _TRUE or _FALSE
+ */
 int rtw_is_file_readable_with_size(const char *path, u32 *sz)
 {
-	if (isFileReadable(path, sz) == 0)
-		return _TRUE;
-	else
+	const struct firmware *fw;
+
+	if (rtw_request_file(path, &fw))
 		return _FALSE;
+	if (sz)
+		*sz = fw->size;
+	release_firmware(fw);
+	return _TRUE;
 }
 
 /*
-* Open the file with @param path and retrive the file content into memory starting from @param buf for @param sz at most
-* @param path the path of the file to open and read
-* @param buf the starting address of the buffer to store file content
-* @param sz how many bytes to read at most
-* @return the byte we've read
-*/
+ * Read at most @sz bytes of the file at @path into @buf.
+ * @return the number of bytes read, 0 on failure
+ */
 int rtw_retrieve_from_file(const char *path, u8 *buf, u32 sz)
 {
-	int ret = retriveFromFile(path, buf, sz);
-	return ret >= 0 ? ret : 0;
+	const struct firmware *fw;
+	u32 len;
+
+	if (!buf || rtw_request_file(path, &fw))
+		return 0;
+	len = min_t(u32, sz, fw->size);
+	memcpy(buf, fw->data, len);
+	release_firmware(fw);
+	return len;
 }
 
 /*
-* Open the file with @param path and wirte @param sz byte of data starting from @param buf into the file
-* @param path the path of the file to open and write
-* @param buf the starting address of the data to write into file
-* @param sz how many bytes to write at most
-* @return the byte we've written
-*/
+ * Writing files from kernel context is not supported.
+ * @return 0 (bytes written)
+ */
 int rtw_store_to_file(const char *path, u8 *buf, u32 sz)
 {
-	int ret = storeToFile(path, buf, sz);
-	return ret >= 0 ? ret : 0;
+	pr_warn_once("rtl8192eu: writing files (%s) is not supported\n", path);
+	return 0;
 }
 
 struct net_device *rtw_alloc_etherdev_with_old_priv(int sizeof_priv, void *old_priv)

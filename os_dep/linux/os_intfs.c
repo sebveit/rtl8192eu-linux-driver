@@ -511,11 +511,11 @@ MODULE_PARM_DESC(rtw_fw_iol, "FW IOL. 0:Disable, 1:enable, 2:by usb speed");
 #endif /* CONFIG_IOL */
 
 #ifdef CONFIG_FILE_FWIMG
-char *rtw_fw_file_path = "/system/etc/firmware/rtlwifi/FW_NIC.BIN";
+char *rtw_fw_file_path = "rtlwifi/rtl8192eu_nic.bin";
 module_param(rtw_fw_file_path, charp, 0644);
 MODULE_PARM_DESC(rtw_fw_file_path, "The path of fw image");
 
-char *rtw_fw_wow_file_path = "/system/etc/firmware/rtlwifi/FW_WoWLAN.BIN";
+char *rtw_fw_wow_file_path = "rtlwifi/rtl8192eu_wowlan.bin";
 module_param(rtw_fw_wow_file_path, charp, 0644);
 MODULE_PARM_DESC(rtw_fw_wow_file_path, "The path of fw for Wake on Wireless image");
 
@@ -4509,12 +4509,6 @@ int rtw_resume_process_wow(_adapter *padapter)
 	}
 
 	pwrpriv->wowlan_in_resume = _TRUE;
-#ifdef CONFIG_PNO_SUPPORT
-#ifdef CONFIG_FWLPS_IN_IPS
-	if (pwrpriv->wowlan_pno_enable)
-		rtw_set_fw_in_ips_mode(padapter, _FALSE);
-#endif /* CONFIG_FWLPS_IN_IPS */
-#endif/* CONFIG_PNO_SUPPORT */
 
 	if (pwrpriv->wowlan_mode == _TRUE) {
 #ifdef CONFIG_LPS
