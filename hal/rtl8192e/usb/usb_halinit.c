@@ -20,10 +20,10 @@
 
 
 
-static VOID
+static void
 _ConfigChipOutEP_8192E(
-	IN	PADAPTER	pAdapter,
-	IN	u8		NumOutPipe
+	PADAPTER	pAdapter,
+	u8		NumOutPipe
 )
 {
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
@@ -58,9 +58,9 @@ _ConfigChipOutEP_8192E(
 }
 
 static BOOLEAN HalUsbSetQueuePipeMapping8192EUsb(
-	IN	PADAPTER	pAdapter,
-	IN	u8		NumInPipe,
-	IN	u8		NumOutPipe
+	PADAPTER	pAdapter,
+	u8		NumInPipe,
+	u8		NumOutPipe
 )
 {
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
@@ -158,8 +158,8 @@ static void rtl8192eu_interface_configure(_adapter *padapter)
 
 }
 
-static VOID
-_InitBurstPktLen_8192EU(IN PADAPTER Adapter)
+static void
+_InitBurstPktLen_8192EU(PADAPTER Adapter)
 {
 }
 
@@ -227,9 +227,9 @@ static u32 _InitPowerOn_8192EU(_adapter *padapter)
  * --------------------------------------------------------------- */
 
 /* Shall USB interface init this? */
-static VOID
+static void
 _InitInterrupt_8192EU(
-	IN  PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(Adapter);
@@ -244,17 +244,17 @@ _InitInterrupt_8192EU(
 }
 
 
-static VOID
+static void
 _InitQueueReservedPage_8192EUsb(
-	IN  PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 	_InitQueueReservedPage_8192E(Adapter);
 }
 
-static VOID
+static void
 _InitHardwareDropIncorrectBulkOut_8192E(
-	IN  PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 #ifdef ENABLE_USB_DROP_INCORRECT_OUT
@@ -283,9 +283,9 @@ static void _InitHWLed(PADAPTER Adapter)
 #endif /* CONFIG_RTW_LED */
 
 
-static VOID
+static void
 _init_UsbBusSetting_8192EU(
-	IN  PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 	u8 usb_bus_setting = 0;
@@ -318,9 +318,9 @@ _init_UsbBusSetting_8192EU(
  *	12/10/2010	MHC		Seperate to smaller function.
  *
  *---------------------------------------------------------------------------*/
-static VOID
+static void
 usb_AggSettingTxUpdate_8192EU(
-	IN	PADAPTER			Adapter
+	PADAPTER			Adapter
 )
 {
 #ifdef CONFIG_USB_TX_AGGREGATION
@@ -359,9 +359,9 @@ usb_AggSettingTxUpdate_8192EU(
  *
  *---------------------------------------------------------------------------*/
 
-static VOID
+static void
 usb_AggSettingRxUpdate_8192EU(
-	IN	PADAPTER			Adapter
+	PADAPTER			Adapter
 )
 {
 #ifdef CONFIG_USB_RX_AGGREGATION
@@ -395,9 +395,9 @@ usb_AggSettingRxUpdate_8192EU(
 
 }	/* usb_AggSettingRxUpdate */
 
-static VOID
+static void
 _init_UsbAggregationSetting_8192EU(
-	IN  PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 
@@ -432,7 +432,7 @@ enum {
 	Antenna_Right = 2,
 };
 
-rt_rf_power_state RfOnOffDetect(IN	PADAPTER pAdapter)
+rt_rf_power_state RfOnOffDetect(PADAPTER pAdapter)
 {
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(pAdapter);
 	u8	val8;
@@ -909,9 +909,9 @@ exit:
 	return status;
 }
 
-static VOID
+static void
 hal_poweroff_8192eu(
-	IN	PADAPTER			Adapter
+	PADAPTER			Adapter
 )
 {
 	u8	u1bTmp;
@@ -1075,11 +1075,11 @@ static unsigned int rtl8192eu_inirp_deinit(PADAPTER Adapter)
  *	EEPROM/EFUSE Content Parsing
  *
  * ------------------------------------------------------------------- */
-static VOID
+static void
 hal_ReadIDs_8192EU(
-	IN	PADAPTER	Adapter,
-	IN	pu1Byte		PROMContent,
-	IN	BOOLEAN		AutoloadFail
+	PADAPTER	Adapter,
+	pu1Byte		PROMContent,
+	BOOLEAN		AutoloadFail
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
@@ -1119,17 +1119,17 @@ hal_ReadIDs_8192EU(
 
 static void
 hal_CustomizeByCustomerID_8192EU(
-	IN	PADAPTER		padapter
+	PADAPTER		padapter
 )
 {
 }
 
 
-static VOID
+static void
 ReadLEDSetting_8192EU(
-	IN	PADAPTER	Adapter,
-	IN	u8		*PROMContent,
-	IN	BOOLEAN		AutoloadFail
+	PADAPTER	Adapter,
+	u8		*PROMContent,
+	BOOLEAN		AutoloadFail
 )
 {
 #ifdef CONFIG_RTW_LED
@@ -1151,9 +1151,9 @@ ReadLEDSetting_8192EU(
 #endif
 }
 
-static VOID
+static void
 InitAdapterVariablesByPROM_8192EU(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(Adapter);
@@ -1192,7 +1192,7 @@ InitAdapterVariablesByPROM_8192EU(
 }
 
 static void Hal_ReadPROMContent_8192EU(
-	IN PADAPTER		Adapter
+	PADAPTER		Adapter
 )
 {
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(Adapter);
@@ -1213,7 +1213,7 @@ static void Hal_ReadPROMContent_8192EU(
 
 static u8
 ReadAdapterInfo8192EU(
-	IN PADAPTER			Adapter
+	PADAPTER			Adapter
 )
 {
 	/* Read all content in Efuse/EEPROM. */
@@ -1351,9 +1351,9 @@ static void GetHwReg8192EU(PADAPTER Adapter, u8 variable, u8 *val)
 }
 static u8
 GetHalDefVar8192EUsb(
-	IN	PADAPTER				Adapter,
-	IN	HAL_DEF_VARIABLE		eVariable,
-	IN	PVOID					pValue
+	PADAPTER				Adapter,
+	HAL_DEF_VARIABLE		eVariable,
+	void *					pValue
 )
 {
 	u8			bResult = _SUCCESS;
@@ -1375,9 +1375,9 @@ GetHalDefVar8192EUsb(
  *   */
 static u8
 SetHalDefVar8192EUsb(
-	IN	PADAPTER				Adapter,
-	IN	HAL_DEF_VARIABLE		eVariable,
-	IN	PVOID					pValue
+	PADAPTER				Adapter,
+	HAL_DEF_VARIABLE		eVariable,
+	void *					pValue
 )
 {
 	u8			bResult = _SUCCESS;

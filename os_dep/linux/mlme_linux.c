@@ -114,8 +114,8 @@ void rtw_reset_securitypriv(_adapter *adapter)
 		adapter->securitypriv.btkip_countermeasure = backupTKIPCountermeasure;
 		adapter->securitypriv.btkip_countermeasure_time = backupTKIPcountermeasure_time;
 
-		adapter->securitypriv.ndisauthtype = Ndis802_11AuthModeOpen;
-		adapter->securitypriv.ndisencryptstatus = Ndis802_11WEPDisabled;
+		adapter->securitypriv.ndisauthtype = Rtw802_11AuthModeOpen;
+		adapter->securitypriv.ndisencryptstatus = Rtw802_11WEPDisabled;
 
 		adapter->securitypriv.extauth_status = WLAN_STATUS_UNSPECIFIED_FAILURE;
 
@@ -131,8 +131,8 @@ void rtw_reset_securitypriv(_adapter *adapter)
 		psec_priv->dot118021XGrpPrivacy = _NO_PRIVACY_;
 		psec_priv->dot118021XGrpKeyid = 1;
 
-		psec_priv->ndisauthtype = Ndis802_11AuthModeOpen;
-		psec_priv->ndisencryptstatus = Ndis802_11WEPDisabled;
+		psec_priv->ndisauthtype = Rtw802_11AuthModeOpen;
+		psec_priv->ndisencryptstatus = Rtw802_11WEPDisabled;
 		/* } */
 
 		psec_priv->extauth_status = WLAN_STATUS_UNSPECIFIED_FAILURE;

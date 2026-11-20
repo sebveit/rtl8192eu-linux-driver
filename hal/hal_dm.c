@@ -714,7 +714,7 @@ u8 rtw_phydm_is_iqk_in_progress(_adapter *adapter)
 void SetHalODMVar(
 	PADAPTER				Adapter,
 	HAL_ODM_VARIABLE		eVariable,
-	PVOID					pValue1,
+	void *					pValue1,
 	BOOLEAN					bSet)
 {
 	struct dm_struct *podmpriv = adapter_to_phydm(Adapter);
@@ -825,8 +825,8 @@ void SetHalODMVar(
 void GetHalODMVar(
 	PADAPTER				Adapter,
 	HAL_ODM_VARIABLE		eVariable,
-	PVOID					pValue1,
-	PVOID					pValue2)
+	void *					pValue1,
+	void *					pValue2)
 {
 
 	switch (eVariable) {

@@ -73,10 +73,10 @@ void Hal_DetectWoWMode(PADAPTER pAdapter)
 }
 #endif
 
-static VOID
+static void
 _FWDownloadEnable_8192E(
-	IN	PADAPTER		padapter,
-	IN	BOOLEAN			enable
+	PADAPTER		padapter,
+	BOOLEAN			enable
 )
 {
 	u8	tmp;
@@ -105,9 +105,9 @@ _FWDownloadEnable_8192E(
 
 static int
 _BlockWrite_8192E(
-	IN		PADAPTER		padapter,
-	IN		PVOID		buffer,
-	IN		u32			buffSize
+	PADAPTER		padapter,
+	void *		buffer,
+	u32			buffSize
 )
 {
 	int ret = _SUCCESS;
@@ -174,10 +174,10 @@ exit:
 
 static int
 _PageWrite_8192E(
-	IN		PADAPTER	padapter,
-	IN		u32			page,
-	IN		PVOID		buffer,
-	IN		u32			size
+	PADAPTER	padapter,
+	u32			page,
+	void *		buffer,
+	u32			size
 )
 {
 	u8 value8;
@@ -191,9 +191,9 @@ _PageWrite_8192E(
 
 static int
 _WriteFW_8192E(
-	IN		PADAPTER		padapter,
-	IN		PVOID			buffer,
-	IN		u32			size
+	PADAPTER		padapter,
+	void *			buffer,
+	u32			size
 )
 {
 	/* Since we need dynamic decide method of dwonload fw, so we call this function to get chip version. */
@@ -334,8 +334,8 @@ u8 FwBuffer[FW_SIZE_8192E];
 
 s32
 FirmwareDownload8192E(
-	IN	PADAPTER			Adapter,
-	IN	BOOLEAN			bUsedWoWLANFw
+	PADAPTER			Adapter,
+	BOOLEAN			bUsedWoWLANFw
 )
 {
 	s32	rtStatus = _SUCCESS;
@@ -501,8 +501,8 @@ void InitializeFirmwareVars8192E(PADAPTER padapter)
  * *********************************************************** */
 void
 hal_InitPGData_8192E(
-	IN	PADAPTER		padapter,
-	IN	OUT	u8			*PROMContent
+	PADAPTER		padapter,
+	u8			*PROMContent
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
@@ -537,11 +537,11 @@ hal_InitPGData_8192E(
 }
 
 
-VOID
+void
 Hal_EfuseParseBTCoexistInfo8192E(
-	IN PADAPTER			Adapter,
-	IN pu1Byte			hwinfo,
-	IN BOOLEAN			AutoLoadFail
+	PADAPTER			Adapter,
+	pu1Byte			hwinfo,
+	BOOLEAN			AutoLoadFail
 )
 {
 
@@ -581,8 +581,8 @@ Hal_EfuseParseBTCoexistInfo8192E(
 
 void
 Hal_EfuseParseIDCode8192E(
-	IN	PADAPTER	padapter,
-	IN	u8			*hwinfo
+	PADAPTER	padapter,
+	u8			*hwinfo
 )
 {
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(padapter);
@@ -600,11 +600,11 @@ Hal_EfuseParseIDCode8192E(
 	RTW_INFO("EEPROM ID=0x%04x\n", EEPROMId);
 }
 
-VOID
+void
 Hal_ReadPROMVersion8192E(
-	IN	PADAPTER	Adapter,
-	IN	u8			*PROMContent,
-	IN	BOOLEAN	AutoloadFail
+	PADAPTER	Adapter,
+	u8			*PROMContent,
+	BOOLEAN	AutoloadFail
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
@@ -621,8 +621,8 @@ Hal_ReadPROMVersion8192E(
 
 void Hal_ReadPowerSavingMode8192E(
 	PADAPTER		padapter,
-	IN	u8			*hwinfo,
-	IN	BOOLEAN			AutoLoadFail
+	u8			*hwinfo,
+	BOOLEAN			AutoLoadFail
 )
 {
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(padapter);
@@ -655,9 +655,9 @@ void Hal_ReadPowerSavingMode8192E(
 
 void
 Hal_ReadTxPowerInfo8192E(
-	IN	PADAPTER		Adapter,
-	IN	u8				*PROMContent,
-	IN	BOOLEAN			AutoLoadFail
+	PADAPTER		Adapter,
+	u8				*PROMContent,
+	BOOLEAN			AutoLoadFail
 )
 {
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
@@ -679,11 +679,11 @@ Hal_ReadTxPowerInfo8192E(
 
 }
 
-VOID
+void
 Hal_ReadBoardType8192E(
-	IN	PADAPTER	Adapter,
-	IN	u8			*PROMContent,
-	IN	BOOLEAN		AutoloadFail
+	PADAPTER	Adapter,
+	u8			*PROMContent,
+	BOOLEAN		AutoloadFail
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
@@ -711,11 +711,11 @@ Hal_ReadBoardType8192E(
 
 }
 
-VOID
+void
 Hal_ReadThermalMeter_8192E(
-	IN	PADAPTER	Adapter,
-	IN	u8			*PROMContent,
-	IN	BOOLEAN	AutoloadFail
+	PADAPTER	Adapter,
+	u8			*PROMContent,
+	BOOLEAN	AutoloadFail
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
@@ -739,11 +739,11 @@ Hal_ReadThermalMeter_8192E(
 	RTW_INFO("ThermalMeter = 0x%x\n", pHalData->eeprom_thermal_meter);
 }
 
-VOID
+void
 Hal_ReadChannelPlan8192E(
-	IN	PADAPTER		padapter,
-	IN	u8				*hwinfo,
-	IN	BOOLEAN			AutoLoadFail
+	PADAPTER		padapter,
+	u8				*hwinfo,
+	BOOLEAN			AutoLoadFail
 )
 {
 	hal_com_config_channel_plan(
@@ -757,11 +757,11 @@ Hal_ReadChannelPlan8192E(
 	);
 }
 
-VOID
+void
 Hal_EfuseParseXtal_8192E(
-	IN	PADAPTER	pAdapter,
-	IN	u8			*hwinfo,
-	IN	BOOLEAN		AutoLoadFail
+	PADAPTER	pAdapter,
+	u8			*hwinfo,
+	BOOLEAN		AutoLoadFail
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
@@ -775,11 +775,11 @@ Hal_EfuseParseXtal_8192E(
 	RTW_INFO("crystal_cap: 0x%2x\n", pHalData->crystal_cap);
 }
 
-VOID
+void
 Hal_ReadAntennaDiversity8192E(
-	IN	PADAPTER		pAdapter,
-	IN	u8				*PROMContent,
-	IN	BOOLEAN			AutoLoadFail
+	PADAPTER		pAdapter,
+	u8				*PROMContent,
+	BOOLEAN			AutoLoadFail
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
@@ -788,11 +788,11 @@ Hal_ReadAntennaDiversity8192E(
 	RTW_INFO("SWAS: bHwAntDiv = %x, TRxAntDivType = %x\n", pHalData->AntDivCfg, pHalData->TRxAntDivType);
 }
 
-VOID
+void
 Hal_ReadPAType_8192E(
-	IN	PADAPTER	Adapter,
-	IN	u8			*PROMContent,
-	IN	BOOLEAN		AutoloadFail
+	PADAPTER	Adapter,
+	u8			*PROMContent,
+	BOOLEAN		AutoloadFail
 )
 {
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
@@ -849,11 +849,11 @@ Hal_ReadPAType_8192E(
 
 }
 
-VOID
+void
 Hal_ReadAmplifierType_8192E(
-	IN	PADAPTER	Adapter,
-	IN	pu1Byte		PROMContent,
-	IN	BOOLEAN		AutoloadFail
+	PADAPTER	Adapter,
+	pu1Byte		PROMContent,
+	BOOLEAN		AutoloadFail
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
@@ -890,11 +890,11 @@ Hal_ReadAmplifierType_8192E(
 	}
 	RTW_INFO("pHalData->TypeGLNA is 0x%x\n", pHalData->TypeGLNA);
 }
-VOID
+void
 Hal_ReadRFEType_8192E(
-	IN	PADAPTER	Adapter,
-	IN	pu1Byte		PROMContent,
-	IN	BOOLEAN		AutoloadFail
+	PADAPTER	Adapter,
+	pu1Byte		PROMContent,
+	BOOLEAN		AutoloadFail
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
@@ -939,9 +939,9 @@ Hal_ReadRFEType_8192E(
 
 
 void Hal_EfuseParseKFreeData_8192E(
-	IN		PADAPTER		Adapter,
-	IN		u8				*PROMContent,
-	IN		BOOLEAN			AutoloadFail)
+	PADAPTER		Adapter,
+	u8				*PROMContent,
+	BOOLEAN			AutoloadFail)
 {
 #ifdef CONFIG_RF_POWER_TRIM
 
@@ -993,11 +993,11 @@ enum {
 	LDOE25_SHIFT						= 28 ,
 };
 
-static VOID
+static void
 Hal_EfusePowerSwitch8192E(
-	IN	PADAPTER	pAdapter,
-	IN	u8		bWrite,
-	IN	u8		PwrState)
+	PADAPTER	pAdapter,
+	u8		bWrite,
+	u8		PwrState)
 {
 	u8	tempval;
 	u16	tmpV16;
@@ -1042,11 +1042,11 @@ Hal_EfusePowerSwitch8192E(
 	}
 }
 
-static VOID
+static void
 rtl8192E_EfusePowerSwitch(
-	IN	PADAPTER	pAdapter,
-	IN	u8		bWrite,
-	IN	u8		PwrState)
+	PADAPTER	pAdapter,
+	u8		bWrite,
+	u8		PwrState)
 {
 	Hal_EfusePowerSwitch8192E(pAdapter, bWrite, PwrState);
 }
@@ -1054,13 +1054,13 @@ rtl8192E_EfusePowerSwitch(
 
 
 
-static VOID
+static void
 Hal_EfuseReadEFuse8192E(
 	PADAPTER		Adapter,
 	u16			_offset,
 	u16			_size_byte,
 	u8		*pbuf,
-	IN	BOOLEAN	bPseudoTest
+	BOOLEAN	bPseudoTest
 )
 {
 	u8	*efuseTbl = NULL;
@@ -1236,26 +1236,26 @@ exit:
 		rtw_mfree2d((void *)eFuseWord, EFUSE_MAX_SECTION_8192E, EFUSE_MAX_WORD_UNIT, sizeof(u16));
 }
 
-static VOID
+static void
 rtl8192E_ReadEFuse(
 	PADAPTER	Adapter,
 	u8		efuseType,
 	u16		_offset,
 	u16		_size_byte,
 	u8	*pbuf,
-	IN	BOOLEAN	bPseudoTest
+	BOOLEAN	bPseudoTest
 )
 {
 	Hal_EfuseReadEFuse8192E(Adapter, _offset, _size_byte, pbuf, bPseudoTest);
 }
 
 /* Do not support BT */
-static VOID
+static void
 Hal_EFUSEGetEfuseDefinition8192E(
-	IN		PADAPTER	pAdapter,
-	IN		u1Byte		efuseType,
-	IN		u1Byte		type,
-	OUT		PVOID		pOut
+	PADAPTER	pAdapter,
+	u1Byte		efuseType,
+	u1Byte		type,
+	void *		pOut
 )
 {
 	switch (type) {
@@ -1332,12 +1332,12 @@ Hal_EFUSEGetEfuseDefinition8192E(
 	break;
 	}
 }
-static VOID
+static void
 Hal_EFUSEGetEfuseDefinition_Pseudo8192E(
-	IN		PADAPTER	pAdapter,
-	IN		u8			efuseType,
-	IN		u8			type,
-	OUT		PVOID		pOut
+	PADAPTER	pAdapter,
+	u8			efuseType,
+	u8			type,
+	void *		pOut
 )
 {
 	switch (type) {
@@ -1415,13 +1415,13 @@ Hal_EFUSEGetEfuseDefinition_Pseudo8192E(
 }
 
 
-static VOID
+static void
 rtl8192E_EFUSE_GetEfuseDefinition(
-	IN		PADAPTER	pAdapter,
-	IN		u8		efuseType,
-	IN		u8		type,
-	OUT		void		*pOut,
-	IN		BOOLEAN		bPseudoTest
+	PADAPTER	pAdapter,
+	u8		efuseType,
+	u8		type,
+	void		*pOut,
+	BOOLEAN		bPseudoTest
 )
 {
 	if (bPseudoTest)
@@ -1431,18 +1431,18 @@ rtl8192E_EFUSE_GetEfuseDefinition(
 }
 
 static u8
-Hal_EfuseWordEnableDataWrite8192E(IN	PADAPTER	pAdapter,
-				  IN	u16		efuse_addr,
-				  IN	u8		word_en,
-				  IN	u8		*data,
-				  IN	BOOLEAN		bPseudoTest)
+Hal_EfuseWordEnableDataWrite8192E(PADAPTER	pAdapter,
+				  u16		efuse_addr,
+				  u8		word_en,
+				  u8		*data,
+				  BOOLEAN		bPseudoTest)
 {
 	u16	tmpaddr = 0;
 	u16	start_addr = efuse_addr;
 	u8	badworden = 0x0F;
 	u8	tmpdata[8];
 
-	_rtw_memset((PVOID)tmpdata, 0xff, PGPKT_DATA_SIZE);
+	_rtw_memset((void *)tmpdata, 0xff, PGPKT_DATA_SIZE);
 
 	if (!(word_en & BIT0)) {
 		tmpaddr = start_addr;
@@ -1500,11 +1500,11 @@ Hal_EfuseWordEnableDataWrite8192E(IN	PADAPTER	pAdapter,
 }
 
 static u8
-rtl8192E_Efuse_WordEnableDataWrite(IN	PADAPTER	pAdapter,
-				   IN	u16		efuse_addr,
-				   IN	u8		word_en,
-				   IN	u8		*data,
-				   IN	BOOLEAN		bPseudoTest)
+rtl8192E_Efuse_WordEnableDataWrite(PADAPTER	pAdapter,
+				   u16		efuse_addr,
+				   u8		word_en,
+				   u8		*data,
+				   BOOLEAN		bPseudoTest)
 {
 	u8	ret = 0;
 
@@ -1514,8 +1514,8 @@ rtl8192E_Efuse_WordEnableDataWrite(IN	PADAPTER	pAdapter,
 }
 
 static u16
-hal_EfuseGetCurrentSize_8192E(IN	PADAPTER	pAdapter,
-			      IN		BOOLEAN			bPseudoTest)
+hal_EfuseGetCurrentSize_8192E(PADAPTER	pAdapter,
+			      BOOLEAN			bPseudoTest)
 {
 	int	bContinual = _TRUE;
 
@@ -1568,9 +1568,9 @@ hal_EfuseGetCurrentSize_8192E(IN	PADAPTER	pAdapter,
 
 static u16
 rtl8192E_EfuseGetCurrentSize(
-	IN	PADAPTER	pAdapter,
-	IN	u8			efuseType,
-	IN	BOOLEAN		bPseudoTest)
+	PADAPTER	pAdapter,
+	u8			efuseType,
+	BOOLEAN		bPseudoTest)
 {
 	u16	ret = 0;
 
@@ -1582,10 +1582,10 @@ rtl8192E_EfuseGetCurrentSize(
 
 static int
 hal_EfusePgPacketRead_8192E(
-	IN	PADAPTER	pAdapter,
-	IN	u8			offset,
-	IN	u8			*data,
-	IN	BOOLEAN		bPseudoTest)
+	PADAPTER	pAdapter,
+	u8			offset,
+	u8			*data,
+	BOOLEAN		bPseudoTest)
 {
 	u8	ReadState = PG_STATE_HEADER;
 
@@ -1604,8 +1604,8 @@ hal_EfusePgPacketRead_8192E(
 	if (offset > EFUSE_MAX_SECTION_8192E)
 		return _FALSE;
 
-	_rtw_memset((PVOID)data, 0xff, sizeof(u8) * PGPKT_DATA_SIZE);
-	_rtw_memset((PVOID)tmpdata, 0xff, sizeof(u8) * PGPKT_DATA_SIZE);
+	_rtw_memset((void *)data, 0xff, sizeof(u8) * PGPKT_DATA_SIZE);
+	_rtw_memset((void *)tmpdata, 0xff, sizeof(u8) * PGPKT_DATA_SIZE);
 
 
 	/*  */
@@ -1676,10 +1676,10 @@ hal_EfusePgPacketRead_8192E(
 }
 
 static int
-rtl8192E_Efuse_PgPacketRead(IN	PADAPTER	pAdapter,
-			    IN	u8			offset,
-			    IN	u8			*data,
-			    IN	BOOLEAN		bPseudoTest)
+rtl8192E_Efuse_PgPacketRead(PADAPTER	pAdapter,
+			    u8			offset,
+			    u8			*data,
+			    BOOLEAN		bPseudoTest)
 {
 	int	ret = 0;
 
@@ -1704,15 +1704,15 @@ static BOOLEAN efuse_PgPacketCheck(
 }
 
 
-static VOID
+static void
 efuse_PgPacketConstruct(
-	IN	    u8			offset,
-	IN	    u8			word_en,
-	IN	    u8			*pData,
-	IN OUT	PPGPKT_STRUCT	pTargetPkt
+	u8			offset,
+	u8			word_en,
+	u8			*pData,
+	PPGPKT_STRUCT	pTargetPkt
 )
 {
-	_rtw_memset((PVOID)pTargetPkt->data, 0xFF, sizeof(u8) * 8);
+	_rtw_memset((void *)pTargetPkt->data, 0xFF, sizeof(u8) * 8);
 	pTargetPkt->offset = offset;
 	pTargetPkt->word_en = word_en;
 	efuse_WordEnableDataRead(word_en, pData, pTargetPkt->data);
@@ -1793,10 +1793,10 @@ static u2Byte Hal_EfusePgPacketExceptionHandle_8192E(
 }
 
 static BOOLEAN hal_EfuseCheckIfDatafollowed(
-	IN		PADAPTER		pAdapter,
-	IN		u8			word_cnts,
-	IN		u16			startAddr,
-	IN		BOOLEAN			bPseudoTest
+	PADAPTER		pAdapter,
+	u8			word_cnts,
+	u16			startAddr,
+	BOOLEAN			bPseudoTest
 )
 {
 	BOOLEAN		bRet = FALSE;
@@ -1813,9 +1813,9 @@ static BOOLEAN hal_EfuseCheckIfDatafollowed(
 
 static BOOLEAN
 hal_EfuseWordEnMatched(
-	IN	PPGPKT_STRUCT	pTargetPkt,
-	IN	PPGPKT_STRUCT	pCurPkt,
-	IN	u8			*pWden
+	PPGPKT_STRUCT	pTargetPkt,
+	PPGPKT_STRUCT	pCurPkt,
+	u8			*pWden
 )
 {
 	u8	match_word_en = 0x0F;	/* default all words are disabled */
@@ -1849,11 +1849,11 @@ hal_EfuseWordEnMatched(
 
 static BOOLEAN
 efuse_PgPacketPartialWrite(
-	IN	    PADAPTER		pAdapter,
-	IN	    u8			efuseType,
-	IN OUT	u16			*pAddr,
-	IN	    PPGPKT_STRUCT	pTargetPkt,
-	IN	    BOOLEAN			bPseudoTest
+	PADAPTER		pAdapter,
+	u8			efuseType,
+	u16			*pAddr,
+	PPGPKT_STRUCT	pTargetPkt,
+	BOOLEAN			bPseudoTest
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
@@ -2005,18 +2005,18 @@ efuse_PgPacketPartialWrite(
 
 static BOOLEAN
 hal_EfuseFixHeaderProcess(
-	IN		PADAPTER			pAdapter,
-	IN		u8				efuseType,
-	IN		PPGPKT_STRUCT		pFixPkt,
-	IN		u16				*pAddr,
-	IN		BOOLEAN				bPseudoTest
+	PADAPTER			pAdapter,
+	u8				efuseType,
+	PPGPKT_STRUCT		pFixPkt,
+	u16				*pAddr,
+	BOOLEAN				bPseudoTest
 )
 {
 	u8	originaldata[8], badworden = 0;
 	u16	efuse_addr = *pAddr;
 	u32	PgWriteSuccess = 0;
 
-	_rtw_memset((PVOID)originaldata, 0xff, 8);
+	_rtw_memset((void *)originaldata, 0xff, 8);
 
 	if (Efuse_PgPacketRead(pAdapter, pFixPkt->offset, originaldata, bPseudoTest)) {
 		/* check if data exist */
@@ -2234,7 +2234,7 @@ hal_EfusePgPacketWriteData(
 
 
 static int
-hal_EfusePgPacketWrite_8192E(IN	PADAPTER	pAdapter,
+hal_EfusePgPacketWrite_8192E(PADAPTER	pAdapter,
 			u8			offset,
 			u8			word_en,
 			u8			*pData,
@@ -2285,11 +2285,11 @@ hal_EfusePgPacketWrite_8192E(IN	PADAPTER	pAdapter,
 
 
 static int
-rtl8192E_Efuse_PgPacketWrite(IN	PADAPTER	pAdapter,
-			     IN	u8			offset,
-			     IN	u8			word_en,
-			     IN	u8			*data,
-			     IN	BOOLEAN		bPseudoTest)
+rtl8192E_Efuse_PgPacketWrite(PADAPTER	pAdapter,
+			     u8			offset,
+			     u8			word_en,
+			     u8			*data,
+			     BOOLEAN		bPseudoTest)
 {
 	int	ret;
 
@@ -2301,7 +2301,7 @@ rtl8192E_Efuse_PgPacketWrite(IN	PADAPTER	pAdapter,
 
 u8
 GetEEPROMSize8192E(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	u8	size = 0;
@@ -2576,10 +2576,10 @@ static void hw_var_set_opmode(PADAPTER Adapter, u8 variable, u8 *val)
 
 /***********************************************************/
 /* RTL8192E-MAC Setting */
-VOID
+void
 _InitTxBufferBoundary_8192E(
-	IN PADAPTER Adapter,
-	IN u8 txpktbuf_bndy
+	PADAPTER Adapter,
+	u8 txpktbuf_bndy
 )
 {
 
@@ -2597,9 +2597,9 @@ _InitTxBufferBoundary_8192E(
 #endif
 }
 
-VOID
+void
 _InitQueueReservedPage_8192E(
-	IN  PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
@@ -2659,15 +2659,15 @@ _InitQueueReservedPage_8192E(
 }
 
 
-static VOID
+static void
 _InitNormalChipRegPriority_8192E(
-	IN	PADAPTER	Adapter,
-	IN	u16		beQ,
-	IN	u16		bkQ,
-	IN	u16		viQ,
-	IN	u16		voQ,
-	IN	u16		mgtQ,
-	IN	u16		hiQ
+	PADAPTER	Adapter,
+	u16		beQ,
+	u16		bkQ,
+	u16		viQ,
+	u16		voQ,
+	u16		mgtQ,
+	u16		hiQ
 )
 {
 	u16 value16	= (rtw_read16(Adapter, REG_TRXDMA_CTRL) & 0x7);
@@ -2679,9 +2679,9 @@ _InitNormalChipRegPriority_8192E(
 	rtw_write16(Adapter, REG_TRXDMA_CTRL, value16);
 }
 
-static VOID
+static void
 _InitNormalChipTwoOutEpPriority_8192E(
-	IN	PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(Adapter);
@@ -2731,9 +2731,9 @@ _InitNormalChipTwoOutEpPriority_8192E(
 
 }
 
-static VOID
+static void
 _InitNormalChipThreeOutEpPriority_8192E(
-	IN	PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 	struct registry_priv *pregistrypriv = &Adapter->registrypriv;
@@ -2757,9 +2757,9 @@ _InitNormalChipThreeOutEpPriority_8192E(
 	_InitNormalChipRegPriority_8192E(Adapter, beQ, bkQ, viQ, voQ, mgtQ, hiQ);
 }
 
-static VOID
+static void
 _InitNormalChipFourOutEpPriority_8192E(
-	IN	PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 	struct registry_priv *pregistrypriv = &Adapter->registrypriv;
@@ -2783,9 +2783,9 @@ _InitNormalChipFourOutEpPriority_8192E(
 	_InitNormalChipRegPriority_8192E(Adapter, beQ, bkQ, viQ, voQ, mgtQ, hiQ);
 }
 
-VOID
+void
 _InitQueuePriority_8192E(
-	IN	PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(Adapter);
@@ -2809,9 +2809,9 @@ _InitQueuePriority_8192E(
 
 
 
-VOID
+void
 _InitPageBoundary_8192E(
-	IN  PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 	u16 rxff_bndy = 0;
@@ -2822,25 +2822,25 @@ _InitPageBoundary_8192E(
 }
 
 
-VOID
+void
 _InitDriverInfoSize_8192E(
-	IN  PADAPTER	Adapter,
-	IN	u8		drvInfoSize
+	PADAPTER	Adapter,
+	u8		drvInfoSize
 )
 {
 	rtw_write8(Adapter, REG_RX_DRVINFO_SZ, drvInfoSize);
 }
 
-VOID _InitRDGSetting_8192E(PADAPTER Adapter)
+void _InitRDGSetting_8192E(PADAPTER Adapter)
 {
 	rtw_write8(Adapter, REG_RD_CTRL, 0xFF);
 	rtw_write16(Adapter, REG_RD_NAV_NXT, 0x200);
 	rtw_write8(Adapter, REG_RD_RESP_PKT_TH, 0x05);
 }
 
-VOID
+void
 _InitNetworkType_8192E(
-	IN  PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 	u32	value32;
@@ -2851,9 +2851,9 @@ _InitNetworkType_8192E(
 
 	rtw_write32(Adapter, REG_CR, value32);
 }
-VOID
+void
 _InitWMACSetting_8192E(
-	IN  PADAPTER Adapter
+	PADAPTER Adapter
 )
 {
 	/* u4Byte			value32; */
@@ -2894,7 +2894,7 @@ _InitWMACSetting_8192E(
 
 }
 
-VOID _InitAdaptiveCtrl_8192E(IN  PADAPTER Adapter)
+void _InitAdaptiveCtrl_8192E(PADAPTER Adapter)
 {
 	u16	value16;
 	u32	value32;
@@ -2917,7 +2917,7 @@ VOID _InitAdaptiveCtrl_8192E(IN  PADAPTER Adapter)
 	rtw_write16(Adapter, REG_RETRY_LIMIT, value16);
 }
 
-VOID _InitEDCA_8192E(IN  PADAPTER Adapter)
+void _InitEDCA_8192E(PADAPTER Adapter)
 {
 	/* Set Spec SIFS (used in NAV) */
 	rtw_write16(Adapter, REG_SPEC_SIFS, 0x100a);
@@ -2935,7 +2935,7 @@ VOID _InitEDCA_8192E(IN  PADAPTER Adapter)
 	rtw_write32(Adapter, REG_EDCA_VI_PARAM, 0x005EA324);
 	rtw_write32(Adapter, REG_EDCA_VO_PARAM, 0x002FA226);
 }
-VOID _InitRetryFunction_8192E(IN  PADAPTER Adapter)
+void _InitRetryFunction_8192E(PADAPTER Adapter)
 {
 	u8	value8;
 
@@ -2948,11 +2948,11 @@ VOID _InitRetryFunction_8192E(IN  PADAPTER Adapter)
 	/* rtw_write8(Adapter, REG_ACKTO, 0x80); */
 }
 
-static VOID
+static void
 _BeaconFunctionEnable(
-	IN	PADAPTER		Adapter,
-	IN	BOOLEAN			Enable,
-	IN	BOOLEAN			Linked
+	PADAPTER		Adapter,
+	BOOLEAN			Enable,
+	BOOLEAN			Linked
 )
 {
 	rtw_write8(Adapter, REG_BCN_CTRL, (DIS_TSF_UDT | EN_BCN_FUNCTION));
@@ -2960,7 +2960,7 @@ _BeaconFunctionEnable(
 	rtw_write8(Adapter, REG_RD_CTRL + 1, 0x6F);
 }
 
-VOID _InitBeaconParameters_8192E(IN  PADAPTER Adapter)
+void _InitBeaconParameters_8192E(PADAPTER Adapter)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u16 val16;
@@ -3050,9 +3050,9 @@ void SetBeaconRelatedRegisters8192E(PADAPTER padapter)
 
 }
 
-VOID _InitBeaconMaxError_8192E(
-	IN  PADAPTER	Adapter,
-	IN	BOOLEAN		InfraMode
+void _InitBeaconMaxError_8192E(
+	PADAPTER	Adapter,
+	BOOLEAN		InfraMode
 )
 {
 #ifdef CONFIG_ADHOC_WORKAROUND_SETTING
@@ -3071,9 +3071,9 @@ void _BBTurnOnBlock_8192E(PADAPTER padapter)
 	phy_set_bb_reg(padapter, rFPGA0_RFMOD, bCCKEn, 0x1);
 	phy_set_bb_reg(padapter, rFPGA0_RFMOD, bOFDMEn, 0x1);
 }
-VOID
+void
 hal_ReadRFType_8192E(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
@@ -3744,9 +3744,9 @@ void GetHwReg8192E(PADAPTER Adapter, u8 variable, u8 *val)
  *   */
 u8
 SetHalDefVar8192E(
-	IN	PADAPTER				Adapter,
-	IN	HAL_DEF_VARIABLE		eVariable,
-	IN	PVOID					pValue
+	PADAPTER				Adapter,
+	HAL_DEF_VARIABLE		eVariable,
+	void *					pValue
 )
 {
 	u8			bResult = _SUCCESS;
@@ -3848,9 +3848,9 @@ static void hal_ra_info_dump(_adapter *padapter , void *sel)
  *   */
 u8
 GetHalDefVar8192E(
-	IN	PADAPTER				Adapter,
-	IN	HAL_DEF_VARIABLE		eVariable,
-	IN	PVOID					pValue
+	PADAPTER				Adapter,
+	HAL_DEF_VARIABLE		eVariable,
+	void *					pValue
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);

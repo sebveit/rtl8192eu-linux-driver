@@ -184,35 +184,35 @@ struct coex_sta_8192e_1ant {
 /* *******************************************
  * The following is interface which will notify coex module.
  * ******************************************* */
-void ex_halbtc8192e1ant_power_on_setting(IN struct btc_coexist *btcoexist);
-void ex_halbtc8192e1ant_pre_load_firmware(IN struct btc_coexist *btcoexist);
-void ex_halbtc8192e1ant_init_hw_config(IN struct btc_coexist *btcoexist,
-				       IN boolean wifi_only);
-void ex_halbtc8192e1ant_init_coex_dm(IN struct btc_coexist *btcoexist);
-void ex_halbtc8192e1ant_ips_notify(IN struct btc_coexist *btcoexist,
-				   IN u8 type);
-void ex_halbtc8192e1ant_lps_notify(IN struct btc_coexist *btcoexist,
-				   IN u8 type);
-void ex_halbtc8192e1ant_scan_notify(IN struct btc_coexist *btcoexist,
-				    IN u8 type);
-void ex_halbtc8192e1ant_connect_notify(IN struct btc_coexist *btcoexist,
-				       IN u8 type);
-void ex_halbtc8192e1ant_media_status_notify(IN struct btc_coexist *btcoexist,
-		IN u8 type);
-void ex_halbtc8192e1ant_specific_packet_notify(IN struct btc_coexist *btcoexist,
-		IN u8 type);
-void ex_halbtc8192e1ant_bt_info_notify(IN struct btc_coexist *btcoexist,
-				       IN u8 *tmp_buf, IN u8 length);
-void ex_halbtc8192e1ant_rf_status_notify(IN struct btc_coexist *btcoexist,
-		IN u8 type);
-void ex_halbtc8192e1ant_halt_notify(IN struct btc_coexist *btcoexist);
-void ex_halbtc8192e1ant_pnp_notify(IN struct btc_coexist *btcoexist,
-				   IN u8 pnp_state);
-void ex_halbtc8192e1ant_coex_dm_reset(IN struct btc_coexist *btcoexist);
-void ex_halbtc8192e1ant_periodical(IN struct btc_coexist *btcoexist);
-void ex_halbtc8192e1ant_display_coex_info(IN struct btc_coexist *btcoexist);
-void ex_halbtc8192e1ant_dbg_control(IN struct btc_coexist *btcoexist,
-				    IN u8 op_code, IN u8 op_len, IN u8 *pdata);
+void ex_halbtc8192e1ant_power_on_setting(struct btc_coexist *btcoexist);
+void ex_halbtc8192e1ant_pre_load_firmware(struct btc_coexist *btcoexist);
+void ex_halbtc8192e1ant_init_hw_config(struct btc_coexist *btcoexist,
+				       boolean wifi_only);
+void ex_halbtc8192e1ant_init_coex_dm(struct btc_coexist *btcoexist);
+void ex_halbtc8192e1ant_ips_notify(struct btc_coexist *btcoexist,
+				   u8 type);
+void ex_halbtc8192e1ant_lps_notify(struct btc_coexist *btcoexist,
+				   u8 type);
+void ex_halbtc8192e1ant_scan_notify(struct btc_coexist *btcoexist,
+				    u8 type);
+void ex_halbtc8192e1ant_connect_notify(struct btc_coexist *btcoexist,
+				       u8 type);
+void ex_halbtc8192e1ant_media_status_notify(struct btc_coexist *btcoexist,
+		u8 type);
+void ex_halbtc8192e1ant_specific_packet_notify(struct btc_coexist *btcoexist,
+		u8 type);
+void ex_halbtc8192e1ant_bt_info_notify(struct btc_coexist *btcoexist,
+				       u8 *tmp_buf, u8 length);
+void ex_halbtc8192e1ant_rf_status_notify(struct btc_coexist *btcoexist,
+		u8 type);
+void ex_halbtc8192e1ant_halt_notify(struct btc_coexist *btcoexist);
+void ex_halbtc8192e1ant_pnp_notify(struct btc_coexist *btcoexist,
+				   u8 pnp_state);
+void ex_halbtc8192e1ant_coex_dm_reset(struct btc_coexist *btcoexist);
+void ex_halbtc8192e1ant_periodical(struct btc_coexist *btcoexist);
+void ex_halbtc8192e1ant_display_coex_info(struct btc_coexist *btcoexist);
+void ex_halbtc8192e1ant_dbg_control(struct btc_coexist *btcoexist,
+				    u8 op_code, u8 op_len, u8 *pdata);
 
 
 #endif

@@ -456,7 +456,7 @@ exit:
 void rtw_set_supported_rate(u8 *SupportedRates, uint mode)
 {
 
-	_rtw_memset(SupportedRates, 0, NDIS_802_11_LENGTH_RATES_EX);
+	_rtw_memset(SupportedRates, 0, RTW_802_11_LENGTH_RATES_EX);
 
 	switch (mode) {
 	case WIRELESS_11B:
@@ -1806,8 +1806,8 @@ void rtw_ies_get_chbw(u8 *ies, int ies_len, u8 *ch, u8 *bw, u8 *offset, u8 ht, u
 
 void rtw_bss_get_chbw(WLAN_BSSID_EX *bss, u8 *ch, u8 *bw, u8 *offset, u8 ht, u8 vht)
 {
-	rtw_ies_get_chbw(bss->IEs + sizeof(NDIS_802_11_FIXED_IEs)
-		, bss->IELength - sizeof(NDIS_802_11_FIXED_IEs)
+	rtw_ies_get_chbw(bss->IEs + sizeof(RTW_802_11_FIXED_IEs)
+		, bss->IELength - sizeof(RTW_802_11_FIXED_IEs)
 		, ch, bw, offset, ht, vht);
 
 	if (*ch == 0)
@@ -1917,13 +1917,13 @@ void rtw_sync_chbw(u8 *req_ch, u8 *req_bw, u8 *req_offset
  */
 u32 rtw_get_p2p_merged_ies_len(u8 *in_ie, u32 in_len)
 {
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	u8 OUI[4] = { 0x50, 0x6f, 0x9a, 0x09 };
 	int i = 0;
 	int len = 0;
 
 	while (i < in_len) {
-		pIE = (PNDIS_802_11_VARIABLE_IEs)(in_ie + i);
+		pIE = (PRTW_802_11_VARIABLE_IEs)(in_ie + i);
 
 		if (pIE->ElementID == _VENDOR_SPECIFIC_IE_ && _rtw_memcmp(pIE->data, OUI, 4)) {
 			len += pIE->Length - 4; /* 4 is P2P OUI length, don't count it in this loop */
@@ -1944,7 +1944,7 @@ u32 rtw_get_p2p_merged_ies_len(u8 *in_ie, u32 in_len)
  */
 int rtw_p2p_merge_ies(u8 *in_ie, u32 in_len, u8 *merge_ie)
 {
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	u8 len = 0;
 	u8 OUI[4] = { 0x50, 0x6f, 0x9a, 0x09 };
 	u8 ELOUI[6] = { 0xDD, 0x00, 0x50, 0x6f, 0x9a, 0x09 };	/* EID;Len;OUI, Len would copy at the end of function */
@@ -1956,7 +1956,7 @@ int rtw_p2p_merge_ies(u8 *in_ie, u32 in_len, u8 *merge_ie)
 		merge_ie += 6;
 
 		while (i < in_len) {
-			pIE = (PNDIS_802_11_VARIABLE_IEs)(in_ie + i);
+			pIE = (PRTW_802_11_VARIABLE_IEs)(in_ie + i);
 
 			/* Take out the rest of P2P OUIs */
 			if (pIE->ElementID == _VENDOR_SPECIFIC_IE_ && _rtw_memcmp(pIE->data, OUI, 4)) {

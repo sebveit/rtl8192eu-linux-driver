@@ -355,7 +355,7 @@ struct rtw_mesh_stats {
 struct rtw_mrc;
 
 struct rtw_mesh_info {
-	u8 mesh_id[NDIS_802_11_LENGTH_SSID];
+	u8 mesh_id[RTW_802_11_LENGTH_SSID];
 	size_t mesh_id_len;
 	/* Active Path Selection Protocol Identifier */
 	u8 mesh_pp_id;

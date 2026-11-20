@@ -1315,8 +1315,8 @@ int proc_get_survey_info(struct seq_file *m, void *v)
 			(ie_wpa2) ? "[WPA2]" : "",
 			(!ie_wpa && !ie_wpa && ie_cap & BIT(4)) ? "[WEP]" : "",
 			(ie_wps) ? "[WPS]" : "",
-			(pnetwork->network.InfrastructureMode == Ndis802_11IBSS) ? "[IBSS]" :
-				(pnetwork->network.InfrastructureMode == Ndis802_11_mesh) ? "[MESH]" : "",
+			(pnetwork->network.InfrastructureMode == Rtw802_11IBSS) ? "[IBSS]" :
+				(pnetwork->network.InfrastructureMode == Rtw802_11_mesh) ? "[MESH]" : "",
 			(ie_cap & BIT(0)) ? "[ESS]" : "",
 			(ie_p2p) ? "[P2P]" : "");
 		RTW_PRINT_SEL(m, "%5d  "MAC_FMT"  %3d  %3d  %4d  %4d    %5d  %32s  %32s\n",
@@ -1328,7 +1328,7 @@ int proc_get_survey_info(struct seq_file *m, void *v)
 			notify_noise,
 			rtw_get_passing_time_ms(pnetwork->last_scanned),
 			flag_str,
-			pnetwork->network.InfrastructureMode == Ndis802_11_mesh ? pnetwork->network.mesh_id.Ssid : pnetwork->network.Ssid.Ssid
+			pnetwork->network.InfrastructureMode == Rtw802_11_mesh ? pnetwork->network.mesh_id.Ssid : pnetwork->network.Ssid.Ssid
 		);
 		plist = get_next(plist);
 	}
@@ -1391,7 +1391,7 @@ int proc_get_infra_ap(struct seq_file *m, void *v)
 			RTW_PRINT_SEL(m, "SSID=%s\n", pmlmeinfo->network.Ssid.Ssid);
 			RTW_PRINT_SEL(m, "sta's macaddr:" MAC_FMT "\n", MAC_ARG(psta->cmn.mac_addr));
 			RTW_PRINT_SEL(m, "Supported rate=");
-			for (i = 0; i < NDIS_802_11_LENGTH_RATES_EX; i++) {
+			for (i = 0; i < RTW_802_11_LENGTH_RATES_EX; i++) {
 				if (pmlmeinfo->SupportedRates_infra_ap[i] == 0)
 					break;
 				RTW_PRINT_SEL(m, " 0x%x", pmlmeinfo->SupportedRates_infra_ap[i]);

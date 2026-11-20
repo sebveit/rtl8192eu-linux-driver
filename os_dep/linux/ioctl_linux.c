@@ -606,29 +606,29 @@ static int wpa_set_auth_algs(struct net_device *dev, u32 value)
 
 	if ((value & AUTH_ALG_SHARED_KEY) && (value & AUTH_ALG_OPEN_SYSTEM)) {
 		RTW_INFO("wpa_set_auth_algs, AUTH_ALG_SHARED_KEY and  AUTH_ALG_OPEN_SYSTEM [value:0x%x]\n", value);
-		padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
-		padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeAutoSwitch;
+		padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption1Enabled;
+		padapter->securitypriv.ndisauthtype = Rtw802_11AuthModeAutoSwitch;
 		padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Auto;
 	} else if (value & AUTH_ALG_SHARED_KEY) {
 		RTW_INFO("wpa_set_auth_algs, AUTH_ALG_SHARED_KEY  [value:0x%x]\n", value);
-		padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
+		padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption1Enabled;
 
 #ifdef CONFIG_PLATFORM_MT53XX
-		padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeAutoSwitch;
+		padapter->securitypriv.ndisauthtype = Rtw802_11AuthModeAutoSwitch;
 		padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Auto;
 #else
-		padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeShared;
+		padapter->securitypriv.ndisauthtype = Rtw802_11AuthModeShared;
 		padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Shared;
 #endif
 	} else if (value & AUTH_ALG_OPEN_SYSTEM) {
 		RTW_INFO("wpa_set_auth_algs, AUTH_ALG_OPEN_SYSTEM\n");
 		/* padapter->securitypriv.ndisencryptstatus = Ndis802_11EncryptionDisabled; */
-		if (padapter->securitypriv.ndisauthtype < Ndis802_11AuthModeWPAPSK) {
+		if (padapter->securitypriv.ndisauthtype < Rtw802_11AuthModeWPAPSK) {
 #ifdef CONFIG_PLATFORM_MT53XX
-			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeAutoSwitch;
+			padapter->securitypriv.ndisauthtype = Rtw802_11AuthModeAutoSwitch;
 			padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Auto;
 #else
-			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeOpen;
+			padapter->securitypriv.ndisauthtype = Rtw802_11AuthModeOpen;
 			padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Open;
 #endif
 		}
@@ -707,7 +707,7 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 
 			wep_key_len = wep_key_len <= 5 ? 5 : 13;
 
-			psecuritypriv->ndisencryptstatus = Ndis802_11Encryption1Enabled;
+			psecuritypriv->ndisencryptstatus = Rtw802_11Encryption1Enabled;
 			psecuritypriv->dot11PrivacyAlgrthm = _WEP40_;
 			psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
 
@@ -742,8 +742,8 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 				if (strcmp(param->u.crypt.alg, "none") != 0)
 					psta->ieee8021x_blocked = _FALSE;
 
-				if ((padapter->securitypriv.ndisencryptstatus == Ndis802_11Encryption2Enabled) ||
-				    (padapter->securitypriv.ndisencryptstatus ==  Ndis802_11Encryption3Enabled))
+				if ((padapter->securitypriv.ndisencryptstatus == Rtw802_11Encryption2Enabled) ||
+				    (padapter->securitypriv.ndisencryptstatus ==  Rtw802_11Encryption3Enabled))
 					psta->dot118021XPrivacy = padapter->securitypriv.dot11PrivacyAlgrthm;
 
 				if (param->u.crypt.set_tx == 1) { /* pairwise key */
@@ -808,8 +808,8 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 				if (strcmp(param->u.crypt.alg, "none") != 0)
 					pbcmc_sta->ieee8021x_blocked = _FALSE;
 
-				if ((padapter->securitypriv.ndisencryptstatus == Ndis802_11Encryption2Enabled) ||
-				    (padapter->securitypriv.ndisencryptstatus ==  Ndis802_11Encryption3Enabled))
+				if ((padapter->securitypriv.ndisencryptstatus == Rtw802_11Encryption2Enabled) ||
+				    (padapter->securitypriv.ndisencryptstatus ==  Rtw802_11Encryption3Enabled))
 					pbcmc_sta->dot118021XPrivacy = padapter->securitypriv.dot11PrivacyAlgrthm;
 			}
 		} else if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE)) { /* adhoc mode */
@@ -867,13 +867,13 @@ static int rtw_set_wpa_ie(_adapter *padapter, char *pie, unsigned short ielen)
 
 		if (rtw_parse_wpa_ie(buf, ielen, &group_cipher, &pairwise_cipher, NULL) == _SUCCESS) {
 			padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_8021X;
-			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeWPAPSK;
+			padapter->securitypriv.ndisauthtype = Rtw802_11AuthModeWPAPSK;
 			_rtw_memcpy(padapter->securitypriv.supplicant_ie, &buf[0], ielen);
 		}
 
 		if (rtw_parse_wpa2_ie(buf, ielen, &group_cipher, &pairwise_cipher, NULL, &mfp_opt) == _SUCCESS) {
 			padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_8021X;
-			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeWPA2PSK;
+			padapter->securitypriv.ndisauthtype = Rtw802_11AuthModeWPA2PSK;
 			_rtw_memcpy(padapter->securitypriv.supplicant_ie, &buf[0], ielen);
 		}
 
@@ -885,46 +885,46 @@ static int rtw_set_wpa_ie(_adapter *padapter, char *pie, unsigned short ielen)
 		switch (group_cipher) {
 		case WPA_CIPHER_NONE:
 			padapter->securitypriv.dot118021XGrpPrivacy = _NO_PRIVACY_;
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11EncryptionDisabled;
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11EncryptionDisabled;
 			break;
 		case WPA_CIPHER_WEP40:
 			padapter->securitypriv.dot118021XGrpPrivacy = _WEP40_;
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption1Enabled;
 			break;
 		case WPA_CIPHER_TKIP:
 			padapter->securitypriv.dot118021XGrpPrivacy = _TKIP_;
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption2Enabled;
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption2Enabled;
 			break;
 		case WPA_CIPHER_CCMP:
 			padapter->securitypriv.dot118021XGrpPrivacy = _AES_;
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption3Enabled;
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption3Enabled;
 			break;
 		case WPA_CIPHER_WEP104:
 			padapter->securitypriv.dot118021XGrpPrivacy = _WEP104_;
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption1Enabled;
 			break;
 		}
 
 		switch (pairwise_cipher) {
 		case WPA_CIPHER_NONE:
 			padapter->securitypriv.dot11PrivacyAlgrthm = _NO_PRIVACY_;
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11EncryptionDisabled;
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11EncryptionDisabled;
 			break;
 		case WPA_CIPHER_WEP40:
 			padapter->securitypriv.dot11PrivacyAlgrthm = _WEP40_;
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption1Enabled;
 			break;
 		case WPA_CIPHER_TKIP:
 			padapter->securitypriv.dot11PrivacyAlgrthm = _TKIP_;
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption2Enabled;
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption2Enabled;
 			break;
 		case WPA_CIPHER_CCMP:
 			padapter->securitypriv.dot11PrivacyAlgrthm = _AES_;
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption3Enabled;
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption3Enabled;
 			break;
 		case WPA_CIPHER_WEP104:
 			padapter->securitypriv.dot11PrivacyAlgrthm = _WEP104_;
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption1Enabled;
 			break;
 		}
 
@@ -2956,7 +2956,7 @@ static int rtw_p2p_prov_disc(struct net_device *dev,
 		/*	Reset the content of struct tx_provdisc_req_info excluded the wps_config_method_request. */
 		_rtw_memset(pwdinfo->tx_prov_disc_info.peerDevAddr, 0x00, ETH_ALEN);
 		_rtw_memset(pwdinfo->tx_prov_disc_info.peerIFAddr, 0x00, ETH_ALEN);
-		_rtw_memset(&pwdinfo->tx_prov_disc_info.ssid, 0x00, sizeof(NDIS_802_11_SSID));
+		_rtw_memset(&pwdinfo->tx_prov_disc_info.ssid, 0x00, sizeof(RTW_802_11_SSID));
 		pwdinfo->tx_prov_disc_info.peer_channel_num[0] = 0;
 		pwdinfo->tx_prov_disc_info.peer_channel_num[1] = 0;
 		pwdinfo->tx_prov_disc_info.benable = _FALSE;
@@ -3077,7 +3077,7 @@ static int rtw_p2p_prov_disc(struct net_device *dev,
 		rtw_p2p_set_state(pwdinfo, P2P_STATE_TX_PROVISION_DIS_REQ);
 
 		if (rtw_p2p_chk_role(pwdinfo, P2P_ROLE_CLIENT))
-			_rtw_memcpy(&pwdinfo->tx_prov_disc_info.ssid, &pnetwork->network.Ssid, sizeof(NDIS_802_11_SSID));
+			_rtw_memcpy(&pwdinfo->tx_prov_disc_info.ssid, &pnetwork->network.Ssid, sizeof(RTW_802_11_SSID));
 		else if (rtw_p2p_chk_role(pwdinfo, P2P_ROLE_DEVICE) || rtw_p2p_chk_role(pwdinfo, P2P_ROLE_GO)) {
 			_rtw_memcpy(pwdinfo->tx_prov_disc_info.ssid.Ssid, pwdinfo->p2p_wildcard_ssid, P2P_WILDCARD_SSID_LEN);
 			pwdinfo->tx_prov_disc_info.ssid.SsidLength = P2P_WILDCARD_SSID_LEN;
@@ -4210,12 +4210,12 @@ static int wpa_set_param(struct net_device *dev, u8 name, u32 value)
 
 		switch ((value) & 0xff) {
 		case 1: /* WPA */
-			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeWPAPSK; /* WPA_PSK */
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption2Enabled;
+			padapter->securitypriv.ndisauthtype = Rtw802_11AuthModeWPAPSK; /* WPA_PSK */
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption2Enabled;
 			break;
 		case 2: /* WPA2 */
-			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeWPA2PSK; /* WPA2_PSK */
-			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption3Enabled;
+			padapter->securitypriv.ndisauthtype = Rtw802_11AuthModeWPA2PSK; /* WPA2_PSK */
+			padapter->securitypriv.ndisencryptstatus = Rtw802_11Encryption3Enabled;
 			break;
 		}
 
@@ -4382,7 +4382,7 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 {
 	int ret = 0;
 	u32 wep_key_idx, wep_key_len, wep_total_len;
-	NDIS_802_11_WEP	*pwep = NULL;
+	RTW_802_11_WEP	*pwep = NULL;
 	struct sta_info *psta = NULL, *pbcmc_sta = NULL;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
@@ -4433,7 +4433,7 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 		/* todo:clear default encryption keys */
 
 		psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_Open;
-		psecuritypriv->ndisencryptstatus = Ndis802_11EncryptionDisabled;
+		psecuritypriv->ndisencryptstatus = Rtw802_11EncryptionDisabled;
 		psecuritypriv->dot11PrivacyAlgrthm = _NO_PRIVACY_;
 		psecuritypriv->dot118021XGrpPrivacy = _NO_PRIVACY_;
 
@@ -4459,8 +4459,8 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 
 		if (wep_key_len > 0) {
 			wep_key_len = wep_key_len <= 5 ? 5 : 13;
-			wep_total_len = wep_key_len + FIELD_OFFSET(NDIS_802_11_WEP, KeyMaterial);
-			pwep = (NDIS_802_11_WEP *)rtw_malloc(wep_total_len);
+			wep_total_len = wep_key_len + FIELD_OFFSET(RTW_802_11_WEP, KeyMaterial);
+			pwep = (RTW_802_11_WEP *)rtw_malloc(wep_total_len);
 			if (pwep == NULL) {
 				RTW_INFO(" r871x_set_encryption: pwep allocate fail !!!\n");
 				goto exit;
@@ -4481,7 +4481,7 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 			RTW_INFO("wep, set_tx=1\n");
 
 			psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_Auto;
-			psecuritypriv->ndisencryptstatus = Ndis802_11Encryption1Enabled;
+			psecuritypriv->ndisencryptstatus = Rtw802_11Encryption1Enabled;
 			psecuritypriv->dot11PrivacyAlgrthm = _WEP40_;
 			psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
 
@@ -4629,7 +4629,7 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 					psta->bpairwise_key_installed = _TRUE;
 
 					/* WPA2 key-handshake has completed */
-					if (psecuritypriv->ndisauthtype == Ndis802_11AuthModeWPA2PSK)
+					if (psecuritypriv->ndisauthtype == Rtw802_11AuthModeWPA2PSK)
 						psta->state &= (~WIFI_UNDER_KEY_HANDSHAKE);
 				}
 
@@ -5050,7 +5050,7 @@ static int rtw_set_hidden_ssid(struct net_device *dev, struct ieee_param *param,
 	struct mlme_ext_info	*mlmeinfo = &(mlmeext->mlmext_info);
 	int ie_len;
 	u8 *ssid_ie;
-	char ssid[NDIS_802_11_LENGTH_SSID + 1];
+	char ssid[RTW_802_11_LENGTH_SSID + 1];
 	sint ssid_len = 0;
 	u8 ignore_broadcast_ssid;
 
@@ -5065,7 +5065,7 @@ static int rtw_set_hidden_ssid(struct net_device *dev, struct ieee_param *param,
 	ie_len = len - 12 - 2; /* 12 = param header, 2:no packed */
 	ssid_ie = rtw_get_ie(param->u.bcn_ie.buf,  WLAN_EID_SSID, &ssid_len, ie_len);
 
-	if (ssid_ie && ssid_len > 0 && ssid_len <= NDIS_802_11_LENGTH_SSID) {
+	if (ssid_ie && ssid_len > 0 && ssid_len <= RTW_802_11_LENGTH_SSID) {
 		WLAN_BSSID_EX *pbss_network = &mlmepriv->cur_network.network;
 		WLAN_BSSID_EX *pbss_network_ext = &mlmeinfo->network;
 
@@ -5874,7 +5874,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		}
 		RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
 
-		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN , (PVOID)&max_available_len, _FALSE);
+		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN , (void *)&max_available_len, _FALSE);
 		if ((addr + cnts) > max_available_len) {
 			RTW_INFO("%s: addr(0x%X)+cnts(%d) parameter error!\n", __FUNCTION__, addr, cnts);
 			err = -EINVAL;
@@ -5901,7 +5901,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		u32 blksz = 0x200; /* The size of one time show, default 512 */
 
 		addr = 0;
-		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_REAL_CONTENT_LEN , (PVOID)&mapLen, _FALSE);
+		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_REAL_CONTENT_LEN , (void *)&mapLen, _FALSE);
 		RTW_INFO("Real content len = %d\n",mapLen );
 
 		if (rtw_efuse_access(padapter, _FALSE, addr, mapLen, rawdata) == _FAIL) {
@@ -5941,7 +5941,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		u32 blksz = 0x200; /* The size of one time show, default 512 */
 
 		addr = 0;
-		EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_REAL_CONTENT_LEN, (PVOID)&mapLen, _FALSE);
+		EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_REAL_CONTENT_LEN, (void *)&mapLen, _FALSE);
 		RTW_INFO("Real content len = %d\n", mapLen);
 #ifdef RTW_HALMAC
 		if (rtw_efuse_bt_access(padapter, _FALSE, 0, mapLen, rawdata) == _FAIL) {
@@ -5992,7 +5992,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		addr = hal_efuse_macaddr_offset(padapter);
 		cnts = 6;
 
-		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&max_available_len, _FALSE);
+		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (void *)&max_available_len, _FALSE);
 		if ((addr + cnts) > max_available_len) {
 			RTW_INFO("%s: addr(0x%02x)+cnts(%d) parameter error!\n", __FUNCTION__, addr, cnts);
 			err = -EFAULT;
@@ -6027,7 +6027,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 
 		cnts = 4;
 
-		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&max_available_len, _FALSE);
+		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (void *)&max_available_len, _FALSE);
 		if ((addr + cnts) > max_available_len) {
 			RTW_INFO("%s: addr(0x%02x)+cnts(%d) parameter error!\n", __FUNCTION__, addr, cnts);
 			err = -EFAULT;
@@ -6171,7 +6171,7 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		}
 		RTW_INFO("%s: cnts=%d\n", __FUNCTION__, cnts);
 #ifndef RTW_HALMAC
-		EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_MAP_LEN, (PVOID)&max_available_len, _FALSE);
+		EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_MAP_LEN, (void *)&max_available_len, _FALSE);
 		if ((addr + cnts) > max_available_len) {
 			RTW_INFO("%s: addr(0x%X)+cnts(%d) parameter error!\n", __FUNCTION__, addr, cnts);
 			err = -EFAULT;
@@ -6525,7 +6525,7 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		for (jj = 0, kk = 0; jj < cnts; jj++, kk += 2)
 			setdata[jj] = key_2char2num(tmp[2][kk], tmp[2][kk + 1]);
 
-		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&max_available_len, _FALSE);
+		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (void *)&max_available_len, _FALSE);
 
 		if ((addr + cnts) > max_available_len) {
 			RTW_INFO("%s: addr(0x%X)+cnts(%d) parameter error!\n", __FUNCTION__, addr, cnts);
@@ -6682,7 +6682,7 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		for (jj = 0, kk = 0; jj < cnts; jj++, kk += 2)
 			setdata[jj] = key_2char2num(tmp[1][kk], tmp[1][kk + 1]);
 
-		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&max_available_len, _FALSE);
+		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (void *)&max_available_len, _FALSE);
 
 		if ((addr + cnts) > max_available_len) {
 			RTW_INFO("%s: addr(0x%X)+cnts(%d) parameter error!\n", __FUNCTION__, addr, cnts);
@@ -6728,7 +6728,7 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		for (jj = 0, kk = 0; jj < cnts; jj++, kk += 2)
 			setdata[jj] = key_2char2num(tmp[1][kk], tmp[1][kk + 1]);
 
-		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&max_available_len, _FALSE);
+		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (void *)&max_available_len, _FALSE);
 		if ((addr + cnts) > max_available_len) {
 			RTW_INFO("%s: addr(0x%X)+cnts(%d) parameter error!\n", __FUNCTION__, addr, cnts);
 			err = -EFAULT;
@@ -6808,7 +6808,7 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		for (jj = 0, kk = 0; jj < cnts; jj++, kk += 2)
 			setdata[jj] = key_2char2num(tmp[2][kk], tmp[2][kk + 1]);
 #ifndef RTW_HALMAC
-		EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_MAP_LEN, (PVOID)&max_available_len, _FALSE);
+		EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_MAP_LEN, (void *)&max_available_len, _FALSE);
 		if ((addr + cnts) > max_available_len) {
 			RTW_INFO("%s: addr(0x%X)+cnts(%d) parameter error!\n", __FUNCTION__, addr, cnts);
 			err = -EFAULT;
@@ -7900,10 +7900,10 @@ static void freeLoopback(PADAPTER padapter)
 
 static s32 initpseudoadhoc(PADAPTER padapter)
 {
-	NDIS_802_11_NETWORK_INFRASTRUCTURE networkType;
+	RTW_802_11_NETWORK_INFRASTRUCTURE networkType;
 	s32 err;
 
-	networkType = Ndis802_11IBSS;
+	networkType = Rtw802_11IBSS;
 	err = rtw_set_802_11_infrastructure_mode(padapter, networkType, 0);
 	if (err == _FALSE)
 		return _FAIL;
@@ -7917,9 +7917,9 @@ static s32 initpseudoadhoc(PADAPTER padapter)
 
 static s32 createpseudoadhoc(PADAPTER padapter)
 {
-	NDIS_802_11_AUTHENTICATION_MODE authmode;
+	RTW_802_11_AUTHENTICATION_MODE authmode;
 	struct mlme_priv *pmlmepriv;
-	NDIS_802_11_SSID *passoc_ssid;
+	RTW_802_11_SSID *passoc_ssid;
 	WLAN_BSSID_EX *pdev_network;
 	u8 *pibss;
 	u8 ssid[] = "pseduo_ad-hoc";
@@ -7929,19 +7929,19 @@ static s32 createpseudoadhoc(PADAPTER padapter)
 
 	pmlmepriv = &padapter->mlmepriv;
 
-	authmode = Ndis802_11AuthModeOpen;
+	authmode = Rtw802_11AuthModeOpen;
 	err = rtw_set_802_11_authentication_mode(padapter, authmode);
 	if (err == _FALSE)
 		return _FAIL;
 
 	passoc_ssid = &pmlmepriv->assoc_ssid;
-	_rtw_memset(passoc_ssid, 0, sizeof(NDIS_802_11_SSID));
+	_rtw_memset(passoc_ssid, 0, sizeof(RTW_802_11_SSID));
 	passoc_ssid->SsidLength = sizeof(ssid) - 1;
 	_rtw_memcpy(passoc_ssid->Ssid, ssid, passoc_ssid->SsidLength);
 
 	pdev_network = &padapter->registrypriv.dev_network;
 	pibss = padapter->registrypriv.dev_network.MacAddress;
-	_rtw_memcpy(&pdev_network->Ssid, passoc_ssid, sizeof(NDIS_802_11_SSID));
+	_rtw_memcpy(&pdev_network->Ssid, passoc_ssid, sizeof(RTW_802_11_SSID));
 
 	rtw_update_registrypriv_dev_network(padapter);
 	rtw_generate_random_ibss(pibss);

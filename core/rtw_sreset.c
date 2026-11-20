@@ -139,7 +139,7 @@ static void sreset_restore_network_station(_adapter *padapter)
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	u8 doiqk = _FALSE;
 
-	rtw_setopmode_cmd(padapter, Ndis802_11Infrastructure, RTW_CMDF_DIRECTLY);
+	rtw_setopmode_cmd(padapter, Rtw802_11Infrastructure, RTW_CMDF_DIRECTLY);
 
 	{
 		u8 threshold;

@@ -171,27 +171,27 @@ struct coex_sta_8192e_2ant {
 /* *******************************************
  * The following is interface which will notify coex module.
  * ******************************************* */
-void ex_halbtc8192e2ant_power_on_setting(IN struct btc_coexist *btcoexist);
-void ex_halbtc8192e2ant_init_hw_config(IN struct btc_coexist *btcoexist,
-				       IN boolean wifi_only);
-void ex_halbtc8192e2ant_init_coex_dm(IN struct btc_coexist *btcoexist);
-void ex_halbtc8192e2ant_ips_notify(IN struct btc_coexist *btcoexist,
-				   IN u8 type);
-void ex_halbtc8192e2ant_lps_notify(IN struct btc_coexist *btcoexist,
-				   IN u8 type);
-void ex_halbtc8192e2ant_scan_notify(IN struct btc_coexist *btcoexist,
-				    IN u8 type);
-void ex_halbtc8192e2ant_connect_notify(IN struct btc_coexist *btcoexist,
-				       IN u8 type);
-void ex_halbtc8192e2ant_media_status_notify(IN struct btc_coexist *btcoexist,
-		IN u8 type);
-void ex_halbtc8192e2ant_specific_packet_notify(IN struct btc_coexist *btcoexist,
-		IN u8 type);
-void ex_halbtc8192e2ant_bt_info_notify(IN struct btc_coexist *btcoexist,
-				       IN u8 *tmp_buf, IN u8 length);
-void ex_halbtc8192e2ant_halt_notify(IN struct btc_coexist *btcoexist);
-void ex_halbtc8192e2ant_periodical(IN struct btc_coexist *btcoexist);
-void ex_halbtc8192e2ant_display_coex_info(IN struct btc_coexist *btcoexist);
+void ex_halbtc8192e2ant_power_on_setting(struct btc_coexist *btcoexist);
+void ex_halbtc8192e2ant_init_hw_config(struct btc_coexist *btcoexist,
+				       boolean wifi_only);
+void ex_halbtc8192e2ant_init_coex_dm(struct btc_coexist *btcoexist);
+void ex_halbtc8192e2ant_ips_notify(struct btc_coexist *btcoexist,
+				   u8 type);
+void ex_halbtc8192e2ant_lps_notify(struct btc_coexist *btcoexist,
+				   u8 type);
+void ex_halbtc8192e2ant_scan_notify(struct btc_coexist *btcoexist,
+				    u8 type);
+void ex_halbtc8192e2ant_connect_notify(struct btc_coexist *btcoexist,
+				       u8 type);
+void ex_halbtc8192e2ant_media_status_notify(struct btc_coexist *btcoexist,
+		u8 type);
+void ex_halbtc8192e2ant_specific_packet_notify(struct btc_coexist *btcoexist,
+		u8 type);
+void ex_halbtc8192e2ant_bt_info_notify(struct btc_coexist *btcoexist,
+				       u8 *tmp_buf, u8 length);
+void ex_halbtc8192e2ant_halt_notify(struct btc_coexist *btcoexist);
+void ex_halbtc8192e2ant_periodical(struct btc_coexist *btcoexist);
+void ex_halbtc8192e2ant_display_coex_info(struct btc_coexist *btcoexist);
 
 
 #endif

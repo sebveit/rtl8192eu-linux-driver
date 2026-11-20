@@ -367,7 +367,7 @@ struct sitesurvey_parm {
 	/* sint bsslimit;	// 1 ~ 48 */
 	u8 ssid_num;
 	u8 ch_num;
-	NDIS_802_11_SSID ssid[RTW_SSID_SCAN_AMOUNT];
+	RTW_802_11_SSID ssid[RTW_SSID_SCAN_AMOUNT];
 	struct rtw_ieee80211_channel ch[RTW_CHANNEL_SCAN_AMOUNT];
 
 	u32 token; 	/* 80211k use it to identify caller */
@@ -939,7 +939,7 @@ struct SetChannelPlan_param {
 
 /*H2C Handler index: 60 */
 struct LedBlink_param {
-	PVOID	 pLed;
+	void *	 pLed;
 };
 
 /*H2C Handler index: 62 */
@@ -1009,7 +1009,7 @@ u8 rtw_disassoc_cmd(_adapter *padapter, u32 deauth_timeout_ms, int flags);
 #ifdef CONFIG_AP_MODE
 u8 rtw_stop_ap_cmd(_adapter *adapter, u8 flags);
 #endif
-extern u8 rtw_setopmode_cmd(_adapter  *padapter, NDIS_802_11_NETWORK_INFRASTRUCTURE networktype, u8 flags);
+extern u8 rtw_setopmode_cmd(_adapter  *padapter, RTW_802_11_NETWORK_INFRASTRUCTURE networktype, u8 flags);
 extern u8 rtw_setdatarate_cmd(_adapter  *padapter, u8 *rateset);
 extern u8 rtw_setbasicrate_cmd(_adapter  *padapter, u8 *rateset);
 extern u8 rtw_getmacreg_cmd(_adapter *padapter, u8 len, u32 addr);
@@ -1078,7 +1078,7 @@ u8 rtw_set_chbw_cmd(_adapter *padapter, u8 ch, u8 bw, u8 ch_offset, u8 flags);
 u8 rtw_set_chplan_cmd(_adapter *adapter, int flags, u8 chplan, u8 swconfig);
 u8 rtw_set_country_cmd(_adapter *adapter, int flags, const char *country_code, u8 swconfig);
 
-extern u8 rtw_led_blink_cmd(_adapter *padapter, PVOID pLed);
+extern u8 rtw_led_blink_cmd(_adapter *padapter, void * pLed);
 extern u8 rtw_set_csa_cmd(_adapter *adapter);
 extern u8 rtw_tdls_cmd(_adapter *padapter, u8 *addr, u8 option);
 

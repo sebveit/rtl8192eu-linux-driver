@@ -200,18 +200,18 @@ inline u8 rtw_odm_dfs_domain_unknown(struct dvobj_priv *dvobj)
 }
 
 #ifdef CONFIG_DFS_MASTER
-inline VOID rtw_odm_radar_detect_reset(_adapter *adapter)
+inline void rtw_odm_radar_detect_reset(_adapter *adapter)
 {
 	phydm_radar_detect_reset(adapter_to_phydm(adapter));
 }
 
-inline VOID rtw_odm_radar_detect_disable(_adapter *adapter)
+inline void rtw_odm_radar_detect_disable(_adapter *adapter)
 {
 	phydm_radar_detect_disable(adapter_to_phydm(adapter));
 }
 
 /* called after ch, bw is set */
-inline VOID rtw_odm_radar_detect_enable(_adapter *adapter)
+inline void rtw_odm_radar_detect_enable(_adapter *adapter)
 {
 	phydm_radar_detect_enable(adapter_to_phydm(adapter));
 }

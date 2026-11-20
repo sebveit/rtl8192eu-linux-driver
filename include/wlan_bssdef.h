@@ -20,39 +20,39 @@
 
 
 
-#define NDIS_802_11_LENGTH_SSID         32
-#define NDIS_802_11_LENGTH_RATES        8
-#define NDIS_802_11_LENGTH_RATES_EX     16
+#define RTW_802_11_LENGTH_SSID         32
+#define RTW_802_11_LENGTH_RATES        8
+#define RTW_802_11_LENGTH_RATES_EX     16
 
-typedef unsigned char   NDIS_802_11_MAC_ADDRESS[ETH_ALEN];
-typedef long    		NDIS_802_11_RSSI;           /* in dBm */
-typedef unsigned char   NDIS_802_11_RATES[NDIS_802_11_LENGTH_RATES];        /* Set of 8 data rates */
-typedef unsigned char   NDIS_802_11_RATES_EX[NDIS_802_11_LENGTH_RATES_EX];  /* Set of 16 data rates */
+typedef unsigned char   RTW_802_11_MAC_ADDRESS[ETH_ALEN];
+typedef long    		RTW_802_11_RSSI;           /* in dBm */
+typedef unsigned char   RTW_802_11_RATES[RTW_802_11_LENGTH_RATES];        /* Set of 8 data rates */
+typedef unsigned char   RTW_802_11_RATES_EX[RTW_802_11_LENGTH_RATES_EX];  /* Set of 16 data rates */
 
 
-typedef  ULONG  NDIS_802_11_KEY_INDEX;
-typedef unsigned long long NDIS_802_11_KEY_RSC;
+typedef  u32  RTW_802_11_KEY_INDEX;
+typedef unsigned long long RTW_802_11_KEY_RSC;
 
 
 typedef struct _NDIS_802_11_SSID {
-	ULONG  SsidLength;
-	UCHAR  Ssid[32];
-} NDIS_802_11_SSID, *PNDIS_802_11_SSID;
+	u32  SsidLength;
+	u8  Ssid[32];
+} RTW_802_11_SSID, *PRTW_802_11_SSID;
 
 typedef enum _NDIS_802_11_NETWORK_TYPE {
-	Ndis802_11FH,
-	Ndis802_11DS,
-	Ndis802_11OFDM5,
-	Ndis802_11OFDM24,
-	Ndis802_11NetworkTypeMax    /* not a real type, defined as an upper bound */
-} NDIS_802_11_NETWORK_TYPE, *PNDIS_802_11_NETWORK_TYPE;
+	Rtw802_11FH,
+	Rtw802_11DS,
+	Rtw802_11OFDM5,
+	Rtw802_11OFDM24,
+	Rtw802_11NetworkTypeMax    /* not a real type, defined as an upper bound */
+} RTW_802_11_NETWORK_TYPE, *PRTW_802_11_NETWORK_TYPE;
 
 typedef struct _NDIS_802_11_CONFIGURATION_FH {
-	ULONG           Length;             /* Length of structure */
-	ULONG           HopPattern;         /* As defined by 802.11, MSB set */
-	ULONG           HopSet;             /* to one if non-802.11 */
-	ULONG           DwellTime;          /* units are Kusec */
-} NDIS_802_11_CONFIGURATION_FH, *PNDIS_802_11_CONFIGURATION_FH;
+	u32           Length;             /* Length of structure */
+	u32           HopPattern;         /* As defined by 802.11, MSB set */
+	u32           HopSet;             /* to one if non-802.11 */
+	u32           DwellTime;          /* units are Kusec */
+} RTW_802_11_CONFIGURATION_FH, *PRTW_802_11_CONFIGURATION_FH;
 
 
 /*
@@ -60,42 +60,42 @@ typedef struct _NDIS_802_11_CONFIGURATION_FH {
 	ODI Handler will convert the channel number to freq. number.
 */
 typedef struct _NDIS_802_11_CONFIGURATION {
-	ULONG           Length;             /* Length of structure */
-	ULONG           BeaconPeriod;       /* units are Kusec */
-	ULONG           ATIMWindow;         /* units are Kusec */
-	ULONG           DSConfig;           /* channel number */
-	NDIS_802_11_CONFIGURATION_FH    FHConfig;
-} NDIS_802_11_CONFIGURATION, *PNDIS_802_11_CONFIGURATION;
+	u32           Length;             /* Length of structure */
+	u32           BeaconPeriod;       /* units are Kusec */
+	u32           ATIMWindow;         /* units are Kusec */
+	u32           DSConfig;           /* channel number */
+	RTW_802_11_CONFIGURATION_FH    FHConfig;
+} RTW_802_11_CONFIGURATION, *PRTW_802_11_CONFIGURATION;
 
 
 
 typedef enum _NDIS_802_11_NETWORK_INFRASTRUCTURE {
-	Ndis802_11IBSS,
-	Ndis802_11Infrastructure,
-	Ndis802_11AutoUnknown,
-	Ndis802_11InfrastructureMax,     /* Not a real value, defined as upper bound */
-	Ndis802_11APMode,
-	Ndis802_11Monitor,
-	Ndis802_11_mesh,
-} NDIS_802_11_NETWORK_INFRASTRUCTURE, *PNDIS_802_11_NETWORK_INFRASTRUCTURE;
+	Rtw802_11IBSS,
+	Rtw802_11Infrastructure,
+	Rtw802_11AutoUnknown,
+	Rtw802_11InfrastructureMax,     /* Not a real value, defined as upper bound */
+	Rtw802_11APMode,
+	Rtw802_11Monitor,
+	Rtw802_11_mesh,
+} RTW_802_11_NETWORK_INFRASTRUCTURE, *PRTW_802_11_NETWORK_INFRASTRUCTURE;
 
 
 
 
 
 typedef struct _NDIS_802_11_FIXED_IEs {
-	UCHAR  Timestamp[8];
-	USHORT  BeaconInterval;
-	USHORT  Capabilities;
-} NDIS_802_11_FIXED_IEs, *PNDIS_802_11_FIXED_IEs;
+	u8  Timestamp[8];
+	u16  BeaconInterval;
+	u16  Capabilities;
+} RTW_802_11_FIXED_IEs, *PRTW_802_11_FIXED_IEs;
 
 
 
 typedef struct _NDIS_802_11_VARIABLE_IEs {
-	UCHAR  ElementID;
-	UCHAR  Length;
-	UCHAR  data[1];
-} NDIS_802_11_VARIABLE_IEs, *PNDIS_802_11_VARIABLE_IEs;
+	u8  ElementID;
+	u8  Length;
+	u8  data[1];
+} RTW_802_11_VARIABLE_IEs, *PRTW_802_11_VARIABLE_IEs;
 
 
 
@@ -114,139 +114,139 @@ partial sum.
 */
 
 typedef enum _NDIS_802_11_AUTHENTICATION_MODE {
-	Ndis802_11AuthModeOpen,
-	Ndis802_11AuthModeShared,
-	Ndis802_11AuthModeAutoSwitch,
-	Ndis802_11AuthModeWPA,
-	Ndis802_11AuthModeWPAPSK,
-	Ndis802_11AuthModeWPANone,
-	Ndis802_11AuthModeWAPI,
-	Ndis802_11AuthModeMax               /* Not a real mode, defined as upper bound */
-} NDIS_802_11_AUTHENTICATION_MODE, *PNDIS_802_11_AUTHENTICATION_MODE;
+	Rtw802_11AuthModeOpen,
+	Rtw802_11AuthModeShared,
+	Rtw802_11AuthModeAutoSwitch,
+	Rtw802_11AuthModeWPA,
+	Rtw802_11AuthModeWPAPSK,
+	Rtw802_11AuthModeWPANone,
+	Rtw802_11AuthModeWAPI,
+	Rtw802_11AuthModeMax               /* Not a real mode, defined as upper bound */
+} RTW_802_11_AUTHENTICATION_MODE, *PRTW_802_11_AUTHENTICATION_MODE;
 
 typedef enum _NDIS_802_11_WEP_STATUS {
-	Ndis802_11WEPEnabled,
-	Ndis802_11Encryption1Enabled = Ndis802_11WEPEnabled,
-	Ndis802_11WEPDisabled,
-	Ndis802_11EncryptionDisabled = Ndis802_11WEPDisabled,
-	Ndis802_11WEPKeyAbsent,
-	Ndis802_11Encryption1KeyAbsent = Ndis802_11WEPKeyAbsent,
-	Ndis802_11WEPNotSupported,
-	Ndis802_11EncryptionNotSupported = Ndis802_11WEPNotSupported,
-	Ndis802_11Encryption2Enabled,
-	Ndis802_11Encryption2KeyAbsent,
-	Ndis802_11Encryption3Enabled,
-	Ndis802_11Encryption3KeyAbsent,
-	Ndis802_11_EncrypteionWAPI
-} NDIS_802_11_WEP_STATUS, *PNDIS_802_11_WEP_STATUS,
-NDIS_802_11_ENCRYPTION_STATUS, *PNDIS_802_11_ENCRYPTION_STATUS;
+	Rtw802_11WEPEnabled,
+	Rtw802_11Encryption1Enabled = Rtw802_11WEPEnabled,
+	Rtw802_11WEPDisabled,
+	Rtw802_11EncryptionDisabled = Rtw802_11WEPDisabled,
+	Rtw802_11WEPKeyAbsent,
+	Rtw802_11Encryption1KeyAbsent = Rtw802_11WEPKeyAbsent,
+	Rtw802_11WEPNotSupported,
+	Rtw802_11EncryptionNotSupported = Rtw802_11WEPNotSupported,
+	Rtw802_11Encryption2Enabled,
+	Rtw802_11Encryption2KeyAbsent,
+	Rtw802_11Encryption3Enabled,
+	Rtw802_11Encryption3KeyAbsent,
+	Rtw802_11_EncrypteionWAPI
+} RTW_802_11_WEP_STATUS, *PRTW_802_11_WEP_STATUS,
+RTW_802_11_ENCRYPTION_STATUS, *PRTW_802_11_ENCRYPTION_STATUS;
 
 
-#define NDIS_802_11_AI_REQFI_CAPABILITIES      1
-#define NDIS_802_11_AI_REQFI_LISTENINTERVAL    2
-#define NDIS_802_11_AI_REQFI_CURRENTAPADDRESS  4
+#define RTW_802_11_AI_REQFI_CAPABILITIES      1
+#define RTW_802_11_AI_REQFI_LISTENINTERVAL    2
+#define RTW_802_11_AI_REQFI_CURRENTAPADDRESS  4
 
-#define NDIS_802_11_AI_RESFI_CAPABILITIES      1
-#define NDIS_802_11_AI_RESFI_STATUSCODE        2
-#define NDIS_802_11_AI_RESFI_ASSOCIATIONID     4
+#define RTW_802_11_AI_RESFI_CAPABILITIES      1
+#define RTW_802_11_AI_RESFI_STATUSCODE        2
+#define RTW_802_11_AI_RESFI_ASSOCIATIONID     4
 
 typedef struct _NDIS_802_11_AI_REQFI {
-	USHORT Capabilities;
-	USHORT ListenInterval;
-	NDIS_802_11_MAC_ADDRESS  CurrentAPAddress;
-} NDIS_802_11_AI_REQFI, *PNDIS_802_11_AI_REQFI;
+	u16 Capabilities;
+	u16 ListenInterval;
+	RTW_802_11_MAC_ADDRESS  CurrentAPAddress;
+} RTW_802_11_AI_REQFI, *PRTW_802_11_AI_REQFI;
 
 typedef struct _NDIS_802_11_AI_RESFI {
-	USHORT Capabilities;
-	USHORT StatusCode;
-	USHORT AssociationId;
-} NDIS_802_11_AI_RESFI, *PNDIS_802_11_AI_RESFI;
+	u16 Capabilities;
+	u16 StatusCode;
+	u16 AssociationId;
+} RTW_802_11_AI_RESFI, *PRTW_802_11_AI_RESFI;
 
 typedef struct _NDIS_802_11_ASSOCIATION_INFORMATION {
-	ULONG                   Length;
-	USHORT                  AvailableRequestFixedIEs;
-	NDIS_802_11_AI_REQFI    RequestFixedIEs;
-	ULONG                   RequestIELength;
-	ULONG                   OffsetRequestIEs;
-	USHORT                  AvailableResponseFixedIEs;
-	NDIS_802_11_AI_RESFI    ResponseFixedIEs;
-	ULONG                   ResponseIELength;
-	ULONG                   OffsetResponseIEs;
-} NDIS_802_11_ASSOCIATION_INFORMATION, *PNDIS_802_11_ASSOCIATION_INFORMATION;
+	u32                   Length;
+	u16                  AvailableRequestFixedIEs;
+	RTW_802_11_AI_REQFI    RequestFixedIEs;
+	u32                   RequestIELength;
+	u32                   OffsetRequestIEs;
+	u16                  AvailableResponseFixedIEs;
+	RTW_802_11_AI_RESFI    ResponseFixedIEs;
+	u32                   ResponseIELength;
+	u32                   OffsetResponseIEs;
+} RTW_802_11_ASSOCIATION_INFORMATION, *PRTW_802_11_ASSOCIATION_INFORMATION;
 
 typedef enum _NDIS_802_11_RELOAD_DEFAULTS {
-	Ndis802_11ReloadWEPKeys
-} NDIS_802_11_RELOAD_DEFAULTS, *PNDIS_802_11_RELOAD_DEFAULTS;
+	Rtw802_11ReloadWEPKeys
+} RTW_802_11_RELOAD_DEFAULTS, *PRTW_802_11_RELOAD_DEFAULTS;
 
 
 /* Key mapping keys require a BSSID */
 typedef struct _NDIS_802_11_KEY {
-	ULONG           Length;             /* Length of this structure */
-	ULONG           KeyIndex;
-	ULONG           KeyLength;          /* length of key in bytes */
-	NDIS_802_11_MAC_ADDRESS BSSID;
-	NDIS_802_11_KEY_RSC KeyRSC;
-	UCHAR           KeyMaterial[32];     /* variable length depending on above field */
-} NDIS_802_11_KEY, *PNDIS_802_11_KEY;
+	u32           Length;             /* Length of this structure */
+	u32           KeyIndex;
+	u32           KeyLength;          /* length of key in bytes */
+	RTW_802_11_MAC_ADDRESS BSSID;
+	RTW_802_11_KEY_RSC KeyRSC;
+	u8           KeyMaterial[32];     /* variable length depending on above field */
+} RTW_802_11_KEY, *PRTW_802_11_KEY;
 
 typedef struct _NDIS_802_11_REMOVE_KEY {
-	ULONG                   Length;        /* Length of this structure */
-	ULONG                   KeyIndex;
-	NDIS_802_11_MAC_ADDRESS BSSID;
-} NDIS_802_11_REMOVE_KEY, *PNDIS_802_11_REMOVE_KEY;
+	u32                   Length;        /* Length of this structure */
+	u32                   KeyIndex;
+	RTW_802_11_MAC_ADDRESS BSSID;
+} RTW_802_11_REMOVE_KEY, *PRTW_802_11_REMOVE_KEY;
 
 typedef struct _NDIS_802_11_WEP {
-	ULONG     Length;        /* Length of this structure */
-	ULONG     KeyIndex;      /* 0 is the per-client key, 1-N are the global keys */
-	ULONG     KeyLength;     /* length of key in bytes */
-	UCHAR     KeyMaterial[16];/* variable length depending on above field */
-} NDIS_802_11_WEP, *PNDIS_802_11_WEP;
+	u32     Length;        /* Length of this structure */
+	u32     KeyIndex;      /* 0 is the per-client key, 1-N are the global keys */
+	u32     KeyLength;     /* length of key in bytes */
+	u8     KeyMaterial[16];/* variable length depending on above field */
+} RTW_802_11_WEP, *PRTW_802_11_WEP;
 
 typedef struct _NDIS_802_11_AUTHENTICATION_REQUEST {
-	ULONG Length;            /* Length of structure */
-	NDIS_802_11_MAC_ADDRESS Bssid;
-	ULONG Flags;
-} NDIS_802_11_AUTHENTICATION_REQUEST, *PNDIS_802_11_AUTHENTICATION_REQUEST;
+	u32 Length;            /* Length of structure */
+	RTW_802_11_MAC_ADDRESS Bssid;
+	u32 Flags;
+} RTW_802_11_AUTHENTICATION_REQUEST, *PRTW_802_11_AUTHENTICATION_REQUEST;
 
 typedef enum _NDIS_802_11_STATUS_TYPE {
-	Ndis802_11StatusType_Authentication,
-	Ndis802_11StatusType_MediaStreamMode,
-	Ndis802_11StatusType_PMKID_CandidateList,
-	Ndis802_11StatusTypeMax    /* not a real type, defined as an upper bound */
-} NDIS_802_11_STATUS_TYPE, *PNDIS_802_11_STATUS_TYPE;
+	Rtw802_11StatusType_Authentication,
+	Rtw802_11StatusType_MediaStreamMode,
+	Rtw802_11StatusType_PMKID_CandidateList,
+	Rtw802_11StatusTypeMax    /* not a real type, defined as an upper bound */
+} RTW_802_11_STATUS_TYPE, *PRTW_802_11_STATUS_TYPE;
 
 typedef struct _NDIS_802_11_STATUS_INDICATION {
-	NDIS_802_11_STATUS_TYPE StatusType;
-} NDIS_802_11_STATUS_INDICATION, *PNDIS_802_11_STATUS_INDICATION;
+	RTW_802_11_STATUS_TYPE StatusType;
+} RTW_802_11_STATUS_INDICATION, *PRTW_802_11_STATUS_INDICATION;
 
 /* mask for authentication/integrity fields */
-#define NDIS_802_11_AUTH_REQUEST_AUTH_FIELDS        0x0f
-#define NDIS_802_11_AUTH_REQUEST_REAUTH			0x01
-#define NDIS_802_11_AUTH_REQUEST_KEYUPDATE		0x02
-#define NDIS_802_11_AUTH_REQUEST_PAIRWISE_ERROR		0x06
-#define NDIS_802_11_AUTH_REQUEST_GROUP_ERROR		0x0E
+#define RTW_802_11_AUTH_REQUEST_AUTH_FIELDS        0x0f
+#define RTW_802_11_AUTH_REQUEST_REAUTH			0x01
+#define RTW_802_11_AUTH_REQUEST_KEYUPDATE		0x02
+#define RTW_802_11_AUTH_REQUEST_PAIRWISE_ERROR		0x06
+#define RTW_802_11_AUTH_REQUEST_GROUP_ERROR		0x0E
 
 /* MIC check time, 60 seconds. */
 #define MIC_CHECK_TIME	60000000
 
 typedef struct _NDIS_802_11_AUTHENTICATION_EVENT {
-	NDIS_802_11_STATUS_INDICATION       Status;
-	NDIS_802_11_AUTHENTICATION_REQUEST  Request[1];
-} NDIS_802_11_AUTHENTICATION_EVENT, *PNDIS_802_11_AUTHENTICATION_EVENT;
+	RTW_802_11_STATUS_INDICATION       Status;
+	RTW_802_11_AUTHENTICATION_REQUEST  Request[1];
+} RTW_802_11_AUTHENTICATION_EVENT, *PRTW_802_11_AUTHENTICATION_EVENT;
 
 typedef struct _NDIS_802_11_TEST {
-	ULONG Length;
-	ULONG Type;
+	u32 Length;
+	u32 Type;
 	union {
-		NDIS_802_11_AUTHENTICATION_EVENT AuthenticationEvent;
-		NDIS_802_11_RSSI RssiTrigger;
+		RTW_802_11_AUTHENTICATION_EVENT AuthenticationEvent;
+		RTW_802_11_RSSI RssiTrigger;
 	} tt;
-} NDIS_802_11_TEST, *PNDIS_802_11_TEST;
+} RTW_802_11_TEST, *PRTW_802_11_TEST;
 
 
 
-#ifndef Ndis802_11APMode
-#define Ndis802_11APMode (Ndis802_11InfrastructureMax+1)
+#ifndef Rtw802_11APMode
+#define Rtw802_11APMode (Rtw802_11InfrastructureMax+1)
 #endif
 
 typedef struct _WLAN_PHY_INFO {
@@ -285,20 +285,20 @@ enum bss_type {
 *   WLAN_BSSID_EX and get_WLAN_BSSID_EX_sz()
 */
 typedef struct _WLAN_BSSID_EX {
-	ULONG  Length;
-	NDIS_802_11_MAC_ADDRESS  MacAddress;
-	UCHAR  Reserved[2];/* [0]: IS beacon frame , bss_type*/
-	NDIS_802_11_SSID  Ssid;
-	NDIS_802_11_SSID  mesh_id;
-	ULONG  Privacy;
-	NDIS_802_11_RSSI  Rssi;/* (in dBM,raw data ,get from PHY) */
-	NDIS_802_11_NETWORK_TYPE  NetworkTypeInUse;
-	NDIS_802_11_CONFIGURATION  Configuration;
-	NDIS_802_11_NETWORK_INFRASTRUCTURE  InfrastructureMode;
-	NDIS_802_11_RATES_EX  SupportedRates;
+	u32  Length;
+	RTW_802_11_MAC_ADDRESS  MacAddress;
+	u8  Reserved[2];/* [0]: IS beacon frame , bss_type*/
+	RTW_802_11_SSID  Ssid;
+	RTW_802_11_SSID  mesh_id;
+	u32  Privacy;
+	RTW_802_11_RSSI  Rssi;/* (in dBM,raw data ,get from PHY) */
+	RTW_802_11_NETWORK_TYPE  NetworkTypeInUse;
+	RTW_802_11_CONFIGURATION  Configuration;
+	RTW_802_11_NETWORK_INFRASTRUCTURE  InfrastructureMode;
+	RTW_802_11_RATES_EX  SupportedRates;
 	WLAN_PHY_INFO	PhyInfo;
-	ULONG  IELength;
-	UCHAR  IEs[MAX_IE_SZ];	/* (timestamp, beacon interval, and capability information) */
+	u32  IELength;
+	u8  IEs[MAX_IE_SZ];	/* (timestamp, beacon interval, and capability information) */
 } __attribute__((packed)) WLAN_BSSID_EX, *PWLAN_BSSID_EX;
 
 #define BSS_EX_IES(bss_ex) ((bss_ex)->IEs)
@@ -362,31 +362,31 @@ enum UAPSD_MAX_SP {
 */
 
 typedef struct _PMKID_CANDIDATE {
-	NDIS_802_11_MAC_ADDRESS BSSID;
-	ULONG Flags;
+	RTW_802_11_MAC_ADDRESS BSSID;
+	u32 Flags;
 } PMKID_CANDIDATE, *PPMKID_CANDIDATE;
 
 typedef struct _NDIS_802_11_PMKID_CANDIDATE_LIST {
-	ULONG Version;       /* Version of the structure */
-	ULONG NumCandidates; /* No. of pmkid candidates */
+	u32 Version;       /* Version of the structure */
+	u32 NumCandidates; /* No. of pmkid candidates */
 	PMKID_CANDIDATE CandidateList[1];
-} NDIS_802_11_PMKID_CANDIDATE_LIST, *PNDIS_802_11_PMKID_CANDIDATE_LIST;
+} RTW_802_11_PMKID_CANDIDATE_LIST, *PRTW_802_11_PMKID_CANDIDATE_LIST;
 
 
 typedef struct _NDIS_802_11_AUTHENTICATION_ENCRYPTION {
-	NDIS_802_11_AUTHENTICATION_MODE AuthModeSupported;
-	NDIS_802_11_ENCRYPTION_STATUS EncryptStatusSupported;
+	RTW_802_11_AUTHENTICATION_MODE AuthModeSupported;
+	RTW_802_11_ENCRYPTION_STATUS EncryptStatusSupported;
 
-} NDIS_802_11_AUTHENTICATION_ENCRYPTION, *PNDIS_802_11_AUTHENTICATION_ENCRYPTION;
+} RTW_802_11_AUTHENTICATION_ENCRYPTION, *PRTW_802_11_AUTHENTICATION_ENCRYPTION;
 
 typedef struct _NDIS_802_11_CAPABILITY {
-	ULONG  Length;
-	ULONG  Version;
-	ULONG  NoOfPMKIDs;
-	ULONG  NoOfAuthEncryptPairsSupported;
-	NDIS_802_11_AUTHENTICATION_ENCRYPTION AuthenticationEncryptionSupported[1];
+	u32  Length;
+	u32  Version;
+	u32  NoOfPMKIDs;
+	u32  NoOfAuthEncryptPairsSupported;
+	RTW_802_11_AUTHENTICATION_ENCRYPTION AuthenticationEncryptionSupported[1];
 
-} NDIS_802_11_CAPABILITY, *PNDIS_802_11_CAPABILITY;
+} RTW_802_11_CAPABILITY, *PRTW_802_11_CAPABILITY;
 
 
 #endif /* #ifndef WLAN_BSSDEF_H_ */

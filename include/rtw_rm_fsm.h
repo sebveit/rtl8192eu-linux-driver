@@ -143,7 +143,7 @@ struct bcn_req_opt {
 	u8 opt_id[BCN_REQ_OPT_MAX_NUM];
 	u8 opt_id_num;
 	u8 rep_detail;
-	NDIS_802_11_SSID ssid;
+	RTW_802_11_SSID ssid;
 
 	/* bcn report condition */
 	struct opt_rep_info rep_cond;

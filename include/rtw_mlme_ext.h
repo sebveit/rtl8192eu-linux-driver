@@ -218,7 +218,7 @@ struct ss_res {
 #endif
 	u8 ssid_num;
 	u8 ch_num;
-	NDIS_802_11_SSID ssid[RTW_SSID_SCAN_AMOUNT];
+	RTW_802_11_SSID ssid[RTW_SSID_SCAN_AMOUNT];
 	struct rtw_ieee80211_channel ch[RTW_CHANNEL_SCAN_AMOUNT];
 
 	u32 token; 	/* 0: use to identify caller */
@@ -354,7 +354,7 @@ struct mlme_ext_info {
 	WLAN_BSSID_EX			network;/* join network or bss_network, if in ap mode, it is the same to cur_network.network */
 #ifdef ROKU_PRIVATE
 	/*infra mode, store supported rates from AssocRsp*/
-	NDIS_802_11_RATES_EX	SupportedRates_infra_ap;
+	RTW_802_11_RATES_EX	SupportedRates_infra_ap;
 	u8 ht_vht_received;/*ht_vht_received used to show debug msg BIT(0):HT BIT(1):VHT */
 #endif /* ROKU_PRIVATE */
 };
@@ -723,26 +723,26 @@ void rtw_parse_sta_vendor_ie_8812(_adapter *adapter, struct sta_info *sta, u8 *t
 unsigned char get_vht_mu_bfer_cap(u8 *pframe, uint len);
 #endif
 
-int WMM_param_handler(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs	pIE);
+int WMM_param_handler(_adapter *padapter, PRTW_802_11_VARIABLE_IEs	pIE);
 #ifdef CONFIG_WFD
 void rtw_process_wfd_ie(_adapter *adapter, u8 *ie, u8 ie_len, const char *tag);
 void rtw_process_wfd_ies(_adapter *adapter, u8 *ies, u8 ies_len, const char *tag);
 #endif
 void WMMOnAssocRsp(_adapter *padapter);
 
-void HT_caps_handler(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pIE);
+void HT_caps_handler(_adapter *padapter, PRTW_802_11_VARIABLE_IEs pIE);
 #ifdef ROKU_PRIVATE
-void HT_caps_handler_infra_ap(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pIE);
+void HT_caps_handler_infra_ap(_adapter *padapter, PRTW_802_11_VARIABLE_IEs pIE);
 #endif
-void HT_info_handler(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pIE);
+void HT_info_handler(_adapter *padapter, PRTW_802_11_VARIABLE_IEs pIE);
 void HTOnAssocRsp(_adapter *padapter);
 
 #ifdef ROKU_PRIVATE
-void Supported_rate_infra_ap(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pIE);
-void Extended_Supported_rate_infra_ap(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pIE);
+void Supported_rate_infra_ap(_adapter *padapter, PRTW_802_11_VARIABLE_IEs pIE);
+void Extended_Supported_rate_infra_ap(_adapter *padapter, PRTW_802_11_VARIABLE_IEs pIE);
 #endif
 
-void ERP_IE_handler(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pIE);
+void ERP_IE_handler(_adapter *padapter, PRTW_802_11_VARIABLE_IEs pIE);
 void VCS_update(_adapter *padapter, struct sta_info *psta);
 void	update_ldpc_stbc_cap(struct sta_info *psta);
 
@@ -881,8 +881,8 @@ void issue_assocreq(_adapter *padapter);
 void issue_reassocreq(_adapter *padapter);
 void issue_asocrsp(_adapter *padapter, unsigned short status, struct sta_info *pstat, int pkt_type);
 void issue_auth(_adapter *padapter, struct sta_info *psta, unsigned short status);
-void issue_probereq(_adapter *padapter, const NDIS_802_11_SSID *pssid, const u8 *da);
-s32 issue_probereq_ex(_adapter *padapter, const NDIS_802_11_SSID *pssid, const u8 *da, u8 ch, bool append_wps, int try_cnt, int wait_ms);
+void issue_probereq(_adapter *padapter, const RTW_802_11_SSID *pssid, const u8 *da);
+s32 issue_probereq_ex(_adapter *padapter, const RTW_802_11_SSID *pssid, const u8 *da, u8 ch, bool append_wps, int try_cnt, int wait_ms);
 int issue_nulldata(_adapter *padapter, unsigned char *da, unsigned int power_mode, int try_cnt, int wait_ms);
 int issue_qos_nulldata(_adapter *padapter, unsigned char *da, u16 tid, u8 ps, int try_cnt, int wait_ms);
 int issue_deauth(_adapter *padapter, unsigned char *da, unsigned short reason);

@@ -62,12 +62,12 @@ typedef enum {
 } ENCRYP_PROTOCOL_E;
 
 
-#ifndef Ndis802_11AuthModeWPA2
-#define Ndis802_11AuthModeWPA2 (Ndis802_11AuthModeWPANone + 1)
+#ifndef Rtw802_11AuthModeWPA2
+#define Rtw802_11AuthModeWPA2 (Rtw802_11AuthModeWPANone + 1)
 #endif
 
-#ifndef Ndis802_11AuthModeWPA2PSK
-#define Ndis802_11AuthModeWPA2PSK (Ndis802_11AuthModeWPANone + 2)
+#ifndef Rtw802_11AuthModeWPA2PSK
+#define Rtw802_11AuthModeWPA2PSK (Rtw802_11AuthModeWPANone + 2)
 #endif
 
 union pn48	{
@@ -191,7 +191,7 @@ struct security_priv {
 	u32 ndisauthtype;	/* NDIS_802_11_AUTHENTICATION_MODE */
 	u32 ndisencryptstatus;	/* NDIS_802_11_ENCRYPTION_STATUS */
 
-	NDIS_802_11_WEP ndiswep;
+	RTW_802_11_WEP ndiswep;
 
 	u8 assoc_info[600];
 	u8 szofcapability[256]; /* for wpa2 usage */
@@ -464,7 +464,7 @@ u32	rtw_BIP_verify(_adapter *padapter, u8 *whdr_pos, sint flen
 	, const u8 *key, u16 id, u64* ipn);
 #endif
 #ifdef CONFIG_TDLS
-void wpa_tdls_generate_tpk(_adapter *padapter, PVOID sta);
+void wpa_tdls_generate_tpk(_adapter *padapter, void * sta);
 int wpa_tdls_ftie_mic(u8 *kck, u8 trans_seq,
 			u8 *lnkid, u8 *rsnie, u8 *timeoutie, u8 *ftie,
 			u8 *mic);

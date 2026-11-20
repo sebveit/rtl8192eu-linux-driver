@@ -479,11 +479,11 @@ void rtl8192e_set_p2p_ps_offload_cmd(_adapter *padapter, u8 p2p_ps_state)
 
 
 
-static VOID
+static void
 C2HTxFeedbackHandler_8192E(
-	IN	PADAPTER	Adapter,
-	IN	u8			*CmdBuf,
-	IN	u8			CmdLen
+	PADAPTER	Adapter,
+	u8			*CmdBuf,
+	u8			CmdLen
 )
 {
 #ifdef CONFIG_XMIT_ACK

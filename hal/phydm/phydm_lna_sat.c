@@ -737,7 +737,7 @@ void phydm_ori_table_try_fail(
 
 char *phydm_lna_sat_state_msg(
 	void *dm_void,
-	IN u8 state)
+	u8 state)
 {
 	char *dbg_message;
 

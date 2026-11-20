@@ -1092,7 +1092,7 @@ static void init_mlme_ext_priv_value(_adapter *padapter)
 	pmlmeext->action_public_dialog_token = 0xff;
 #ifdef ROKU_PRIVATE
 /*infra mode, used to store AP's info*/
-	_rtw_memset(pmlmeinfo->SupportedRates_infra_ap, 0, NDIS_802_11_LENGTH_RATES_EX);
+	_rtw_memset(pmlmeinfo->SupportedRates_infra_ap, 0, RTW_802_11_LENGTH_RATES_EX);
 	pmlmeinfo->ht_vht_received = 0;
 #endif /* ROKU_PRIVATE */
 }
@@ -2627,7 +2627,7 @@ unsigned int OnAssocRsp(_adapter *padapter, union recv_frame *precv_frame)
 	uint i;
 	int res;
 	unsigned short	status;
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
@@ -2679,7 +2679,7 @@ unsigned int OnAssocRsp(_adapter *padapter, union recv_frame *precv_frame)
 	/* to handle HT, WMM, rate adaptive, update MAC reg */
 	/* for not to handle the synchronous IO in the tasklet */
 	for (i = (6 + WLAN_HDR_A3_LEN); i < pkt_len;) {
-		pIE = (PNDIS_802_11_VARIABLE_IEs)(pframe + i);
+		pIE = (PRTW_802_11_VARIABLE_IEs)(pframe + i);
 
 		switch (pIE->ElementID) {
 		case _VENDOR_SPECIFIC_IE_:
@@ -8075,7 +8075,7 @@ void issue_probersp(_adapter *padapter, unsigned char *da, u8 is_valid_p2p_probe
 
 }
 
-static int _issue_probereq(_adapter *padapter, const NDIS_802_11_SSID *pssid, const u8 *da, u8 ch, bool append_wps, int wait_ack)
+static int _issue_probereq(_adapter *padapter, const RTW_802_11_SSID *pssid, const u8 *da, u8 ch, bool append_wps, int wait_ack)
 {
 	int ret = _FAIL;
 	struct xmit_frame		*pmgntframe;
@@ -8180,7 +8180,7 @@ exit:
 	return ret;
 }
 
-inline void issue_probereq(_adapter *padapter, const NDIS_802_11_SSID *pssid, const u8 *da)
+inline void issue_probereq(_adapter *padapter, const RTW_802_11_SSID *pssid, const u8 *da)
 {
 	_issue_probereq(padapter, pssid, da, 0, 1, _FALSE);
 }
@@ -8190,7 +8190,7 @@ inline void issue_probereq(_adapter *padapter, const NDIS_802_11_SSID *pssid, co
  * wait_ms > 0 means you want to wait ack through C2H_CCX_TX_RPT, and the value of wait_ms means the interval between each TX
  * try_cnt means the maximal TX count to try
  */
-int issue_probereq_ex(_adapter *padapter, const NDIS_802_11_SSID *pssid, const u8 *da, u8 ch, bool append_wps,
+int issue_probereq_ex(_adapter *padapter, const RTW_802_11_SSID *pssid, const u8 *da, u8 ch, bool append_wps,
 		      int try_cnt, int wait_ms)
 {
 	int ret = _FAIL;
@@ -8622,7 +8622,7 @@ void _issue_assocreq(_adapter *padapter, u8 is_reassoc)
 	unsigned short				val16;
 	unsigned int					i, j, index = 0;
 	unsigned char					bssrate[NumRates], sta_bssrate[NumRates];
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	struct xmit_priv		*pxmitpriv = &(padapter->xmitpriv);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
@@ -8746,14 +8746,14 @@ void _issue_assocreq(_adapter *padapter, u8 is_reassoc)
 	/*	RTW_INFO("sta_bssrate[%d]=%02X\n", i, sta_bssrate[i]); */
 	/* } */
 
-	for (i = 0; i < NDIS_802_11_LENGTH_RATES_EX; i++) {
+	for (i = 0; i < RTW_802_11_LENGTH_RATES_EX; i++) {
 		if (pmlmeinfo->network.SupportedRates[i] == 0)
 			break;
 		RTW_INFO("network.SupportedRates[%d]=%02X\n", i, pmlmeinfo->network.SupportedRates[i]);
 	}
 
 
-	for (i = 0; i < NDIS_802_11_LENGTH_RATES_EX; i++) {
+	for (i = 0; i < RTW_802_11_LENGTH_RATES_EX; i++) {
 		if (pmlmeinfo->network.SupportedRates[i] == 0)
 			break;
 
@@ -8809,8 +8809,8 @@ void _issue_assocreq(_adapter *padapter, u8 is_reassoc)
 #endif /* CONFIG_RTW_80211K */
 
 	/* vendor specific IE, such as WPA, WMM, WPS */
-	for (i = sizeof(NDIS_802_11_FIXED_IEs); i < pmlmeinfo->network.IELength;) {
-		pIE = (PNDIS_802_11_VARIABLE_IEs)(pmlmeinfo->network.IEs + i);
+	for (i = sizeof(RTW_802_11_FIXED_IEs); i < pmlmeinfo->network.IELength;) {
+		pIE = (PRTW_802_11_VARIABLE_IEs)(pmlmeinfo->network.IEs + i);
 
 		switch (pIE->ElementID) {
 		case _VENDOR_SPECIFIC_IE_:
@@ -10459,8 +10459,8 @@ Following are some utitity fuctions for WiFi MLME
 *****************************************************************************/
 
 BOOLEAN IsLegal5GChannel(
-	IN PADAPTER			Adapter,
-	IN u8			channel)
+	PADAPTER			Adapter,
+	u8			channel)
 {
 
 	int i = 0;
@@ -10553,7 +10553,7 @@ u8 collect_bss_info(_adapter *padapter, union recv_frame *precv_frame, WLAN_BSSI
 	}
 
 	if (*(p + 1)) {
-		if (len > NDIS_802_11_LENGTH_SSID) {
+		if (len > RTW_802_11_LENGTH_SSID) {
 			RTW_INFO("%s()-%d: IE too long (%d) for survey event\n", __FUNCTION__, __LINE__, len);
 			return _FAIL;
 		}
@@ -10562,13 +10562,13 @@ u8 collect_bss_info(_adapter *padapter, union recv_frame *precv_frame, WLAN_BSSI
 	} else
 		bssid->Ssid.SsidLength = 0;
 
-	_rtw_memset(bssid->SupportedRates, 0, NDIS_802_11_LENGTH_RATES_EX);
+	_rtw_memset(bssid->SupportedRates, 0, RTW_802_11_LENGTH_RATES_EX);
 
 	/* checking rate info... */
 	i = 0;
 	p = rtw_get_ie(bssid->IEs + ie_offset, _SUPPORTEDRATES_IE_, &len, bssid->IELength - ie_offset);
 	if (p != NULL) {
-		if (len > NDIS_802_11_LENGTH_RATES_EX) {
+		if (len > RTW_802_11_LENGTH_RATES_EX) {
 			RTW_INFO("%s()-%d: IE too long (%d) for survey event\n", __FUNCTION__, __LINE__, len);
 			return _FAIL;
 		}
@@ -10583,7 +10583,7 @@ u8 collect_bss_info(_adapter *padapter, union recv_frame *precv_frame, WLAN_BSSI
 
 	p = rtw_get_ie(bssid->IEs + ie_offset, _EXT_SUPPORTEDRATES_IE_, &len, bssid->IELength - ie_offset);
 	if (p != NULL) {
-		if (len > (NDIS_802_11_LENGTH_RATES_EX - i)) {
+		if (len > (RTW_802_11_LENGTH_RATES_EX - i)) {
 			RTW_INFO("%s()-%d: IE too long (%d) for survey event\n", __FUNCTION__, __LINE__, len);
 			return _FAIL;
 		}
@@ -10597,7 +10597,7 @@ u8 collect_bss_info(_adapter *padapter, union recv_frame *precv_frame, WLAN_BSSI
 
 	/* todo: */
 	{
-		bssid->NetworkTypeInUse = Ndis802_11OFDM24;
+		bssid->NetworkTypeInUse = Rtw802_11OFDM24;
 	}
 
 #ifdef CONFIG_P2P
@@ -10619,7 +10619,7 @@ u8 collect_bss_info(_adapter *padapter, union recv_frame *precv_frame, WLAN_BSSI
 		}
 
 		/* FIXME */
-		bssid->InfrastructureMode = Ndis802_11Infrastructure;
+		bssid->InfrastructureMode = Rtw802_11Infrastructure;
 		_rtw_memcpy(bssid->MacAddress, get_addr2_ptr(pframe), ETH_ALEN);
 		bssid->Privacy = 1;
 		return _SUCCESS;
@@ -10656,10 +10656,10 @@ u8 collect_bss_info(_adapter *padapter, union recv_frame *precv_frame, WLAN_BSSI
 	val16 = rtw_get_capability((WLAN_BSSID_EX *)bssid);
 
 	if ((val16 & 0x03) == cap_ESS) {
-		bssid->InfrastructureMode = Ndis802_11Infrastructure;
+		bssid->InfrastructureMode = Rtw802_11Infrastructure;
 		_rtw_memcpy(bssid->MacAddress, get_addr2_ptr(pframe), ETH_ALEN);
 	} else if ((val16 & 0x03) == cap_IBSS){
-		bssid->InfrastructureMode = Ndis802_11IBSS;
+		bssid->InfrastructureMode = Rtw802_11IBSS;
 		_rtw_memcpy(bssid->MacAddress, GetAddr3Ptr(pframe), ETH_ALEN);
 	} else if ((val16 & 0x03) == 0x00){
 		u8 *mesh_id_ie, *mesh_conf_ie;
@@ -10673,7 +10673,7 @@ u8 collect_bss_info(_adapter *padapter, union recv_frame *precv_frame, WLAN_BSSI
 				return _FAIL;
 			}
 			if (mesh_id_ie_len) {
-				if (mesh_id_ie_len > NDIS_802_11_LENGTH_SSID) {
+				if (mesh_id_ie_len > RTW_802_11_LENGTH_SSID) {
 					RTW_INFO("Mesh ID too long (%d) for survey event\n", mesh_id_ie_len);
 					return _FAIL;
 				}
@@ -10691,11 +10691,11 @@ u8 collect_bss_info(_adapter *padapter, union recv_frame *precv_frame, WLAN_BSSI
 				return _FAIL;
 			}
 
-			bssid->InfrastructureMode = Ndis802_11_mesh;
+			bssid->InfrastructureMode = Rtw802_11_mesh;
 			_rtw_memcpy(bssid->MacAddress, GetAddr3Ptr(pframe), ETH_ALEN);
 		} else {
 			/* default cases */
-			bssid->InfrastructureMode = Ndis802_11IBSS;
+			bssid->InfrastructureMode = Rtw802_11IBSS;
 			_rtw_memcpy(bssid->MacAddress, GetAddr3Ptr(pframe), ETH_ALEN);
 		}
 	}
@@ -10866,8 +10866,8 @@ void start_clnt_join(_adapter *padapter)
 
 				scanned = LIST_CONTAINOR(pos, struct wlan_network, list);
 
-				if (_rtw_memcmp(&(scanned->network.Ssid), &(pnetwork->Ssid), sizeof(NDIS_802_11_SSID)) == _TRUE
-				    && _rtw_memcmp(scanned->network.MacAddress, pnetwork->MacAddress, sizeof(NDIS_802_11_MAC_ADDRESS)) == _TRUE
+				if (_rtw_memcmp(&(scanned->network.Ssid), &(pnetwork->Ssid), sizeof(RTW_802_11_SSID)) == _TRUE
+				    && _rtw_memcmp(scanned->network.MacAddress, pnetwork->MacAddress, sizeof(RTW_802_11_MAC_ADDRESS)) == _TRUE
 				   ) {
 					ie_offset = (scanned->network.Reserved[0] == BSS_TYPE_PROB_REQ ? 0 : 12);
 					if (rtw_get_p2p_ie(scanned->network.IEs + ie_offset, scanned->network.IELength - ie_offset, NULL, NULL))
@@ -11303,7 +11303,7 @@ void report_survey_event(_adapter *padapter, union recv_frame *precv_frame)
 
 	ch_set_idx = rtw_chset_search_ch(chset, psurvey_evt->bss.Configuration.DSConfig);
 	if (ch_set_idx >= 0) {
-		if (psurvey_evt->bss.InfrastructureMode == Ndis802_11Infrastructure) {
+		if (psurvey_evt->bss.InfrastructureMode == Rtw802_11Infrastructure) {
 			if (chset[ch_set_idx].ScanType == SCAN_PASSIVE
 				&& !rtw_is_dfs_ch(psurvey_evt->bss.Configuration.DSConfig)
 			) {
@@ -13141,9 +13141,9 @@ void rtw_start_auto_ap(_adapter *adapter)
 {
 	RTW_INFO("%s\n", __FUNCTION__);
 
-	rtw_set_802_11_infrastructure_mode(adapter, Ndis802_11APMode, 0);
+	rtw_set_802_11_infrastructure_mode(adapter, Rtw802_11APMode, 0);
 
-	rtw_setopmode_cmd(adapter, Ndis802_11APMode, RTW_CMDF_WAIT_ACK);
+	rtw_setopmode_cmd(adapter, Rtw802_11APMode, RTW_CMDF_WAIT_ACK);
 }
 
 static int rtw_auto_ap_start_beacon(_adapter *adapter)
@@ -13236,8 +13236,8 @@ u8 stop_ap_hdl(_adapter *adapter)
 {
 	RTW_INFO(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(adapter));
 
-	rtw_set_802_11_infrastructure_mode(adapter, Ndis802_11Infrastructure, RTW_CMDF_DIRECTLY);
-	rtw_setopmode_cmd(adapter, Ndis802_11Infrastructure, RTW_CMDF_DIRECTLY);
+	rtw_set_802_11_infrastructure_mode(adapter, Rtw802_11Infrastructure, RTW_CMDF_DIRECTLY);
+	rtw_setopmode_cmd(adapter, Rtw802_11Infrastructure, RTW_CMDF_DIRECTLY);
 
 	return H2C_SUCCESS;
 }
@@ -13250,18 +13250,18 @@ u8 setopmode_hdl(_adapter *padapter, u8 *pbuf)
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct setopmode_parm *psetop = (struct setopmode_parm *)pbuf;
 
-	if (psetop->mode == Ndis802_11APMode
-		|| psetop->mode == Ndis802_11_mesh
+	if (psetop->mode == Rtw802_11APMode
+		|| psetop->mode == Rtw802_11_mesh
 	) {
 		pmlmeinfo->state = WIFI_FW_AP_STATE;
 		type = _HW_STATE_AP_;
-	} else if (psetop->mode == Ndis802_11Infrastructure) {
+	} else if (psetop->mode == Rtw802_11Infrastructure) {
 		pmlmeinfo->state &= ~(BIT(0) | BIT(1)); /* clear state */
 		pmlmeinfo->state |= WIFI_FW_STATION_STATE;/* set to 	STATION_STATE */
 		type = _HW_STATE_STATION_;
-	} else if (psetop->mode == Ndis802_11IBSS)
+	} else if (psetop->mode == Rtw802_11IBSS)
 		type = _HW_STATE_ADHOC_;
-	else if (psetop->mode == Ndis802_11Monitor)
+	else if (psetop->mode == Rtw802_11Monitor)
 		type = _HW_STATE_MONITOR_;
 	else
 		type = _HW_STATE_NOLINK_;
@@ -13273,16 +13273,16 @@ u8 setopmode_hdl(_adapter *padapter, u8 *pbuf)
 	rtw_hal_set_hwreg(padapter, HW_VAR_SET_OPMODE, (u8 *)(&type));
 
 #ifdef CONFIG_AUTO_AP_MODE
-	if (psetop->mode == Ndis802_11APMode)
+	if (psetop->mode == Rtw802_11APMode)
 		rtw_auto_ap_start_beacon(padapter);
 #endif
 
 	if (rtw_port_switch_chk(padapter) == _TRUE) {
 		rtw_hal_set_hwreg(padapter, HW_VAR_PORT_SWITCH, NULL);
 
-		if (psetop->mode == Ndis802_11APMode)
+		if (psetop->mode == Rtw802_11APMode)
 			adapter_to_pwrctl(padapter)->fw_psmode_iface_id = 0xff; /* ap mode won't dowload rsvd pages */
-		else if (psetop->mode == Ndis802_11Infrastructure) {
+		else if (psetop->mode == Rtw802_11Infrastructure) {
 #ifdef CONFIG_LPS
 			_adapter *port0_iface = dvobj_get_port0_adapter(adapter_to_dvobj(padapter));
 			if (port0_iface)
@@ -13292,9 +13292,9 @@ u8 setopmode_hdl(_adapter *padapter, u8 *pbuf)
 	}
 
 #ifdef CONFIG_BT_COEXIST
-	if (psetop->mode == Ndis802_11APMode
-		|| psetop->mode == Ndis802_11_mesh
-		|| psetop->mode == Ndis802_11Monitor
+	if (psetop->mode == Rtw802_11APMode
+		|| psetop->mode == Rtw802_11_mesh
+		|| psetop->mode == Rtw802_11Monitor
 	) {
 		/* Do this after port switch to */
 		/* prevent from downloading rsvd page to wrong port */
@@ -13327,7 +13327,7 @@ u8 createbss_hdl(_adapter *padapter, u8 *pbuf)
 
 	/* below is for ad-hoc master */
 	if (parm->adhoc) {
-		rtw_warn_on(pdev_network->InfrastructureMode != Ndis802_11IBSS);
+		rtw_warn_on(pdev_network->InfrastructureMode != Rtw802_11IBSS);
 		rtw_joinbss_reset(padapter);
 
 		pmlmeext->cur_bwmode = CHANNEL_WIDTH_20;
@@ -13372,7 +13372,7 @@ exit:
 u8 join_cmd_hdl(_adapter *padapter, u8 *pbuf)
 {
 	u8	join_type;
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	WLAN_BSSID_EX		*pnetwork = (WLAN_BSSID_EX *)(&(pmlmeinfo->network));
@@ -13425,7 +13425,7 @@ u8 join_cmd_hdl(_adapter *padapter, u8 *pbuf)
 	pmlmeinfo->VHT_enable = 0;
 #ifdef ROKU_PRIVATE
 	pmlmeinfo->ht_vht_received = 0;
-	_rtw_memset(pmlmeinfo->SupportedRates_infra_ap, 0, NDIS_802_11_LENGTH_RATES_EX);
+	_rtw_memset(pmlmeinfo->SupportedRates_infra_ap, 0, RTW_802_11_LENGTH_RATES_EX);
 #endif /* ROKU_PRIVATE */
 	_rtw_memcpy(pnetwork, pbuf, FIELD_OFFSET(WLAN_BSSID_EX, IELength));
 	pnetwork->IELength = ((WLAN_BSSID_EX *)pbuf)->IELength;
@@ -13446,7 +13446,7 @@ u8 join_cmd_hdl(_adapter *padapter, u8 *pbuf)
 
 	/* sizeof(NDIS_802_11_FIXED_IEs)	 */
 	for (i = _FIXED_IE_LENGTH_ ; i < pnetwork->IELength - 2 ;) {
-		pIE = (PNDIS_802_11_VARIABLE_IEs)(pnetwork->IEs + i);
+		pIE = (PRTW_802_11_VARIABLE_IEs)(pnetwork->IEs + i);
 
 		switch (pIE->ElementID) {
 		case _VENDOR_SPECIFIC_IE_: /* Get WMM IE. */

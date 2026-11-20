@@ -270,13 +270,13 @@ void rtw_hal_config_rftype(PADAPTER  padapter)
  *
  */
 void hal_com_config_channel_plan(
-	IN	PADAPTER padapter,
-	IN	char *hw_alpha2,
-	IN	u8 hw_chplan,
-	IN	char *sw_alpha2,
-	IN	u8 sw_chplan,
-	IN	u8 def_chplan,
-	IN	BOOLEAN AutoLoadFail
+	PADAPTER padapter,
+	char *hw_alpha2,
+	u8 hw_chplan,
+	char *sw_alpha2,
+	u8 sw_chplan,
+	u8 def_chplan,
+	BOOLEAN AutoLoadFail
 )
 {
 	struct rf_ctl_t *rfctl = adapter_to_rfctl(padapter);
@@ -360,8 +360,8 @@ done:
 
 BOOLEAN
 HAL_IsLegalChannel(
-	IN	PADAPTER	Adapter,
-	IN	u32			Channel
+	PADAPTER	Adapter,
+	u32			Channel
 )
 {
 	BOOLEAN bLegalChannel = _TRUE;
@@ -918,13 +918,13 @@ u8	hw_rate_to_m_rate(u8 rate)
 }
 
 void	HalSetBrateCfg(
-	IN PADAPTER		Adapter,
-	IN u8			*mBratesOS,
-	OUT u16			*pBrateCfg)
+	PADAPTER		Adapter,
+	u8			*mBratesOS,
+	u16			*pBrateCfg)
 {
 	u8	i, is_brate, brate;
 
-	for (i = 0; i < NDIS_802_11_LENGTH_RATES_EX; i++) {
+	for (i = 0; i < RTW_802_11_LENGTH_RATES_EX; i++) {
 		is_brate = mBratesOS[i] & IEEE80211_BASIC_RATE_MASK;
 		brate = mBratesOS[i] & 0x7f;
 
@@ -971,9 +971,9 @@ void	HalSetBrateCfg(
 	}
 }
 
-static VOID
+static void
 _OneOutPipeMapping(
-	IN	PADAPTER	pAdapter
+	PADAPTER	pAdapter
 )
 {
 	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(pAdapter);
@@ -989,10 +989,10 @@ _OneOutPipeMapping(
 	pdvobjpriv->Queue2Pipe[7] = pdvobjpriv->RtOutPipe[0];/* TXCMD */
 }
 
-static VOID
+static void
 _TwoOutPipeMapping(
-	IN	PADAPTER	pAdapter,
-	IN	BOOLEAN		bWIFICfg
+	PADAPTER	pAdapter,
+	BOOLEAN		bWIFICfg
 )
 {
 	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(pAdapter);
@@ -1034,9 +1034,9 @@ _TwoOutPipeMapping(
 
 }
 
-static VOID _ThreeOutPipeMapping(
-	IN	PADAPTER	pAdapter,
-	IN	BOOLEAN		bWIFICfg
+static void _ThreeOutPipeMapping(
+	PADAPTER	pAdapter,
+	BOOLEAN		bWIFICfg
 )
 {
 	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(pAdapter);
@@ -1078,8 +1078,8 @@ static VOID _ThreeOutPipeMapping(
 }
 BOOLEAN
 Hal_MappingOutPipe(
-	IN	PADAPTER	pAdapter,
-	IN	u8		NumOutPipe
+	PADAPTER	pAdapter,
+	u8		NumOutPipe
 )
 {
 	struct registry_priv *pregistrypriv = &pAdapter->registrypriv;
@@ -4658,7 +4658,7 @@ static void rtw_hal_update_sw_security_info(_adapter *adapter)
 	rtw_hal_update_tx_iv(adapter);
 #ifdef CONFIG_GTK_OL
 	if (psecpriv->binstallKCK_KEK == _TRUE &&
-	    psecpriv->ndisauthtype == Ndis802_11AuthModeWPA2PSK)
+	    psecpriv->ndisauthtype == Rtw802_11AuthModeWPA2PSK)
 		rtw_hal_update_gtk_offload_info(adapter);
 #else
 	_rtw_memset(psecpriv->iv_seq, 0, sz);
@@ -4788,7 +4788,7 @@ static u8 rtw_hal_set_wowlan_ctrl_cmd(_adapter *adapter, u8 enable, u8 change_un
 
 #ifdef CONFIG_GTK_OL
 	if (psecpriv->binstallKCK_KEK == _TRUE &&
-	    psecpriv->ndisauthtype == Ndis802_11AuthModeWPA2PSK)
+	    psecpriv->ndisauthtype == Rtw802_11AuthModeWPA2PSK)
 		SET_H2CCMD_WOWLAN_REKEY_WAKE_UP(u1H2CWoWlanCtrlParm, 0);
 	else
 		SET_H2CCMD_WOWLAN_REKEY_WAKE_UP(u1H2CWoWlanCtrlParm, 1);
@@ -4866,7 +4866,7 @@ static u8 rtw_hal_set_remote_wake_ctrl_cmd(_adapter *adapter, u8 enable)
 				u1H2CRemoteWakeCtrlParm, 1);
 	#ifdef CONFIG_GTK_OL
 			if (psecuritypriv->binstallKCK_KEK == _TRUE &&
-			    psecuritypriv->ndisauthtype == Ndis802_11AuthModeWPA2PSK) {
+			    psecuritypriv->ndisauthtype == Rtw802_11AuthModeWPA2PSK) {
 				SET_H2CCMD_REMOTE_WAKE_CTRL_GTK_OFFLOAD_EN(
 					u1H2CRemoteWakeCtrlParm, 1);
 			} else {
@@ -4905,7 +4905,7 @@ static u8 rtw_hal_set_remote_wake_ctrl_cmd(_adapter *adapter, u8 enable)
 			}
 	
 			if (psecuritypriv->dot11PrivacyAlgrthm == _TKIP_ &&
-			    psecuritypriv->ndisauthtype == Ndis802_11AuthModeWPA2PSK) {
+			    psecuritypriv->ndisauthtype == Rtw802_11AuthModeWPA2PSK) {
 				SET_H2CCMD_REMOTE_WAKE_CTRL_TKIP_OFFLOAD_EN(
 						u1H2CRemoteWakeCtrlParm, enable);
 	
@@ -6643,19 +6643,19 @@ void rtw_hal_construct_NullFunctionData(
 	}
 
 	switch (cur_network->network.InfrastructureMode) {
-	case Ndis802_11Infrastructure:
+	case Rtw802_11Infrastructure:
 		SetToDs(fctrl);
 		_rtw_memcpy(pwlanhdr->addr1, get_my_bssid(&(pmlmeinfo->network)), ETH_ALEN);
 		_rtw_memcpy(pwlanhdr->addr2, adapter_mac_addr(padapter), ETH_ALEN);
 		_rtw_memcpy(pwlanhdr->addr3, sta_addr, ETH_ALEN);
 		break;
-	case Ndis802_11APMode:
+	case Rtw802_11APMode:
 		SetFrDs(fctrl);
 		_rtw_memcpy(pwlanhdr->addr1, sta_addr, ETH_ALEN);
 		_rtw_memcpy(pwlanhdr->addr2, get_my_bssid(&(pmlmeinfo->network)), ETH_ALEN);
 		_rtw_memcpy(pwlanhdr->addr3, adapter_mac_addr(padapter), ETH_ALEN);
 		break;
-	case Ndis802_11IBSS:
+	case Rtw802_11IBSS:
 	default:
 		_rtw_memcpy(pwlanhdr->addr1, sta_addr, ETH_ALEN);
 		_rtw_memcpy(pwlanhdr->addr2, adapter_mac_addr(padapter), ETH_ALEN);
@@ -7207,7 +7207,7 @@ static void rtw_hal_construct_remote_control_info(_adapter *adapter,
 
 	_rtw_memset(&cur_dot11rxiv, 0, sz);
 
-	if (psecuritypriv->ndisauthtype == Ndis802_11AuthModeWPA2PSK) {
+	if (psecuritypriv->ndisauthtype == Rtw802_11AuthModeWPA2PSK) {
 		id = psecuritypriv->dot118021XGrpKeyid;
 		tid_id = prxcache->last_tid;
 		REMOTE_INFO_CTRL_SET_VALD_EN(cur_dot11rxiv, 0xdd);
@@ -10598,7 +10598,7 @@ eqNByte(
  *   */
 u32
 MapCharToHexDigit(
-	IN		char		chTmp
+	char		chTmp
 )
 {
 	if (chTmp >= '0' && chTmp <= '9')
@@ -10619,9 +10619,9 @@ MapCharToHexDigit(
  *   */
 BOOLEAN
 GetHexValueFromString(
-	IN		char			*szStr,
-	IN OUT	u32			*pu4bVal,
-	IN OUT	u32			*pu4bMove
+	char			*szStr,
+	u32			*pu4bVal,
+	u32			*pu4bMove
 )
 {
 	char		*szScan = szStr;
@@ -10668,10 +10668,10 @@ GetHexValueFromString(
 
 BOOLEAN
 GetFractionValueFromString(
-	IN		char			*szStr,
-	IN OUT	u8				*pInteger,
-	IN OUT	u8				*pFraction,
-	IN OUT	u32			*pu4bMove
+	char			*szStr,
+	u8				*pInteger,
+	u8				*pFraction,
+	u32			*pu4bMove
 )
 {
 	char	*szScan = szStr;
@@ -10727,7 +10727,7 @@ GetFractionValueFromString(
  *   */
 BOOLEAN
 IsCommentString(
-	IN		char			*szStr
+	char			*szStr
 )
 {
 	if (*szStr == '/' && *(szStr + 1) == '/')
@@ -10738,8 +10738,8 @@ IsCommentString(
 
 BOOLEAN
 GetU1ByteIntegerFromStringInDecimal(
-	IN		char	*Str,
-	IN OUT	u8		*pInt
+	char	*Str,
+	u8		*pInt
 )
 {
 	u16 i = 0;
@@ -10762,11 +10762,11 @@ GetU1ByteIntegerFromStringInDecimal(
  * If RightQualifier does not exist, it will hang on in the while loop */
 BOOLEAN
 ParseQualifiedString(
-	IN		char	*In,
-	IN OUT	u32	*Start,
-	OUT		char	*Out,
-	IN		char		LeftQualifier,
-	IN		char		RightQualifier
+	char	*In,
+	u32	*Start,
+	char	*Out,
+	char		LeftQualifier,
+	char		RightQualifier
 )
 {
 	u32	i = 0, j = 0;
@@ -12695,8 +12695,8 @@ void rtw_hal_switch_chnl_and_set_bw_offload(_adapter *adapter, u8 central_ch, u8
 #endif /* RTW_CHANNEL_SWITCH_OFFLOAD */
 
 u8 phy_get_current_tx_num(
-	IN	PADAPTER		pAdapter,
-	IN	u8				Rate
+	PADAPTER		pAdapter,
+	u8				Rate
 )
 {
 	u8	tx_num = RF_1TX;

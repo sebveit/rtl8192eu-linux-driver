@@ -75,7 +75,7 @@ int rtw_init_rm(_adapter *padapter);
 int rtw_free_rm_priv(_adapter *padapter);
 
 unsigned int rm_on_action(_adapter *padapter, union recv_frame *precv_frame);
-void RM_IE_handler(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pIE);
+void RM_IE_handler(_adapter *padapter, PRTW_802_11_VARIABLE_IEs pIE);
 void rtw_ap_parse_sta_rm_en_cap(_adapter *padapter,
 	struct sta_info *psta, struct rtw_ieee802_11_elems *elems);
 

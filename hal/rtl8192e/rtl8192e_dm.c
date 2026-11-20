@@ -82,7 +82,7 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
  *   */
 static void
 dm_InitGPIOSetting(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 
@@ -125,7 +125,7 @@ static void Init_ODM_ComInfo_8192e(PADAPTER	Adapter)
 
 void
 rtl8192e_InitHalDm(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 
@@ -135,9 +135,9 @@ rtl8192e_InitHalDm(
 }
 
 
-VOID
+void
 rtl8192e_HalDmWatchDog(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	BOOLEAN		bFwCurrentInPSMode = _FALSE;
@@ -192,7 +192,7 @@ skip_dm:
 	return;
 }
 
-void rtl8192e_init_dm_priv(IN PADAPTER Adapter)
+void rtl8192e_init_dm_priv(PADAPTER Adapter)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	struct dm_struct		*podmpriv = &pHalData->odmpriv;
@@ -202,7 +202,7 @@ void rtl8192e_init_dm_priv(IN PADAPTER Adapter)
 
 }
 
-void rtl8192e_deinit_dm_priv(IN PADAPTER Adapter)
+void rtl8192e_deinit_dm_priv(PADAPTER Adapter)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	struct dm_struct		*podmpriv = &pHalData->odmpriv;

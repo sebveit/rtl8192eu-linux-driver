@@ -29,8 +29,8 @@ void hal_mpt_SwitchRfSetting(PADAPTER	pAdapter)
 {
 	PMPT_CONTEXT		pMptCtx = &(pAdapter->mppriv.mpt_ctx);
 	u8				ChannelToSw = pMptCtx->MptChannelToSw;
-	ULONG				ulRateIdx = pMptCtx->mpt_rate_index;
-	ULONG				ulbandwidth = pMptCtx->MptBandWidth;
+	u32				ulRateIdx = pMptCtx->mpt_rate_index;
+	u32				ulbandwidth = pMptCtx->MptBandWidth;
 
 	/* <20120525, Kordan> Dynamic mechanism for APK, asked by Dennis.*/
 	if (IS_HARDWARE_TYPE_8188ES(pAdapter) && (1 <= ChannelToSw && ChannelToSw <= 11) &&
@@ -98,7 +98,7 @@ void hal_mpt_CCKTxPowerAdjust(PADAPTER Adapter, BOOLEAN bInCH14)
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	PMPT_CONTEXT		pMptCtx = &(Adapter->mppriv.mpt_ctx);
 	u1Byte				u1Channel = pHalData->current_channel;
-	ULONG				ulRateIdx = pMptCtx->mpt_rate_index;
+	u32				ulRateIdx = pMptCtx->mpt_rate_index;
 	u1Byte				DataRate = 0xFF;
 
 	/* Do not modify CCK TX filter parameters for 8822B*/
@@ -514,7 +514,7 @@ void hal_mpt_SetDataRate(PADAPTER pAdapter)
 
 
 
-static VOID mpt_SetRFPath_819X(PADAPTER	pAdapter)
+static void mpt_SetRFPath_819X(PADAPTER	pAdapter)
 {
 	HAL_DATA_TYPE			*pHalData	= GET_HAL_DATA(pAdapter);
 	PMPT_CONTEXT		pMptCtx = &(pAdapter->mppriv.mpt_ctx);
@@ -981,7 +981,7 @@ u32 hal_mpt_query_phytxok(PADAPTER	pAdapter)
 
 }
 
-static	VOID mpt_StopCckContTx(
+static	void mpt_StopCckContTx(
 	PADAPTER	pAdapter
 )
 {
@@ -1012,7 +1012,7 @@ static	VOID mpt_StopCckContTx(
 }	/* mpt_StopCckContTx */
 
 
-static	VOID mpt_StopOfdmContTx(
+static	void mpt_StopOfdmContTx(
 	PADAPTER	pAdapter
 )
 {
@@ -1042,7 +1042,7 @@ static	VOID mpt_StopOfdmContTx(
 }	/* mpt_StopOfdmContTx */
 
 
-static	VOID mpt_StartCckContTx(
+static	void mpt_StartCckContTx(
 	PADAPTER		pAdapter
 )
 {
@@ -1083,7 +1083,7 @@ static	VOID mpt_StartCckContTx(
 }	/* mpt_StartCckContTx */
 
 
-static	VOID mpt_StartOfdmContTx(
+static	void mpt_StartOfdmContTx(
 	PADAPTER		pAdapter
 )
 {

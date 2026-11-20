@@ -95,7 +95,7 @@ struct EMInfo {
 void
 InsertEMContent_8192E(
 	struct EMInfo *pEMInfo,
-	IN pu1Byte	VirtualAddress)
+	pu1Byte	VirtualAddress)
 {
 
 #if RTL8188E_EARLY_MODE_PKT_NUM_10 == 1
@@ -326,8 +326,8 @@ void fill_txdesc_vcs(struct pkt_attrib *pattrib, u8 *ptxdesc)
 
 u8
 BWMapping_92E(
-	IN	PADAPTER		Adapter,
-	IN	struct pkt_attrib	*pattrib
+	PADAPTER		Adapter,
+	struct pkt_attrib	*pattrib
 )
 {
 	u8	BWSettingOfDesc = 0;
@@ -351,8 +351,8 @@ BWMapping_92E(
 
 u8
 SCMapping_92E(
-	IN	PADAPTER		Adapter,
-	IN	struct pkt_attrib	*pattrib
+	PADAPTER		Adapter,
+	struct pkt_attrib	*pattrib
 )
 {
 	u8	SCSettingOfDesc = 0;

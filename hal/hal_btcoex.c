@@ -1921,8 +1921,8 @@ static u8 halbtcoutsrc_SetBtAntDetection(void *pBtcContext, u8 txTime, u8 btChnl
 
 static BOOLEAN
 halbtcoutsrc_SetBtTRXMASK(
-	IN	PVOID			pBtcContext,
-	IN	u1Byte			bt_trx_mask
+	void *			pBtcContext,
+	u1Byte			bt_trx_mask
 	)
 {
 	/* Always return _FALSE since we don't implement this yet */
@@ -2062,7 +2062,7 @@ static COL_H2C_STATUS halbtcoutsrc_CoexH2cProcess(void *pBtCoexist,
 
 	gl_coex_offload.h2c_record[opcode].count++;
 	gl_coex_offload.h2c_record[opcode].h2c_len = col_h2c_len;
-	_rtw_memmove((PVOID)&gl_coex_offload.h2c_record[opcode].h2c_buf[0], (PVOID)pcol_h2c, col_h2c_len);
+	_rtw_memmove((void *)&gl_coex_offload.h2c_record[opcode].h2c_buf[0], (void *)pcol_h2c, col_h2c_len);
 
 	h2c_status = halbtcoutsrc_send_h2c(Adapter, pcol_h2c, col_h2c_len);
 
@@ -2265,7 +2265,7 @@ static u8 EXhalbtcoutsrc_BindBtCoexWithAdapter(void *padapter)
 	pBtCoexist->statistics.cnt_bind++;
 
 	pBtCoexist->Adapter = padapter;
-	pBtCoexist->odm_priv = (PVOID)&(pHalData->odmpriv);
+	pBtCoexist->odm_priv = (void *)&(pHalData->odmpriv);
 
 	pBtCoexist->stack_info.profile_notified = _FALSE;
 
@@ -2770,10 +2770,10 @@ void EXhalbtcoutsrc_rx_rate_change_notify(PBTC_COEXIST pBtCoexist, u8 is_data_fr
 
 }
 
-VOID
+void
 EXhalbtcoutsrc_RfStatusNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte				type
+	PBTC_COEXIST		pBtCoexist,
+	u1Byte				type
 )
 {
 	if (!halbtcoutsrc_IsBtCoexistAvailable(pBtCoexist))
@@ -3938,7 +3938,7 @@ hal_btcoex_ParseAntIsolationConfigFile(
 							RTW_INFO("Fail to parse parameters , format error!\n");
 							break;
 						}
-						_rtw_memset((PVOID)param_value_string , 0 , 10);
+						_rtw_memset((void *)param_value_string , 0 , 10);
 						if (!ParseQualifiedString(szLine , &i , param_value_string , '"' , '"')) {
 							RTW_INFO("Fail to parse parameters\n");
 							return _FAIL;
@@ -3981,8 +3981,8 @@ hal_btcoex_ParseAntIsolationConfigFile(
 
 int
 hal_btcoex_AntIsolationConfig_ParaFile(
-	IN	PADAPTER	Adapter,
-	IN	char		*pFileName
+	PADAPTER	Adapter,
+	char		*pFileName
 )
 {
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);

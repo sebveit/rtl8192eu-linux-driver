@@ -158,14 +158,14 @@ static void update_BCNTIM(_adapter *padapter)
 
 void rtw_add_bcn_ie(_adapter *padapter, WLAN_BSSID_EX *pnetwork, u8 index, u8 *data, u8 len)
 {
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	u8	bmatch = _FALSE;
 	u8	*pie = pnetwork->IEs;
 	u8	*p = NULL, *dst_ie = NULL, *premainder_ie = NULL, *pbackup_remainder_ie = NULL;
 	u32     i, offset, ielen = 0, ie_offset, remainder_ielen = 0;
 
-	for (i = sizeof(NDIS_802_11_FIXED_IEs); i < pnetwork->IELength;) {
-		pIE = (PNDIS_802_11_VARIABLE_IEs)(pnetwork->IEs + i);
+	for (i = sizeof(RTW_802_11_FIXED_IEs); i < pnetwork->IELength;) {
+		pIE = (PRTW_802_11_VARIABLE_IEs)(pnetwork->IEs + i);
 
 		if (pIE->ElementID > index)
 			break;
@@ -1776,7 +1776,7 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 	int group_cipher, pairwise_cipher;
 	u32 akm;
 	u8 mfp_opt = MFP_NO;
-	u8	channel, network_type, supportRate[NDIS_802_11_LENGTH_RATES_EX];
+	u8	channel, network_type, supportRate[RTW_802_11_LENGTH_RATES_EX];
 	int supportRateNum = 0;
 	u8 OUI1[] = {0x00, 0x50, 0xf2, 0x01};
 	u8 WMM_PARA_IE[] = {0x00, 0x50, 0xf2, 0x02, 0x01, 0x01};
@@ -1816,8 +1816,8 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 	_rtw_memcpy(ie, pbuf, pbss_network->IELength);
 
 
-	if (pbss_network->InfrastructureMode != Ndis802_11APMode
-		&& pbss_network->InfrastructureMode != Ndis802_11_mesh
+	if (pbss_network->InfrastructureMode != Rtw802_11APMode
+		&& pbss_network->InfrastructureMode != Rtw802_11_mesh
 	) {
 		rtw_warn_on(1);
 		return _FAIL;
@@ -1844,7 +1844,7 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 	/* SSID */
 	p = rtw_get_ie(ie + _BEACON_IE_OFFSET_, _SSID_IE_, &ie_len, (pbss_network->IELength - _BEACON_IE_OFFSET_));
 	if (p && ie_len > 0) {
-		_rtw_memset(&pbss_network->Ssid, 0, sizeof(NDIS_802_11_SSID));
+		_rtw_memset(&pbss_network->Ssid, 0, sizeof(RTW_802_11_SSID));
 		_rtw_memcpy(pbss_network->Ssid.Ssid, (p + 2), ie_len);
 		pbss_network->Ssid.SsidLength = ie_len;
 #ifdef CONFIG_P2P
@@ -1864,7 +1864,7 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 	pbss_network->Configuration.DSConfig = channel;
 
 
-	_rtw_memset(supportRate, 0, NDIS_802_11_LENGTH_RATES_EX);
+	_rtw_memset(supportRate, 0, RTW_802_11_LENGTH_RATES_EX);
 	/* get supported rates */
 	p = rtw_get_ie(ie + _BEACON_IE_OFFSET_, _SUPPORTEDRATES_IE_, &ie_len, (pbss_network->IELength - _BEACON_IE_OFFSET_));
 	if (p !=  NULL) {
@@ -1908,7 +1908,7 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 			ret_rm = rtw_ies_remove_ie(ie , &len, _BEACON_IE_OFFSET_, _ERPINFO_IE_,NULL,0);
 			RTW_DBG("%s, remove_ie of ERP_IE=%d\n", __FUNCTION__, ret_rm);
 		} else 
-			ERP_IE_handler(padapter, (PNDIS_802_11_VARIABLE_IEs)p);
+			ERP_IE_handler(padapter, (PRTW_802_11_VARIABLE_IEs)p);
 
 	}
 
@@ -1930,7 +1930,7 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 	if (p && ie_len > 0) {
 		if (rtw_parse_wpa2_ie(p, ie_len + 2, &group_cipher, &pairwise_cipher, &akm, &mfp_opt) == _SUCCESS) {
 			psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_8021X;
-			psecuritypriv->ndisauthtype = Ndis802_11AuthModeWPA2PSK;
+			psecuritypriv->ndisauthtype = Rtw802_11AuthModeWPA2PSK;
 			psecuritypriv->dot8021xalg = 1;/* psk,  todo:802.1x */
 			psecuritypriv->wpa_psk |= BIT(1);
 
@@ -1960,7 +1960,7 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 		if ((p) && (_rtw_memcmp(p + 2, OUI1, 4))) {
 			if (rtw_parse_wpa_ie(p, ie_len + 2, &group_cipher, &pairwise_cipher, NULL) == _SUCCESS) {
 				psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_8021X;
-				psecuritypriv->ndisauthtype = Ndis802_11AuthModeWPAPSK;
+				psecuritypriv->ndisauthtype = Rtw802_11AuthModeWPAPSK;
 				psecuritypriv->dot8021xalg = 1;/* psk,  todo:802.1x */
 
 				psecuritypriv->wpa_psk |= BIT(0);
@@ -2002,7 +2002,7 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 				*(p + 18) &= ~BIT(4); /* VI */
 				*(p + 22) &= ~BIT(4); /* VO */
 
-				WMM_param_handler(padapter, (PNDIS_802_11_VARIABLE_IEs)p);
+				WMM_param_handler(padapter, (PRTW_802_11_VARIABLE_IEs)p);
 
 				break;
 			}
@@ -2146,19 +2146,19 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 
 	switch (network_type) {
 	case WIRELESS_11B:
-		pbss_network->NetworkTypeInUse = Ndis802_11DS;
+		pbss_network->NetworkTypeInUse = Rtw802_11DS;
 		break;
 	case WIRELESS_11G:
 	case WIRELESS_11BG:
 	case WIRELESS_11G_24N:
 	case WIRELESS_11BG_24N:
-		pbss_network->NetworkTypeInUse = Ndis802_11OFDM24;
+		pbss_network->NetworkTypeInUse = Rtw802_11OFDM24;
 		break;
 	case WIRELESS_11A:
-		pbss_network->NetworkTypeInUse = Ndis802_11OFDM5;
+		pbss_network->NetworkTypeInUse = Rtw802_11OFDM5;
 		break;
 	default:
-		pbss_network->NetworkTypeInUse = Ndis802_11OFDM24;
+		pbss_network->NetworkTypeInUse = Rtw802_11OFDM24;
 		break;
 	}
 
@@ -2182,9 +2182,9 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 
 		pmlmepriv->htpriv.ampdu_enable = pregistrypriv->ampdu_enable ? _TRUE : _FALSE;
 
-		HT_caps_handler(padapter, (PNDIS_802_11_VARIABLE_IEs)pHT_caps_ie);
+		HT_caps_handler(padapter, (PRTW_802_11_VARIABLE_IEs)pHT_caps_ie);
 
-		HT_info_handler(padapter, (PNDIS_802_11_VARIABLE_IEs)pHT_info_ie);
+		HT_info_handler(padapter, (PRTW_802_11_VARIABLE_IEs)pHT_info_ie);
 	}
 #endif
 
@@ -2714,7 +2714,7 @@ static void update_bcn_erpinfo_ie(_adapter *padapter)
 	/* parsing ERP_IE */
 	p = rtw_get_ie(ie + _BEACON_IE_OFFSET_, _ERPINFO_IE_, &len, (pnetwork->IELength - _BEACON_IE_OFFSET_));
 	if (p && len > 0) {
-		PNDIS_802_11_VARIABLE_IEs pIE = (PNDIS_802_11_VARIABLE_IEs)p;
+		PRTW_802_11_VARIABLE_IEs pIE = (PRTW_802_11_VARIABLE_IEs)p;
 
 		if (pmlmepriv->num_sta_non_erp == 1)
 			pIE->data[0] |= RTW_ERP_INFO_NON_ERP_PRESENT | RTW_ERP_INFO_USE_PROTECTION;
@@ -3660,7 +3660,7 @@ void rtw_ap_restore_network(_adapter *padapter)
 	int i;
 
 	rtw_setopmode_cmd(padapter
-		, MLME_IS_AP(padapter) ? Ndis802_11APMode : Ndis802_11_mesh
+		, MLME_IS_AP(padapter) ? Rtw802_11APMode : Rtw802_11_mesh
 		, RTW_CMDF_DIRECTLY
 	);
 
@@ -3823,8 +3823,8 @@ void stop_ap_mode(_adapter *padapter)
 
 	/* reset and init security priv , this can refine with rtw_reset_securitypriv */
 	_rtw_memset((unsigned char *)&padapter->securitypriv, 0, sizeof(struct security_priv));
-	padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeOpen;
-	padapter->securitypriv.ndisencryptstatus = Ndis802_11WEPDisabled;
+	padapter->securitypriv.ndisauthtype = Rtw802_11AuthModeOpen;
+	padapter->securitypriv.ndisencryptstatus = Rtw802_11WEPDisabled;
 
 #ifdef CONFIG_DFS_MASTER
 	rtw_dfs_rd_en_decision(padapter, self_action, 0);
@@ -3918,7 +3918,7 @@ void rtw_ap_update_bss_chbw(_adapter *adapter, WLAN_BSSID_EX *bss, u8 ch, u8 bw,
 			change_band = _TRUE;
 
 		/* update channel in IE */
-		p = rtw_get_ie((bss->IEs + sizeof(NDIS_802_11_FIXED_IEs)), _DSSET_IE_, &ie_len, (bss->IELength - sizeof(NDIS_802_11_FIXED_IEs)));
+		p = rtw_get_ie((bss->IEs + sizeof(RTW_802_11_FIXED_IEs)), _DSSET_IE_, &ie_len, (bss->IELength - sizeof(RTW_802_11_FIXED_IEs)));
 		if (p && ie_len > 0)
 			*(p + 2) = ch;
 
@@ -3935,8 +3935,8 @@ void rtw_ap_update_bss_chbw(_adapter *adapter, WLAN_BSSID_EX *bss, u8 ch, u8 bw,
 		int vht_cap_ielen, vht_op_ielen;
 		u8	center_freq;
 
-		vht_cap_ie = rtw_get_ie((bss->IEs + sizeof(NDIS_802_11_FIXED_IEs)), EID_VHTCapability, &vht_cap_ielen, (bss->IELength - sizeof(NDIS_802_11_FIXED_IEs)));
-		vht_op_ie = rtw_get_ie((bss->IEs + sizeof(NDIS_802_11_FIXED_IEs)), EID_VHTOperation, &vht_op_ielen, (bss->IELength - sizeof(NDIS_802_11_FIXED_IEs)));
+		vht_cap_ie = rtw_get_ie((bss->IEs + sizeof(RTW_802_11_FIXED_IEs)), EID_VHTCapability, &vht_cap_ielen, (bss->IELength - sizeof(RTW_802_11_FIXED_IEs)));
+		vht_op_ie = rtw_get_ie((bss->IEs + sizeof(RTW_802_11_FIXED_IEs)), EID_VHTOperation, &vht_op_ielen, (bss->IELength - sizeof(RTW_802_11_FIXED_IEs)));
 		center_freq = rtw_get_center_ch(ch, bw, offset);
 
 		/* update vht cap ie */
@@ -3977,8 +3977,8 @@ void rtw_ap_update_bss_chbw(_adapter *adapter, WLAN_BSSID_EX *bss, u8 ch, u8 bw,
 		u8 *ht_cap_ie, *ht_op_ie;
 		int ht_cap_ielen, ht_op_ielen;
 
-		ht_cap_ie = rtw_get_ie((bss->IEs + sizeof(NDIS_802_11_FIXED_IEs)), EID_HTCapability, &ht_cap_ielen, (bss->IELength - sizeof(NDIS_802_11_FIXED_IEs)));
-		ht_op_ie = rtw_get_ie((bss->IEs + sizeof(NDIS_802_11_FIXED_IEs)), EID_HTInfo, &ht_op_ielen, (bss->IELength - sizeof(NDIS_802_11_FIXED_IEs)));
+		ht_cap_ie = rtw_get_ie((bss->IEs + sizeof(RTW_802_11_FIXED_IEs)), EID_HTCapability, &ht_cap_ielen, (bss->IELength - sizeof(RTW_802_11_FIXED_IEs)));
+		ht_op_ie = rtw_get_ie((bss->IEs + sizeof(RTW_802_11_FIXED_IEs)), EID_HTInfo, &ht_op_ielen, (bss->IELength - sizeof(RTW_802_11_FIXED_IEs)));
 
 		/* update ht cap ie */
 		if (ht_cap_ie && ht_cap_ielen) {

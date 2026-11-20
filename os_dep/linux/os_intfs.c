@@ -35,7 +35,7 @@ int rtw_lbkmode = 0;/* RTL8712_AIR_TRX; */
 int rtw_la_mode_en=1;
 module_param(rtw_la_mode_en, int, 0644);
 #endif
-int rtw_network_mode = Ndis802_11IBSS;/* Ndis802_11Infrastructure; */ /* infra, ad-hoc, auto */
+int rtw_network_mode = Rtw802_11IBSS;/* Ndis802_11Infrastructure; */ /* infra, ad-hoc, auto */
 /* NDIS_802_11_SSID	ssid; */
 int rtw_channel = 1;/* ad-hoc support requirement */
 int rtw_wireless_mode = WIRELESS_MODE_MAX;
@@ -2000,8 +2000,8 @@ static u8 rtw_init_default_value(_adapter *padapter)
 	psecuritypriv->dot118021XGrpPrivacy = _NO_PRIVACY_;
 	psecuritypriv->dot118021XGrpKeyid = 1;
 
-	psecuritypriv->ndisauthtype = Ndis802_11AuthModeOpen;
-	psecuritypriv->ndisencryptstatus = Ndis802_11WEPDisabled;
+	psecuritypriv->ndisauthtype = Rtw802_11AuthModeOpen;
+	psecuritypriv->ndisencryptstatus = Rtw802_11WEPDisabled;
 #ifdef CONFIG_CONCURRENT_MODE
 	psecuritypriv->dot118021x_bmc_cam_id = INVALID_SEC_MAC_CAM_ID;
 #endif

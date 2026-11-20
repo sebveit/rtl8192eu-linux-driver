@@ -1321,7 +1321,7 @@ void LeaveAllPowerSaveModeDirect(PADAPTER Adapter)
  * Description: Leave all power save mode: LPS, FwLPS, IPS if needed.
  * Move code to function by tynli. 2010.03.26.
  *   */
-void LeaveAllPowerSaveMode(IN PADAPTER Adapter)
+void LeaveAllPowerSaveMode(PADAPTER Adapter)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(Adapter);
 	u8	enqueue = 0;

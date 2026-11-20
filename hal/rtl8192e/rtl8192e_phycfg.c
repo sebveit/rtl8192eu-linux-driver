@@ -28,9 +28,9 @@
 
 u32
 PHY_QueryBBReg8192E(
-	IN	PADAPTER	Adapter,
-	IN	u32			RegAddr,
-	IN	u32			BitMask
+	PADAPTER	Adapter,
+	u32			RegAddr,
+	u32			BitMask
 )
 {
 	u32	ReturnValue = 0, OriginalValue, BitShift;
@@ -51,12 +51,12 @@ PHY_QueryBBReg8192E(
 }
 
 
-VOID
+void
 PHY_SetBBReg8192E(
-	IN	PADAPTER	Adapter,
-	IN	u4Byte		RegAddr,
-	IN	u4Byte		BitMask,
-	IN	u4Byte		Data
+	PADAPTER	Adapter,
+	u4Byte		RegAddr,
+	u4Byte		BitMask,
+	u4Byte		Data
 )
 {
 	u4Byte			OriginalValue, BitShift;
@@ -83,9 +83,9 @@ PHY_SetBBReg8192E(
 
 static	u32
 phy_RFSerialRead(
-	IN	PADAPTER		Adapter,
-	IN	enum rf_path		eRFPath,
-	IN	u32				Offset
+	PADAPTER		Adapter,
+	enum rf_path		eRFPath,
+	u32				Offset
 )
 {
 
@@ -153,12 +153,12 @@ phy_RFSerialRead(
 
 
 
-static	VOID
+static	void
 phy_RFSerialWrite(
-	IN	PADAPTER		Adapter,
-	IN	enum rf_path		eRFPath,
-	IN	u32				Offset,
-	IN	u32				Data
+	PADAPTER		Adapter,
+	enum rf_path		eRFPath,
+	u32				Offset,
+	u32				Data
 )
 {
 	u32							DataAndAddr = 0;
@@ -205,10 +205,10 @@ phy_RFSerialWrite(
 
 u32
 PHY_QueryRFReg8192E(
-	IN	PADAPTER		Adapter,
-	IN	enum rf_path		eRFPath,
-	IN	u32				RegAddr,
-	IN	u32				BitMask
+	PADAPTER		Adapter,
+	enum rf_path		eRFPath,
+	u32				RegAddr,
+	u32				BitMask
 )
 {
 	u32				Original_Value, Readback_Value, BitShift;
@@ -225,13 +225,13 @@ PHY_QueryRFReg8192E(
 	return Readback_Value;
 }
 
-VOID
+void
 PHY_SetRFReg8192E(
-	IN	PADAPTER		Adapter,
-	IN	enum rf_path		eRFPath,
-	IN	u32				RegAddr,
-	IN	u32				BitMask,
-	IN	u32				Data
+	PADAPTER		Adapter,
+	enum rf_path		eRFPath,
+	u32				RegAddr,
+	u32				BitMask,
+	u32				Data
 )
 {
 	u32			Original_Value, BitShift;
@@ -281,9 +281,9 @@ s32 PHY_MACConfig8192E(PADAPTER Adapter)
 }
 
 
-static	VOID
+static	void
 phy_InitBBRFRegisterDefinition(
-	IN	PADAPTER		Adapter
+	PADAPTER		Adapter
 )
 {
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
@@ -317,7 +317,7 @@ phy_InitBBRFRegisterDefinition(
 
 static	int
 phy_BB8192E_Config_ParaFile(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
@@ -380,7 +380,7 @@ phy_BB_Config_ParaFile_Fail:
 
 int
 PHY_BBConfig8192E(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	int	rtStatus = _SUCCESS;
@@ -419,7 +419,7 @@ PHY_BBConfig8192E(
 
 int
 PHY_RFConfig8192E(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
@@ -446,20 +446,20 @@ PHY_RFConfig8192E(
 	return rtStatus;
 }
 
-VOID
+void
 PHY_GetTxPowerLevel8192E(
-	IN	PADAPTER		Adapter,
-	OUT s32		*powerlevel
+	PADAPTER		Adapter,
+	s32		*powerlevel
 )
 {
 }
 
-VOID
+void
 PHY_SetTxPowerIndex_8192E(
-	IN	PADAPTER			Adapter,
-	IN	u32					PowerIndex,
-	IN	enum rf_path			RFPath,
-	IN	u8					Rate
+	PADAPTER			Adapter,
+	u32					PowerIndex,
+	enum rf_path			RFPath,
+	u8					Rate
 )
 {
 	if (RFPath == RF_PATH_A) {
@@ -663,11 +663,11 @@ PHY_SetTxPowerIndex_8192E(
 
 u8
 PHY_GetTxPowerIndex_8192E(
-	IN	PADAPTER			pAdapter,
-	IN	enum rf_path			RFPath,
-	IN	u8					Rate,
-	IN	u8					BandWidth,
-	IN	u8					Channel,
+	PADAPTER			pAdapter,
+	enum rf_path			RFPath,
+	u8					Rate,
+	u8					BandWidth,
+	u8					Channel,
 	struct txpwr_idx_comp *tic
 )
 {
@@ -706,10 +706,10 @@ PHY_GetTxPowerIndex_8192E(
 	return power_idx;
 }
 
-VOID
+void
 PHY_SetTxPowerLevel8192E(
-	IN	PADAPTER		Adapter,
-	IN	u8				Channel
+	PADAPTER		Adapter,
+	u8				Channel
 )
 {
 
@@ -726,7 +726,7 @@ PHY_SetTxPowerLevel8192E(
 
 static u8
 phy_GetSecondaryChnl_8192E(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	u8					SCSettingOf40 = 0, SCSettingOf20 = 0;
@@ -768,9 +768,9 @@ phy_GetSecondaryChnl_8192E(
 	return (SCSettingOf40 << 4) | SCSettingOf20;
 }
 
-static VOID
+static void
 phy_SetRegBW_8192E(
-	IN	PADAPTER		Adapter,
+	PADAPTER		Adapter,
 	enum channel_width	CurrentBW
 )
 {
@@ -800,9 +800,9 @@ phy_SetRegBW_8192E(
 }
 
 
-static VOID
+static void
 phy_PostSetBwMode8192E(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	u1Byte			SubChnlNum = 0;
@@ -853,8 +853,8 @@ phy_PostSetBwMode8192E(
 /* <20130320, VincentLan> A workaround to eliminate the 2480MHz spur for 92E */
 void
 phy_SpurCalibration_8192E(
-	IN	PADAPTER			Adapter,
-	IN	enum spur_cal_method	Method
+	PADAPTER			Adapter,
+	enum spur_cal_method	Method
 )
 {
 	u32			reg0x18 = 0;
@@ -971,7 +971,7 @@ phy_SpurCalibration_8192E(
 
 }
 
-void PHY_SpurCalibration_8192E(IN PADAPTER Adapter)
+void PHY_SpurCalibration_8192E(PADAPTER Adapter)
 {
 	if (rtw_read32(Adapter, REG_SYS_CFG1_8192E) & BIT_SPSLDO_SEL) {
 		/* LDO */
@@ -1004,9 +1004,9 @@ phy_SpurCalibration_8192E_NBI(PADAPTER Adapter)
 	}
 }
 #endif
-static VOID
+static void
 phy_SwChnl8192E(
-	IN	PADAPTER	pAdapter
+	PADAPTER	pAdapter
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
@@ -1021,9 +1021,9 @@ phy_SwChnl8192E(
 
 }
 
-static VOID
+static void
 phy_SwChnlAndSetBwMode8192E(
-	IN  PADAPTER		Adapter
+	PADAPTER		Adapter
 )
 {
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
@@ -1080,16 +1080,16 @@ phy_SwChnlAndSetBwMode8192E(
 		PHY_SetTxPowerLevel8192E(Adapter, pHalData->current_channel);
 }
 
-static VOID
+static void
 PHY_HandleSwChnlAndSetBW8192E(
-	IN	PADAPTER			Adapter,
-	IN	BOOLEAN				bSwitchChannel,
-	IN	BOOLEAN				bSetBandWidth,
-	IN	u8					ChannelNum,
-	IN	enum channel_width	ChnlWidth,
-	IN	EXTCHNL_OFFSET	ExtChnlOffsetOf40MHz,
-	IN	EXTCHNL_OFFSET	ExtChnlOffsetOf80MHz,
-	IN	u8					CenterFrequencyIndex1
+	PADAPTER			Adapter,
+	BOOLEAN				bSwitchChannel,
+	BOOLEAN				bSetBandWidth,
+	u8					ChannelNum,
+	enum channel_width	ChnlWidth,
+	EXTCHNL_OFFSET	ExtChnlOffsetOf40MHz,
+	EXTCHNL_OFFSET	ExtChnlOffsetOf80MHz,
+	u8					CenterFrequencyIndex1
 )
 {
 	/* static BOOLEAN		bInitialzed = _FALSE; */
@@ -1165,13 +1165,13 @@ PHY_HandleSwChnlAndSetBW8192E(
 
 }
 
-VOID
+void
 PHY_SetSwChnlBWMode8192E(
-	IN	PADAPTER			Adapter,
-	IN	u8					channel,
-	IN	enum channel_width	Bandwidth,
-	IN	u8					Offset40,
-	IN	u8					Offset80
+	PADAPTER			Adapter,
+	u8					channel,
+	enum channel_width	Bandwidth,
+	u8					Offset40,
+	u8					Offset80
 )
 {
 	/* RTW_INFO("%s()===>\n",__FUNCTION__); */
@@ -1180,9 +1180,9 @@ PHY_SetSwChnlBWMode8192E(
 
 	/* RTW_INFO("<==%s()\n",__FUNCTION__); */
 }
-VOID
+void
 PHY_SetRFEReg_8192E(
-	IN PADAPTER		Adapter
+	PADAPTER		Adapter
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);

@@ -41,7 +41,7 @@ u8 rtw_validate_bssid(u8 *bssid)
 	return ret;
 }
 
-u8 rtw_validate_ssid(NDIS_802_11_SSID *ssid)
+u8 rtw_validate_ssid(RTW_802_11_SSID *ssid)
 {
 #ifdef CONFIG_VALIDATE_SSID
 	u8	 i;
@@ -96,7 +96,7 @@ u8 rtw_do_join(_adapter *padapter)
 	pmlmepriv->to_join = _TRUE;
 
 	rtw_init_sitesurvey_parm(padapter, &parm);
-	_rtw_memcpy(&parm.ssid[0], &pmlmepriv->assoc_ssid, sizeof(NDIS_802_11_SSID));
+	_rtw_memcpy(&parm.ssid[0], &pmlmepriv->assoc_ssid, sizeof(RTW_802_11_SSID));
 	parm.ssid_num = 1;
 
 	if (_rtw_queue_empty(queue) == _TRUE) {
@@ -146,8 +146,8 @@ u8 rtw_do_join(_adapter *padapter)
 
 				pibss = padapter->registrypriv.dev_network.MacAddress;
 
-				_rtw_memset(&pdev_network->Ssid, 0, sizeof(NDIS_802_11_SSID));
-				_rtw_memcpy(&pdev_network->Ssid, &pmlmepriv->assoc_ssid, sizeof(NDIS_802_11_SSID));
+				_rtw_memset(&pdev_network->Ssid, 0, sizeof(RTW_802_11_SSID));
+				_rtw_memcpy(&pdev_network->Ssid, &pmlmepriv->assoc_ssid, sizeof(RTW_802_11_SSID));
 
 				rtw_update_registrypriv_dev_network(padapter);
 
@@ -251,7 +251,7 @@ handle_tkip_countermeasure:
 		goto release_mlme_lock;
 	}
 
-	_rtw_memset(&pmlmepriv->assoc_ssid, 0, sizeof(NDIS_802_11_SSID));
+	_rtw_memset(&pmlmepriv->assoc_ssid, 0, sizeof(RTW_802_11_SSID));
 	_rtw_memcpy(&pmlmepriv->assoc_bssid, bssid, ETH_ALEN);
 	pmlmepriv->assoc_by_bssid = _TRUE;
 
@@ -269,7 +269,7 @@ exit:
 	return status;
 }
 
-u8 rtw_set_802_11_ssid(_adapter *padapter, NDIS_802_11_SSID *ssid)
+u8 rtw_set_802_11_ssid(_adapter *padapter, RTW_802_11_SSID *ssid)
 {
 	_irqL irqL;
 	u8 status = _SUCCESS;
@@ -348,7 +348,7 @@ handle_tkip_countermeasure:
 		goto release_mlme_lock;
 	}
 
-	_rtw_memcpy(&pmlmepriv->assoc_ssid, ssid, sizeof(NDIS_802_11_SSID));
+	_rtw_memcpy(&pmlmepriv->assoc_ssid, ssid, sizeof(RTW_802_11_SSID));
 	pmlmepriv->assoc_by_bssid = _FALSE;
 
 	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == _TRUE)
@@ -366,7 +366,7 @@ exit:
 
 }
 
-u8 rtw_set_802_11_connect(_adapter *padapter, u8 *bssid, NDIS_802_11_SSID *ssid)
+u8 rtw_set_802_11_connect(_adapter *padapter, u8 *bssid, RTW_802_11_SSID *ssid)
 {
 	_irqL irqL;
 	u8 status = _SUCCESS;
@@ -410,9 +410,9 @@ handle_tkip_countermeasure:
 	}
 
 	if (ssid && ssid_valid)
-		_rtw_memcpy(&pmlmepriv->assoc_ssid, ssid, sizeof(NDIS_802_11_SSID));
+		_rtw_memcpy(&pmlmepriv->assoc_ssid, ssid, sizeof(RTW_802_11_SSID));
 	else
-		_rtw_memset(&pmlmepriv->assoc_ssid, 0, sizeof(NDIS_802_11_SSID));
+		_rtw_memset(&pmlmepriv->assoc_ssid, 0, sizeof(RTW_802_11_SSID));
 
 	if (bssid && bssid_valid) {
 		_rtw_memcpy(&pmlmepriv->assoc_bssid, bssid, ETH_ALEN);
@@ -435,12 +435,12 @@ exit:
 }
 
 u8 rtw_set_802_11_infrastructure_mode(_adapter *padapter,
-			      NDIS_802_11_NETWORK_INFRASTRUCTURE networktype, u8 flags)
+			      RTW_802_11_NETWORK_INFRASTRUCTURE networktype, u8 flags)
 {
 	_irqL irqL;
 	struct	mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	struct	wlan_network	*cur_network = &pmlmepriv->cur_network;
-	NDIS_802_11_NETWORK_INFRASTRUCTURE *pold_state = &(cur_network->network.InfrastructureMode);
+	RTW_802_11_NETWORK_INFRASTRUCTURE *pold_state = &(cur_network->network.InfrastructureMode);
 	u8 ap2sta_mode = _FALSE;
 	u8 ret = _TRUE;
 	u8 is_linked = _FALSE, is_adhoc_master = _FALSE;
@@ -448,8 +448,8 @@ u8 rtw_set_802_11_infrastructure_mode(_adapter *padapter,
 	if (*pold_state != networktype) {
 		/* RTW_INFO("change mode, old_mode=%d, new_mode=%d, fw_state=0x%x\n", *pold_state, networktype, get_fwstate(pmlmepriv)); */
 
-		if (*pold_state == Ndis802_11APMode
-			|| *pold_state == Ndis802_11_mesh
+		if (*pold_state == Rtw802_11APMode
+			|| *pold_state == Rtw802_11_mesh
 		) {
 			/* change to other mode from Ndis802_11APMode/Ndis802_11_mesh */
 			cur_network->join_res = -1;
@@ -467,14 +467,14 @@ u8 rtw_set_802_11_infrastructure_mode(_adapter *padapter,
 		if (flags != 0)
 			_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
-		if ((is_linked == _TRUE) || (*pold_state == Ndis802_11IBSS))
+		if ((is_linked == _TRUE) || (*pold_state == Rtw802_11IBSS))
 			rtw_disassoc_cmd(padapter, 0, flags);
 
 		if ((is_linked == _TRUE) ||
 		    (is_adhoc_master == _TRUE))
 			rtw_free_assoc_resources_cmd(padapter, _TRUE, flags);
 
-		if ((*pold_state == Ndis802_11Infrastructure) || (*pold_state == Ndis802_11IBSS)) {
+		if ((*pold_state == Rtw802_11Infrastructure) || (*pold_state == Rtw802_11IBSS)) {
 			if (is_linked == _TRUE) {
 				rtw_indicate_disconnect(padapter, 0, _FALSE); /*will clr Linked_state; before this function, we must have checked whether issue dis-assoc_cmd or not*/
 			}
@@ -489,18 +489,18 @@ u8 rtw_set_802_11_infrastructure_mode(_adapter *padapter,
 		_clr_fwstate_(pmlmepriv, ~WIFI_NULL_STATE);
 
 		switch (networktype) {
-		case Ndis802_11IBSS:
+		case Rtw802_11IBSS:
 			set_fwstate(pmlmepriv, WIFI_ADHOC_STATE);
 			break;
 
-		case Ndis802_11Infrastructure:
+		case Rtw802_11Infrastructure:
 			set_fwstate(pmlmepriv, WIFI_STATION_STATE);
 
 			if (ap2sta_mode)
 				rtw_init_bcmc_stainfo(padapter);
 			break;
 
-		case Ndis802_11APMode:
+		case Rtw802_11APMode:
 			set_fwstate(pmlmepriv, WIFI_AP_STATE);
 #ifdef CONFIG_NATIVEAP_MLME
 			start_ap_mode(padapter);
@@ -510,10 +510,10 @@ u8 rtw_set_802_11_infrastructure_mode(_adapter *padapter,
 			break;
 
 
-		case Ndis802_11AutoUnknown:
-		case Ndis802_11InfrastructureMax:
+		case Rtw802_11AutoUnknown:
+		case Rtw802_11InfrastructureMax:
 			break;
-		case Ndis802_11Monitor:
+		case Rtw802_11Monitor:
 			set_fwstate(pmlmepriv, WIFI_MONITOR_STATE);
 			break;
 		default:
@@ -568,7 +568,7 @@ u8 rtw_set_802_11_bssid_list_scan(_adapter *padapter, struct sitesurvey_parm *pp
 	return res;
 }
 
-u8 rtw_set_802_11_authentication_mode(_adapter *padapter, NDIS_802_11_AUTHENTICATION_MODE authmode)
+u8 rtw_set_802_11_authentication_mode(_adapter *padapter, RTW_802_11_AUTHENTICATION_MODE authmode)
 {
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
 	int res;
@@ -594,7 +594,7 @@ u8 rtw_set_802_11_authentication_mode(_adapter *padapter, NDIS_802_11_AUTHENTICA
 	return ret;
 }
 
-u8 rtw_set_802_11_add_wep(_adapter *padapter, NDIS_802_11_WEP *wep)
+u8 rtw_set_802_11_add_wep(_adapter *padapter, RTW_802_11_WEP *wep)
 {
 
 	u8		bdefaultkey;

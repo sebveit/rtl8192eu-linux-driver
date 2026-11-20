@@ -63,14 +63,14 @@ u1Byte Array_MP_8192E_MUSB[] = {
 };
 
 u2Byte
-EFUSE_GetArrayLen_MP_8192E_MUSB(VOID)
+EFUSE_GetArrayLen_MP_8192E_MUSB(void)
 {
 	return sizeof(Array_MP_8192E_MUSB) / sizeof(u1Byte);
 }
 
-VOID
+void
 EFUSE_GetMaskArray_MP_8192E_MUSB(
-	IN	OUT pu1Byte Array
+	pu1Byte Array
 )
 {
 	u2Byte len = EFUSE_GetArrayLen_MP_8192E_MUSB(), i = 0;
@@ -80,7 +80,7 @@ EFUSE_GetMaskArray_MP_8192E_MUSB(
 }
 BOOLEAN
 EFUSE_IsAddressMasked_MP_8192E_MUSB(
-	IN   u2Byte  Offset
+	u2Byte  Offset
 )
 {
 	int r = Offset / 16;

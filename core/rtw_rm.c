@@ -1961,7 +1961,7 @@ void rtw_ap_parse_sta_rm_en_cap(_adapter *padapter,
 	}
 }
 
-void RM_IE_handler(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pIE)
+void RM_IE_handler(_adapter *padapter, PRTW_802_11_VARIABLE_IEs pIE)
 {
 	int i;
 

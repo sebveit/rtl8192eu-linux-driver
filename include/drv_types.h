@@ -155,7 +155,7 @@ struct registry_priv {
 	u8	rfintfs;
 	u8	lbkmode;
 	u8	hci;
-	NDIS_802_11_SSID	ssid;
+	RTW_802_11_SSID	ssid;
 	u8	network_mode;	/* infra, ad-hoc, auto */
 	u8	channel;/* ad-hoc support requirement */
 	u8	wireless_mode;/* A, B, G, auto */
@@ -421,7 +421,7 @@ struct registry_priv {
 };
 
 /* For registry parameters */
-#define RGTRY_OFT(field) ((ULONG)FIELD_OFFSET(struct registry_priv, field))
+#define RGTRY_OFT(field) ((u32)FIELD_OFFSET(struct registry_priv, field))
 #define RGTRY_SZ(field)   sizeof(((struct registry_priv *) 0)->field)
 
 #define GetRegAmplifierType2G(_Adapter)	(_Adapter->registrypriv.AmplifierType_2G)
@@ -436,7 +436,7 @@ struct registry_priv {
 #define GetRegPowerTrackingType(_Adapter)	(_Adapter->registrypriv.PowerTracking_Type)
 
 #define WOWLAN_IS_STA_MIX_MODE(_Adapter)	(_Adapter->registrypriv.wowlan_sta_mix_mode)
-#define BSSID_OFT(field) ((ULONG)FIELD_OFFSET(WLAN_BSSID_EX, field))
+#define BSSID_OFT(field) ((u32)FIELD_OFFSET(WLAN_BSSID_EX, field))
 #define BSSID_SZ(field)   sizeof(((PWLAN_BSSID_EX) 0)->field)
 
 #define BW_MODE_2G(bw_mode) ((bw_mode) & 0x0F)
@@ -1326,7 +1326,7 @@ struct _ADAPTER {
 
 	ERROR_CODE		LastError; /* <20130613, Kordan> Only the functions associated with MP records the error code by now. */
 
-	PVOID			HalData;
+	void *			HalData;
 	u32 hal_data_sz;
 	struct hal_ops	hal_func;
 

@@ -64,7 +64,7 @@ static sint	_rtw_init_mlme_priv(_adapter *padapter)
 
 	pmlmepriv->pscanned = NULL;
 	init_fwstate(pmlmepriv, WIFI_STATION_STATE);
-	pmlmepriv->cur_network.network.InfrastructureMode = Ndis802_11AutoUnknown;
+	pmlmepriv->cur_network.network.InfrastructureMode = Rtw802_11AutoUnknown;
 	pmlmepriv->scan_mode = SCAN_ACTIVE; /* 1: active, 0: pasive. Maybe someday we should rename this varable to "active_mode" (Jeff) */
 
 	_rtw_spinlock_init(&(pmlmepriv->lock));
@@ -73,7 +73,7 @@ static sint	_rtw_init_mlme_priv(_adapter *padapter)
 
 	set_scanned_network_val(pmlmepriv, 0);
 
-	_rtw_memset(&pmlmepriv->assoc_ssid, 0, sizeof(NDIS_802_11_SSID));
+	_rtw_memset(&pmlmepriv->assoc_ssid, 0, sizeof(RTW_802_11_SSID));
 
 	if (padapter->registrypriv.max_bss_cnt != 0)
 		pmlmepriv->max_bss_cnt = padapter->registrypriv.max_bss_cnt;
@@ -916,7 +916,7 @@ static void update_current_network(_adapter *adapter, WLAN_BSSID_EX *pnetwork)
 		/* if(pmlmepriv->cur_network.network.IELength<= pnetwork->IELength) */
 		{
 			update_network(&(pmlmepriv->cur_network.network), pnetwork, adapter, _TRUE);
-			rtw_update_protection(adapter, (pmlmepriv->cur_network.network.IEs) + sizeof(NDIS_802_11_FIXED_IEs),
+			rtw_update_protection(adapter, (pmlmepriv->cur_network.network.IEs) + sizeof(RTW_802_11_FIXED_IEs),
 				      pmlmepriv->cur_network.network.IELength);
 		}
 	}
@@ -935,7 +935,7 @@ bool rtw_update_scanned_network(_adapter *adapter, WLAN_BSSID_EX *target)
 {
 	_irqL irqL;
 	_list	*plist, *phead;
-	ULONG	bssid_ex_sz;
+	u32	bssid_ex_sz;
 	struct mlme_priv	*pmlmepriv = &(adapter->mlmepriv);
 #ifdef CONFIG_P2P
 	struct wifidirect_info *pwdinfo = &(adapter->wdinfo);
@@ -1146,10 +1146,10 @@ int rtw_is_desired_network(_adapter *adapter, struct wlan_network *pnetwork)
 		u8 *p = NULL;
 		uint ie_len = 0;
 
-		if ((desired_encmode == Ndis802_11EncryptionDisabled) && (privacy != 0))
+		if ((desired_encmode == Rtw802_11EncryptionDisabled) && (privacy != 0))
 			bselected = _FALSE;
 
-		if (psecuritypriv->ndisauthtype == Ndis802_11AuthModeWPA2PSK) {
+		if (psecuritypriv->ndisauthtype == Rtw802_11AuthModeWPA2PSK) {
 			p = rtw_get_ie(pnetwork->network.IEs + _BEACON_IE_OFFSET_, _RSN_IE_2_, &ie_len, (pnetwork->network.IELength - _BEACON_IE_OFFSET_));
 			if (p && ie_len > 0)
 				bselected = _TRUE;
@@ -1159,7 +1159,7 @@ int rtw_is_desired_network(_adapter *adapter, struct wlan_network *pnetwork)
 	}
 
 
-	if ((desired_encmode != Ndis802_11EncryptionDisabled) && (privacy == 0)) {
+	if ((desired_encmode != Rtw802_11EncryptionDisabled) && (privacy == 0)) {
 		RTW_INFO("desired_encmode: %d, privacy: %d\n", desired_encmode, privacy);
 		bselected = _FALSE;
 	}
@@ -1288,8 +1288,8 @@ void rtw_surveydone_event_callback(_adapter	*adapter, u8 *pbuf)
 					_clr_fwstate_(pmlmepriv, _FW_UNDER_SURVEY);
 
 
-					_rtw_memset(&pdev_network->Ssid, 0, sizeof(NDIS_802_11_SSID));
-					_rtw_memcpy(&pdev_network->Ssid, &pmlmepriv->assoc_ssid, sizeof(NDIS_802_11_SSID));
+					_rtw_memset(&pdev_network->Ssid, 0, sizeof(RTW_802_11_SSID));
+					_rtw_memcpy(&pdev_network->Ssid, &pmlmepriv->assoc_ssid, sizeof(RTW_802_11_SSID));
 
 					rtw_update_registrypriv_dev_network(adapter);
 					rtw_generate_random_ibss(pibss);
@@ -1320,7 +1320,7 @@ void rtw_surveydone_event_callback(_adapter	*adapter, u8 *pbuf)
 					u8 ssc_chk = rtw_sitesurvey_condition_check(adapter, _FALSE);
 
 					rtw_init_sitesurvey_parm(adapter, &parm);
-					_rtw_memcpy(&parm.ssid[0], &pmlmepriv->assoc_ssid, sizeof(NDIS_802_11_SSID));
+					_rtw_memcpy(&parm.ssid[0], &pmlmepriv->assoc_ssid, sizeof(RTW_802_11_SSID));
 					parm.ssid_num = 1;
 
 					if (rtw_dec_to_roam(adapter) == 0
@@ -2020,7 +2020,7 @@ static void rtw_joinbss_update_network(_adapter *padapter, struct wlan_network *
 	/* update fw_state */ /* will clr _FW_UNDER_LINKING here indirectly */
 
 	switch (pnetwork->network.InfrastructureMode) {
-	case Ndis802_11Infrastructure:
+	case Rtw802_11Infrastructure:
 		/* Check encryption */
 		if (psecuritypriv->dot11AuthAlgrthm == dot11AuthAlgrthm_8021X)
 			tmp_fw_state = tmp_fw_state | WIFI_UNDER_KEY_HANDSHAKE;
@@ -2031,7 +2031,7 @@ static void rtw_joinbss_update_network(_adapter *padapter, struct wlan_network *
 		init_fwstate(pmlmepriv, WIFI_STATION_STATE | tmp_fw_state);
 
 		break;
-	case Ndis802_11IBSS:
+	case Rtw802_11IBSS:
 		/*pmlmepriv->fw_state = WIFI_ADHOC_STATE;*/
 		init_fwstate(pmlmepriv, WIFI_ADHOC_STATE);
 		break;
@@ -2041,7 +2041,7 @@ static void rtw_joinbss_update_network(_adapter *padapter, struct wlan_network *
 		break;
 	}
 
-	rtw_update_protection(padapter, (cur_network->network.IEs) + sizeof(NDIS_802_11_FIXED_IEs),
+	rtw_update_protection(padapter, (cur_network->network.IEs) + sizeof(RTW_802_11_FIXED_IEs),
 			      (cur_network->network.IELength));
 
 #ifdef CONFIG_80211N_HT
@@ -2813,8 +2813,8 @@ void rtw_stadel_event_callback(_adapter *adapter, u8 *pbuf)
 
 			_rtw_memcpy(pdev_network, &tgt_network->network, get_WLAN_BSSID_EX_sz(&tgt_network->network));
 
-			_rtw_memset(&pdev_network->Ssid, 0, sizeof(NDIS_802_11_SSID));
-			_rtw_memcpy(&pdev_network->Ssid, &pmlmepriv->assoc_ssid, sizeof(NDIS_802_11_SSID));
+			_rtw_memset(&pdev_network->Ssid, 0, sizeof(RTW_802_11_SSID));
+			_rtw_memcpy(&pdev_network->Ssid, &pmlmepriv->assoc_ssid, sizeof(RTW_802_11_SSID));
 
 			rtw_update_registrypriv_dev_network(adapter);
 
@@ -4053,9 +4053,9 @@ sint rtw_restruct_sec_ie(_adapter *adapter, u8 *out_ie)
 	struct security_priv *psecuritypriv = &adapter->securitypriv;
 	uint	ndisauthmode = psecuritypriv->ndisauthtype;
 
-	if ((ndisauthmode == Ndis802_11AuthModeWPA) || (ndisauthmode == Ndis802_11AuthModeWPAPSK))
+	if ((ndisauthmode == Rtw802_11AuthModeWPA) || (ndisauthmode == Rtw802_11AuthModeWPAPSK))
 		authmode = _WPA_IE_ID_;
-	if ((ndisauthmode == Ndis802_11AuthModeWPA2) || (ndisauthmode == Ndis802_11AuthModeWPA2PSK))
+	if ((ndisauthmode == Rtw802_11AuthModeWPA2) || (ndisauthmode == Rtw802_11AuthModeWPA2PSK))
 		authmode = _WPA2_IE_ID_;
 
 	if (check_fwstate(pmlmepriv, WIFI_UNDER_WPS)) {
@@ -4094,9 +4094,9 @@ void rtw_init_registrypriv_dev_network(_adapter *adapter)
 
 	_rtw_memcpy(pdev_network->MacAddress, myhwaddr, ETH_ALEN);
 
-	_rtw_memcpy(&pdev_network->Ssid, &pregistrypriv->ssid, sizeof(NDIS_802_11_SSID));
+	_rtw_memcpy(&pdev_network->Ssid, &pregistrypriv->ssid, sizeof(RTW_802_11_SSID));
 
-	pdev_network->Configuration.Length = sizeof(NDIS_802_11_CONFIGURATION);
+	pdev_network->Configuration.Length = sizeof(RTW_802_11_CONFIGURATION);
 	pdev_network->Configuration.BeaconPeriod = 100;
 	pdev_network->Configuration.FHConfig.Length = 0;
 	pdev_network->Configuration.FHConfig.HopPattern = 0;
@@ -4125,24 +4125,24 @@ void rtw_update_registrypriv_dev_network(_adapter *adapter)
 
 	switch (pregistrypriv->wireless_mode) {
 	case WIRELESS_11B:
-		pdev_network->NetworkTypeInUse = (Ndis802_11DS);
+		pdev_network->NetworkTypeInUse = (Rtw802_11DS);
 		break;
 	case WIRELESS_11G:
 	case WIRELESS_11BG:
 	case WIRELESS_11_24N:
 	case WIRELESS_11G_24N:
 	case WIRELESS_11BG_24N:
-		pdev_network->NetworkTypeInUse = (Ndis802_11OFDM24);
+		pdev_network->NetworkTypeInUse = (Rtw802_11OFDM24);
 		break;
 	case WIRELESS_11A:
 	case WIRELESS_11A_5N:
-		pdev_network->NetworkTypeInUse = (Ndis802_11OFDM5);
+		pdev_network->NetworkTypeInUse = (Rtw802_11OFDM5);
 		break;
 	case WIRELESS_11ABGN:
 		if (pregistrypriv->channel > 14)
-			pdev_network->NetworkTypeInUse = (Ndis802_11OFDM5);
+			pdev_network->NetworkTypeInUse = (Rtw802_11OFDM5);
 		else
-			pdev_network->NetworkTypeInUse = (Ndis802_11OFDM24);
+			pdev_network->NetworkTypeInUse = (Rtw802_11OFDM24);
 		break;
 	default:
 		/* TODO */
@@ -4151,7 +4151,7 @@ void rtw_update_registrypriv_dev_network(_adapter *adapter)
 
 	pdev_network->Configuration.DSConfig = (pregistrypriv->channel);
 
-	if (cur_network->network.InfrastructureMode == Ndis802_11IBSS) {
+	if (cur_network->network.InfrastructureMode == Rtw802_11IBSS) {
 		pdev_network->Configuration.ATIMWindow = (0);
 
 		if (pmlmeext->cur_channel != 0)
@@ -4596,7 +4596,7 @@ void rtw_update_ht_cap(_adapter *padapter, u8 *pie, uint ie_len, u8 channel)
 
 	/* check Max Rx A-MPDU Size */
 	len = 0;
-	p = rtw_get_ie(pie + sizeof(NDIS_802_11_FIXED_IEs), _HT_CAPABILITY_IE_, &len, ie_len - sizeof(NDIS_802_11_FIXED_IEs));
+	p = rtw_get_ie(pie + sizeof(RTW_802_11_FIXED_IEs), _HT_CAPABILITY_IE_, &len, ie_len - sizeof(RTW_802_11_FIXED_IEs));
 	if (p && len > 0) {
 		pht_capie = (struct rtw_ieee80211_ht_cap *)(p + 2);
 		max_ampdu_sz = (pht_capie->ampdu_params_info & IEEE80211_HT_CAP_AMPDU_FACTOR);
@@ -4609,7 +4609,7 @@ void rtw_update_ht_cap(_adapter *padapter, u8 *pie, uint ie_len, u8 channel)
 
 
 	len = 0;
-	p = rtw_get_ie(pie + sizeof(NDIS_802_11_FIXED_IEs), _HT_ADD_INFO_IE_, &len, ie_len - sizeof(NDIS_802_11_FIXED_IEs));
+	p = rtw_get_ie(pie + sizeof(RTW_802_11_FIXED_IEs), _HT_ADD_INFO_IE_, &len, ie_len - sizeof(RTW_802_11_FIXED_IEs));
 	if (p && len > 0) {
 		pht_addtinfo = (struct ieee80211_ht_addt_info *)(p + 2);
 		/* todo: */
@@ -4848,7 +4848,7 @@ void _rtw_roaming(_adapter *padapter, struct wlan_network *tgt_network)
 		RTW_INFO("roaming from %s("MAC_FMT"), length:%d\n",
 			cur_network->network.Ssid.Ssid, MAC_ARG(cur_network->network.MacAddress),
 			 cur_network->network.Ssid.SsidLength);
-		_rtw_memcpy(&pmlmepriv->assoc_ssid, &cur_network->network.Ssid, sizeof(NDIS_802_11_SSID));
+		_rtw_memcpy(&pmlmepriv->assoc_ssid, &cur_network->network.Ssid, sizeof(RTW_802_11_SSID));
 
 		pmlmepriv->assoc_by_bssid = _FALSE;
 

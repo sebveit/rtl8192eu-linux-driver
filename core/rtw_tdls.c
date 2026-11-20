@@ -833,7 +833,7 @@ u8 *rtw_tdls_set_capability(_adapter *padapter, u8 *pframe, struct pkt_attrib *p
 
 u8 *rtw_tdls_set_supported_rate(_adapter *padapter, u8 *pframe, struct pkt_attrib *pattrib)
 {
-	u8 bssrate[NDIS_802_11_LENGTH_RATES_EX];
+	u8 bssrate[RTW_802_11_LENGTH_RATES_EX];
 	int bssrate_len = 0;
 	u8 more_supportedrates = 0;
 
@@ -1812,7 +1812,7 @@ sint On_TDLS_Setup_Req(_adapter *padapter, union recv_frame *precv_frame, struct
 	u8 SNonce[32];
 	u32 timeout_interval = TDLS_TPK_RESEND_COUNT;
 	sint parsing_length;	/* Frame body length, without icv_len */
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	u8 FIXED_IE = 5;
 	unsigned char		supportRate[16];
 	int				supportRateNum = 0;
@@ -1881,7 +1881,7 @@ sint On_TDLS_Setup_Req(_adapter *padapter, union recv_frame *precv_frame, struct
 		/* Parsing information element */
 		for (j = FIXED_IE; j < parsing_length;) {
 
-			pIE = (PNDIS_802_11_VARIABLE_IEs)(ptr + j);
+			pIE = (PRTW_802_11_VARIABLE_IEs)(ptr + j);
 
 			switch (pIE->ElementID) {
 			case _SUPPORTEDRATES_IE_:
@@ -2025,7 +2025,7 @@ int On_TDLS_Setup_Rsp(_adapter *padapter, union recv_frame *precv_frame, struct 
 	u8 *psa;
 	u16 status_code = 0;
 	sint parsing_length;	/* Frame body length, without icv_len */
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	u8 FIXED_IE = 7;
 	u8 ANonce[32];
 	u8  *pftie = NULL, *ptimeout_ie = NULL, *plinkid_ie = NULL, *prsnie = NULL, *pftie_mic = NULL, *ppairwise_cipher = NULL;
@@ -2063,7 +2063,7 @@ int On_TDLS_Setup_Rsp(_adapter *padapter, union recv_frame *precv_frame, struct 
 
 	/* parsing information element */
 	for (j = FIXED_IE; j < parsing_length;) {
-		pIE = (PNDIS_802_11_VARIABLE_IEs)(ptr + j);
+		pIE = (PRTW_802_11_VARIABLE_IEs)(ptr + j);
 
 		switch (pIE->ElementID) {
 		case _SUPPORTEDRATES_IE_:
@@ -2203,7 +2203,7 @@ int On_TDLS_Setup_Cfm(_adapter *padapter, union recv_frame *precv_frame, struct 
 	u8 *psa;
 	u16 status_code = 0;
 	sint parsing_length;
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	u8 FIXED_IE = 5;
 	u8  *pftie = NULL, *ptimeout_ie = NULL, *plinkid_ie = NULL, *prsnie = NULL, *pftie_mic = NULL, *ppairwise_cipher = NULL;
 	u16 j, pairwise_count;
@@ -2233,7 +2233,7 @@ int On_TDLS_Setup_Cfm(_adapter *padapter, union recv_frame *precv_frame, struct 
 	/* Parsing information element */
 	for (j = FIXED_IE; j < parsing_length;) {
 
-		pIE = (PNDIS_802_11_VARIABLE_IEs)(ptr + j);
+		pIE = (PRTW_802_11_VARIABLE_IEs)(ptr + j);
 
 		switch (pIE->ElementID) {
 		case _RSN_IE_2_:
@@ -2317,7 +2317,7 @@ int On_TDLS_Dis_Req(_adapter *padapter, union recv_frame *precv_frame)
 	struct sta_info *psta_ap;
 	u8 *ptr = precv_frame->u.hdr.rx_data;
 	sint parsing_length;	/* Frame body length, without icv_len */
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	u8 FIXED_IE = 3, *dst;
 	u16 j;
 	struct tdls_txmgmt txmgmt;
@@ -2342,7 +2342,7 @@ int On_TDLS_Dis_Req(_adapter *padapter, union recv_frame *precv_frame)
 	/* Parsing information element */
 	for (j = FIXED_IE; j < parsing_length;) {
 
-		pIE = (PNDIS_802_11_VARIABLE_IEs)(ptr + j);
+		pIE = (PRTW_802_11_VARIABLE_IEs)(ptr + j);
 
 		switch (pIE->ElementID) {
 		case _LINK_ID_IE_:
@@ -2482,7 +2482,7 @@ sint On_TDLS_Ch_Switch_Req(_adapter *padapter, union recv_frame *precv_frame, st
 	u8 *ptr = precv_frame->u.hdr.rx_data;
 	struct rx_pkt_attrib	*prx_pkt_attrib = &precv_frame->u.hdr.attrib;
 	sint parsing_length;
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	u8 FIXED_IE = 4;
 	u16 j;
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
@@ -2517,7 +2517,7 @@ sint On_TDLS_Ch_Switch_Req(_adapter *padapter, union recv_frame *precv_frame, st
 
 	/* Parsing information element */
 	for (j = FIXED_IE; j < parsing_length;) {
-		pIE = (PNDIS_802_11_VARIABLE_IEs)(ptr + j);
+		pIE = (PRTW_802_11_VARIABLE_IEs)(ptr + j);
 
 		switch (pIE->ElementID) {
 		case EID_SecondaryChnlOffset:
@@ -2588,7 +2588,7 @@ sint On_TDLS_Ch_Switch_Rsp(_adapter *padapter, union recv_frame *precv_frame, st
 	u8 *ptr = precv_frame->u.hdr.rx_data;
 	struct rx_pkt_attrib	*prx_pkt_attrib = &precv_frame->u.hdr.attrib;
 	sint parsing_length;
-	PNDIS_802_11_VARIABLE_IEs	pIE;
+	PRTW_802_11_VARIABLE_IEs	pIE;
 	u8 FIXED_IE = 4;
 	u16 status_code, j, switch_time, switch_timeout;
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
@@ -2630,7 +2630,7 @@ sint On_TDLS_Ch_Switch_Rsp(_adapter *padapter, union recv_frame *precv_frame, st
 
 	/* Parsing information element */
 	for (j = FIXED_IE; j < parsing_length;) {
-		pIE = (PNDIS_802_11_VARIABLE_IEs)(ptr + j);
+		pIE = (PRTW_802_11_VARIABLE_IEs)(ptr + j);
 
 		switch (pIE->ElementID) {
 		case _LINK_ID_IE_:
