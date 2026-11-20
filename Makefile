@@ -17,7 +17,7 @@
 MODULE_NAME ?= 8192eu
 
 ########################## Features ###########################
-CONFIG_MP_INCLUDED ?= y
+CONFIG_MP_INCLUDED ?= n
 CONFIG_POWER_SAVING ?= n
 CONFIG_USB_AUTOSUSPEND ?= n
 CONFIG_BT_COEXIST ?= y

@@ -469,10 +469,11 @@ u32 phydm_get_tx_rate(struct dm_struct *dm)
 {
 	struct _hal_rf_ *rf = &dm->rf_table;
 	u8 tx_rate = 0xFF;
-	u8 mpt_rate_index = 0;
 
 	if (*dm->mp_mode == 1) {
 #ifdef CONFIG_MP_INCLUDED
+		u8 mpt_rate_index = 0;
+
 		if (rf->mp_rate_index)
 			mpt_rate_index = *rf->mp_rate_index;
 

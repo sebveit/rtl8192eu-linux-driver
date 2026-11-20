@@ -222,8 +222,10 @@ void odm_tx_pwr_track_set_pwr92_e(void *dm_void, enum pwrtrack_method method,
 	}
 
 	if (method == TXAGC) {
+#if (MP_DRIVER == 1)
 		u32 pwr = 0, tx_agc = 0;
 		void *adapter = dm->adapter;
+#endif
 
 		RF_DBG(dm, DBG_RF_TX_PWR_TRACK,
 		       "odm_TxPwrTrackSetPwr92E CH=%d\n", *(dm->channel));
@@ -597,7 +599,6 @@ void get_delta_swing_table_8192e(void *dm_void, u8 **temperature_up_a,
 				 u8 **temperature_down_b)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	struct _ADAPTER *adapter = dm->adapter;
 	struct dm_rf_calibration_struct *cali_info = &(dm->rf_calibrate_info);
 	struct _hal_rf_ *rf = &(dm->rf_table);
 	u8 tx_rate = 0xFF;
@@ -605,6 +606,7 @@ void get_delta_swing_table_8192e(void *dm_void, u8 **temperature_up_a,
 
 	if (*dm->mp_mode == true) {
 #ifdef CONFIG_MP_INCLUDED
+		struct _ADAPTER *adapter = dm->adapter;
 		PMPT_CONTEXT p_mpt_ctx = &(adapter->mppriv.mpt_ctx);
 
 		tx_rate = mpt_to_mgnt_rate(p_mpt_ctx->mpt_rate_index);

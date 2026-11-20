@@ -3331,6 +3331,7 @@ static int rtw_p2p_get2(struct net_device *dev,
 
 }
 
+#ifdef CONFIG_MP_INCLUDED
 static int rtw_cta_test_start(struct net_device *dev,
 			      struct iw_request_info *info,
 			      union iwreq_data *wrqu, char *extra)
@@ -3349,6 +3350,7 @@ static int rtw_cta_test_start(struct net_device *dev,
 
 	return ret;
 }
+#endif /* CONFIG_MP_INCLUDED */
 
 extern int rtw_change_ifname(_adapter *padapter, const char *ifname);
 static int rtw_rereg_nd_name(struct net_device *dev,
@@ -7245,6 +7247,7 @@ free_buf:
 }
 #endif /* CONFIG_RTW_CUSTOMER_STR */
 
+#ifdef CONFIG_MP_INCLUDED
 static int rtw_priv_mp_set(struct net_device *dev,
 			   struct iw_request_info *info,
 			   union iwreq_data *wdata, char *extra)
@@ -7285,6 +7288,7 @@ static int rtw_priv_mp_set(struct net_device *dev,
 
 	return 0;
 }
+#endif /* CONFIG_MP_INCLUDED */
 
 static int rtw_priv_mp_get(struct net_device *dev,
 			   struct iw_request_info *info,
