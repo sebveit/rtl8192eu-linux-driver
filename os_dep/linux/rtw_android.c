@@ -673,7 +673,12 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		goto exit;
 	}
 	
-	command = rtw_zmalloc(priv_cmd.total_len+1);
+	/*
+	 * Always allocate (and zero) the maximum size: argument parsers step
+	 * past the command name and replies are written without regard to
+	 * total_len; copy_to_user() below is still bounded by total_len.
+	 */
+	command = rtw_zmalloc(PRIVATE_COMMAND_MAX_LEN + 1);
 	if (!command) {
 		RTW_INFO("%s: failed to allocate memory\n", __FUNCTION__);
 		ret = -ENOMEM;
@@ -976,7 +981,7 @@ response:
 exit:
 	rtw_unlock_suspend();
 	if (command)
-		rtw_mfree(command, priv_cmd.total_len + 1);
+		rtw_mfree(command, PRIVATE_COMMAND_MAX_LEN + 1);
 
 	return ret;
 }

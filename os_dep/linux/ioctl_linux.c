@@ -664,6 +664,14 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 		goto exit;
 	}
 
+	/* key index and TKIP key length are user controlled */
+	if (param->u.crypt.idx > BIP_MAX_KEYID ||
+	    (strcmp(param->u.crypt.alg, "TKIP") == 0 && param->u.crypt.key_len &&
+	     param->u.crypt.key_len < 32)) {
+		ret = -EINVAL;
+		goto exit;
+	}
+
 	if (param->sta_addr[0] == 0xff && param->sta_addr[1] == 0xff &&
 	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
 	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
@@ -4332,6 +4340,10 @@ static int wpa_supplicant_ioctl(struct net_device *dev, struct iw_point *p)
 
 	case IEEE_CMD_SET_WPA_IE:
 		/* ret = wpa_set_wpa_ie(dev, param, p->length); */
+		if (param->u.wpa_ie.len > p->length - offsetof(struct ieee_param, u.wpa_ie.data)) {
+			ret = -EINVAL;
+			break;
+		}
 		ret =  rtw_set_wpa_ie((_adapter *)rtw_netdev_priv(dev), (char *)param->u.wpa_ie.data, (u16)param->u.wpa_ie.len);
 		break;
 
@@ -4384,6 +4396,14 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 	/* if (param_len !=  (u32) ((u8 *) param->u.crypt.key - (u8 *) param) + param->u.crypt.key_len) */
 	if (param_len !=  sizeof(struct ieee_param) + param->u.crypt.key_len) {
 		ret =  -EINVAL;
+		goto exit;
+	}
+
+	/* key index and TKIP key length are user controlled */
+	if (param->u.crypt.idx > BIP_MAX_KEYID ||
+	    (strcmp(param->u.crypt.alg, "TKIP") == 0 && param->u.crypt.key_len &&
+	     param->u.crypt.key_len < 32)) {
+		ret = -EINVAL;
 		goto exit;
 	}
 
@@ -4806,6 +4826,9 @@ static int rtw_ioctl_get_sta_data(struct net_device *dev, struct ieee_param *par
 	struct ieee_param_ex *param_ex = (struct ieee_param_ex *)param;
 	struct sta_data *psta_data = (struct sta_data *)param_ex->data;
 
+	if (len < 0 || (size_t)len < offsetof(struct ieee_param_ex, data) + sizeof(struct sta_data))
+		return -EINVAL;
+
 	RTW_INFO("rtw_ioctl_get_sta_info, sta_addr: " MAC_FMT "\n", MAC_ARG(param_ex->sta_addr));
 
 	if (check_fwstate(pmlmepriv, (_FW_LINKED | WIFI_AP_STATE)) != _TRUE)
@@ -5145,8 +5168,7 @@ static int rtw_hostapd_ioctl(struct net_device *dev, struct iw_point *p)
 	}
 
 
-	/* if (p->length < sizeof(struct ieee_param) || !p->pointer){ */
-	if (!p->pointer) {
+	if (p->length < sizeof(struct ieee_param) || !p->pointer) {
 		ret = -EINVAL;
 		goto out;
 	}
@@ -8776,6 +8798,8 @@ static int _rtw_ioctl_wext_private(struct net_device *dev, union iwreq_data *wrq
 	_rtw_memcpy(&wdata, wrq_data, sizeof(wdata));
 
 	input_len = wdata.data.length;
+	if (input_len > 8192)
+		return -E2BIG;
 	if (!input_len)
 		return -EINVAL;
 	input = rtw_zmalloc(input_len);
@@ -8888,6 +8912,8 @@ static int _rtw_ioctl_wext_private(struct net_device *dev, union iwreq_data *wrq
 				str = strsep(&ptr, delim);
 				if (NULL == str)
 					break;
+				if (count >= 4096)
+					break;
 				sscanf(str, "%i", &temp);
 				buffer[count++] = (u8)temp;
 			} while (1);
@@ -8906,6 +8932,8 @@ static int _rtw_ioctl_wext_private(struct net_device *dev, union iwreq_data *wrq
 			do {
 				str = strsep(&ptr, delim);
 				if (NULL == str)
+					break;
+				if (count >= 4096 / sizeof(s32))
 					break;
 				sscanf(str, "%i", &temp);
 				((s32 *)buffer)[count++] = (s32)temp;
@@ -9022,6 +9050,16 @@ static int _rtw_ioctl_wext_private(struct net_device *dev, union iwreq_data *wrq
 			n = priv_args[k].get_args & IW_PRIV_SIZE_MASK;
 		else
 			n = wdata.data.length;
+
+		/* extra is at most 4096 bytes; n is reported by the handler */
+		if (n < 0)
+			n = 0;
+		if ((priv_args[k].get_args & IW_PRIV_TYPE_MASK) == IW_PRIV_TYPE_INT) {
+			if (n > 4096 / (int)sizeof(__s32))
+				n = 4096 / sizeof(__s32);
+		} else if (n > 4095) {
+			n = 4095;
+		}
 
 		output = rtw_zmalloc(4096);
 		if (NULL == output) {
