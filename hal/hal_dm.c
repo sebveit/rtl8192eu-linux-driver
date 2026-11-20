@@ -22,22 +22,6 @@ enum odm_board_type boardType(u8 InterfaceSel)
 {
 	enum odm_board_type        board	= ODM_BOARD_DEFAULT;
 
-#ifdef CONFIG_PCI_HCI
-	INTERFACE_SELECT_PCIE   pcie	= (INTERFACE_SELECT_PCIE)InterfaceSel;
-	switch (pcie) {
-	case INTF_SEL0_SOLO_MINICARD:
-		board |= ODM_BOARD_MINICARD;
-		break;
-	case INTF_SEL1_BT_COMBO_MINICARD:
-		board |= ODM_BOARD_BT;
-		board |= ODM_BOARD_MINICARD;
-		break;
-	default:
-		board = ODM_BOARD_DEFAULT;
-		break;
-	}
-
-#elif defined(CONFIG_USB_HCI)
 	INTERFACE_SELECT_USB    usb	= (INTERFACE_SELECT_USB)InterfaceSel;
 	switch (usb) {
 	case INTF_SEL1_USB_High_Power:
@@ -60,7 +44,6 @@ enum odm_board_type boardType(u8 InterfaceSel)
 		break;
 	}
 
-#endif
 	/* RTW_INFO("===> boardType(): (pHalData->InterfaceSel, pDM_Odm->BoardType) = (%d, %d)\n", InterfaceSel, board); */
 
 	return board;
@@ -80,30 +63,12 @@ void rtw_hal_update_iqk_fw_offload_cap(_adapter *adapter)
 	RTW_INFO("IQK FW offload:%s\n", hal->RegIQKFWOffload ? "enable" : "disable");
 }
 
-#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
-void rtw_phydm_iqk_trigger(_adapter *adapter)
-{
-	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
-	u8 clear = _TRUE;
-	u8 segment = _FALSE;
-	u8 rfk_forbidden = _FALSE;
-
-	/*segment = _rtw_phydm_iqk_segment_chk(adapter);*/
-	halrf_cmn_info_set(p_dm_odm, HALRF_CMNINFO_RFK_FORBIDDEN, rfk_forbidden);
-	halrf_cmn_info_set(p_dm_odm, HALRF_CMNINFO_IQK_SEGMENT, segment);
-	halrf_segment_iqk_trigger(p_dm_odm, clear, segment);
-}
-#endif
 
 void rtw_phydm_iqk_trigger_dbg(_adapter *adapter, bool recovery, bool clear, bool segment)
 {
 	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
 
-#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
-		halrf_segment_iqk_trigger(p_dm_odm, clear, segment);
-#else
 		halrf_iqk_trigger(p_dm_odm, recovery);
-#endif
 }
 void rtw_phydm_lck_trigger(_adapter *adapter)
 {
@@ -231,11 +196,6 @@ void rtw_phydm_fill_desc_dpt(void *dm, u8 *desc, u8 dpt_lv)
 	#endif
 */
 
-	#ifdef CONFIG_RTL8821C
-	case RTL8821C :
-		SET_TX_DESC_TXPWR_OFSET_8821C(desc, dpt_lv);
-	break;
-	#endif
 
 	default :
 		RTW_ERR("%s IC not support dynamic tx power\n", __func__);
@@ -406,13 +366,7 @@ void Init_ODM_ComInfo(_adapter *adapter)
 	odm_cmn_info_hook(pDM_Odm, ODM_CMNINFO_TX_TP, &(dvobj->traffic_stat.cur_tx_tp));
 	odm_cmn_info_hook(pDM_Odm, ODM_CMNINFO_RX_TP, &(dvobj->traffic_stat.cur_rx_tp));
 	odm_cmn_info_hook(pDM_Odm, ODM_CMNINFO_ANT_TEST, &(pHalData->antenna_test));
-#ifdef CONFIG_RTL8723B
-	odm_cmn_info_hook(pDM_Odm, ODM_CMNINFO_IS1ANTENNA, &pHalData->EEPROMBluetoothAntNum);
-	odm_cmn_info_hook(pDM_Odm, ODM_CMNINFO_RFDEFAULTPATH, &pHalData->ant_path);
-#endif /*CONFIG_RTL8723B*/
-#ifdef CONFIG_USB_HCI
 	odm_cmn_info_hook(pDM_Odm, ODM_CMNINFO_HUBUSBMODE, &(dvobj->usb_speed));
-#endif
 
 #ifdef CONFIG_DYNAMIC_SOML
 	odm_cmn_info_hook(pDM_Odm, ODM_CMNINFO_ADAPTIVE_SOML, &(adapter->registrypriv.dyn_soml_en));
@@ -1358,16 +1312,6 @@ static u8 _rtw_phydm_rfk_condition_check(_adapter *adapter, u8 is_scaning, u8 if
 	return rfk_allowed;
 }
 
-#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
-static u8 _rtw_phydm_iqk_segment_chk(_adapter *adapter, u8 ifs_linked)
-{
-	u8 iqk_sgt = _FALSE;
-
-	if (ifs_linked)
-		iqk_sgt = _TRUE;
-	return iqk_sgt;
-}
-#endif
 
 /*check the tx low rate while unlinked to any AP;for pwr tracking */
 static u8 _rtw_phydm_pwr_tracking_rate_check(_adapter *adapter)
@@ -1481,9 +1425,6 @@ void rtw_phydm_watchdog(_adapter *adapter, bool in_lps)
 	u8	bsta_state = _FALSE;
 	u8	bBtDisabled = _TRUE;
 	u8	rfk_forbidden = _FALSE;
-	#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
-	u8	segment_iqk = _FALSE;
-	#endif
 	u8	tx_unlinked_low_rate = 0xFF;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(adapter);
 
@@ -1514,10 +1455,6 @@ void rtw_phydm_watchdog(_adapter *adapter, bool in_lps)
 	rfk_forbidden = (_rtw_phydm_rfk_condition_check(adapter, pHalData->bScanInProcess, bLinked) == _TRUE) ? _FALSE : _TRUE;
 	halrf_cmn_info_set(&pHalData->odmpriv, HALRF_CMNINFO_RFK_FORBIDDEN, rfk_forbidden);
 
-	#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
-	segment_iqk = _rtw_phydm_iqk_segment_chk(adapter, bLinked);
-	halrf_cmn_info_set(&pHalData->odmpriv, HALRF_CMNINFO_IQK_SEGMENT, segment_iqk);
-	#endif
 	#ifdef DBG_PHYDM_STATE_CHK
 	RTW_INFO("%s rfk_forbidden = %s, segment_iqk = %s\n",
 			__func__, (rfk_forbidden) ? "Y" : "N", (segment_iqk) ? "Y" : "N");

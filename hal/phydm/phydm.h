@@ -602,13 +602,6 @@ struct	phydm_iot_center {
 
 };
 
-#if (RTL8822B_SUPPORT == 1)
-struct drp_rtl8822b_struct {
-	enum bb_path path_judge;
-	u16 path_a_cck_fa;
-	u16 path_b_cck_fa;
-};
-#endif
 
 #ifdef CONFIG_MCC_DM
 #define MCC_DM_REG_NUM	32
@@ -1043,9 +1036,6 @@ struct dm_struct {
 	struct ccx_info			dm_ccx_info;
 
 	struct odm_power_trim_data	power_trim_data;
-#if (RTL8822B_SUPPORT == 1)
-	struct drp_rtl8822b_struct	phydm_rtl8822b;
-#endif
 
 #ifdef CONFIG_PSD_TOOL
 	struct psd_info			dm_psd_table;

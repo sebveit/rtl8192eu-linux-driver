@@ -24,7 +24,6 @@
  *****************************************************************************/
 
 /*Image2HeaderVersion: R3 1.5.0*/
-#if (RTL8192E_SUPPORT == 1)
 #ifndef __INC_MP_BB_HW_IMG_8192E_H
 #define __INC_MP_BB_HW_IMG_8192E_H
 
@@ -56,5 +55,4 @@ odm_read_and_config_mp_8192e_phy_reg_pg(struct dm_struct *dm);
 u32 odm_get_version_mp_8192e_phy_reg_pg(void);
 
 #endif
-#endif /* end of HWIMG_SUPPORT*/
 

@@ -18,7 +18,6 @@
 *
 ******************************************************************************/
 
-#ifdef CONFIG_RTL8192E
 
 #ifndef _FW_HEADER_8192E_H
 #define _FW_HEADER_8192E_H
@@ -39,5 +38,4 @@ extern u32 array_length_mp_8192e_fw_wowlan;
 
 #endif
 
-#endif
 

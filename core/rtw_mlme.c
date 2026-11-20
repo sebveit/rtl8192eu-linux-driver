@@ -1233,24 +1233,6 @@ void rtw_survey_event_callback(_adapter	*adapter, u8 *pbuf)
 	pnetwork = (WLAN_BSSID_EX *)pbuf;
 
 
-#ifdef CONFIG_RTL8712
-	/* endian_convert */
-	pnetwork->Length = le32_to_cpu(pnetwork->Length);
-	pnetwork->Ssid.SsidLength = le32_to_cpu(pnetwork->Ssid.SsidLength);
-	pnetwork->Privacy = le32_to_cpu(pnetwork->Privacy);
-	pnetwork->Rssi = le32_to_cpu(pnetwork->Rssi);
-	pnetwork->NetworkTypeInUse = le32_to_cpu(pnetwork->NetworkTypeInUse);
-	pnetwork->Configuration.ATIMWindow = le32_to_cpu(pnetwork->Configuration.ATIMWindow);
-	pnetwork->Configuration.BeaconPeriod = le32_to_cpu(pnetwork->Configuration.BeaconPeriod);
-	pnetwork->Configuration.DSConfig = le32_to_cpu(pnetwork->Configuration.DSConfig);
-	pnetwork->Configuration.FHConfig.DwellTime = le32_to_cpu(pnetwork->Configuration.FHConfig.DwellTime);
-	pnetwork->Configuration.FHConfig.HopPattern = le32_to_cpu(pnetwork->Configuration.FHConfig.HopPattern);
-	pnetwork->Configuration.FHConfig.HopSet = le32_to_cpu(pnetwork->Configuration.FHConfig.HopSet);
-	pnetwork->Configuration.FHConfig.Length = le32_to_cpu(pnetwork->Configuration.FHConfig.Length);
-	pnetwork->Configuration.Length = le32_to_cpu(pnetwork->Configuration.Length);
-	pnetwork->InfrastructureMode = le32_to_cpu(pnetwork->InfrastructureMode);
-	pnetwork->IELength = le32_to_cpu(pnetwork->IELength);
-#endif
 
 	len = get_WLAN_BSSID_EX_sz(pnetwork);
 	if (len > (sizeof(WLAN_BSSID_EX))) {
@@ -2184,26 +2166,6 @@ void rtw_joinbss_event_prehandle(_adapter *adapter, u8 *pbuf, u16 status)
 	unsigned int		the_same_macaddr = _FALSE;
 
 
-#ifdef CONFIG_RTL8712
-	/* endian_convert */
-	pnetwork->join_res = le32_to_cpu(pnetwork->join_res);
-	pnetwork->network_type = le32_to_cpu(pnetwork->network_type);
-	pnetwork->network.Length = le32_to_cpu(pnetwork->network.Length);
-	pnetwork->network.Ssid.SsidLength = le32_to_cpu(pnetwork->network.Ssid.SsidLength);
-	pnetwork->network.Privacy = le32_to_cpu(pnetwork->network.Privacy);
-	pnetwork->network.Rssi = le32_to_cpu(pnetwork->network.Rssi);
-	pnetwork->network.NetworkTypeInUse = le32_to_cpu(pnetwork->network.NetworkTypeInUse) ;
-	pnetwork->network.Configuration.ATIMWindow = le32_to_cpu(pnetwork->network.Configuration.ATIMWindow);
-	pnetwork->network.Configuration.BeaconPeriod = le32_to_cpu(pnetwork->network.Configuration.BeaconPeriod);
-	pnetwork->network.Configuration.DSConfig = le32_to_cpu(pnetwork->network.Configuration.DSConfig);
-	pnetwork->network.Configuration.FHConfig.DwellTime = le32_to_cpu(pnetwork->network.Configuration.FHConfig.DwellTime);
-	pnetwork->network.Configuration.FHConfig.HopPattern = le32_to_cpu(pnetwork->network.Configuration.FHConfig.HopPattern);
-	pnetwork->network.Configuration.FHConfig.HopSet = le32_to_cpu(pnetwork->network.Configuration.FHConfig.HopSet);
-	pnetwork->network.Configuration.FHConfig.Length = le32_to_cpu(pnetwork->network.Configuration.FHConfig.Length);
-	pnetwork->network.Configuration.Length = le32_to_cpu(pnetwork->network.Configuration.Length);
-	pnetwork->network.InfrastructureMode = le32_to_cpu(pnetwork->network.InfrastructureMode);
-	pnetwork->network.IELength = le32_to_cpu(pnetwork->network.IELength);
-#endif
 
 
 	rtw_get_encrypt_decrypt_from_registrypriv(adapter);
@@ -2581,10 +2543,6 @@ void rtw_stassoc_event_callback(_adapter *adapter, u8 *pbuf)
 
 	mlmeext_sta_add_event_callback(adapter, psta);
 
-#ifdef CONFIG_RTL8711
-	/* submit SetStaKey_cmd to tell fw, fw will allocate an CAM entry for this sta	 */
-	rtw_setstakey_cmd(adapter, psta, GROUP_KEY, _TRUE);
-#endif
 
 exit:
 #ifdef CONFIG_RTS_FULL_BW
@@ -4424,7 +4382,6 @@ void rtw_joinbss_reset(_adapter *padapter)
 
 	phtpriv->ampdu_enable = _FALSE;/* reset to disabled */
 
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI)
 	/* TH=1 => means that invalidate usb rx aggregation */
 	/* TH=0 => means that validate usb rx aggregation, use init value. */
 	if (phtpriv->ht_option) {
@@ -4437,7 +4394,6 @@ void rtw_joinbss_reset(_adapter *padapter)
 		threshold = 1;
 		rtw_hal_set_hwreg(padapter, HW_VAR_RXDMA_AGG_PG_TH, (u8 *)(&threshold));
 	}
-#endif/* #if defined( CONFIG_USB_HCI) || defined (CONFIG_SDIO_HCI) */
 
 #endif/* #ifdef CONFIG_80211N_HT */
 

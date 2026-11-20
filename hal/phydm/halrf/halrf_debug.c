@@ -199,17 +199,11 @@ void halrf_cmd_parser(void *dm_void, char input[][16], u32 *_used, char *output,
 		halrf_basic_profile(dm, &used, output, &out_len);
 		break;
 	case HALRF_IQK_INFO:
-#if (RTL8822B_SUPPORT == 1 || RTL8821C_SUPPORT == 1)
-		halrf_iqk_info_dump(dm, &used, output, &out_len);
-#endif
 		break;
 	case HALRF_IQK:
 		PDM_SNPF(out_len, used, output + used, out_len - used,
 			 "TRX IQK Trigger\n");
 		halrf_iqk_trigger(dm, false);
-#if (RTL8822B_SUPPORT == 1 || RTL8821C_SUPPORT == 1)
-		halrf_iqk_info_dump(dm, &used, output, &out_len);
-#endif
 		break;
 	case HALRF_IQK_DEBUG:
 
@@ -222,11 +216,6 @@ void halrf_cmd_parser(void *dm_void, char input[][16], u32 *_used, char *output,
 		}
 
 		if (input_idx >= 1) {
-#if (RTL8822B_SUPPORT == 1 || RTL8821C_SUPPORT == 1)
-			if (dm->support_ic_type & (ODM_RTL8822B | ODM_RTL8821C))
-				halrf_iqk_debug(dm, (u32 *)rf_var, &used,
-						output, &out_len);
-#endif
 		}
 		break;
 	default:

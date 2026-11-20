@@ -1052,55 +1052,15 @@ struct btc_coexist {
 	BFP_BTC_GET_BT_AFH_MAP_FROM_BT		btc_get_bt_afh_map_from_bt;
 
 	union {
-		#ifdef CONFIG_RTL8822B
-		struct coex_dm_8822b_1ant	coex_dm_8822b_1ant;
-		struct coex_dm_8822b_2ant	coex_dm_8822b_2ant;
-		#endif /* 8822B */
-		#ifdef CONFIG_RTL8821C
-		struct coex_dm_8821c_1ant	coex_dm_8821c_1ant;
-		struct coex_dm_8821c_2ant	coex_dm_8821c_2ant;
-		#endif /* 8821C */
-	#ifdef CONFIG_RTL8723D
-	struct coex_dm_8723d_1ant   coex_dm_8723d_1ant;
-	struct coex_dm_8723d_2ant   coex_dm_8723d_2ant;
-	#endif /* 8723D */
 	};
 
 	union {
-		#ifdef CONFIG_RTL8822B
-		struct coex_sta_8822b_1ant	coex_sta_8822b_1ant;
-		struct coex_sta_8822b_2ant	coex_sta_8822b_2ant;
-		#endif /* 8822B */
-		#ifdef CONFIG_RTL8821C
-		struct coex_sta_8821c_1ant	coex_sta_8821c_1ant;
-		struct coex_sta_8821c_2ant	coex_sta_8821c_2ant;
-		#endif /* 8821C */
-	#ifdef CONFIG_RTL8723D
-	struct coex_sta_8723d_1ant  coex_sta_8723d_1ant;
-	struct coex_sta_8723d_2ant  coex_sta_8723d_2ant;
-	#endif /* 8723D */
 	};
 
 	union {
-		#ifdef CONFIG_RTL8822B
-		struct rfe_type_8822b_1ant	rfe_type_8822b_1ant;
-		struct rfe_type_8822b_2ant	rfe_type_8822b_2ant;
-		#endif /* 8822B */
-		#ifdef CONFIG_RTL8821C
-		struct rfe_type_8821c_1ant	rfe_type_8821c_1ant;
-		struct rfe_type_8821c_2ant	rfe_type_8821c_2ant;
-		#endif /* 8821C */
 	};
 
 	union {
-		#ifdef CONFIG_RTL8822B
-		struct wifi_link_info_8822b_1ant	wifi_link_info_8822b_1ant;
-		struct wifi_link_info_8822b_2ant	wifi_link_info_8822b_2ant;
-		#endif /* 8822B */
-		#ifdef CONFIG_RTL8821C
-		struct wifi_link_info_8821c_1ant	wifi_link_info_8821c_1ant;
-		struct wifi_link_info_8821c_2ant	wifi_link_info_8821c_2ant;
-		#endif /* 8821C */
 	};
 
 };

@@ -19,7 +19,6 @@
 
 #include "mp_precomp.h"
 #include "../phydm_precomp.h"
-#if (RTL8192E_SUPPORT == 1)
 s8 phydm_cck_rssi_8192e(struct dm_struct *dm, u16 lna_idx, u8 vga_idx)
 {
 	s8 rx_pwr_all = 0;
@@ -36,5 +35,4 @@ s8 phydm_cck_rssi_8192e(struct dm_struct *dm, u16 lna_idx, u8 vga_idx)
 
 	return rx_pwr_all;
 }
-#endif
 

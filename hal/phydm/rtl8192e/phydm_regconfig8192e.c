@@ -16,7 +16,6 @@
 #include "mp_precomp.h"
 #include "../phydm_precomp.h"
 
-#if (RTL8192E_SUPPORT == 1)
 
 void odm_config_rf_reg_8192e(struct dm_struct *dm, u32 addr, u32 data,
 			     enum rf_path RF_PATH, u32 reg_addr)
@@ -176,4 +175,3 @@ void odm_config_bb_txpwr_lmt_8192e(struct dm_struct *dm, u8 *regulation,
 			       bandwidth, rate_section, rf_path, channel, power_limit);
 }
 
-#endif

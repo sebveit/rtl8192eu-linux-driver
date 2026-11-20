@@ -107,52 +107,15 @@ phydm_check_rates(void *dm_void, u8 rate_idx)
 	u32 check_rate_bitmap2 = 0x00080200; /* @check VHT3SS M9, VHT4SS M9*/
 	u32 bitmap_result;
 
-#if (RTL8822B_SUPPORT == 1)
-	if (dm->support_ic_type & ODM_RTL8822B) {
-		check_rate_bitmap2 &= 0;
-		check_rate_bitmap1 &= 0xfffff000;
-		check_rate_bitmap0 &= 0x0fffffff;
-	}
-#endif
 
-#if (RTL8197F_SUPPORT == 1)
-	if (dm->support_ic_type & ODM_RTL8197F) {
-		check_rate_bitmap2 &= 0;
-		check_rate_bitmap1 &= 0;
-		check_rate_bitmap0 &= 0x0fffffff;
-	}
-#endif
 
-#if (RTL8192E_SUPPORT == 1)
 	if (dm->support_ic_type & ODM_RTL8192E) {
 		check_rate_bitmap2 &= 0;
 		check_rate_bitmap1 &= 0;
 		check_rate_bitmap0 &= 0x0fffffff;
 	}
-#endif
 
 /*@jj add 20170822*/
-#if (RTL8192F_SUPPORT == 1)
-	if (dm->support_ic_type & ODM_RTL8192F) {
-		check_rate_bitmap2 &= 0;
-		check_rate_bitmap1 &= 0;
-		check_rate_bitmap0 &= 0x0fffffff;
-	}
-#endif
-#if (RTL8721D_SUPPORT == 1)
-	if (dm->support_ic_type & ODM_RTL8721D) {
-		check_rate_bitmap2 &= 0;
-		check_rate_bitmap1 &= 0;
-		check_rate_bitmap0 &= 0x000fffff;
-	}
-#endif
-#if (RTL8821C_SUPPORT == 1)
-	if (dm->support_ic_type & ODM_RTL8821C) {
-		check_rate_bitmap2 &= 0;
-		check_rate_bitmap1 &= 0x003ff000;
-		check_rate_bitmap0 &= 0x000fffff;
-	}
-#endif
 
 	if (rate_idx >= 64)
 		bitmap_result = BIT(rate_idx - 64) & check_rate_bitmap2;
@@ -191,9 +154,7 @@ u8 phydm_dtp_get_txagc(void *dm_void, enum rf_path path, u8 hw_rate)
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u8 ret = 0xff;
 
-#if (RTL8192E_SUPPORT == 1)
 	ret = config_phydm_read_txagc_n(dm, path, hw_rate);
-#endif
 	return ret;
 }
 #endif

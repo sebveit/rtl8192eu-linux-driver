@@ -111,26 +111,6 @@ void phydm_la_get_tx_pkt_buf(void *dm_void)
 			 is_round_up, finish_addr, addr_8byte, smp_number);
 	}
 
-	#if (RTL8197F_SUPPORT || RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-	if (dm->support_ic_type &
-	    (ODM_RTL8197F | ODM_RTL8198F | ODM_RTL8814B)) {
-		for (addr = buf->start_pos, i = 0; addr < buf->end_pos;
-		     addr += 8, i += 2) {
-			if ((addr & 0xfff) == 0)
-				odm_set_bb_reg(dm, R_0x0140, MASKLWORD, 0x780 +
-					       (addr >> 12));
-			data_l = odm_get_bb_reg(dm, 0x8000 + (addr & 0xfff),
-						MASKDWORD);
-			data_h = odm_get_bb_reg(dm, 0x8000 + (addr & 0xfff) +
-						4, MASKDWORD);
-			buf->octet[i] = data_h;
-			buf->octet[i + 1] = data_l;
-
-			if (smp->is_la_print)
-				pr_debug("%08x%08x\n", data_h, data_l);
-		}
-	} else
-	#endif
 	{
 		for (i = 0; smp_cnt < smp_number; smp_cnt++, i += 2) {
 			if (dm->support_ic_type & ODM_RTL8192F) {
@@ -275,9 +255,6 @@ void phydm_adc_smp_start(void *dm_void)
 				odm_set_mac_reg(dm, R_0x7c0, BIT(3), 1);
 		}
 	}
-#if RTL8198F_SUPPORT
-	phydm_la_pre_run(dm);
-#endif
 
 	target_polling_bit = (smp->is_bb_trigger) ? BIT(1) : BIT(2);
 	do { /*Polling time always use 100ms, when it exceed 2s, break loop*/
@@ -764,11 +741,6 @@ void phydm_la_mode_bb_setting(void *dm_void, boolean en_fake_trig)
 			}
 	#endif
 	} else {
-		#if (RTL8192F_SUPPORT)
-		if ((dm->support_ic_type & ODM_RTL8192F))
-			/*@LA reset HW block enable for true-mac asic*/
-			odm_set_bb_reg(dm, R_0x9a0, BIT(15), 1);
-		#endif
 		/*@0x9A0[11:8]*/
 		odm_set_bb_reg(dm, R_0x9a0, 0xf00, dma_type);
 		/*@0: posedge, 1: negedge*/

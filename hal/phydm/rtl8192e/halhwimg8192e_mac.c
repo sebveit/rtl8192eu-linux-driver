@@ -29,7 +29,6 @@
 
 #define D_S_SIZE DELTA_SWINGIDX_SIZE
 
-#if (RTL8192E_SUPPORT == 1)
 static boolean
 check_positive(struct dm_struct *dm,
 	       const u32	condition1,
@@ -295,5 +294,4 @@ odm_get_version_mp_8192e_mac_reg(void)
 		return 60;
 }
 
-#endif /* end of HWIMG_SUPPORT*/
 

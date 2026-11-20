@@ -1,7 +1,6 @@
 
 #if (BT_SUPPORT == 1 && COEX_SUPPORT == 1)
 
-#if (RTL8192E_SUPPORT == 1)
 /* *******************************************
  * The following is for 8192E 2Ant BT Co-exist definition
  * ******************************************* */
@@ -194,22 +193,6 @@ void ex_halbtc8192e2ant_halt_notify(IN struct btc_coexist *btcoexist);
 void ex_halbtc8192e2ant_periodical(IN struct btc_coexist *btcoexist);
 void ex_halbtc8192e2ant_display_coex_info(IN struct btc_coexist *btcoexist);
 
-#else	/*  #if (RTL8192E_SUPPORT == 1) */
-#define	ex_halbtc8192e2ant_power_on_setting(btcoexist)
-#define	ex_halbtc8192e2ant_init_hw_config(btcoexist, wifi_only)
-#define	ex_halbtc8192e2ant_init_coex_dm(btcoexist)
-#define	ex_halbtc8192e2ant_ips_notify(btcoexist, type)
-#define	ex_halbtc8192e2ant_lps_notify(btcoexist, type)
-#define	ex_halbtc8192e2ant_scan_notify(btcoexist, type)
-#define	ex_halbtc8192e2ant_connect_notify(btcoexist, type)
-#define	ex_halbtc8192e2ant_media_status_notify(btcoexist, type)
-#define	ex_halbtc8192e2ant_specific_packet_notify(btcoexist, type)
-#define	ex_halbtc8192e2ant_bt_info_notify(btcoexist, tmp_buf, length)
-#define	ex_halbtc8192e2ant_halt_notify(btcoexist)
-#define	ex_halbtc8192e2ant_periodical(btcoexist)
-#define	ex_halbtc8192e2ant_display_coex_info(btcoexist)
-
-#endif
 
 #endif
 

@@ -1499,18 +1499,6 @@ int c2h_mac_hidden_rpt_hdl(_adapter *adapter, u8 *data, u8 len)
 	hal_spec->proto_cap &= mac_hidden_proto_to_hal_proto_cap(protocol);
 	hal_spec->hci_type = hci_type;
 
-#if defined(CONFIG_RTL8822C)
-	if (IS_8822C_SERIES(hal_data->version_id)) {
-		#define GET_C2H_MAC_HIDDEN_RPT_SS_NUM(_data)	LE_BITS_TO_1BYTE(((u8 *)(_data)) + 6, 3, 2)
-		u8 ss_num = GET_C2H_MAC_HIDDEN_RPT_SS_NUM(data);
-
-		if (DBG_C2H_MAC_HIDDEN_RPT_HANDLE)
-			RTW_PRINT("ss_num:0x%x\n", ss_num);
-
-		hal_spec->tx_nss_num = rtw_min(hal_spec->tx_nss_num, ss_num);
-		hal_spec->rx_nss_num = rtw_min(hal_spec->rx_nss_num, ss_num);
-	}
-#endif
 
 	ret = _SUCCESS;
 
@@ -1536,18 +1524,6 @@ int c2h_mac_hidden_rpt_2_hdl(_adapter *adapter, u8 *data, u8 len)
 			RTW_PRINT("%s: 0x%02X\n", __func__, *(data + i));
 	}
 
-	#if defined(CONFIG_RTL8188F) || defined(CONFIG_RTL8188GTV)
-	if (IS_8188F(hal_data->version_id) || IS_8188GTV(hal_data->version_id)) {
-		#define GET_C2H_MAC_HIDDEN_RPT_IRV(_data)	LE_BITS_TO_1BYTE(((u8 *)(_data)) + 0, 0, 4)
-		u8 irv = GET_C2H_MAC_HIDDEN_RPT_IRV(data);
-
-		if (DBG_C2H_MAC_HIDDEN_RPT_HANDLE)
-			RTW_PRINT("irv:0x%x\n", irv);
-
-		if(irv != 0xf)
-			hal_data->version_id.CUTVersion = irv;
-	}
-	#endif
 
 	ret = _SUCCESS;
 
@@ -1568,13 +1544,11 @@ int hal_read_mac_hidden_rpt(_adapter *adapter)
 	u8 id = C2H_DEFEATURE_RSVD;
 	int i;
 
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_PCI_HCI)
 	u8 hci_type = rtw_get_intf_type(adapter);
 
 	if ((hci_type == RTW_USB || hci_type == RTW_PCIE)
 		&& !rtw_is_hw_init_completed(adapter))
 		rtw_hal_power_on(adapter);
-#endif
 
 	/* inform FW mac hidden rpt from reg is needed */
 	rtw_write8(adapter, REG_C2HEVT_MSG_NORMAL, C2H_DEFEATURE_RSVD);
@@ -1614,11 +1588,9 @@ mac_hidden_rpt_hdl:
 
 exit:
 
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_PCI_HCI)
 	if ((hci_type == RTW_USB || hci_type == RTW_PCIE)
 		&& !rtw_is_hw_init_completed(adapter))
 		rtw_hal_power_off(adapter);
-#endif
 
 	RTW_INFO("%s %s! (%u, %dms), fwdl:%d, id:0x%02x\n", __func__
 		, (ret == _SUCCESS) ? "OK" : "Fail", cnt, rtw_get_passing_time_ms(start), ret_fwdl, id);
@@ -2150,20 +2122,6 @@ static void rtw_hal_get_msr(_adapter *adapter, u8 *net_type)
 		/*REG_CR - BIT[19:18]-Network Type for port 1*/
 		*net_type = (rtw_read8(adapter, MSR) & 0x0C) >> 2;
 		break;
-#if defined(CONFIG_RTL8814A)
-	case HW_PORT2:
-		/*REG_CR_EXT- BIT[1:0]-Network Type for port 2*/
-		*net_type = rtw_read8(adapter, MSR1) & 0x03;
-		break;
-	case HW_PORT3:
-		/*REG_CR_EXT- BIT[3:2]-Network Type for port 3*/
-		*net_type = (rtw_read8(adapter, MSR1) & 0x0C) >> 2;
-		break;
-	case HW_PORT4:
-		/*REG_CR_EXT- BIT[5:4]-Network Type for port 4*/
-		*net_type = (rtw_read8(adapter, MSR1) & 0x30) >> 4;
-		break;
-#endif /*#if defined(CONFIG_RTL8814A)*/
 	default:
 		RTW_INFO("[WARN] "ADPT_FMT"- invalid hw port -%d\n",
 			 ADPT_ARG(adapter), adapter->hw_port);
@@ -2210,26 +2168,6 @@ static void rtw_hal_set_msr(_adapter *adapter, u8 net_type)
 		val8 |= net_type << 2;
 		rtw_write8(adapter, MSR, val8);
 		break;
-#if defined(CONFIG_RTL8814A)
-	case HW_PORT2:
-		/*REG_CR_EXT- BIT[1:0]-Network Type for port 2*/
-		val8 = rtw_read8(adapter, MSR1) & 0xFC;
-		val8 |= net_type;
-		rtw_write8(adapter, MSR1, val8);
-		break;
-	case HW_PORT3:
-		/*REG_CR_EXT- BIT[3:2]-Network Type for port 3*/
-		val8 = rtw_read8(adapter, MSR1) & 0xF3;
-		val8 |= net_type << 2;
-		rtw_write8(adapter, MSR1, val8);
-		break;
-	case HW_PORT4:
-		/*REG_CR_EXT- BIT[5:4]-Network Type for port 4*/
-		val8 = rtw_read8(adapter, MSR1) & 0xCF;
-		val8 |= net_type << 4;
-		rtw_write8(adapter, MSR1, val8);
-		break;
-#endif /* CONFIG_RTL8814A */
 	default:
 		RTW_INFO("[WARN] "ADPT_FMT"- invalid hw port -%d\n",
 			 ADPT_ARG(adapter), adapter->hw_port);
@@ -2408,20 +2346,10 @@ void rtw_sec_write_cam_ent(_adapter *adapter, u8 id, u16 ctrl, u8 *mac, u8 *key)
 
 		addr = (id << 3) + j;
 
-#if defined(CONFIG_RTL8192F)
-		if(j == 1) {
-			wdata1 = wdata;
-			addr1 = addr;
-			continue;
-		}
-#endif
 
 		rtw_sec_write_cam(adapter, addr, wdata);
 	}
 
-#if defined(CONFIG_RTL8192F)
-	rtw_sec_write_cam(adapter, addr1, wdata1);
-#endif
 }
 
 void rtw_sec_clr_cam_ent(_adapter *adapter, u8 id)
@@ -2941,10 +2869,6 @@ void rtw_ap_multi_bcn_cfg(_adapter *adapter)
 
 	/* Enable HW seq for BCN
 	* 0x4FC[0]: EN_HWSEQ / 0x4FC[1]: EN_HWSEQEXT  */
-	 #ifdef CONFIG_RTL8822B
-	if (IS_HARDWARE_TYPE_8822B(adapter))
-		rtw_write8(adapter, REG_DUMMY_PAGE4_V1_8822B, 0x01);
-	#endif
 
 }
 static void _rtw_mbid_bcn_cfg(_adapter *adapter, bool mbcnq_en, u8 mbcnq_id)
@@ -3005,11 +2929,7 @@ void rtw_ap_mbid_bcn_dis(_adapter *adapter, u8 ap_id)
 #ifdef CONFIG_SWTIMER_BASED_TXBCN
 void rtw_ap_multi_bcn_cfg(_adapter *adapter)
 {
-	#if defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8822C)
-	rtw_write8(adapter, REG_BCN_CTRL, DIS_TSF_UDT);
-	#else
 	rtw_write8(adapter, REG_BCN_CTRL, DIS_TSF_UDT | DIS_BCNQ_SUB);
-	#endif
 	/*enable to rx data frame*/
 	rtw_write16(adapter, REG_RXFLTMAP2, 0xFFFF);
 
@@ -3028,11 +2948,7 @@ void rtw_ap_multi_bcn_cfg(_adapter *adapter)
 
 	/*enable BCN0 Function for if1*/
 	/*don't enable update TSF0 for if1 (due to TSF update when beacon,probe rsp are received)*/
-	#if defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8822C)
-	rtw_write8(adapter, REG_BCN_CTRL, BIT_DIS_RX_BSSID_FIT | BIT_P0_EN_TXBCN_RPT | BIT_DIS_TSF_UDT |BIT_EN_BCN_FUNCTION);
-	#else
 	rtw_write8(adapter, REG_BCN_CTRL, (DIS_TSF_UDT | EN_BCN_FUNCTION | EN_TXBCN_RPT | DIS_BCNQ_SUB));
-	#endif
 	#ifdef CONFIG_BCN_XMIT_PROTECT
 	rtw_write8(adapter, REG_CCK_CHECK, rtw_read8(adapter, REG_CCK_CHECK) | BIT_EN_BCN_PKT_REL);
 	#endif
@@ -3042,10 +2958,6 @@ void rtw_ap_multi_bcn_cfg(_adapter *adapter)
 
 	/* Enable HW seq for BCN 
 	 * 0x4FC[0]: EN_HWSEQ / 0x4FC[1]: EN_HWSEQEXT  */
-	#ifdef CONFIG_RTL8822B
-	if (IS_HARDWARE_TYPE_8822B(adapter))
-		rtw_write8(adapter, REG_DUMMY_PAGE4_V1_8822B, 0x01);
-	#endif
 }
 #endif
 
@@ -3122,17 +3034,6 @@ static void rtw_hal_set_macaddr_port(_adapter *adapter, u8 *val)
 	case HW_PORT1:
 		reg_macid = REG_MACID1;
 		break;
-#if defined(CONFIG_RTL8814A)
-	case HW_PORT2:
-		reg_macid = REG_MACID2;
-		break;
-	case HW_PORT3:
-		reg_macid = REG_MACID3;
-		break;
-	case HW_PORT4:
-		reg_macid = REG_MACID4;
-		break;
-#endif/*defined(CONFIG_RTL8814A)*/
 	}
 
 	for (idx = 0; idx < ETH_ALEN; idx++)
@@ -3160,17 +3061,6 @@ static void rtw_hal_get_macaddr_port(_adapter *adapter, u8 *mac_addr)
 	case HW_PORT1:
 		reg_macid = REG_MACID1;
 		break;
-#if defined(CONFIG_RTL8814A)
-	case HW_PORT2:
-		reg_macid = REG_MACID2;
-		break;
-	case HW_PORT3:
-		reg_macid = REG_MACID3;
-		break;
-	case HW_PORT4:
-		reg_macid = REG_MACID4;
-		break;
-#endif /*defined(CONFIG_RTL8814A)*/
 	}
 
 	for (idx = 0; idx < ETH_ALEN; idx++)
@@ -3199,17 +3089,6 @@ static void rtw_hal_set_bssid(_adapter *adapter, u8 *val)
 	case HW_PORT1:
 		reg_bssid = REG_BSSID1;
 		break;
-#if defined(CONFIG_RTL8814A)
-	case HW_PORT2:
-		reg_bssid = REG_BSSID2;
-		break;
-	case HW_PORT3:
-		reg_bssid = REG_BSSID3;
-		break;
-	case HW_PORT4:
-		reg_bssid = REG_BSSID4;
-		break;
-#endif/*defined(CONFIG_RTL8814A)*/
 	}
 
 	for (idx = 0 ; idx < ETH_ALEN; idx++)
@@ -3666,10 +3545,6 @@ void hw_var_port_switch(_adapter *adapter)
 	u8 bssid[6];
 	u8 macid_1[6];
 	u8 bssid_1[6];
-#if defined(CONFIG_RTL8192F)
-	u16 wlan_act_mask_ctrl = 0;
-	u16 en_port_mask = EN_PORT_0_FUNCTION | EN_PORT_1_FUNCTION;
-#endif
 
 	u8 hw_port;
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
@@ -3678,9 +3553,6 @@ void hw_var_port_switch(_adapter *adapter)
 	msr = rtw_read8(adapter, MSR);
 	bcn_ctrl = rtw_read8(adapter, REG_BCN_CTRL);
 	bcn_ctrl_1 = rtw_read8(adapter, REG_BCN_CTRL_1);
-#if defined(CONFIG_RTL8192F)
-	wlan_act_mask_ctrl = rtw_read16(adapter, REG_WLAN_ACT_MASK_CTRL_1);
-#endif
 
 	for (i = 0; i < 2; i++)
 		atimwnd[i] = rtw_read8(adapter, REG_ATIMWND + i);
@@ -3709,9 +3581,6 @@ void hw_var_port_switch(_adapter *adapter)
 		 "msr:0x%02x\n"
 		 "bcn_ctrl:0x%02x\n"
 		 "bcn_ctrl_1:0x%02x\n"
-#if defined(CONFIG_RTL8192F)
-		 "wlan_act_mask_ctrl:0x%02x\n"
-#endif
 		 "atimwnd:0x%04x\n"
 		 "atimwnd_1:0x%04x\n"
 		 "tsftr:%llu\n"
@@ -3724,9 +3593,6 @@ void hw_var_port_switch(_adapter *adapter)
 		 , msr
 		 , bcn_ctrl
 		 , bcn_ctrl_1
-#if defined(CONFIG_RTL8192F)
-		 , wlan_act_mask_ctrl
-#endif
 		 , *((u16 *)atimwnd)
 		 , *((u16 *)atimwnd_1)
 		 , *((u64 *)tsftr)
@@ -3742,9 +3608,6 @@ void hw_var_port_switch(_adapter *adapter)
 	rtw_write8(adapter, REG_BCN_CTRL, (bcn_ctrl & (~EN_BCN_FUNCTION)) | DIS_TSF_UDT);
 	rtw_write8(adapter, REG_BCN_CTRL_1, (bcn_ctrl_1 & (~EN_BCN_FUNCTION)) | DIS_TSF_UDT);
 
-#if defined(CONFIG_RTL8192F)
-	rtw_write16(adapter, REG_WLAN_ACT_MASK_CTRL_1, wlan_act_mask_ctrl & ~en_port_mask);
-#endif
 
 	/* switch msr */
 	msr = (msr & 0xf0) | ((msr & 0x03) << 2) | ((msr & 0x0c) >> 2);
@@ -3785,13 +3648,6 @@ void hw_var_port_switch(_adapter *adapter)
 	rtw_write8(adapter, REG_BCN_CTRL, bcn_ctrl_1);
 	rtw_write8(adapter, REG_BCN_CTRL_1, bcn_ctrl);
 
-#if defined(CONFIG_RTL8192F)
-	/* if the setting of port0 and port1 are the same, it does not need to switch port setting*/
-	if(((wlan_act_mask_ctrl & en_port_mask) != 0) && ((wlan_act_mask_ctrl & en_port_mask)
-		!= (EN_PORT_0_FUNCTION | EN_PORT_1_FUNCTION)))
-		wlan_act_mask_ctrl ^= en_port_mask;
-	rtw_write16(adapter, REG_WLAN_ACT_MASK_CTRL_1, wlan_act_mask_ctrl);
-#endif
 
 	if (adapter->iface_id == IFACE_ID0)
 		iface = dvobj->padapters[IFACE_ID1];
@@ -3815,9 +3671,6 @@ void hw_var_port_switch(_adapter *adapter)
 	msr = rtw_read8(adapter, MSR);
 	bcn_ctrl = rtw_read8(adapter, REG_BCN_CTRL);
 	bcn_ctrl_1 = rtw_read8(adapter, REG_BCN_CTRL_1);
-#if defined(CONFIG_RTL8192F)
-	wlan_act_mask_ctrl = rtw_read16(adapter, REG_WLAN_ACT_MASK_CTRL_1);
-#endif
 
 	for (i = 0; i < 2; i++)
 		atimwnd[i] = rtw_read8(adapter, REG_ATIMWND + i);
@@ -3845,9 +3698,6 @@ void hw_var_port_switch(_adapter *adapter)
 		 "msr:0x%02x\n"
 		 "bcn_ctrl:0x%02x\n"
 		 "bcn_ctrl_1:0x%02x\n"
-#if defined(CONFIG_RTL8192F)
-		 "wlan_act_mask_ctrl:0x%02x\n"
-#endif
 		 "atimwnd:%u\n"
 		 "atimwnd_1:%u\n"
 		 "tsftr:%llu\n"
@@ -3860,9 +3710,6 @@ void hw_var_port_switch(_adapter *adapter)
 		 , msr
 		 , bcn_ctrl
 		 , bcn_ctrl_1
-#if defined(CONFIG_RTL8192F)
-		 , wlan_act_mask_ctrl
-#endif
 		 , *((u16 *)atimwnd)
 		 , *((u16 *)atimwnd_1)
 		 , *((u64 *)tsftr)
@@ -4119,37 +3966,7 @@ s32 rtw_hal_set_FwMediaStatusRpt_cmd(_adapter *adapter, bool opmode, bool miraca
 	if (ret != _SUCCESS)
 		goto exit;
 
-#if defined(CONFIG_RTL8188E)
-	if (rtw_get_chip_type(adapter) == RTL8188E) {
-		HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
 
-		/* 8188E FW doesn't set macid no link, driver does it by self */
-		if (opmode)
-			rtw_hal_set_hwreg(adapter, HW_VAR_MACID_LINK, &macid);
-		else
-			rtw_hal_set_hwreg(adapter, HW_VAR_MACID_NOLINK, &macid);
-
-		/* for 8188E RA */
-#if (RATE_ADAPTIVE_SUPPORT == 1)
-		if (hal_data->fw_ractrl == _FALSE) {
-			u8 max_macid;
-
-			max_macid = rtw_search_max_mac_id(adapter);
-			rtw_hal_set_hwreg(adapter, HW_VAR_TX_RPT_MAX_MACID, &max_macid);
-		}
-#endif
-	}
-#endif
-
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-	/* TODO: this should move to IOT issue area */
-	if (rtw_get_chip_type(adapter) == RTL8812
-		|| rtw_get_chip_type(adapter) == RTL8821
-	) {
-		if (MLME_IS_STA(adapter))
-			Hal_PatchwithJaguar_8812(adapter, opmode);
-	}
-#endif
 
 	SET_H2CCMD_MSRRPT_PARM_MACID_IND(parm, 0);
 	if (macid_ind == 0)
@@ -4221,19 +4038,12 @@ void rtw_hal_switch_gpio_wl_ctrl(_adapter *padapter, u8 index, u8 enable)
 	*/
 
 	if ((index == 13 || index == 14)
-		#if defined(CONFIG_RTL8821A) && defined(CONFIG_SDIO_HCI)
-		/* 8821A's LED2 circuit(used by HW_LED strategy) needs enable WL GPIO control of GPIO[14:13], can't disable */
-		&& (!IS_HW_LED_STRATEGY(rtw_led_get_strategy(padapter)) || enable)
-		#endif
 	)
 		rtw_hal_set_hwreg(padapter, HW_SET_GPIO_WL_CTRL, (u8 *)(&enable));
 }
 
 void rtw_hal_set_output_gpio(_adapter *padapter, u8 index, u8 outputval)
 {
-#if defined(CONFIG_RTL8192F)
-	rtw_hal_set_hwreg(padapter, HW_VAR_WOW_OUTPUT_GPIO, (u8 *)(&index));
-#else
 	if (index <= 7) {
 		/* config GPIO mode */
 		rtw_write8(padapter, REG_GPIO_PIN_CTRL + 3,
@@ -4283,13 +4093,9 @@ void rtw_hal_set_output_gpio(_adapter *padapter, u8 index, u8 outputval)
 		RTW_INFO("%s: invalid GPIO%d=%d\n",
 			 __FUNCTION__, index, outputval);
 	}
-#endif
 }
 void rtw_hal_set_input_gpio(_adapter *padapter, u8 index)
 {
-#if defined(CONFIG_RTL8192F)
-	rtw_hal_set_hwreg(padapter, HW_VAR_WOW_INPUT_GPIO, (u8 *)(&index));
-#else
 	if (index <= 7) {
 		/* config GPIO mode */
 		rtw_write8(padapter, REG_GPIO_PIN_CTRL + 3,
@@ -4320,7 +4126,6 @@ void rtw_hal_set_input_gpio(_adapter *padapter, u8 index)
 			rtw_read8(padapter, REG_GPIO_PIN_CTRL_2 + 2) & ~BIT(index));
 	} else
 		RTW_INFO("%s: invalid GPIO%d\n", __func__, index);
-#endif
 }
 
 #endif
@@ -4545,21 +4350,6 @@ static void rtw_hal_force_enable_rxdma(_adapter *adapter)
 	rtw_write32(adapter, REG_RXPKT_NUM,
 		    (rtw_read32(adapter, REG_RXPKT_NUM) & (~RW_RELEASE_EN)));
 }
-#if defined(CONFIG_RTL8188E)
-static void rtw_hal_disable_tx_report(_adapter *adapter)
-{
-	rtw_write8(adapter, REG_TX_RPT_CTRL,
-		   ((rtw_read8(adapter, REG_TX_RPT_CTRL) & ~BIT(1))) & ~BIT(5));
-	RTW_INFO("disable TXRPT:0x%02x\n", rtw_read8(adapter, REG_TX_RPT_CTRL));
-}
-
-static void rtw_hal_enable_tx_report(_adapter *adapter)
-{
-	rtw_write8(adapter, REG_TX_RPT_CTRL,
-		   ((rtw_read8(adapter, REG_TX_RPT_CTRL) | BIT(1))) | BIT(5));
-	RTW_INFO("enable TX_RPT:0x%02x\n", rtw_read8(adapter, REG_TX_RPT_CTRL));
-}
-#endif
 static void rtw_hal_release_rx_dma(_adapter *adapter)
 {
 	u32 val32 = 0;
@@ -4585,33 +4375,23 @@ static u8 rtw_hal_pause_rx_dma(_adapter *adapter)
 		    (rtw_read32(adapter, REG_RXPKT_NUM) | RW_RELEASE_EN));
 	do {
 		if ((rtw_read32(adapter, REG_RXPKT_NUM) & RXDMA_IDLE)) {
-#ifdef CONFIG_USB_HCI
 			/* stop interface before leave */
 			if (_TRUE == hal->usb_intf_start) {
 				rtw_intf_stop(adapter);
 				RTW_ENABLE_FUNC(adapter, DF_RX_BIT);
 				RTW_ENABLE_FUNC(adapter, DF_TX_BIT);
 			}
-#endif /* CONFIG_USB_HCI */
 
 			RTW_PRINT("RX_DMA_IDLE is true\n");
 			ret = _SUCCESS;
 			break;
 		}
-#if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-		else {
-			res = RecvOnePkt(adapter);
-			RTW_PRINT("RecvOnePkt Result: %d\n", res);
-		}
-#endif /* CONFIG_SDIO_HCI || CONFIG_GSPI_HCI */
 
-#ifdef CONFIG_USB_HCI
 		else {
 			/* to avoid interface start repeatedly  */
 			if (_FALSE == hal->usb_intf_start)
 				rtw_intf_start(adapter);
 		}
-#endif /* CONFIG_USB_HCI */
 	} while (trycnt--);
 
 	if (trycnt < 0) {
@@ -4633,41 +4413,6 @@ static u8 rtw_hal_pause_rx_dma(_adapter *adapter)
 	return ret;
 }
 
-#if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-#ifndef RTW_HALMAC
-static u8 rtw_hal_enable_cpwm2(_adapter *adapter)
-{
-	u8 ret = 0;
-	int res = 0;
-	u32 tmp = 0;
-#ifdef CONFIG_GPIO_WAKEUP
-	return _SUCCESS;
-#else
-	RTW_PRINT("%s\n", __func__);
-
-	res = sdio_local_read(adapter, SDIO_REG_HIMR, 4, (u8 *)&tmp);
-	if (!res)
-		RTW_INFO("read SDIO_REG_HIMR: 0x%08x\n", tmp);
-	else
-		RTW_INFO("sdio_local_read fail\n");
-
-	tmp = SDIO_HIMR_CPWM2_MSK;
-
-	res = sdio_local_write(adapter, SDIO_REG_HIMR, 4, (u8 *)&tmp);
-
-	if (!res) {
-		res = sdio_local_read(adapter, SDIO_REG_HIMR, 4, (u8 *)&tmp);
-		RTW_INFO("read again SDIO_REG_HIMR: 0x%08x\n", tmp);
-		ret = _SUCCESS;
-	} else {
-		RTW_INFO("sdio_local_write fail\n");
-		ret = _FAIL;
-	}
-	return ret;
-#endif /* CONFIG_CPIO_WAKEUP */
-}
-#endif
-#endif /* CONFIG_SDIO_HCI, CONFIG_GSPI_HCI */
 #endif /* CONFIG_WOWLAN || CONFIG_AP_WOWLAN */
 
 #ifdef CONFIG_WOWLAN
@@ -5302,12 +5047,6 @@ static u8 rtw_hal_set_remote_wake_ctrl_cmd(_adapter *adapter, u8 enable)
 				u1H2CRemoteWakeCtrlParm, enable);
 	#endif /*CONFIG_IPV6*/
 	
-	#ifdef CONFIG_RTL8192F
-			if (IS_HARDWARE_TYPE_8192F(adapter)){
-				SET_H2CCMD_REMOTE_WAKE_CTRL_FW_UNICAST_EN(
-					u1H2CRemoteWakeCtrlParm, enable);
-			}
-	#endif /* CONFIG_RTL8192F */
 	
 			if ((psecuritypriv->dot11PrivacyAlgrthm == _AES_) ||
 				(psecuritypriv->dot11PrivacyAlgrthm == _TKIP_) ||
@@ -5538,9 +5277,6 @@ static u8 rtw_hal_set_ap_ps_cmd(_adapter *adapter, u8 enable)
 	RTW_INFO("%s(): enable=%d\n" , __func__ , enable);
 
 	SET_H2CCMD_AP_WOW_PS_EN(ap_ps_parm, enable);
-#ifndef CONFIG_USB_HCI
-	SET_H2CCMD_AP_WOW_PS_32K_EN(ap_ps_parm, enable);
-#endif /*CONFIG_USB_HCI*/
 	SET_H2CCMD_AP_WOW_PS_RF(ap_ps_parm, enable);
 
 	if (enable)
@@ -5638,21 +5374,11 @@ static void rtw_hal_ap_wow_enable(_adapter *padapter)
 	issue_beacon(padapter, 0);
 
 	rtw_msleep_os(2);
-	#if defined(CONFIG_RTL8188E)
-	if (IS_HARDWARE_TYPE_8188E(padapter))
-		rtw_hal_disable_tx_report(padapter);
-	#endif
 	/* RX DMA stop */
 	res = rtw_hal_pause_rx_dma(padapter);
 	if (res == _FAIL)
 		RTW_PRINT("[WARNING] pause RX DMA fail\n");
 
-#if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-	/* Enable CPWM2 only. */
-	res = rtw_hal_enable_cpwm2(padapter);
-	if (res == _FAIL)
-		RTW_PRINT("[WARNING] enable cpwm2 fail\n");
-#endif
 
 #ifdef CONFIG_GPIO_WAKEUP
 	rtw_hal_switch_gpio_wl_ctrl(padapter, WAKEUP_GPIO_IDX, _TRUE);
@@ -5662,16 +5388,12 @@ static void rtw_hal_ap_wow_enable(_adapter *padapter)
 	rtw_hal_set_fw_ap_wow_related_cmd(padapter, 1);
 
 	rtw_write8(padapter, REG_MCUTST_WOWLAN, 0);
-#ifdef CONFIG_USB_HCI
 	rtw_mi_intf_stop(padapter);
-#endif
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_PCI_HCI)
 	/* Invoid SE0 reset signal during suspending*/
 	rtw_write8(padapter, REG_RSV_CTRL, 0x20);
 	if (IS_8188F(pHalData->version_id) == FALSE
 		&& IS_8188GTV(pHalData->version_id) == FALSE)
 		rtw_write8(padapter, REG_RSV_CTRL, 0x60);
-#endif
 }
 
 static void rtw_hal_ap_wow_disable(_adapter *padapter)
@@ -5702,10 +5424,6 @@ static void rtw_hal_ap_wow_disable(_adapter *padapter)
 	}
 #endif /*DBG_CHECK_FW_PS_STATE*/
 
-	#if defined(CONFIG_RTL8188E)
-	if (IS_HARDWARE_TYPE_8188E(padapter))
-		rtw_hal_enable_tx_report(padapter);
-	#endif
 
 	rtw_hal_force_enable_rxdma(padapter);
 
@@ -9103,10 +8821,6 @@ static void rtw_hal_wow_enable(_adapter *adapter)
 			  (u8 *)&media_status_rpt);
 
 	/* RX DMA stop */
-	#if defined(CONFIG_RTL8188E)
-	if (IS_HARDWARE_TYPE_8188E(adapter))
-		rtw_hal_disable_tx_report(adapter);
-	#endif
 
 	res = rtw_hal_pause_rx_dma(adapter);
 	if (res == _FAIL)
@@ -9135,12 +8849,6 @@ static void rtw_hal_wow_enable(_adapter *adapter)
 		}
 	}
 
-#if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-	/* Enable CPWM2 only. */
-	res = rtw_hal_enable_cpwm2(adapter);
-	if (res == _FAIL)
-		RTW_PRINT("[WARNING] enable cpwm2 fail\n");
-#endif
 #ifdef CONFIG_GPIO_WAKEUP
 	rtw_hal_switch_gpio_wl_ctrl(adapter, WAKEUP_GPIO_IDX, _TRUE);
 #endif
@@ -9162,18 +8870,14 @@ static void rtw_hal_wow_enable(_adapter *adapter)
 	dump_sec_cam(RTW_DBGDUMP, adapter);
 	dump_sec_cam_cache(RTW_DBGDUMP, adapter);
 #endif
-#ifdef CONFIG_USB_HCI
 	/* free adapter's resource */
 	rtw_mi_intf_stop(adapter);
 
-#endif
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_PCI_HCI)
 	/* Invoid SE0 reset signal during suspending*/
 	rtw_write8(adapter, REG_RSV_CTRL, 0x20);
 	if (IS_8188F(pHalData->version_id) == FALSE
 		&& IS_8188GTV(pHalData->version_id) == FALSE)
 		rtw_write8(adapter, REG_RSV_CTRL, 0x60);
-#endif
 
 	rtw_hal_gate_bb(adapter, _FALSE);
 }
@@ -9295,10 +8999,6 @@ static void rtw_hal_wow_disable(_adapter *adapter)
 	#endif
 	rtw_hal_release_rx_dma(adapter);
 
-	#if defined(CONFIG_RTL8188E)
-	if (IS_HARDWARE_TYPE_8188E(adapter))
-		rtw_hal_enable_tx_report(adapter);
-	#endif
 
 	if ((pwrctl->wowlan_wake_reason != RX_DISASSOC) &&
 		(pwrctl->wowlan_wake_reason != RX_DEAUTH) &&
@@ -10146,11 +9846,7 @@ download_page:
 		pattrib->qsel = QSLT_BEACON;
 		pattrib->pktlen = TotalPacketLen;
 		pattrib->last_txcmdsz = TotalPacketLen;
-#ifdef CONFIG_PCI_HCI
-		dump_mgntframe(adapter, pcmdframe);
-#else
 		dump_mgntframe_and_wait(adapter, pcmdframe, 100);
-#endif
 	}
 
 	RTW_INFO("%s: Set RSVD page location to Fw ,TotalPacketLen(%d), TotalPageNum(%d)\n",
@@ -10257,36 +9953,6 @@ static void hw_var_set_bcn_func(_adapter *adapter, u8 enable)
 		rtw_write8(adapter, bcn_ctrl_reg, val8);
 	}
 
-#ifdef CONFIG_RTL8192F
-	if (IS_HARDWARE_TYPE_8192F(adapter)) {
-		u16 val16, val16_ori;
-
-		val16_ori = val16 = rtw_read16(adapter, REG_WLAN_ACT_MASK_CTRL_1);
-
-		#ifdef CONFIG_CONCURRENT_MODE
-		if (adapter->hw_port == HW_PORT1) {
-			if (enable)
-				val16 |= EN_PORT_1_FUNCTION;
-			else
-				val16 &= ~EN_PORT_1_FUNCTION;
-		} else
-		#endif
-		{
-			if (enable)
-				val16 |= EN_PORT_0_FUNCTION;
-			else
-				val16 &= ~EN_PORT_0_FUNCTION;
-
-			#ifdef CONFIG_BT_COEXIST
-			if (GET_HAL_DATA(adapter)->EEPROMBluetoothCoexist == 1)
-				val16 |= EN_PORT_0_FUNCTION;
-			#endif
-		}
-
-		if (val16 != val16_ori)
-			rtw_write16(adapter, REG_WLAN_ACT_MASK_CTRL_1,  val16);
-	}
-#endif
 }
 
 static void hw_var_set_mlme_disconnect(_adapter *adapter)
@@ -10360,13 +10026,6 @@ static void hw_var_set_mlme_sitesurvey(_adapter *adapter, u8 enable)
 		/* Save orignal RRSR setting. needed? */
 		hal_data->RegRRSR = rtw_read16(adapter, REG_RRSR);
 
-		#if defined(CONFIG_BEAMFORMING) && (defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A))
-		if (IS_8812_SERIES(hal_data->version_id) || IS_8821_SERIES(hal_data->version_id)) {
-			/* set 718[1:0]=2'b00 to avoid BF scan hang */
-			hal_data->backup_snd_ptcl_ctrl = rtw_read8(adapter, REG_SND_PTCL_CTRL_8812A);
-			rtw_write8(adapter, REG_SND_PTCL_CTRL_8812A, (hal_data->backup_snd_ptcl_ctrl & 0xfc));
-		}
-		#endif
 
 		if (rtw_mi_get_ap_num(adapter) || rtw_mi_get_mesh_num(adapter))
 			StopTxBeacon(adapter);
@@ -10387,12 +10046,6 @@ static void hw_var_set_mlme_sitesurvey(_adapter *adapter, u8 enable)
 		/* Restore orignal RRSR setting. needed? */
 		rtw_write16(adapter, REG_RRSR, hal_data->RegRRSR);
 
-		#if defined(CONFIG_BEAMFORMING) && (defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A))
-		if (IS_8812_SERIES(hal_data->version_id) || IS_8821_SERIES(hal_data->version_id)) {
-			/* Restore orignal 0x718 setting*/
-			rtw_write8(adapter, REG_SND_PTCL_CTRL_8812A, hal_data->backup_snd_ptcl_ctrl);
-		}
-		#endif
 
 		if (rtw_mi_get_ap_num(adapter) || rtw_mi_get_mesh_num(adapter)) {
 			ResumeTxBeacon(adapter);
@@ -10768,37 +10421,21 @@ static void rtw_hal_correct_tsf(_adapter *padapter, u8 hw_port, u64 tsf)
 	if (hw_port == HW_PORT0) {
 		/*disable related TSF function*/
 		rtw_write8(padapter, REG_BCN_CTRL, rtw_read8(padapter, REG_BCN_CTRL) & (~EN_BCN_FUNCTION));
-#if defined(CONFIG_RTL8192F)
-		rtw_write16(padapter, REG_WLAN_ACT_MASK_CTRL_1, rtw_read16(padapter,
-					REG_WLAN_ACT_MASK_CTRL_1) & ~EN_PORT_0_FUNCTION);
-#endif
 
 		rtw_write32(padapter, REG_TSFTR, tsf);
 		rtw_write32(padapter, REG_TSFTR + 4, tsf >> 32);
 
 		/*enable related TSF function*/
 		rtw_write8(padapter, REG_BCN_CTRL, rtw_read8(padapter, REG_BCN_CTRL) | EN_BCN_FUNCTION);
-#if defined(CONFIG_RTL8192F)
-		rtw_write16(padapter, REG_WLAN_ACT_MASK_CTRL_1, rtw_read16(padapter,
-					REG_WLAN_ACT_MASK_CTRL_1) | EN_PORT_0_FUNCTION);
-#endif
 	} else if (hw_port == HW_PORT1) {
 		/*disable related TSF function*/
 		rtw_write8(padapter, REG_BCN_CTRL_1, rtw_read8(padapter, REG_BCN_CTRL_1) & (~EN_BCN_FUNCTION));
-#if defined(CONFIG_RTL8192F)
-		rtw_write16(padapter, REG_WLAN_ACT_MASK_CTRL_1, rtw_read16(padapter,
-					REG_WLAN_ACT_MASK_CTRL_1) & ~EN_PORT_1_FUNCTION);
-#endif
 
 		rtw_write32(padapter, REG_TSFTR1, tsf);
 		rtw_write32(padapter, REG_TSFTR1 + 4, tsf >> 32);
 
 		/*enable related TSF function*/
 		rtw_write8(padapter, REG_BCN_CTRL_1, rtw_read8(padapter, REG_BCN_CTRL_1) | EN_BCN_FUNCTION);
-#if defined(CONFIG_RTL8192F)
-		rtw_write16(padapter, REG_WLAN_ACT_MASK_CTRL_1, rtw_read16(padapter,
-					REG_WLAN_ACT_MASK_CTRL_1) | EN_PORT_1_FUNCTION);
-#endif
 	} else
 		RTW_INFO("%s-[WARN] "ADPT_FMT" invalid hw_port:%d\n", __func__, ADPT_ARG(padapter), hw_port);
 }
@@ -10869,31 +10506,6 @@ u64 rtw_hal_get_tsftr_by_port(_adapter *adapter, u8 port)
 	}
 
 	switch (rtw_get_chip_type(adapter)) {
-#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
-	case RTL8814A:
-	case RTL8822B:
-	case RTL8821C:
-	{
-		u8 val8;
-
-		/* 0x554[30:28] - BIT_BCN_TIMER_SEL_FWRD */
-		val8 = rtw_read8(adapter, REG_MBSSID_BCN_SPACE + 3);
-		val8 &= 0x8F;
-		val8 |= port << 4;
-		rtw_write8(adapter, REG_MBSSID_BCN_SPACE + 3, val8);
-
-		tsftr = rtw_read32(adapter, REG_TSFTR + 4);
-		tsftr = tsftr << 32;
-		tsftr |= rtw_read32(adapter, REG_TSFTR);
-
-		break;
-	}
-#endif
-#if defined(CONFIG_RTL8188E) || defined(CONFIG_RTL8188F) || defined(CONFIG_RTL8188GTV) \
-		|| defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8192F) \
-		|| defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D) \
-		|| defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) \
-		|| defined(CONFIG_RTL8710B)
 	case RTL8188E:
 	case RTL8188F:
 	case RTL8188GTV:
@@ -10923,7 +10535,6 @@ u64 rtw_hal_get_tsftr_by_port(_adapter *adapter, u8 port)
 
 		break;
 	}
-#endif
 	default:
 		RTW_ERR("%s unknow chip type\n", __func__);
 	}
@@ -11312,16 +10923,6 @@ u8 SetHwReg(_adapter *adapter, u8 variable, u8 *val)
 	}
 	break;
 #endif/*CONFIG_RTS_FULL_BW*/
-#if defined(CONFIG_PCI_HCI)
-	case HW_VAR_ENSWBCN: 
-	if (*val == _TRUE) {
-		rtw_write8(adapter, REG_CR + 1,
-			   rtw_read8(adapter, REG_CR + 1) | BIT(0));
-	} else
-		rtw_write8(adapter, REG_CR + 1,
-			   rtw_read8(adapter, REG_CR + 1) & ~BIT(0));
-	break;
-#endif
 	default:
 		if (0)
 			RTW_PRINT(FUNC_ADPT_FMT" variable(%d) not defined!\n",
@@ -12078,80 +11679,7 @@ int hal_efuse_macaddr_offset(_adapter *adapter)
 	interface_type = rtw_get_intf_type(adapter);
 
 	switch (rtw_get_chip_type(adapter)) {
-#ifdef CONFIG_RTL8723B
-	case RTL8723B:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8723BU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8723BS;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8723BE;
-		break;
-#endif
-#ifdef CONFIG_RTL8703B
-	case RTL8703B:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8703BU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8703BS;
-		break;
-#endif
-#ifdef CONFIG_RTL8723D
-	case RTL8723D:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8723DU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8723DS;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8723DE;
-		break;
-#endif
 
-#ifdef CONFIG_RTL8188E
-	case RTL8188E:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_88EU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_88ES;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_88EE;
-		break;
-#endif
-#ifdef CONFIG_RTL8188F
-	case RTL8188F:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8188FU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8188FS;
-		break;
-#endif
-#ifdef CONFIG_RTL8188GTV
-	case RTL8188GTV:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8188GTVU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8188GTVS;
-		break;
-#endif
-#ifdef CONFIG_RTL8812A
-	case RTL8812:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8812AU;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8812AE;
-		break;
-#endif
-#ifdef CONFIG_RTL8821A
-	case RTL8821:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8821AU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8821AS;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8821AE;
-		break;
-#endif
-#ifdef CONFIG_RTL8192E
 	case RTL8192E:
 		if (interface_type == RTW_USB)
 			addr_offset = EEPROM_MAC_ADDR_8192EU;
@@ -12160,55 +11688,10 @@ int hal_efuse_macaddr_offset(_adapter *adapter)
 		else if (interface_type == RTW_PCIE)
 			addr_offset = EEPROM_MAC_ADDR_8192EE;
 		break;
-#endif
-#ifdef CONFIG_RTL8814A
-	case RTL8814A:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8814AU;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8814AE;
-		break;
-#endif
 
-#ifdef CONFIG_RTL8822B
-	case RTL8822B:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8822BU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8822BS;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8822BE;
-		break;
-#endif /* CONFIG_RTL8822B */
 
-#ifdef CONFIG_RTL8821C
-	case RTL8821C:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8821CU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8821CS;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8821CE;
-		break;
-#endif /* CONFIG_RTL8821C */
 
-#ifdef CONFIG_RTL8710B
-	case RTL8710B:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8710B;
-		break;
-#endif
 
-#ifdef CONFIG_RTL8192F
-	case RTL8192F:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8192FU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8192FS;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8192FE;
-		break;
-#endif /* CONFIG_RTL8192F */
 
 	}
 
@@ -12305,9 +11788,6 @@ int hal_config_macaddr(_adapter *adapter, bool autoload_fail)
 	int addr_offset = hal_efuse_macaddr_offset(adapter);
 	u8 *hw_addr = NULL;
 	int ret = _SUCCESS;
-#if defined(CONFIG_RTL8822B) && defined(CONFIG_USB_HCI)
-	u8 ft_mac_addr[ETH_ALEN] = {0x00, 0xff, 0xff, 0xff, 0xff, 0xff}; /* FT USB2 for 8822B */
-#endif
 
 	if (autoload_fail)
 		goto bypass_hw_pg;
@@ -12327,10 +11807,6 @@ int hal_config_macaddr(_adapter *adapter, bool autoload_fail)
 			hw_addr = addr;
 	}
 
-#if defined(CONFIG_RTL8822B) && defined(CONFIG_USB_HCI)
-	if (_rtw_memcmp(hw_addr, ft_mac_addr, ETH_ALEN))
-		hw_addr[0] = 0xff;
-#endif
 
 	/* check hw pg data */
 	if (hw_addr && rtw_check_invalid_mac_address(hw_addr, _TRUE) == _FALSE) {
@@ -12386,75 +11862,9 @@ void rtw_bb_rf_gain_offset(_adapter *padapter)
 		return;
 	}
 
-#if defined(CONFIG_RTL8723B)
-	if (value & BIT4 && (registry_par->RegPwrTrimEnable == 1)) {
-		RTW_INFO("Offset RF Gain.\n");
-		RTW_INFO("Offset RF Gain.  pHalData->EEPROMRFGainVal=0x%x\n", pHalData->EEPROMRFGainVal);
-
-		if (pHalData->EEPROMRFGainVal != 0xff) {
-
-			if (pHalData->ant_path == RF_PATH_A)
-				GainValue = (pHalData->EEPROMRFGainVal & 0x0f);
-
-			else
-				GainValue = (pHalData->EEPROMRFGainVal & 0xf0) >> 4;
-			RTW_INFO("Ant PATH_%d GainValue Offset = 0x%x\n", (pHalData->ant_path == RF_PATH_A) ? (RF_PATH_A) : (RF_PATH_B), GainValue);
-
-			for (i = 0; i < ArrayLen; i += 2) {
-				/* RTW_INFO("ArrayLen in =%d ,Array 1 =0x%x ,Array2 =0x%x\n",i,Array[i],Array[i]+1); */
-				v1 = Array[i];
-				v2 = Array[i + 1];
-				if (v1 == GainValue) {
-					RTW_INFO("Offset RF Gain. got v1 =0x%x ,v2 =0x%x\n", v1, v2);
-					target = v2;
-					break;
-				}
-			}
-			RTW_INFO("pHalData->EEPROMRFGainVal=0x%x ,Gain offset Target Value=0x%x\n", pHalData->EEPROMRFGainVal, target);
-
-			res = rtw_hal_read_rfreg(padapter, RF_PATH_A, 0x7f, 0xffffffff);
-			RTW_INFO("Offset RF Gain. before reg 0x7f=0x%08x\n", res);
-			phy_set_rf_reg(padapter, RF_PATH_A, REG_RF_BB_GAIN_OFFSET, BIT18 | BIT17 | BIT16 | BIT15, target);
-			res = rtw_hal_read_rfreg(padapter, RF_PATH_A, 0x7f, 0xffffffff);
-
-			RTW_INFO("Offset RF Gain. After reg 0x7f=0x%08x\n", res);
-
-		} else
-
-			RTW_INFO("Offset RF Gain.  pHalData->EEPROMRFGainVal=0x%x	!= 0xff, didn't run Kfree\n", pHalData->EEPROMRFGainVal);
-	} else
-		RTW_INFO("Using the default RF gain.\n");
-
-#elif defined(CONFIG_RTL8188E)
-	if (value & BIT4 && (registry_par->RegPwrTrimEnable == 1)) {
-		RTW_INFO("8188ES Offset RF Gain.\n");
-		RTW_INFO("8188ES Offset RF Gain. EEPROMRFGainVal=0x%x\n",
-			 pHalData->EEPROMRFGainVal);
-
-		if (pHalData->EEPROMRFGainVal != 0xff) {
-			res = rtw_hal_read_rfreg(padapter, RF_PATH_A,
-					 REG_RF_BB_GAIN_OFFSET, 0xffffffff);
-
-			RTW_INFO("Offset RF Gain. reg 0x55=0x%x\n", res);
-			res &= 0xfff87fff;
-
-			res |= (pHalData->EEPROMRFGainVal & 0x0f) << 15;
-			RTW_INFO("Offset RF Gain. res=0x%x\n", res);
-
-			rtw_hal_write_rfreg(padapter, RF_PATH_A,
-					    REG_RF_BB_GAIN_OFFSET,
-					    RF_GAIN_OFFSET_MASK, res);
-		} else {
-			RTW_INFO("Offset RF Gain. EEPROMRFGainVal=0x%x == 0xff, didn't run Kfree\n",
-				 pHalData->EEPROMRFGainVal);
-		}
-	} else
-		RTW_INFO("Using the default RF gain.\n");
-#else
 	/* TODO: call this when channel switch */
 	if (kfree_data->flag & KFREE_FLAG_ON)
 		rtw_rf_apply_tx_gain_offset(padapter, 6); /* input ch6 to select BB_GAIN_2G */
-#endif
 
 }
 #endif /*CONFIG_RF_POWER_TRIM */
@@ -13182,14 +12592,8 @@ u8 rtw_get_current_tx_sgi(_adapter *padapter, struct sta_info *psta)
 		return curr_tx_sgi;
 
 	if (padapter->fix_rate == 0xff) {
-#if defined(CONFIG_RTL8188E)
-#if (RATE_ADAPTIVE_SUPPORT == 1)
-		curr_tx_sgi = hal_data->odmpriv.ra_info[psta->cmn.mac_id].rate_sgi;
-#endif /* (RATE_ADAPTIVE_SUPPORT == 1)*/
-#else
 		ra_info = &psta->cmn.ra_info;
 		curr_tx_sgi = ((ra_info->curr_tx_rate) & 0x80) >> 7;
-#endif
 	} else {
 		curr_tx_sgi = ((padapter->fix_rate) & 0x80) >> 7;
 	}
@@ -13207,14 +12611,8 @@ u8 rtw_get_current_tx_rate(_adapter *padapter, struct sta_info *psta)
 		return rate_id;
 
 	if (padapter->fix_rate == 0xff) {
-#if defined(CONFIG_RTL8188E)
-#if (RATE_ADAPTIVE_SUPPORT == 1)
-		rate_id = hal_data->odmpriv.ra_info[psta->cmn.mac_id].decision_rate;
-#endif /* (RATE_ADAPTIVE_SUPPORT == 1)*/
-#else
 		ra_info = &psta->cmn.ra_info;
 		rate_id = ra_info->curr_tx_rate & 0x7f;
-#endif
 	} else {
 		rate_id = padapter->fix_rate & 0x7f;
 	}
@@ -13298,23 +12696,6 @@ void hal_set_crystal_cap(_adapter *adapter, u8 crystal_cap)
 	crystal_cap = crystal_cap & 0x3F;
 
 	switch (rtw_get_chip_type(adapter)) {
-#if defined(CONFIG_RTL8188E) || defined(CONFIG_RTL8188F) || defined(CONFIG_RTL8188GTV)
-	case RTL8188E:
-	case RTL8188F:
-	case RTL8188GTV:
-		/* write 0x24[16:11] = 0x24[22:17] = CrystalCap */
-		phy_set_bb_reg(adapter, REG_AFE_XTAL_CTRL, 0x007FF800, (crystal_cap | (crystal_cap << 6)));
-		break;
-#endif
-#if defined(CONFIG_RTL8812A)
-	case RTL8812:
-		/* write 0x2C[30:25] = 0x2C[24:19] = CrystalCap */
-		phy_set_bb_reg(adapter, REG_MAC_PHY_CTRL, 0x7FF80000, (crystal_cap | (crystal_cap << 6)));
-		break;
-#endif
-#if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || \
-		defined(CONFIG_RTL8723D) || defined(CONFIG_RTL8821A) || \
-		defined(CONFIG_RTL8192E) 
 	case RTL8723B:
 	case RTL8703B:
 	case RTL8723D:
@@ -13323,32 +12704,6 @@ void hal_set_crystal_cap(_adapter *adapter, u8 crystal_cap)
 		/* write 0x2C[23:18] = 0x2C[17:12] = CrystalCap */
 		phy_set_bb_reg(adapter, REG_MAC_PHY_CTRL, 0x00FFF000, (crystal_cap | (crystal_cap << 6)));
 		break;
-#endif
-#if defined(CONFIG_RTL8814A)
-	case RTL8814A:
-		/* write 0x2C[26:21] = 0x2C[20:15] = CrystalCap*/
-		phy_set_bb_reg(adapter, REG_MAC_PHY_CTRL, 0x07FF8000, (crystal_cap | (crystal_cap << 6)));
-		break;
-#endif
-#if defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8192F)
-
-	case RTL8822B:
-	case RTL8821C:
-	case RTL8192F:	
-		/* write 0x28[6:1] = 0x24[30:25] = CrystalCap */
-		crystal_cap = crystal_cap & 0x3F;
-		phy_set_bb_reg(adapter, REG_AFE_XTAL_CTRL, 0x7E000000, crystal_cap);
-		phy_set_bb_reg(adapter, REG_AFE_PLL_CTRL, 0x7E, crystal_cap);
-		break;
-#endif
-#if defined(CONFIG_RTL8710B)
-	case RTL8710B:
-		/*Change by ylb 20160728, Becase 0x2C[23:12] is removed to syson 0x60[29:18] */
-		/* 0x2C[23:18] = 0x2C[29:24] = CrystalCap //Xo:[29:24], Xi:[23:18]*/
-		crystal_cap = crystal_cap & 0x3F;
-		hal_set_syson_reg(adapter, REG_SYS_XTAL_CTRL0, 0x3FFC0000, (crystal_cap | (crystal_cap << 6)));
-		break;
-#endif
 	default:
 		rtw_warn_on(1);
 	}
@@ -13362,76 +12717,9 @@ int hal_spec_init(_adapter *adapter)
 	interface_type = rtw_get_intf_type(adapter);
 
 	switch (rtw_get_chip_type(adapter)) {
-#ifdef CONFIG_RTL8723B
-	case RTL8723B:
-		init_hal_spec_8723b(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8703B
-	case RTL8703B:
-		init_hal_spec_8703b(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8723D
-	case RTL8723D:
-		init_hal_spec_8723d(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8188E
-	case RTL8188E:
-		init_hal_spec_8188e(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8188F
-	case RTL8188F:
-		init_hal_spec_8188f(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8188GTV
-	case RTL8188GTV:
-		init_hal_spec_8188gtv(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8812A
-	case RTL8812:
-		init_hal_spec_8812a(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8821A
-	case RTL8821:
-		init_hal_spec_8821a(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8192E
 	case RTL8192E:
 		init_hal_spec_8192e(adapter);
 		break;
-#endif
-#ifdef CONFIG_RTL8814A
-	case RTL8814A:
-		init_hal_spec_8814a(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8822B
-	case RTL8822B:
-		rtl8822b_init_hal_spec(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8821C
-	case RTL8821C:
-		init_hal_spec_rtl8821c(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8710B
-	case RTL8710B:
-		init_hal_spec_8710b(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8192F
-	case RTL8192F:
-		init_hal_spec_8192f(adapter);
-		break;
-#endif
 
 	default:
 		RTW_ERR("%s: unknown chip_type:%u\n"
@@ -13755,10 +13043,6 @@ void hw_var_set_opmode_mbid(_adapter *Adapter, u8 mode)
 	else
 		rtw_hw_client_port_release(Adapter);
 #endif
-#if defined(CONFIG_RTL8192F)
-		rtw_write16(Adapter, REG_WLAN_ACT_MASK_CTRL_1, rtw_read16(Adapter, 
-					REG_WLAN_ACT_MASK_CTRL_1) | EN_PORT_0_FUNCTION);	
-#endif
 }
 #endif
 
@@ -14047,9 +13331,6 @@ void rtw_hal_switch_chnl_and_set_bw_offload(_adapter *adapter, u8 central_ch, u8
 }
 #endif /* RTW_CHANNEL_SWITCH_OFFLOAD */
 
-#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8812A) ||\
-	defined(CONFIG_RTL8192F) || defined(CONFIG_RTL8192E) ||\
-	defined(CONFIG_RTL8822B) ||defined(CONFIG_RTL8821A)
 u8 phy_get_current_tx_num(
 	IN	PADAPTER		pAdapter,
 	IN	u8				Rate
@@ -14073,27 +13354,4 @@ u8 phy_get_current_tx_num(
 
 	return tx_num;
 }
-#endif
-#ifdef CONFIG_RTL8812A
-u8 * rtw_hal_set_8812a_vendor_ie(_adapter *padapter , u8 *pframe ,uint *frlen ) {
-	int vender_len = 7;
-	unsigned char	vendor_info[vender_len];
-	unsigned char REALTEK_OUI[] = {0x00, 0xe0, 0x4c};
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-
-	if( !IS_HARDWARE_TYPE_8812(padapter) )
-		return pframe;
-
-	_rtw_memset(vendor_info,0,vender_len);
-	_rtw_memcpy(vendor_info, REALTEK_OUI, 3);
-	vendor_info[4] =2;
-	if(pHalData->version_id.CUTVersion > B_CUT_VERSION )
-		vendor_info[6] = RT_HT_CAP_USE_JAGUAR_CCUT;
-	else
-		vendor_info[6] = RT_HT_CAP_USE_JAGUAR_BCUT;
-	pframe = rtw_set_ie(pframe, _VENDOR_SPECIFIC_IE_,vender_len,vendor_info , frlen);
-	
-	return pframe;
-}
-#endif /*CONFIG_RTL8812A*/
 

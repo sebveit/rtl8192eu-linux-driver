@@ -140,7 +140,6 @@ void dump_drv_cfg(void *sel)
 	RTW_PRINT_SEL(sel, "CONFIG_RTW_TPT_MODE\n");
 #endif 
 
-#ifdef CONFIG_USB_HCI
 #ifdef CONFIG_SUPPORT_USB_INT
 	RTW_PRINT_SEL(sel, "CONFIG_SUPPORT_USB_INT\n");
 #endif
@@ -165,19 +164,8 @@ void dump_drv_cfg(void *sel)
 #ifdef CONFIG_FIX_NR_BULKIN_BUFFER
 	RTW_PRINT_SEL(sel, "CONFIG_FIX_NR_BULKIN_BUFFER\n");
 #endif
-#endif /*CONFIG_USB_HCI*/
 
-#ifdef CONFIG_SDIO_HCI
-#ifdef CONFIG_TX_AGGREGATION
-	RTW_PRINT_SEL(sel, "CONFIG_TX_AGGREGATION\n");
-#endif
-#ifdef CONFIG_RX_AGGREGATION
-	RTW_PRINT_SEL(sel, "CONFIG_RX_AGGREGATION\n");
-#endif
-#endif /*CONFIG_SDIO_HCI*/
 
-#ifdef CONFIG_PCI_HCI
-#endif
 
 	RTW_PRINT_SEL(sel, "CONFIG_IFACE_NUMBER = %d\n", CONFIG_IFACE_NUMBER);
 #ifdef CONFIG_MI_WITH_MBSSID_CAM
@@ -225,37 +213,6 @@ void dump_log_level(void *sel)
 #endif
 }
 
-#ifdef CONFIG_SDIO_HCI
-void sd_f0_reg_dump(void *sel, _adapter *adapter)
-{
-	int i;
-
-	for (i = 0x0; i <= 0xff; i++) {
-		if (i % 16 == 0)
-			RTW_PRINT_SEL(sel, "0x%02x ", i);
-
-		_RTW_PRINT_SEL(sel, "%02x ", rtw_sd_f0_read8(adapter, i));
-
-		if (i % 16 == 15)
-			_RTW_PRINT_SEL(sel, "\n");
-		else if (i % 8 == 7)
-			_RTW_PRINT_SEL(sel, "\t");
-	}
-}
-
-void sdio_local_reg_dump(void *sel, _adapter *adapter)
-{
-	int i, j = 1;
-
-	for (i = 0x0; i < 0x100; i += 4) {
-		if (j % 4 == 1)
-			RTW_PRINT_SEL(sel, "0x%02x", i);
-		_RTW_PRINT_SEL(sel, " 0x%08x ", rtw_read32(adapter, (0x1025 << 16) | i));
-		if ((j++) % 4 == 0)
-			_RTW_PRINT_SEL(sel, "\n");
-	}
-}
-#endif /* CONFIG_SDIO_HCI */
 
 void mac_reg_dump(void *sel, _adapter *adapter)
 {
@@ -271,28 +228,8 @@ void mac_reg_dump(void *sel, _adapter *adapter)
 			_RTW_PRINT_SEL(sel, "\n");
 	}
 
-#ifdef CONFIG_RTL8814A
-	{
-		for (i = 0x1000; i < 0x1650; i += 4) {
-			if (j % 4 == 1)
-				RTW_PRINT_SEL(sel, "0x%04x", i);
-			_RTW_PRINT_SEL(sel, " 0x%08x ", rtw_read32(adapter, i));
-			if ((j++) % 4 == 0)
-				_RTW_PRINT_SEL(sel, "\n");
-		}
-	}
-#endif /* CONFIG_RTL8814A */
 
 
-#if defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) ||defined(CONFIG_RTL8192F)
-	for (i = 0x1000; i < 0x1800; i += 4) {
-		if (j % 4 == 1)
-			RTW_PRINT_SEL(sel, "0x%04x", i);
-		_RTW_PRINT_SEL(sel, " 0x%08x ", rtw_read32(adapter, i));
-		if ((j++) % 4 == 0)
-			_RTW_PRINT_SEL(sel, "\n");
-	}
-#endif /* CONFIG_RTL8822B  or 8821c or 8192f*/
 
 }
 
@@ -309,15 +246,6 @@ void bb_reg_dump(void *sel, _adapter *adapter)
 			_RTW_PRINT_SEL(sel, "\n");
 	}
 
-#if defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
-	for (i = 0x1800; i < 0x2000; i += 4) {
-		if (j % 4 == 1)
-			RTW_PRINT_SEL(sel, "0x%04x", i);
-		_RTW_PRINT_SEL(sel, " 0x%08x ", rtw_read32(adapter, i));
-		if ((j++) % 4 == 0)
-			_RTW_PRINT_SEL(sel, "\n");
-	}
-#endif /* CONFIG_RTL8822B */
 }
 
 void bb_reg_dump_ex(void *sel, _adapter *adapter)
@@ -331,13 +259,6 @@ void bb_reg_dump_ex(void *sel, _adapter *adapter)
 		_RTW_PRINT_SEL(sel, "\n");
 	}
 
-#if defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
-	for (i = 0x1800; i < 0x2000; i += 4) {
-		RTW_PRINT_SEL(sel, "0x%04x", i);
-		_RTW_PRINT_SEL(sel, " 0x%08x ", rtw_read32(adapter, i));
-		_RTW_PRINT_SEL(sel, "\n");
-	}
-#endif /* CONFIG_RTL8822B */
 }
 
 void rf_reg_dump(void *sel, _adapter *adapter)
@@ -1670,9 +1591,7 @@ int proc_get_trx_info(struct seq_file *m, void *v)
 
 	rtw_hal_get_hwreg(padapter, HW_VAR_DUMP_MAC_TXFIFO, (u8 *)m);
 
-#ifdef CONFIG_USB_HCI
 	RTW_PRINT_SEL(m, "rx_urb_pending_cn=%d\n", ATOMIC_READ(&(precvpriv->rx_pending_cnt)));
-#endif
 
 	dump_rx_bh_tk(m, &GET_PRIMARY_ADAPTER(padapter)->recvpriv);
 
@@ -2715,24 +2634,6 @@ int proc_get_mac_rptbuf(struct seq_file *m, void *v)
 	u16 mac_id;
 	u32 shcut_addr = 0;
 	u32 read_addr = 0;
-#ifdef CONFIG_RTL8814A
-	RTW_PRINT_SEL(m, "TX ShortCut:\n");
-	for (mac_id = 0; mac_id < 64; mac_id++) {
-		rtw_write16(padapter, 0x140, 0x662 | ((mac_id & BIT5) >> 5));
-		shcut_addr = 0x8000;
-		shcut_addr = shcut_addr | ((mac_id & 0x1f) << 7);
-		RTW_PRINT_SEL(m, "mac_id=%d, 0x140=%x =>\n", mac_id, 0x662 | ((mac_id & BIT5) >> 5));
-		for (i = 0; i < 30; i++) {
-			read_addr = 0;
-			read_addr = shcut_addr | (i << 2);
-			RTW_PRINT_SEL(m, "i=%02d: MAC_%04x= %08x ", i, read_addr, rtw_read32(padapter, read_addr));
-			if (!((i + 1) % 4))
-				RTW_PRINT_SEL(m, "\n");
-			if (i == 29)
-				RTW_PRINT_SEL(m, "\n");
-		}
-	}
-#endif /* CONFIG_RTL8814A */
 	return 0;
 }
 
@@ -4010,449 +3911,6 @@ ssize_t proc_set_sreset(struct file *file, const char __user *buffer, size_t cou
 }
 #endif /* DBG_CONFIG_ERROR_DETECT */
 
-#ifdef CONFIG_PCI_HCI
-
-ssize_t proc_set_pci_bridge_conf_space(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	struct dvobj_priv       *pdvobjpriv = adapter_to_dvobj(padapter);
-	struct pci_dev  *pdev = pdvobjpriv->ppcidev;
-	struct pci_dev  *bridge_pdev = pdev->bus->self;
-
-	char tmp[32] = { 0 };
-	int num;
-
-	u32 reg = 0, value = 0;
-
-	if (count < 1)
-		return -EFAULT;
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		num = sscanf(tmp, "%x %x", &reg, &value);
-		if (num != 2) {
-			RTW_INFO("invalid parameter!\n");
-			return count;
-		}
-
-		if (reg >= 0x1000) {
-			RTW_INFO("invalid register!\n");
-			return count;
-		}
-
-		if (value > 0xFF) {
-			RTW_INFO("invalid value! Only one byte\n");
-			return count;
-		}
-
-		RTW_INFO(FUNC_ADPT_FMT ": register 0x%x value 0x%x\n",
-			FUNC_ADPT_ARG(padapter), reg, value);
-
-		pci_write_config_byte(bridge_pdev, reg, value);
-	}
-	return count;
-}
-
-
-int proc_get_pci_bridge_conf_space(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *) rtw_netdev_priv(dev);
-	struct dvobj_priv       *pdvobjpriv = adapter_to_dvobj(padapter);
-	struct pci_dev  *pdev = pdvobjpriv->ppcidev;
-	struct pci_dev  *bridge_pdev = pdev->bus->self;
-
-	u32 tmp[4] = { 0 };
-	u32 i, j;
-
-	RTW_PRINT_SEL(m, "\n*****  PCI Host Device Configuration Space*****\n\n");
-
-	for (i = 0; i < 0x1000; i += 0x10) {
-		for (j = 0 ; j < 4 ; j++)
-			pci_read_config_dword(bridge_pdev, i + j * 4, tmp+j);
-
-		RTW_PRINT_SEL(m, "%03x: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-			i, tmp[0] & 0xFF, (tmp[0] >> 8) & 0xFF, (tmp[0] >> 16) & 0xFF, (tmp[0] >> 24) & 0xFF,
-			tmp[1] & 0xFF, (tmp[1] >> 8) & 0xFF, (tmp[1] >> 16) & 0xFF, (tmp[1] >> 24) & 0xFF,
-			tmp[2] & 0xFF, (tmp[2] >> 8) & 0xFF, (tmp[2] >> 16) & 0xFF, (tmp[2] >> 24) & 0xFF,
-			tmp[3] & 0xFF, (tmp[3] >> 8) & 0xFF, (tmp[3] >> 16) & 0xFF, (tmp[3] >> 24) & 0xFF);
-	}
-	return 0;
-}
-
-
-ssize_t proc_set_pci_conf_space(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	struct dvobj_priv       *pdvobjpriv = adapter_to_dvobj(padapter);
-	struct pci_dev  *pdev = pdvobjpriv->ppcidev;
-
-	char tmp[32] = { 0 };
-	int num;
-
-	u32 reg = 0, value = 0;
-
-	if (count < 1)
-		return -EFAULT;
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		num = sscanf(tmp, "%x %x", &reg, &value);
-
-		if (num != 2) {
-			RTW_INFO("invalid parameter!\n");
-			return count;
-		}
-
-
-		if (reg >= 0x1000) {
-			RTW_INFO("invalid register!\n");
-			return count;
-		}
-
-		if (value > 0xFF) {
-			RTW_INFO("invalid value! Only one byte\n");
-			return count;
-		}
-
-		RTW_INFO(FUNC_ADPT_FMT ": register 0x%x value 0x%x\n",
-			FUNC_ADPT_ARG(padapter), reg, value);
-
-		pci_write_config_byte(pdev, reg, value);
-
-
-	}
-	return count;
-}
-
-
-int proc_get_pci_conf_space(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *) rtw_netdev_priv(dev);
-	struct dvobj_priv       *pdvobjpriv = adapter_to_dvobj(padapter);
-	struct pci_dev  *pdev = pdvobjpriv->ppcidev;
-	struct pci_dev  *bridge_pdev = pdev->bus->self;
-
-	u32 tmp[4] = { 0 };
-	u32 i, j;
-
-	RTW_PRINT_SEL(m, "\n*****  PCI Device Configuration Space *****\n\n");
-
-	for (i = 0; i < 0x1000; i += 0x10) {
-		for (j = 0 ; j < 4 ; j++)
-			pci_read_config_dword(pdev, i + j * 4, tmp+j);
-
-		RTW_PRINT_SEL(m, "%03x: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-			i, tmp[0] & 0xFF, (tmp[0] >> 8) & 0xFF, (tmp[0] >> 16) & 0xFF, (tmp[0] >> 24) & 0xFF,
-			tmp[1] & 0xFF, (tmp[1] >> 8) & 0xFF, (tmp[1] >> 16) & 0xFF, (tmp[1] >> 24) & 0xFF,
-			tmp[2] & 0xFF, (tmp[2] >> 8) & 0xFF, (tmp[2] >> 16) & 0xFF, (tmp[2] >> 24) & 0xFF,
-			tmp[3] & 0xFF, (tmp[3] >> 8) & 0xFF, (tmp[3] >> 16) & 0xFF, (tmp[3] >> 24) & 0xFF);
-	}
-
-	return 0;
-}
-
-
-int proc_get_pci_aspm(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *) rtw_netdev_priv(dev);
-	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(padapter);
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	struct pci_priv	*pcipriv = &(pdvobjpriv->pcipriv);
-	u8 tmp8 = 0;
-	u16 tmp16 = 0;
-	u32 tmp32 = 0;
-	u8 l1_idle = 0;
-
-
-	RTW_PRINT_SEL(m, "***** ASPM Capability *****\n");
-
-	pci_read_config_dword(pdvobjpriv->ppcidev, pcipriv->pciehdr_offset + PCI_EXP_LNKCAP, &tmp32);
-
-	RTW_PRINT_SEL(m, "CLK REQ:	%s\n", (tmp32&PCI_EXP_LNKCAP_CLKPM) ? "Enable" : "Disable");
-	RTW_PRINT_SEL(m, "ASPM L0s:	%s\n", (tmp32&BIT10) ? "Enable" : "Disable");
-	RTW_PRINT_SEL(m, "ASPM L1:	%s\n", (tmp32&BIT11) ? "Enable" : "Disable");
-
-	tmp8 = rtw_hal_pci_l1off_capability(padapter);
-	RTW_PRINT_SEL(m, "ASPM L1OFF:	%s\n", tmp8 ? "Enable" : "Disable");
-
-	RTW_PRINT_SEL(m, "***** ASPM CTRL Reg *****\n");
-
-	pci_read_config_word(pdvobjpriv->ppcidev, pcipriv->pciehdr_offset + PCI_EXP_LNKCTL, &tmp16);
-
-	RTW_PRINT_SEL(m, "CLK REQ:	%s\n", (tmp16&PCI_EXP_LNKCTL_CLKREQ_EN) ? "Enable" : "Disable");
-	RTW_PRINT_SEL(m, "ASPM L0s:	%s\n", (tmp16&BIT0) ? "Enable" : "Disable");
-	RTW_PRINT_SEL(m, "ASPM L1:	%s\n", (tmp16&BIT1) ? "Enable" : "Disable");
-
-	tmp8 = rtw_hal_pci_l1off_nic_support(padapter);
-	RTW_PRINT_SEL(m, "ASPM L1OFF:	%s\n", tmp8 ? "Enable" : "Disable");
-
-	RTW_PRINT_SEL(m, "***** ASPM Backdoor *****\n");
-
-	tmp8 = rtw_hal_pci_dbi_read(padapter, 0x719);
-	RTW_PRINT_SEL(m, "CLK REQ:	%s\n", (tmp8 & BIT4) ? "Enable" : "Disable");
-
-	tmp8 = rtw_hal_pci_dbi_read(padapter, 0x70f);
-	l1_idle = tmp8 & 0x38;
-	RTW_PRINT_SEL(m, "ASPM L0s:	%s\n", (tmp8&BIT7) ? "Enable" : "Disable");
-
-	tmp8 = rtw_hal_pci_dbi_read(padapter, 0x719);
-	RTW_PRINT_SEL(m, "ASPM L1:	%s\n", (tmp8 & BIT3) ? "Enable" : "Disable");
-
-	tmp8 = rtw_hal_pci_dbi_read(padapter, 0x718);
-	RTW_PRINT_SEL(m, "ASPM L1OFF:	%s\n", (tmp8 & BIT5) ? "Enable" : "Disable");
-
-	RTW_PRINT_SEL(m, "********* MISC **********\n");
-	RTW_PRINT_SEL(m, "ASPM L1 Idel Time: 0x%x\n", l1_idle>>3);
-	RTW_PRINT_SEL(m, "*************************\n");
-
-	return 0;
-}
-
-int proc_get_rx_ring(struct seq_file *m, void *v)
-{
-	_irqL irqL;
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *) rtw_netdev_priv(dev);
-	struct dvobj_priv *pdvobjpriv = adapter_to_dvobj(padapter);
-	struct recv_priv *precvpriv = &padapter->recvpriv;
-	struct rtw_rx_ring *rx_ring = &precvpriv->rx_ring[RX_MPDU_QUEUE];
-	int i, j;
-
-	RTW_PRINT_SEL(m, "rx ring (%p)\n", rx_ring);
-	RTW_PRINT_SEL(m, "  dma: 0x%08x\n", (int) rx_ring->dma);
-	RTW_PRINT_SEL(m, "  idx: %d\n", rx_ring->idx);
-
-	_enter_critical(&pdvobjpriv->irq_th_lock, &irqL);
-	for (i = 0; i < precvpriv->rxringcount; i++) {
-#ifdef CONFIG_TRX_BD_ARCH
-		struct rx_buf_desc *entry = &rx_ring->buf_desc[i];
-#else
-		struct recv_stat *entry = &rx_ring->desc[i];
-#endif
-		struct sk_buff *skb = rx_ring->rx_buf[i];
-
-		RTW_PRINT_SEL(m, "  desc[%03d]: %p, rx_buf[%03d]: 0x%08x\n",
-			i, entry, i, cpu_to_le32(*((dma_addr_t *)skb->cb)));
-
-		for (j = 0; j < sizeof(*entry) / 4; j++) {
-			if ((j % 4) == 0)
-				RTW_PRINT_SEL(m, "  0x%03x", j);
-
-			RTW_PRINT_SEL(m, " 0x%08x ", ((int *) entry)[j]);
-
-			if ((j % 4) == 3)
-				RTW_PRINT_SEL(m, "\n");
-		}
-	}
-	_exit_critical(&pdvobjpriv->irq_th_lock, &irqL);
-
-	return 0;
-}
-
-int proc_get_tx_ring(struct seq_file *m, void *v)
-{
-	_irqL irqL;
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *) rtw_netdev_priv(dev);
-	struct dvobj_priv *pdvobjpriv = adapter_to_dvobj(padapter);
-	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
-	int i, j, k;
-
-	_enter_critical(&pdvobjpriv->irq_th_lock, &irqL);
-	for (i = 0; i < PCI_MAX_TX_QUEUE_COUNT; i++) {
-		struct rtw_tx_ring *tx_ring = &pxmitpriv->tx_ring[i];
-
-		RTW_PRINT_SEL(m, "tx ring[%d] (%p)\n", i, tx_ring);
-		RTW_PRINT_SEL(m, "  dma: 0x%08x\n", (int) tx_ring->dma);
-		RTW_PRINT_SEL(m, "  idx: %d\n", tx_ring->idx);
-		RTW_PRINT_SEL(m, "  entries: %d\n", tx_ring->entries);
-		/*		RTW_PRINT_SEL(m, "  queue: %d\n", tx_ring->queue); */
-		RTW_PRINT_SEL(m, "  qlen: %d\n", tx_ring->qlen);
-
-		for (j = 0; j < pxmitpriv->txringcount[i]; j++) {
-#ifdef CONFIG_TRX_BD_ARCH
-			struct tx_buf_desc *entry = &tx_ring->buf_desc[j];
-			RTW_PRINT_SEL(m, "  buf_desc[%03d]: %p\n", j, entry);
-#else
-			struct tx_desc *entry = &tx_ring->desc[j];
-			RTW_PRINT_SEL(m, "  desc[%03d]: %p\n", j, entry);
-#endif
-
-			for (k = 0; k < sizeof(*entry) / 4; k++) {
-				if ((k % 4) == 0)
-					RTW_PRINT_SEL(m, "  0x%03x", k);
-
-				RTW_PRINT_SEL(m, " 0x%08x ", ((int *) entry)[k]);
-
-				if ((k % 4) == 3)
-					RTW_PRINT_SEL(m, "\n");
-			}
-		}
-	}
-	_exit_critical(&pdvobjpriv->irq_th_lock, &irqL);
-
-	return 0;
-}
-
-#ifdef DBG_TXBD_DESC_DUMP
-int proc_get_tx_ring_ext(struct seq_file *m, void *v)
-{
-	_irqL irqL;
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *) rtw_netdev_priv(dev);
-	struct dvobj_priv *pdvobjpriv = adapter_to_dvobj(padapter);
-	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
-	struct rtw_tx_desc_backup *pbuf;
-	int i, j, k, idx;
-
-	RTW_PRINT_SEL(m, "<<<< tx ring ext dump settings >>>>\n");
-	RTW_PRINT_SEL(m, " - backup frame num: %d\n", TX_BAK_FRMAE_CNT);
-	RTW_PRINT_SEL(m, " - backup max. desc size: %d bytes\n", TX_BAK_DESC_LEN);
-	RTW_PRINT_SEL(m, " - backup data size: %d bytes\n\n", TX_BAK_DATA_LEN);
-
-	if (!pxmitpriv->dump_txbd_desc) {
-		RTW_PRINT_SEL(m, "Dump function is disabled.\n");
-		return 0;
-	}
-
-	_enter_critical(&pdvobjpriv->irq_th_lock, &irqL);
-	for (i = 0; i < HW_QUEUE_ENTRY; i++) {
-		struct rtw_tx_ring *tx_ring = &pxmitpriv->tx_ring[i];
-
-		idx = rtw_get_tx_desc_backup(padapter, i, &pbuf);
-
-		RTW_PRINT_SEL(m, "Tx ring[%d]", i);
-		switch (i) {
-		case 0:
-			RTW_PRINT_SEL(m, " (VO)\n");
-			break;
-		case 1:
-			RTW_PRINT_SEL(m, " (VI)\n");
-			break;
-		case 2:
-			RTW_PRINT_SEL(m, " (BE)\n");
-			break;
-		case 3:
-			RTW_PRINT_SEL(m, " (BK)\n");
-			break;
-		case 4:
-			RTW_PRINT_SEL(m, " (BCN)\n");
-			break;
-		case 5:
-			RTW_PRINT_SEL(m, " (MGT)\n");
-			break;
-		case 6:
-			RTW_PRINT_SEL(m, " (HIGH)\n");
-			break;
-		case 7:
-			RTW_PRINT_SEL(m, " (TXCMD)\n");
-			break;
-		default:
-			RTW_PRINT_SEL(m, " (?)\n");
-			break;
-		}
-
-		RTW_PRINT_SEL(m, "  Entries: %d\n", TX_BAK_FRMAE_CNT);
-		RTW_PRINT_SEL(m, "  Last idx: %d\n", idx);
-
-		for (j = 0; j < TX_BAK_FRMAE_CNT; j++) {
-			RTW_PRINT_SEL(m, "  desc[%03d]:\n", j);
-
-			for (k = 0; k < (pbuf->tx_desc_size) / 4; k++) {
-				if ((k % 4) == 0)
-					RTW_PRINT_SEL(m, "  0x%03x", k);
-
-				RTW_PRINT_SEL(m, " 0x%08x ", ((int *)pbuf->tx_bak_desc)[k]);
-
-				if ((k % 4) == 3)
-					RTW_PRINT_SEL(m, "\n");
-			}
-
-			if (pbuf->tx_desc_size) {
-				RTW_PRINT_SEL(m, "  data[%03d]:\n", j);
-
-				for (k = 0; k < (TX_BAK_DATA_LEN) / 4; k++) {
-					if ((k % 4) == 0)
-						RTW_PRINT_SEL(m, "  0x%03x", k);
-
-					RTW_PRINT_SEL(m, " 0x%08x ", ((int *)pbuf->tx_bak_data_hdr)[k]);
-
-					if ((k % 4) == 3)
-						RTW_PRINT_SEL(m, "\n");
-				}
-				RTW_PRINT_SEL(m, "\n");
-			}
-
-			RTW_PRINT_SEL(m, "  R/W pointer: %d/%d\n", pbuf->tx_bak_rp, pbuf->tx_bak_wp);
-
-			pbuf = pbuf + 1;
-		}
-		RTW_PRINT_SEL(m, "\n");
-	}
-	_exit_critical(&pdvobjpriv->irq_th_lock, &irqL);
-
-	return 0;
-}
-
-ssize_t proc_set_tx_ring_ext(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	_irqL irqL;
-	struct net_device *dev = data;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
-	struct dvobj_priv *pdvobjpriv = adapter_to_dvobj(padapter);
-	char tmp[32];
-	u32 reset = 0;
-	u32 dump = 0;
-
-	if (count < 1)
-		return -EFAULT;
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		int num = sscanf(tmp, "%u %u", &dump, &reset);
-
-		if (num != 2) {
-			RTW_INFO("invalid parameter!\n");
-			return count;
-		}
-
-		_enter_critical(&pdvobjpriv->irq_th_lock, &irqL);
-		pxmitpriv->dump_txbd_desc = (BOOLEAN) dump;
-
-		if (reset == 1)
-			rtw_tx_desc_backup_reset();
-
-		_exit_critical(&pdvobjpriv->irq_th_lock, &irqL);
-
-	}
-
-	return count;
-}
-
-#endif
-
-#endif
 
 #ifdef CONFIG_WOWLAN
 int proc_get_pattern_info(struct seq_file *m, void *v)
@@ -6276,19 +5734,10 @@ int proc_get_ack_timeout(struct seq_file *m, void *v)
 	struct net_device *dev = m->private;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	u8 ack_timeout_val;
-#ifdef CONFIG_RTL8821C
-	u8 ack_timeout_val_cck;
-#endif
 
 	ack_timeout_val = rtw_read8(padapter, REG_ACKTO);
 
-#ifdef CONFIG_RTL8821C
-	ack_timeout_val_cck = rtw_read8(padapter, REG_ACKTO_CCK_8821C);
-	RTW_PRINT_SEL(m, "Current CCK packet ACK Timeout = %d us (0x%x).\n", ack_timeout_val_cck, ack_timeout_val_cck);
-	RTW_PRINT_SEL(m, "Current non-CCK packet ACK Timeout = %d us (0x%x).\n", ack_timeout_val, ack_timeout_val);
-#else
 	RTW_PRINT_SEL(m, "Current ACK Timeout = %d us (0x%x).\n", ack_timeout_val, ack_timeout_val);
-#endif
 
 	return 0;
 }
@@ -6308,28 +5757,14 @@ ssize_t proc_set_ack_timeout(struct file *file, const char __user *buffer, size_
 	if (buffer && !copy_from_user(tmp, buffer, count)) {
 		int num = sscanf(tmp, "%u %u", &ack_timeout_ms, &ack_timeout_ms_cck);
 
-#ifdef CONFIG_RTL8821C
-		if (num < 2) {
-			RTW_INFO(FUNC_ADPT_FMT ": input parameters < 2\n", FUNC_ADPT_ARG(padapter));
-			return -EINVAL;
-		}
-#else
 		if (num < 1) {
 			RTW_INFO(FUNC_ADPT_FMT ": input parameters < 1\n", FUNC_ADPT_ARG(padapter));
 			return -EINVAL;
 		}
-#endif
 		/* This register sets the Ack time out value after Tx unicast packet. It is in units of us. */
 		rtw_write8(padapter, REG_ACKTO, (u8)ack_timeout_ms);
 
-#ifdef CONFIG_RTL8821C
-		/* This register sets the Ack time out value after Tx unicast CCK packet. It is in units of us. */
-		rtw_write8(padapter, REG_ACKTO_CCK_8821C, (u8)ack_timeout_ms_cck);
-		RTW_INFO("Set CCK packet ACK Timeout to %d us.\n", ack_timeout_ms_cck);
-		RTW_INFO("Set non-CCK packet ACK Timeout to %d us.\n", ack_timeout_ms);
-#else
 		RTW_INFO("Set ACK Timeout to %d us.\n", ack_timeout_ms);
-#endif
 	}
 
 	return count;

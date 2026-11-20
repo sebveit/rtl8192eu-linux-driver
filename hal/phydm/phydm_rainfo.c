@@ -1007,11 +1007,6 @@ void phydm_ra_registed(void *dm_void, u8 sta_idx,
 		return;
 	}
 
-	#if (RTL8188E_SUPPORT == 1) && (RATE_ADAPTIVE_SUPPORT == 1)
-	if (dm->support_ic_type == ODM_RTL8188E)
-		ra->rate_id = phydm_get_rate_id_88e(dm, sta_idx);
-	else
-	#endif
 	{
 		ra->rate_id = phydm_get_rate_id(dm, sta_idx);
 	}
@@ -1032,13 +1027,6 @@ void phydm_ra_registed(void *dm_void, u8 sta_idx,
 	if (ra_t->record_ra_info)
 		ra_t->record_ra_info(dm, sta_idx, sta, ra_mask);
 
-	#if (RTL8188E_SUPPORT == 1) && (RATE_ADAPTIVE_SUPPORT == 1)
-	if (dm->support_ic_type == ODM_RTL8188E)
-		/*@Driver RA*/
-		phydm_ra_update_8188e(dm, sta_idx, ra->rate_id,
-				      (u32)ra_mask, ra->is_support_sgi);
-	else
-	#endif
 	{
 		/*@FW RA*/
 		phydm_ra_h2c(dm, sta_idx, ra->disable_ra, ra->disable_pt, 0,
@@ -1112,25 +1100,6 @@ void phydm_ra_mask_watchdog(void *dm_void)
 		rssi = (u8)(sta->rssi_stat.rssi);
 
 		/*@to be modified*/
-		#if ((RTL8812A_SUPPORT == 1) || (RTL8821A_SUPPORT == 1))
-		if (dm->support_ic_type == ODM_RTL8812 ||
-			(dm->support_ic_type == ODM_RTL8821 &&
-			 dm->cut_version == ODM_CUT_A)
-			) {
-			if (rssi < ra_t->ldpc_thres) {
-				/*@LDPC TX enable*/
-				set_ra_ldpc_8812(sta, true);
-				PHYDM_DBG(dm, DBG_RA_MASK,
-					  "RSSI=%d, ldpc_en =TRUE\n", rssi);
-
-			} else if (rssi > (ra_t->ldpc_thres + 3)) {
-				/*@LDPC TX disable*/
-				set_ra_ldpc_8812(sta, false);
-				PHYDM_DBG(dm, DBG_RA_MASK,
-					  "RSSI=%d, ldpc_en =FALSE\n", rssi);
-			}
-		}
-		#endif
 
 		rssi_lv_new = phydm_rssi_lv_dec(dm, (u32)rssi, ra->rssi_level);
 
@@ -1147,14 +1116,6 @@ void phydm_ra_mask_watchdog(void *dm_void)
 			if (ra_t->record_ra_info)
 				ra_t->record_ra_info(dm, sta_idx, sta, ra_mask);
 
-			#if (RTL8188E_SUPPORT) && (RATE_ADAPTIVE_SUPPORT)
-			if (dm->support_ic_type == ODM_RTL8188E)
-				/*@Driver RA*/
-				phydm_ra_update_8188e(dm, sta_idx, ra->rate_id,
-						      (u32)ra_mask,
-						      ra->is_support_sgi);
-			else
-			#endif
 			{
 				/*@FW RA*/
 				phydm_ra_h2c(dm, sta_idx, ra->disable_ra,
@@ -1494,14 +1455,6 @@ void phydm_ra_info_init(void *dm_void)
 	ra_tab->ra_th_ofst = 0;
 	ra_tab->ra_ofst_direc = 0;
 
-#if (RTL8822B_SUPPORT == 1)
-	if (dm->support_ic_type == ODM_RTL8822B) {
-		u32 ret_value;
-
-		ret_value = odm_get_bb_reg(dm, R_0x4c8, MASKBYTE2);
-		odm_set_bb_reg(dm, R_0x4cc, MASKBYTE3, (ret_value - 1));
-	}
-#endif
 
 
 

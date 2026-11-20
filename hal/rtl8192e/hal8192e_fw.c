@@ -18,7 +18,6 @@
 *
 ******************************************************************************/
 
-#ifdef CONFIG_RTL8192E
 
 #include "drv_types.h"
 
@@ -14511,4 +14510,3 @@ u32 array_length_mp_8192e_fw_wowlan = 29008;
 
 #endif /* end of LOAD_FW_HEADER_FROM_DRIVER */
 
-#endif

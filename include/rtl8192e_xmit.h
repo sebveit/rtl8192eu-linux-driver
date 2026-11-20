@@ -317,13 +317,8 @@ typedef struct txdescriptor_8192e {
 #define SET_TX_DESC_ANTSEL_D_92E(__pTxDesc, __Value) SET_BITS_TO_LE_4BYTE(__pTxDesc+24, 25, 3, __Value)
 
 /* Dword 7 */
-#ifdef CONFIG_PCI_HCI
-	#define SET_TX_DESC_TX_BUFFER_SIZE_92E(__pTxDesc, __Value)		SET_BITS_TO_LE_4BYTE(__pTxDesc+28, 0, 16, __Value)
-#endif
 
-#if defined(CONFIG_SDIO_HCI) || defined(CONFIG_USB_HCI)
 	#define SET_TX_DESC_TX_DESC_CHECKSUM_92E(__pTxDesc, __Value) SET_BITS_TO_LE_4BYTE(__pTxDesc+28, 0, 16, __Value)
-#endif
 #define SET_TX_DESC_USB_TXAGG_NUM_92E(__pTxDesc, __Value) SET_BITS_TO_LE_4BYTE(__pTxDesc+28, 24, 8, __Value)
 
 
@@ -353,7 +348,6 @@ typedef struct txdescriptor_8192e {
 
 void rtl8192e_cal_txdesc_chksum(u8 *ptxdesc);
 
-#ifdef CONFIG_USB_HCI
 	s32 rtl8192eu_init_xmit_priv(PADAPTER padapter);
 	void rtl8192eu_free_xmit_priv(PADAPTER padapter);
 	s32 rtl8192eu_hal_xmit(PADAPTER padapter, struct xmit_frame *pxmitframe);
@@ -363,33 +357,8 @@ void rtl8192e_cal_txdesc_chksum(u8 *ptxdesc);
 	#define hal_xmit_handler rtl8192eu_xmit_buf_handler
 	void rtl8192eu_xmit_tasklet(struct tasklet_struct *t);
 	s32 rtl8192eu_xmitframe_complete(_adapter *padapter, struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf);
-#endif
 
-#ifdef CONFIG_PCI_HCI
-	s32 rtl8192ee_init_xmit_priv(PADAPTER padapter);
-	void rtl8192ee_free_xmit_priv(PADAPTER padapter);
-	struct xmit_buf *rtl8192ee_dequeue_xmitbuf(struct rtw_tx_ring *ring);
-	s32	rtl8192ee_hal_xmitframe_enqueue(_adapter *padapter, struct xmit_frame *pxmitframe);
-	void	rtl8192ee_xmitframe_resume(_adapter *padapter);
-	s32 rtl8192ee_hal_xmit(PADAPTER padapter, struct xmit_frame *pxmitframe);
-	s32 rtl8192ee_mgnt_xmit(PADAPTER padapter, struct xmit_frame *pmgntframe);
-	void rtl8192ee_xmit_tasklet(void *priv);
-#endif
 
-#if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-	s32 rtl8192es_init_xmit_priv(PADAPTER padapter);
-	void rtl8192es_free_xmit_priv(PADAPTER padapter);
-
-	s32 rtl8192es_hal_xmit(PADAPTER padapter, struct xmit_frame *pxmitframe);
-	s32 rtl8192es_mgnt_xmit(PADAPTER padapter, struct xmit_frame *pmgntframe);
-	s32	rtl8192es_hal_xmitframe_enqueue(_adapter *padapter, struct xmit_frame *pxmitframe);
-	thread_return rtl8192es_xmit_thread(thread_context context);
-	s32 rtl8192es_xmit_buf_handler(PADAPTER padapter);
-
-	#ifdef CONFIG_SDIO_TX_TASKLET
-		void rtl8192es_xmit_tasklet(void *priv);
-	#endif
-#endif
 
 struct txrpt_ccx_92e {
 	/* offset 0 */

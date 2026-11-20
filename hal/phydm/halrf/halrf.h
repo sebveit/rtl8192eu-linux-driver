@@ -30,21 +30,8 @@
 /*@include files*/
 /*@============================================================*/
 #include "halrf/halrf_psd.h"
-#if (RTL8822B_SUPPORT == 1)
-#include "halrf/rtl8822b/halrf_rfk_init_8822b.h"
-#endif
-#if (RTL8822C_SUPPORT == 1)
-#include "halrf/rtl8822c/halrf_rfk_init_8822c.h"
-#include "halrf/rtl8822c/halrf_iqk_8822c.h"
-#include "halrf/rtl8822c/halrf_tssi_8822c.h"
-#include "halrf/rtl8822c/halrf_dpk_8822c.h"
-#endif
 
 
-#if (RTL8814B_SUPPORT == 1)
-#include "halrf/rtl8814b/halrf_rfk_init_8814b.h"
-#include "halrf/rtl8814b/halrf_iqk_8814b.h"
-#endif
 
 /*@============================================================*/
 /*@Definition */
@@ -424,14 +411,6 @@ struct _hal_rf_ {
 /*@ function prototype */
 /*@============================================================*/
 
-#if (RTL8822B_SUPPORT == 1 || RTL8821C_SUPPORT == 1 ||\
-	RTL8195B_SUPPORT == 1 || RTL8198F_SUPPORT == 1 ||\
-	RTL8814B_SUPPORT == 1 || RTL8822C_SUPPORT == 1)
-void halrf_iqk_info_dump(void *dm_void, u32 *_used, char *output,
-			 u32 *_out_len);
-
-void halrf_iqk_hwtx_check(void *dm_void, boolean is_check);
-#endif
 
 u8 halrf_match_iqk_version(void *dm_void);
 
@@ -514,11 +493,6 @@ void halrf_swap(void *dm_void, u32 *v1, u32 *v2);
 enum hal_status
 halrf_config_rfk_with_header_file(void *dm_void, u32 config_type);
 
-#if (RTL8822B_SUPPORT == 1 || RTL8821C_SUPPORT == 1 ||\
-	RTL8195B_SUPPORT == 1 || RTL8198F_SUPPORT == 1 ||\
-	RTL8814B_SUPPORT == 1  || RTL8822C_SUPPORT == 1)
-void halrf_iqk_dbg(void *dm_void);
-#endif
 
 void halrf_tssi_init(void *dm_void);
 

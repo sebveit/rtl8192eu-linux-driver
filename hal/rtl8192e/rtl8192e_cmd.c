@@ -401,13 +401,11 @@ void rtl8192e_download_rsvd_page(PADAPTER padapter, u8 mstatus)
 
 		/* Do not enable HW DMA BCN or it will cause Pcie interface hang by timing issue. 2011.11.24. by tynli. */
 		/* if(!padapter->bEnterPnpSleep) */
-#ifndef CONFIG_PCI_HCI
 		{
 			/* Clear CR[8] or beacon packet will not be send to TxBuf anymore. */
 			rtw_write8(padapter,  REG_CR + 1,
 				rtw_read8(padapter,  REG_CR + 1) & (~BIT0));
 		}
-#endif /* !CONFIG_PCI_HCI */
 	}
 }
 void rtl8192e_set_FwJoinBssReport_cmd(PADAPTER padapter, u8 mstatus)

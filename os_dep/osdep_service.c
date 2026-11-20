@@ -205,7 +205,6 @@ void _rtw_skb_queue_purge(struct sk_buff_head *list)
 		_rtw_skb_free(skb);
 }
 
-#ifdef CONFIG_USB_HCI
 inline void *_rtw_usb_buffer_alloc(struct usb_device *dev, size_t size, dma_addr_t *dma)
 {
 	return usb_alloc_coherent(dev, size, (in_interrupt() ? GFP_ATOMIC : GFP_KERNEL), dma);
@@ -216,7 +215,6 @@ inline void _rtw_usb_buffer_free(struct usb_device *dev, size_t size, void *addr
 	usb_free_coherent(dev, size, addr, dma);
 
 }
-#endif /* CONFIG_USB_HCI */
 
 #if defined(DBG_MEM_ALLOC)
 
@@ -634,7 +632,6 @@ inline void dbg_rtw_skb_queue_purge(struct sk_buff_head *list, enum mstat_f flag
 		dbg_rtw_skb_free(skb, flags, func, line);
 }
 
-#ifdef CONFIG_USB_HCI
 inline void *dbg_rtw_usb_buffer_alloc(struct usb_device *dev, size_t size, dma_addr_t *dma, const enum mstat_f flags, const char *func, int line)
 {
 	void *p;
@@ -667,7 +664,6 @@ inline void dbg_rtw_usb_buffer_free(struct usb_device *dev, size_t size, void *a
 		, size
 	);
 }
-#endif /* CONFIG_USB_HCI */
 
 #endif /* defined(DBG_MEM_ALLOC) */
 

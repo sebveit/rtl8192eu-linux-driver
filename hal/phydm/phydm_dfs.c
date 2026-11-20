@@ -53,11 +53,6 @@ void phydm_radar_detect_reset(void *dm_void)
 	if (dm->support_ic_type & ODM_IC_JGR3_SERIES) {
 		odm_set_bb_reg(dm, R_0xa40, BIT(15), 0);
 		odm_set_bb_reg(dm, R_0xa40, BIT(15), 1);
-	#if (RTL8721D_SUPPORT)
-	} else if (dm->support_ic_type & (ODM_RTL8721D)) {
-		odm_set_bb_reg(dm, R_0xf58, BIT(29), 0);
-		odm_set_bb_reg(dm, R_0xf58, BIT(29), 1);
-	#endif
 	} else {
 		odm_set_bb_reg(dm, R_0x924, BIT(15), 0);
 		odm_set_bb_reg(dm, R_0x924, BIT(15), 1);
@@ -70,10 +65,6 @@ void phydm_radar_detect_disable(void *dm_void)
 
 	if (dm->support_ic_type & ODM_IC_JGR3_SERIES)
 		odm_set_bb_reg(dm, R_0xa40, BIT(15), 0);
-	#if (RTL8721D_SUPPORT)
-	else if (dm->support_ic_type & (ODM_RTL8721D))
-		odm_set_bb_reg(dm, R_0xf58, BIT(29), 0);
-	#endif
 	else
 		odm_set_bb_reg(dm, R_0x924, BIT(15), 0);
 
@@ -384,70 +375,6 @@ void phydm_radar_detect_enable(void *dm_void)
 		}
 	} else if (dm->support_ic_type &
 		   ODM_IC_JGR3_SERIES) {
-	#if (RTL8721D_SUPPORT)
-	} else if (dm->support_ic_type & ODM_RTL8721D) {
-		odm_set_bb_reg(dm, R_0x814, 0x3fffffff, 0x04cc4d10);
-		/*CCA MASK*/
-		odm_set_bb_reg(dm, R_0xc38, 0x07c00000, 0x06);
-		/*CCA Threshold*/
-		odm_set_bb_reg(dm, R_0xc3c, 0x00000007, 0x0);
-
-		if (dm->radar_detect_dbg_parm_en) {
-			phydm_radar_detect_with_dbg_parm(dm);
-			enable = 1;
-			goto exit;
-		}
-
-		if (region_domain == PHYDM_DFS_DOMAIN_ETSI) {
-			odm_set_bb_reg(dm, R_0xf54, MASKDWORD, 0x230006a8);
-			odm_set_bb_reg(dm, R_0xf58, MASKDWORD, 0x354cd7dd);
-			odm_set_bb_reg(dm, R_0xf5c, MASKDWORD, 0x9984ab25);
-			odm_set_bb_reg(dm, R_0xf70, MASKDWORD, 0xbd9fab98);
-			odm_set_bb_reg(dm, R_0xf74, MASKDWORD, 0xcc45029f);
-
-		} else if (region_domain == PHYDM_DFS_DOMAIN_MKK) {
-			odm_set_bb_reg(dm, R_0xf54, MASKDWORD, 0x230006a8);
-			odm_set_bb_reg(dm, R_0xf5c, MASKDWORD, 0x9984ab25);
-			odm_set_bb_reg(dm, R_0xf70, MASKDWORD, 0xbd9fb398);
-			odm_set_bb_reg(dm, R_0xf74, MASKDWORD, 0xcc450e9d);
-
-			if (c_channel >= 52 && c_channel <= 64) {
-				odm_set_bb_reg(dm, R_0xf58, MASKDWORD,
-					       0x354cd7fd);
-			} else {
-				odm_set_bb_reg(dm, R_0xf58, MASKDWORD,
-					       0x354cd7bd);
-			}
-		} else if (region_domain == PHYDM_DFS_DOMAIN_FCC) {
-			odm_set_bb_reg(dm, R_0xf54, MASKDWORD, 0x230006a8);
-			odm_set_bb_reg(dm, R_0xf58, MASKDWORD, 0x3558d7bd);
-			odm_set_bb_reg(dm, R_0xf5c, MASKDWORD, 0x9984ab35);
-			odm_set_bb_reg(dm, R_0xf70, MASKDWORD, 0xbd9fb398);
-			odm_set_bb_reg(dm, R_0xf74, MASKDWORD, 0xcc444e9d);
-		} else {
-			/* not supported */
-			PHYDM_DBG(dm, DBG_DFS,
-				  "Unsupported dfs_region_domain:%d\n",
-				  region_domain);
-			goto exit;
-		}
-
-		/*if peak index -1~+1, use original NB method*/
-		odm_set_bb_reg(dm, R_0xf70, 0x00070000, 0x7);
-		odm_set_bb_reg(dm, R_0xf74, 0x000c0000, 0);
-
-		/*Turn off dfs scaling factor*/
-		odm_set_bb_reg(dm, R_0xf70, 0x00080000, 0x0);
-		/*NonDC peak_th = 2times DC peak_th*/
-		odm_set_bb_reg(dm, R_0xf58, 0x00007800, 1);
-
-		/*low pulse width radar pattern will cause wrong drop*/
-		/*disable peak index should the same*/
-		/*during the same short pulse (new mechan)*/
-		odm_set_bb_reg(dm, R_0xf70, 0x00100000, 0x0);
-		/*if peak index diff >=2, then drop the result*/
-		odm_set_bb_reg(dm, R_0xf70, 0x30000000, 0x2);
-	#endif
 	} else {
 		/*not supported IC type*/
 		PHYDM_DBG(dm, DBG_DFS, "Unsupported IC type:%d\n",
@@ -470,23 +397,6 @@ void phydm_radar_detect_enable(void *dm_void)
 							 0x30000000);
 		dfs->three_peak_th2 = (u8)odm_get_bb_reg(dm, R_0xa44,
 							 0x00000007);
-	#if (RTL8721D_SUPPORT)
-	} else if (dm->support_ic_type & (ODM_RTL8721D)) {
-		dfs->st_l2h_cur = (u8)odm_get_bb_reg(dm, R_0xf54,
-						     0x0000001f) << 2);
-		dfs->st_l2h_cur += (u8)odm_get_bb_reg(dm, R_0xf58, 0xc0000000);
-		dfs->pwdb_th_cur = (u8)odm_get_bb_reg(dm, R_0xf70, 0x03c00000);
-		dfs->peak_th = (u8)odm_get_bb_reg(dm, R_0xf5c, 0x00000030);
-		dfs->short_pulse_cnt_th = (u8)odm_get_bb_reg(dm, R_0xf70,
-							     0x00007800);
-		dfs->long_pulse_cnt_th = (u8)odm_get_bb_reg(dm, R_0xf74,
-							    0x0000000f);
-		dfs->peak_window = (u8)odm_get_bb_reg(dm, R_0xf58, 0x18000000);
-		dfs->three_peak_opt = (u8)odm_get_bb_reg(dm, R_0xf58,
-							 0x00030000);
-		dfs->three_peak_th2 = (u8)odm_get_bb_reg(dm,
-							 R_0xf58, 0x00007c00);
-	#endif
 	} else {
 		dfs->st_l2h_cur = (u8)odm_get_bb_reg(dm, R_0x91c, 0x000000ff);
 		dfs->pwdb_th_cur = (u8)odm_get_bb_reg(dm, R_0x918, 0x00001f00);
@@ -672,26 +582,6 @@ void phydm_dfs_dynamic_setting(
 		if (dfs->three_peak_th2 != three_peak_th2_cur)
 			odm_set_bb_reg(dm, R_0xa44, 0x00000007,
 				       three_peak_th2_cur);
-	#if (RTL8721D_SUPPORT)
-	} else if (dm->support_ic_type & (ODM_RTL8721D)) {
-		if (dfs->peak_th != peak_th_cur)
-			odm_set_bb_reg(dm, R_0xf5c, 0x00000030, peak_th_cur);
-		if (dfs->short_pulse_cnt_th != short_pulse_cnt_th_cur)
-			odm_set_bb_reg(dm, R_0xf70, 0x00007800,
-				       short_pulse_cnt_th_cur);
-		if (dfs->long_pulse_cnt_th != long_pulse_cnt_th_cur)
-			odm_set_bb_reg(dm, R_0xf74, 0x0000000f,
-				       long_pulse_cnt_th_cur);
-		if (dfs->peak_window != peak_window_cur)
-			odm_set_bb_reg(dm, R_0xf58, 0x18000000,
-				       peak_window_cur);
-		if (dfs->three_peak_opt != three_peak_opt_cur)
-			odm_set_bb_reg(dm, R_0xf58, 0x00030000,
-				       three_peak_opt_cur);
-		if (dfs->three_peak_th2 != three_peak_th2_cur)
-			odm_set_bb_reg(dm, R_0xf58, 0x00007c00,
-				       three_peak_th2_cur);
-	#endif
 	} else {
 		if (dfs->peak_th != peak_th_cur)
 			odm_set_bb_reg(dm, R_0x918, 0x00030000, peak_th_cur);
@@ -743,11 +633,6 @@ phydm_radar_detect_dm_check(
 	u32 regdf4_value = 0, regf70_value = 0, regf74_value = 0;
 	u32 rega40_value = 0, rega44_value = 0, rega48_value = 0;
 	u32 rega4c_value = 0, rega50_value = 0, rega54_value = 0;
-	#if (RTL8721D_SUPPORT)
-	u32 reg908_value = 0, regdf4_value = 0;
-	u32 regf54_value = 0, regf58_value = 0, regf5c_value = 0;
-	u32 regf70_value = 0, regf74_value = 0;
-	#endif
 	boolean tri_short_pulse = 0, tri_long_pulse = 0, radar_type = 0;
 	boolean fault_flag_det = 0, fault_flag_psd = 0, fa_flag = 0;
 	boolean radar_detected = 0;
@@ -757,28 +642,6 @@ phydm_radar_detect_dm_check(
 	/*@Get FA count during past 100ms, R_0xf48 for AC series*/
 	if (dm->support_ic_type & ODM_IC_JGR3_SERIES)
 		fa_count_cur = (u16)odm_get_bb_reg(dm, R_0x2d00, MASKLWORD);
-	#if (RTL8721D_SUPPORT)
-	else if (dm->support_ic_type & (ODM_RTL8721D)) {
-		fa_count_cur = (u16)odm_get_bb_reg(dm,
-						   ODM_REG_OFDM_FA_TYPE2_11N,
-						   MASKHWORD);
-		fa_count_cur += (u16)odm_get_bb_reg(dm,
-						    ODM_REG_OFDM_FA_TYPE3_11N,
-						    MASKLWORD);
-		fa_count_cur += (u16)odm_get_bb_reg(dm,
-						    ODM_REG_OFDM_FA_TYPE3_11N,
-						    MASKHWORD);
-		fa_count_cur += (u16)odm_get_bb_reg(dm,
-						    ODM_REG_OFDM_FA_TYPE4_11N,
-						    MASKLWORD);
-		fa_count_cur += (u16)odm_get_bb_reg(dm,
-						    ODM_REG_OFDM_FA_TYPE1_11N,
-						    MASKLWORD);
-		fa_count_cur += (u16)odm_get_bb_reg(dm,
-						    ODM_REG_OFDM_FA_TYPE1_11N,
-						    MASKHWORD);
-	}
-	#endif
 	else
 		fa_count_cur = (u16)odm_get_bb_reg(dm, R_0xf48, 0x0000ffff);
 
@@ -818,10 +681,6 @@ phydm_radar_detect_dm_check(
 	/*@Get VHT CRC32 ok count during past 100ms*/
 	if (dm->support_ic_type & ODM_IC_JGR3_SERIES)
 		vht_crc_ok_cnt_cur = (u16)odm_get_bb_reg(dm, R_0x2c0c, 0xffff);
-	#if (RTL8721D_SUPPORT)
-	else if (dm->support_ic_type & ODM_RTL8721D)
-		vht_crc_ok_cnt_cur = 0;
-	#endif
 	else
 		vht_crc_ok_cnt_cur = (u16)odm_get_bb_reg(dm, R_0xf0c,
 							 0x00003fff);
@@ -837,10 +696,6 @@ phydm_radar_detect_dm_check(
 	/*@Get HT CRC32 ok count during past 100ms*/
 	if (dm->support_ic_type & ODM_IC_JGR3_SERIES)
 		ht_crc_ok_cnt_cur = (u16)odm_get_bb_reg(dm, R_0x2c10, 0xffff);
-	#if (RTL8721D_SUPPORT)
-	else if (dm->support_ic_type & (ODM_RTL8721D))
-		ht_crc_ok_cnt_cur = (u16)odm_get_bb_reg(dm, R_0xf90, MASKLWORD);
-	#endif
 	else
 		ht_crc_ok_cnt_cur = (u16)odm_get_bb_reg(dm, R_0xf10,
 							0x00003fff);
@@ -854,11 +709,6 @@ phydm_radar_detect_dm_check(
 	/*@Get Legacy CRC32 ok count during past 100ms*/
 	if (dm->support_ic_type & ODM_IC_JGR3_SERIES)
 		leg_crc_ok_cnt_cur = (u16)odm_get_bb_reg(dm, R_0x2c14, 0xffff);
-	#if (RTL8721D_SUPPORT)
-	else if (dm->support_ic_type & ODM_RTL8721D)
-		leg_crc_ok_cnt_cur = (u16)odm_get_bb_reg(dm,
-							 R_0xf94, MASKLWORD);
-	#endif
 	else
 		leg_crc_ok_cnt_cur = (u16)odm_get_bb_reg(dm, R_0xf14,
 							 0x00003fff);
@@ -875,14 +725,6 @@ phydm_radar_detect_dm_check(
 			leg_crc_ok_cnt_cur == 0xffff) {
 			phydm_reset_bb_hw_cnt(dm);
 		}
-	#if (RTL8721D_SUPPORT)
-	} else if (dm->support_ic_type & (ODM_RTL8721D)) {
-		if (ht_crc_ok_cnt_cur == 0xffff ||
-		    leg_crc_ok_cnt_cur == 0xffff) {
-			odm_set_bb_reg(dm, R_0xf14, BIT(16), 1);
-			odm_set_bb_reg(dm, R_0xf14, BIT(16), 0);
-		}
-	#endif
 	} else {
 		if (vht_crc_ok_cnt_cur == 0x3fff ||
 		    ht_crc_ok_cnt_cur == 0x3fff ||
@@ -905,21 +747,6 @@ phydm_radar_detect_dm_check(
 					    >> 11);
 		long_pulse_cnt_cur = (u16)((dbgport2dbc_value & 0x0fc00000)
 					    >> 22);
-	#if (RTL8721D_SUPPORT)
-	} else if (dm->support_ic_type & (ODM_RTL8721D)) {
-		reg908_value = (u32)odm_get_bb_reg(dm, R_0x908, MASKDWORD);
-		odm_set_bb_reg(dm, R_0x908, MASKDWORD, 0x254);
-		regdf4_value = odm_get_bb_reg(dm, R_0xdf4, MASKDWORD);
-		short_pulse_cnt_cur = (u16)((regdf4_value & 0x000ff000) >> 12);
-		long_pulse_cnt_cur = (u16)((regdf4_value & 0x0fc00000) >> 22);
-
-		tri_short_pulse = (regdf4_value & BIT(20)) ? 1 : 0;
-		tri_long_pulse = (regdf4_value & BIT(28)) ? 1 : 0;
-		if (tri_short_pulse || tri_long_pulse) {
-			odm_set_bb_reg(dm, R_0xf58, BIT(29), 0);
-			odm_set_bb_reg(dm, R_0xf58, BIT(29), 1);
-		}
-	#endif
 	} else {
 		regf98_value = odm_get_bb_reg(dm, R_0xf98, 0xffffffff);
 		short_pulse_cnt_cur = (u16)(regf98_value & 0x000000ff);
@@ -1150,16 +977,6 @@ phydm_radar_detect_dm_check(
 		if (dm->support_ic_type & ODM_IC_JGR3_SERIES)
 			odm_set_bb_reg(dm, R_0xa50, 0x000000f0,
 				       dfs->pwdb_th_cur);
-		#if (RTL8721D_SUPPORT)
-		else if (dm->support_ic_type & ODM_RTL8721D) {
-			odm_set_bb_reg(dm, R_0xf54, 0x0000001f,
-				       ((dfs->st_l2h_cur & 0x0000007c) >> 2));
-			odm_set_bb_reg(dm, R_0xf58, 0xc0000000,
-				       (dfs->st_l2h_cur & 0x00000003));
-			odm_set_bb_reg(dm, R_0xf70, 0x03c00000,
-				       dfs->pwdb_th_cur);
-		}
-		#endif
 		else
 			odm_set_bb_reg(dm, R_0x918, 0x00001f00,
 				       dfs->pwdb_th_cur);
@@ -1170,10 +987,6 @@ phydm_radar_detect_dm_check(
 			  "fault_flag_det[%d], fault_flag_psd[%d], DFS_detected [%d]\n",
 			  fault_flag_det, fault_flag_psd, radar_detected);
 	}
-	#if (RTL8721D_SUPPORT)
-	if (dm->support_ic_type & (ODM_RTL8721D))
-		odm_set_bb_reg(dm, R_0x908, MASKDWORD, reg908_value);
-	#endif
 
 	return radar_detected;
 }
@@ -1206,10 +1019,6 @@ void phydm_dfs_histogram_radar_distinguish(
 	u32 pri_sum_g0g5 = 0, pri_sum_g1g2g3g4 = 0;
 	u32 pw_sum_ss_g1g2g3g4 = 0, pri_sum_ss_g1g2g3g4 = 0;
 	u32 max_pri_cnt = 0, max_pw_cnt = 0;
-	#if (RTL8721D_SUPPORT)
-	if (dm->support_ic_type & (ODM_RTL8721D))
-		return;
-	#endif
 
 	/*read peak index hist report*/
 	odm_set_bb_reg(dm, 0x19e4, BIT(22) | BIT(23), 0x0);
@@ -1888,12 +1697,6 @@ boolean phydm_radar_detect(void *dm_void)
 	if (dm->support_ic_type & ODM_IC_JGR3_SERIES) {
 		dfs->igi_cur = (u8)odm_get_bb_reg(dm, R_0x1d70, 0x0000007f);
 		dfs->st_l2h_cur = (u8)odm_get_bb_reg(dm, R_0xa40, 0x00007f00);
-	#if (RTL8721D_SUPPORT)
-	} else if (dm->support_ic_type & (ODM_RTL8721D)) {
-		dfs->st_l2h_cur = (u8)(odm_get_bb_reg(dm, R_0xf54,
-						      0x0000001f) << 2);
-		dfs->st_l2h_cur += (u8)odm_get_bb_reg(dm, R_0xf58, 0xc0000000);
-	#endif
 	} else {
 		dfs->igi_cur = (u8)odm_get_bb_reg(dm, R_0xc50, 0x0000007f);
 		dfs->st_l2h_cur = (u8)odm_get_bb_reg(dm, R_0x91c, 0x000000ff);
@@ -1912,11 +1715,6 @@ boolean phydm_radar_detect(void *dm_void)
 		if (dm->support_ic_type & ODM_IC_JGR3_SERIES)
 			odm_set_bb_reg(dm, R_0xa50, 0x000000f0,
 				       dfs->pwdb_th_cur);
-		#if (RTL8721D_SUPPORT)
-		else if (dm->support_ic_type & (ODM_RTL8721D))
-			odm_set_bb_reg(dm, R_0xf70, 0x03c00000,
-				       dfs->pwdb_th_cur);
-		#endif
 		else
 			odm_set_bb_reg(dm, R_0x918, 0x00001f00,
 				       dfs->pwdb_th_cur);
@@ -1931,11 +1729,6 @@ boolean phydm_radar_detect(void *dm_void)
 	if (dm->support_ic_type & ODM_IC_JGR3_SERIES) {
 		if (odm_get_bb_reg(dm, R_0xa40, BIT(15)))
 			enable_DFS = true;
-	#if (RTL8721D_SUPPORT)
-	} else if (dm->support_ic_type & (ODM_RTL8721D)) {
-		if (odm_get_bb_reg(dm, R_0xf58, BIT(29)))
-			enable_DFS = true;
-	#endif
 	} else {
 		if (odm_get_bb_reg(dm, R_0x924, BIT(15)))
 			enable_DFS = true;

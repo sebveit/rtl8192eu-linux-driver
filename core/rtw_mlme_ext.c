@@ -7953,9 +7953,6 @@ void issue_beacon(_adapter *padapter, int timeout_ms)
 		pattrib->pktlen += rtw_build_vendor_ie(padapter , &pframe , WIFI_BEACON_VENDOR_IE_BIT);
 #endif
 
-#ifdef CONFIG_RTL8812A 
-		pframe = rtw_hal_set_8812a_vendor_ie(padapter, pframe, &pattrib->pktlen );
-#endif/*CONFIG_RTL8812A*/
 
 		goto _issue_bcn;
 
@@ -8304,9 +8301,6 @@ void issue_probersp(_adapter *padapter, unsigned char *da, u8 is_valid_p2p_probe
 	}
 #endif /* CONFIG_AUTO_AP_MODE */
 
-#ifdef CONFIG_RTL8812A 
-	pframe = rtw_hal_set_8812a_vendor_ie(padapter, pframe, &pattrib->pktlen);
-#endif/*CONFIG_RTL8812A*/
 
 	pattrib->last_txcmdsz = pattrib->pktlen;
 
@@ -8438,9 +8432,6 @@ int _issue_probereq(_adapter *padapter, const NDIS_802_11_SSID *pssid, const u8 
 	pattrib->pktlen += rtw_build_vendor_ie(padapter , &pframe , WIFI_PROBEREQ_VENDOR_IE_BIT);
 #endif
 
-#ifdef CONFIG_RTL8812A 
-	pframe = rtw_hal_set_8812a_vendor_ie(padapter, pframe, &pattrib->pktlen );
-#endif/*CONFIG_RTL8812A*/
 
 
 	pattrib->last_txcmdsz = pattrib->pktlen;
@@ -8879,9 +8870,6 @@ void issue_asocrsp(_adapter *padapter, unsigned short status, struct sta_info *p
 	pattrib->pktlen += rtw_build_vendor_ie(padapter , &pframe , WIFI_ASSOCRESP_VENDOR_IE_BIT);
 #endif
 
-#ifdef CONFIG_RTL8812A 
-	pframe = rtw_hal_set_8812a_vendor_ie(padapter, pframe, &pattrib->pktlen );
-#endif/*CONFIG_RTL8812A*/
 
 
 	pattrib->last_txcmdsz = pattrib->pktlen;
@@ -9328,9 +9316,6 @@ void _issue_assocreq(_adapter *padapter, u8 is_reassoc)
 	pattrib->pktlen += rtw_build_vendor_ie(padapter , &pframe , WIFI_ASSOCREQ_VENDOR_IE_BIT);
 #endif
 
-#ifdef CONFIG_RTL8812A 
-	pframe = rtw_hal_set_8812a_vendor_ie(padapter, pframe, &pattrib->pktlen );
-#endif/*CONFIG_RTL8812A*/
 
 #ifdef CONFIG_RTW_80211R
 	rtw_ft_build_assoc_req_ies(padapter, is_reassoc, pattrib, &pframe);
@@ -10024,11 +10009,7 @@ static int issue_action_ba(_adapter *padapter, unsigned char *raddr, unsigned ch
 			} while (pmlmeinfo->dialogToken == 0);
 			pframe = rtw_set_fixed_ie(pframe, 1, &(pmlmeinfo->dialogToken), &(pattrib->pktlen));
 
-#if defined(CONFIG_RTL8188E) && defined(CONFIG_SDIO_HCI)
-			BA_para_set = (0x0802 | ((tid & 0xf) << 2)); /* immediate ack & 16 buffer size */
-#else
 			BA_para_set = (0x1002 | ((tid & 0xf) << 2)); /* immediate ack & 64 buffer size */
-#endif
 
 #ifdef CONFIG_TX_AMSDU
 			if (padapter->tx_amsdu >= 1) /* TX AMSDU  enabled */
@@ -10670,49 +10651,8 @@ unsigned int send_delba(_adapter *padapter, u8 initiator, u8 *addr)
 
 unsigned int send_beacon(_adapter *padapter)
 {
-#if defined(CONFIG_PCI_HCI) && !defined(CONFIG_PCI_BCN_POLLING)
-	#ifdef CONFIG_FW_HANDLE_TXBCN
-	u8 vap_id = padapter->vap_id;
-
-	/* bypass TX BCN because vap_id is invalid*/
-	if (vap_id == CONFIG_LIMITED_AP_NUM)
-		return _SUCCESS;
-	#endif
-
-	/* bypass TX BCN queue because op ch is switching/waiting */
-	if (check_fwstate(&padapter->mlmepriv, WIFI_OP_CH_SWITCHING)
-		|| IS_CH_WAITING(adapter_to_rfctl(padapter))
-	)
-		return _SUCCESS;
-
-	/* RTW_INFO("%s\n", __FUNCTION__); */
-
-	rtw_hal_set_hwreg(padapter, HW_VAR_BCN_VALID, NULL);
-
-	/* 8192EE Port select for Beacon DL */
-	rtw_hal_set_hwreg(padapter, HW_VAR_DL_BCN_SEL, NULL);
-	#ifdef CONFIG_FW_HANDLE_TXBCN
-	rtw_hal_set_hwreg(padapter, HW_VAR_BCN_HEAD_SEL, &vap_id);
-	#endif
-
-	issue_beacon(padapter, 0);
-
-	#ifdef CONFIG_FW_HANDLE_TXBCN
-	vap_id = 0xFF;
-	rtw_hal_set_hwreg(padapter, HW_VAR_BCN_HEAD_SEL, &vap_id);
-	#endif
-
-	#ifdef RTL8814AE_SW_BCN
-	if (GET_HAL_DATA(padapter)->bCorrectBCN != 0)
-		RTW_INFO("%s, line%d, Warnning, pHalData->bCorrectBCN != 0\n", __func__, __LINE__);
-	GET_HAL_DATA(padapter)->bCorrectBCN = 1;
-	#endif
-
-	return _SUCCESS;
-#endif
 
 /* CONFIG_PCI_BCN_POLLING is for pci interface beacon polling mode */
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)|| defined(CONFIG_PCI_BCN_POLLING) 
 	u8 bxmitok = _FALSE;
 	int issue = 0;
 	int poll = 0;
@@ -10731,14 +10671,6 @@ unsigned int send_beacon(_adapter *padapter)
 	)
 		return _SUCCESS;
 
-	#if defined(CONFIG_USB_HCI)
-	#if defined(CONFIG_RTL8812A)
-	if (IS_FULL_SPEED_USB(padapter)) {
-		issue_beacon(padapter, 300);
-		bxmitok = _TRUE;
-	} else
-	#endif
-	#endif
 	{
 		rtw_hal_set_hwreg(padapter, HW_VAR_BCN_VALID, NULL);
 		rtw_hal_set_hwreg(padapter, HW_VAR_DL_BCN_SEL, NULL);
@@ -10794,7 +10726,6 @@ unsigned int send_beacon(_adapter *padapter)
 		return _SUCCESS;
 	}
 
-#endif /*defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)*/
 
 }
 
@@ -15734,9 +15665,7 @@ u8 chk_bmc_sleepq_hdl(_adapter *padapter, unsigned char *pbuf)
 		return H2C_SUCCESS;
 
 	if ((rtw_tim_map_is_set(padapter, pstapriv->tim_bitmap, 0)) && (psta_bmc->sleepq_len > 0)) {
-#ifndef CONFIG_PCI_HCI
 		rtw_msleep_os(10);/* 10ms, ATIM(HIQ) Windows */
-#endif
 		/* _enter_critical_bh(&psta_bmc->sleep_q.lock, &irqL); */
 		_enter_critical_bh(&pxmitpriv->lock, &irqL);
 

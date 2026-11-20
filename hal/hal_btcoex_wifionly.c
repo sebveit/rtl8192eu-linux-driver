@@ -113,15 +113,8 @@ void hal_btcoex_wifionly_switchband_notify(PADAPTER padapter)
 		is_5g = _TRUE;
 
 	if (IS_HARDWARE_TYPE_8822B(padapter)) {
-#ifdef CONFIG_RTL8822B
-		ex_hal8822b_wifi_only_switchbandnotify(&GLBtCoexistWifiOnly, is_5g);
-#endif
 	}
 
-#ifdef CONFIG_RTL8821C
-	else if (IS_HARDWARE_TYPE_8821C(padapter))
-		ex_hal8821c_wifi_only_switchbandnotify(&GLBtCoexistWifiOnly, is_5g);
-#endif
 }
 
 void hal_btcoex_wifionly_scan_notify(PADAPTER padapter)
@@ -133,15 +126,8 @@ void hal_btcoex_wifionly_scan_notify(PADAPTER padapter)
 		is_5g = _TRUE;
 
 	if (IS_HARDWARE_TYPE_8822B(padapter)) {
-#ifdef CONFIG_RTL8822B
-		ex_hal8822b_wifi_only_scannotify(&GLBtCoexistWifiOnly, is_5g);
-#endif
 	}
 
-#ifdef CONFIG_RTL8821C
-	else if (IS_HARDWARE_TYPE_8821C(padapter))
-		ex_hal8821c_wifi_only_scannotify(&GLBtCoexistWifiOnly, is_5g);
-#endif
 }
 
 void hal_btcoex_wifionly_connect_notify(PADAPTER padapter)
@@ -153,15 +139,8 @@ void hal_btcoex_wifionly_connect_notify(PADAPTER padapter)
 		is_5g = _TRUE;
 
 	if (IS_HARDWARE_TYPE_8822B(padapter)) {
-#ifdef CONFIG_RTL8822B
-		ex_hal8822b_wifi_only_connectnotify(&GLBtCoexistWifiOnly, is_5g);
-#endif
 	}
 
-#ifdef CONFIG_RTL8821C
-	else if (IS_HARDWARE_TYPE_8821C(padapter))
-		ex_hal8821c_wifi_only_connectnotify(&GLBtCoexistWifiOnly, is_5g);
-#endif
 }
 
 void hal_btcoex_wifionly_hw_config(PADAPTER padapter)
@@ -169,20 +148,9 @@ void hal_btcoex_wifionly_hw_config(PADAPTER padapter)
 	struct wifi_only_cfg *pwifionlycfg = &GLBtCoexistWifiOnly;
 
 	if (IS_HARDWARE_TYPE_8723B(padapter)) {
-#ifdef CONFIG_RTL8723B
-		ex_hal8723b_wifi_only_hw_config(pwifionlycfg);
-#endif
 	}
 
-#ifdef CONFIG_RTL8822B
-	else if (IS_HARDWARE_TYPE_8822B(padapter))
-		ex_hal8822b_wifi_only_hw_config(pwifionlycfg);
-#endif
 
-#ifdef CONFIG_RTL8821C
-	else if (IS_HARDWARE_TYPE_8821C(padapter))
-		ex_hal8821c_wifi_only_hw_config(pwifionlycfg);
-#endif
 }
 
 void hal_btcoex_wifionly_initlizevariables(PADAPTER padapter)
@@ -195,15 +163,7 @@ void hal_btcoex_wifionly_initlizevariables(PADAPTER padapter)
 
 	pwifionlycfg->Adapter = padapter;
 
-#ifdef CONFIG_PCI_HCI
-	pwifionlycfg->chip_interface = WIFIONLY_INTF_PCI;
-#elif defined(CONFIG_USB_HCI)
 	pwifionlycfg->chip_interface = WIFIONLY_INTF_USB;
-#elif defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-	pwifionlycfg->chip_interface = WIFIONLY_INTF_SDIO;
-#else
-	pwifionlycfg->chip_interface = WIFIONLY_INTF_UNKNOWN;
-#endif
 
 	pwifionly_haldata->customer_id = CUSTOMER_NORMAL;
 }

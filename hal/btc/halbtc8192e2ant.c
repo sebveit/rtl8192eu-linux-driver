@@ -16,7 +16,6 @@
 
 #if (BT_SUPPORT == 1 && COEX_SUPPORT == 1)
 
-#if (RTL8192E_SUPPORT == 1)
 /* ************************************************************
  * Global variables, these are static variables
  * ************************************************************ */
@@ -4298,7 +4297,6 @@ void ex_halbtc8192e2ant_periodical(IN struct btc_coexist *btcoexist)
 #endif
 }
 
-#endif
 
 #endif	/* #if (BT_SUPPORT == 1 && COEX_SUPPORT == 1) */
 

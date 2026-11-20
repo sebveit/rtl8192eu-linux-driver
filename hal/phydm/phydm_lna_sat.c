@@ -54,115 +54,8 @@ void phydm_lna_sat_chk_init(
 	lna_info->cur_timer_check_cnt = 0;
 	lna_info->pre_timer_check_cnt = 0;
 
-	#if (RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-	if (dm->support_ic_type &
-	    (ODM_RTL8198F | ODM_RTL8814B))
-		phydm_lna_sat_chk_bb_init(dm);
-	#endif
 }
 
-#if (RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-void phydm_lna_sat_chk_bb_init(void *dm_void)
-{
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	struct phydm_lna_sat_t *lna_info = &dm->dm_lna_sat_info;
-
-	boolean disable_bb_switch_tab = false;
-
-	PHYDM_DBG(dm, DBG_LNA_SAT_CHK, "%s ==>\n", __func__);
-
-	/*@set table switch mux r_6table_sel_anten*/
-	odm_set_bb_reg(dm, 0x18ac, BIT(8), 0);
-
-	/*@tab decision when idle*/
-	odm_set_bb_reg(dm, 0x18ac, BIT(16), disable_bb_switch_tab);
-	odm_set_bb_reg(dm, 0x41ac, BIT(16), disable_bb_switch_tab);
-	odm_set_bb_reg(dm, 0x52ac, BIT(16), disable_bb_switch_tab);
-	odm_set_bb_reg(dm, 0x53ac, BIT(16), disable_bb_switch_tab);
-	/*@tab decision when ofdmcca*/
-	odm_set_bb_reg(dm, 0x18ac, BIT(17), disable_bb_switch_tab);
-	odm_set_bb_reg(dm, 0x41ac, BIT(17), disable_bb_switch_tab);
-	odm_set_bb_reg(dm, 0x52ac, BIT(17), disable_bb_switch_tab);
-	odm_set_bb_reg(dm, 0x53ac, BIT(17), disable_bb_switch_tab);
-}
-
-void phydm_set_ofdm_agc_tab_path(
-	void *dm_void,
-	u8 tab_sel,
-	enum rf_path path)
-{
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
-
-	PHYDM_DBG(dm, DBG_LNA_SAT_CHK, "%s ==>\n", __func__);
-	if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8814B)) {
-		PHYDM_DBG(dm, DBG_LNA_SAT_CHK, "set AGC Tab%d\n", tab_sel);
-		PHYDM_DBG(dm, DBG_LNA_SAT_CHK, "r_6table_sel_anten = 0x%x\n",
-			  odm_get_bb_reg(dm, 0x18ac, BIT(8)));
-	}
-
-	if (dm->support_ic_type & ODM_RTL8198F) {
-		/*@table sel:0/2, mapping 2 to 1 */
-		if (tab_sel == OFDM_AGC_TAB_0) {
-			odm_set_bb_reg(dm, 0x18ac, BIT(4), 0);
-			odm_set_bb_reg(dm, 0x41ac, BIT(4), 0);
-			odm_set_bb_reg(dm, 0x52ac, BIT(4), 0);
-			odm_set_bb_reg(dm, 0x53ac, BIT(4), 0);
-		} else if (tab_sel == OFDM_AGC_TAB_2) {
-			odm_set_bb_reg(dm, 0x18ac, BIT(4), 1);
-			odm_set_bb_reg(dm, 0x41ac, BIT(4), 1);
-			odm_set_bb_reg(dm, 0x52ac, BIT(4), 1);
-			odm_set_bb_reg(dm, 0x53ac, BIT(4), 1);
-		} else {
-			odm_set_bb_reg(dm, 0x18ac, BIT(4), 0);
-			odm_set_bb_reg(dm, 0x41ac, BIT(4), 0);
-			odm_set_bb_reg(dm, 0x52ac, BIT(4), 0);
-			odm_set_bb_reg(dm, 0x53ac, BIT(4), 0);
-		}
-	} else if (dm->support_ic_type & ODM_RTL8814B) {
-		if (tab_sel == OFDM_AGC_TAB_0) {
-			odm_set_bb_reg(dm, 0x18ac, 0xf0, 0);
-			odm_set_bb_reg(dm, 0x41ac, 0xf0, 0);
-			odm_set_bb_reg(dm, 0x52ac, 0xf0, 0);
-			odm_set_bb_reg(dm, 0x53ac, 0xf0, 0);
-		} else if (tab_sel == OFDM_AGC_TAB_2) {
-			odm_set_bb_reg(dm, 0x18ac, 0xf0, 2);
-			odm_set_bb_reg(dm, 0x41ac, 0xf0, 2);
-			odm_set_bb_reg(dm, 0x52ac, 0xf0, 2);
-			odm_set_bb_reg(dm, 0x53ac, 0xf0, 2);
-		} else {
-			odm_set_bb_reg(dm, 0x18ac, 0xf0, 0);
-			odm_set_bb_reg(dm, 0x41ac, 0xf0, 0);
-			odm_set_bb_reg(dm, 0x52ac, 0xf0, 0);
-			odm_set_bb_reg(dm, 0x53ac, 0xf0, 0);
-		}
-	}
-}
-
-u8 phydm_get_ofdm_agc_tab_path(
-	void *dm_void,
-	enum rf_path path)
-{
-	struct dm_struct *dm = (struct dm_struct *)dm_void;
-	u8 tab_sel = 0;
-
-	if (dm->support_ic_type & ODM_RTL8198F) {
-		tab_sel = (u8)odm_get_bb_reg(dm, R_0x18ac, BIT(4));
-		if (tab_sel == 0)
-			tab_sel = OFDM_AGC_TAB_0;
-		else if (tab_sel == 1)
-			tab_sel = OFDM_AGC_TAB_2;
-	} else if (dm->support_ic_type & ODM_RTL8814B) {
-		tab_sel = (u8)odm_get_bb_reg(dm, R_0x18ac, 0xf0);
-		if (tab_sel == 0)
-			tab_sel = OFDM_AGC_TAB_0;
-		else if (tab_sel == 2)
-			tab_sel = OFDM_AGC_TAB_2;
-	}
-	PHYDM_DBG(dm, DBG_LNA_SAT_CHK, "get path %d AGC Tab %d\n",
-		  path, tab_sel);
-	return tab_sel;
-}
-#endif /*@#if (RTL8198F_SUPPORT || RTL8814B_SUPPORT)*/
 
 void phydm_set_ofdm_agc_tab(
 	void *dm_void,
@@ -257,34 +150,8 @@ void phydm_lna_sat_chk(
 	odm_write_dig(dm, igi_rssi_min);
 
 	/*@adapt agc table 0 check saturation status*/
-	#if (RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-	if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8814B))
-		phydm_set_ofdm_agc_tab_path(dm, OFDM_AGC_TAB_0, RF_PATH_A);
-	else
-	#endif
 		phydm_set_ofdm_agc_tab(dm, OFDM_AGC_TAB_0);
 	/*@open rf power detection ckt & set detection range */
-	#if (RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-	if (dm->support_ic_type & ODM_RTL8198F) {
-		/*@set rf detection range (threshold)*/
-		config_phydm_write_rf_reg_8198f(dm, RF_PATH_A, 0x85,
-						0x3f, 0x3f);
-		config_phydm_write_rf_reg_8198f(dm, RF_PATH_B, 0x85,
-						0x3f, 0x3f);
-		config_phydm_write_rf_reg_8198f(dm, RF_PATH_C, 0x85,
-						0x3f, 0x3f);
-		config_phydm_write_rf_reg_8198f(dm, RF_PATH_D, 0x85,
-						0x3f, 0x3f);
-		/*@open rf power detection ckt*/
-		config_phydm_write_rf_reg_8198f(dm, RF_PATH_A, 0x86, 0x10, 1);
-		config_phydm_write_rf_reg_8198f(dm, RF_PATH_B, 0x86, 0x10, 1);
-		config_phydm_write_rf_reg_8198f(dm, RF_PATH_C, 0x86, 0x10, 1);
-		config_phydm_write_rf_reg_8198f(dm, RF_PATH_D, 0x86, 0x10, 1);
-	} else if (dm->support_ic_type & ODM_RTL8814B) {
-		/*@set rf detection range (threshold)*/
-		/*@open rf power detection ckt*/
-	} else
-	#endif
 	{
 		odm_set_rf_reg(dm, RF_PATH_A, RF_0x86, 0x1f, 0x10);
 		odm_set_rf_reg(dm, RF_PATH_B, RF_0x86, 0x1f, 0x10);
@@ -298,24 +165,6 @@ void phydm_lna_sat_chk(
 
 	/*@check saturation status*/
 	for (i = 0; i < chk_cnt; i++) {
-	#if (RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-	if (dm->support_ic_type & ODM_RTL8198F) {
-		sat_status_a = config_phydm_read_rf_reg_8198f(dm, RF_PATH_A,
-							      RF_0xae,
-							      0xe0000);
-		sat_status_b = config_phydm_read_rf_reg_8198f(dm, RF_PATH_B,
-							      RF_0xae,
-							      0xe0000);
-		sat_status_c = config_phydm_read_rf_reg_8198f(dm, RF_PATH_C,
-							      RF_0xae,
-							      0xe0000);
-		sat_status_d = config_phydm_read_rf_reg_8198f(dm, RF_PATH_D,
-							      RF_0xae,
-							      0xe0000);
-	} else if (dm->support_ic_type & ODM_RTL8814B) {
-	/*@read peak detector info from 8814B rf reg*/
-	} else
-	#endif
 	{
 		sat_status_a = odm_get_rf_reg(dm, RF_PATH_A, RF_0xae, 0xc0000);
 		sat_status_b = odm_get_rf_reg(dm, RF_PATH_B, RF_0xae, 0xc0000);
@@ -377,13 +226,6 @@ void phydm_lna_sat_chk(
 	/*@agc table decision*/
 	if (lna_info->cur_sat_status) {
 		if (!lna_info->dis_agc_table_swh)
-			#if (RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-			if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8814B))
-				phydm_set_ofdm_agc_tab_path(dm,
-							    OFDM_AGC_TAB_2,
-							    RF_PATH_A);
-			else
-			#endif
 				phydm_set_ofdm_agc_tab(dm, OFDM_AGC_TAB_2);
 		else
 			PHYDM_DBG(dm, DBG_LNA_SAT_CHK,
@@ -401,13 +243,6 @@ void phydm_lna_sat_chk(
 
 	} else if (lna_info->check_time <= (max_check_time - 1)) {
 		if (lna_info->pre_sat_status && !lna_info->dis_agc_table_swh)
-			#if (RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-			if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8814B))
-				phydm_set_ofdm_agc_tab_path(dm,
-							    OFDM_AGC_TAB_2,
-							    RF_PATH_A);
-			else
-			#endif
 				phydm_set_ofdm_agc_tab(dm, OFDM_AGC_TAB_2);
 
 		PHYDM_DBG(dm, DBG_LNA_SAT_CHK, "ckeck time not reached\n");
@@ -418,13 +253,6 @@ void phydm_lna_sat_chk(
 
 	} else if (lna_info->check_time >= max_check_time) {
 		if (!lna_info->dis_agc_table_swh)
-			#if (RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-			if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8814B))
-				phydm_set_ofdm_agc_tab_path(dm,
-							    OFDM_AGC_TAB_0,
-							    RF_PATH_A);
-			else
-			#endif
 				phydm_set_ofdm_agc_tab(dm, OFDM_AGC_TAB_0);
 
 		PHYDM_DBG(dm, DBG_LNA_SAT_CHK, "ckeck time reached\n");
@@ -443,11 +271,6 @@ void phydm_lna_sat_chk(
 		lna_info->pre_sat_status = lna_info->cur_sat_status;
 	}
 
-	#if (RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-	if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8814B))
-		agc_tab = phydm_get_ofdm_agc_tab_path(dm, RF_PATH_A);
-	else
-	#endif
 		agc_tab = phydm_get_ofdm_agc_tab(dm);
 
 	PHYDM_DBG(dm, DBG_LNA_SAT_CHK, "use AGC tab %d\n", agc_tab);
@@ -1110,11 +933,6 @@ void phydm_lna_sat_debug(
 		#endif
 	} else if ((strcmp(input[1], monitor) == 0)) {
 #ifdef PHYDM_LNA_SAT_CHK_TYPE1
-		#if (RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-		if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8814B))
-			agc_tab = phydm_get_ofdm_agc_tab_path(dm, RF_PATH_A);
-		else
-		#endif
 			agc_tab = phydm_get_ofdm_agc_tab(dm);
 
 		PDM_SNPF(out_len, used, output + used, out_len - used,
@@ -1202,17 +1020,7 @@ void phydm_lna_sat_config(
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct phydm_lna_sat_t	*lna_sat = &dm->dm_lna_sat_info;
 
-	#if (RTL8822B_SUPPORT == 1)
-	if (dm->support_ic_type & (ODM_RTL8822B))
-		lna_sat->lna_sat_type = LNA_SAT_WITH_TRAIN;
-	#endif
 
-	#if (RTL8197F_SUPPORT || RTL8192F_SUPPORT ||\
-	     RTL8198F_SUPPORT || RTL8814B_SUPPORT)
-	if (dm->support_ic_type &
-	    (ODM_RTL8197F | ODM_RTL8192F | ODM_RTL8198F | ODM_RTL8814B))
-		lna_sat->lna_sat_type = LNA_SAT_WITH_PEAK_DET;
-	#endif
 
 	PHYDM_DBG(dm, DBG_LNA_SAT_CHK, "[%s] lna_sat_type=%d\n",
 		  __func__, lna_sat->lna_sat_type);

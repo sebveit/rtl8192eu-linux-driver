@@ -143,17 +143,6 @@ struct phydm_dig_struct {
 	u8		*is_p2p_in_process;
 	enum dig_goupcheck_level	go_up_chk_lv;
 	u16		fa_th[3];
-#if (RTL8822B_SUPPORT || RTL8197F_SUPPORT || RTL8821C_SUPPORT ||\
-	RTL8198F_SUPPORT || RTL8192F_SUPPORT || RTL8195B_SUPPORT ||\
-	RTL8822C_SUPPORT || RTL8814B_SUPPORT || RTL8721D_SUPPORT)
-	u8		rf_gain_idx;
-	u8		agc_table_idx;
-	u8		big_jump_lmt[16];
-	u8		enable_adjust_big_jump:1;
-	u8		big_jump_step1:3;
-	u8		big_jump_step2:2;
-	u8		big_jump_step3:2;
-#endif
 	u8		upcheck_init_val;
 	u8		lv0_ratio_reciprocal;
 	u8		lv1_ratio_reciprocal;

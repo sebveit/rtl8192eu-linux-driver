@@ -46,64 +46,14 @@ void configure_txpower_track(void *dm_void, struct txpwrtrack_cfg *config)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
-#if RTL8192E_SUPPORT
 	if (dm->support_ic_type == ODM_RTL8192E)
 		configure_txpower_track_8192e(config);
-#endif
-#if RTL8821A_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8821)
-		configure_txpower_track_8821a(config);
-#endif
-#if RTL8812A_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8812)
-		configure_txpower_track_8812a(config);
-#endif
-#if RTL8188E_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8188E)
-		configure_txpower_track_8188e(config);
-#endif
 
-#if RTL8723B_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8723B)
-		configure_txpower_track_8723b(config);
-#endif
 
-#if RTL8814A_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8814A)
-		configure_txpower_track_8814a(config);
-#endif
 
-#if RTL8703B_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8703B)
-		configure_txpower_track_8703b(config);
-#endif
 
-#if RTL8188F_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8188F)
-		configure_txpower_track_8188f(config);
-#endif
-#if RTL8723D_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8723D)
-		configure_txpower_track_8723d(config);
-#endif
 /*@ JJ ADD 20161014 */
-#if RTL8710B_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8710B)
-		configure_txpower_track_8710b(config);
-#endif
-#if RTL8822B_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8822B)
-		configure_txpower_track_8822b(config);
-#endif
-#if RTL8821C_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8821C)
-		configure_txpower_track_8821c(config);
-#endif
 
-#if RTL8192F_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8192F)
-		configure_txpower_track_8192f(config);
-#endif
 }
 
 /*@ **********************************************************************

@@ -29,7 +29,6 @@
 
 #define D_S_SIZE DELTA_SWINGIDX_SIZE
 
-#if (RTL8192E_SUPPORT == 1)
 static boolean
 check_positive(struct dm_struct *dm,
 	       const u32	condition1,
@@ -2358,5 +2357,4 @@ odm_read_and_config_mp_8192e_txpwr_lmt_8192e_sar_5mm(struct dm_struct *dm)
 #endif
 }
 
-#endif /* end of HWIMG_SUPPORT*/
 

@@ -34,30 +34,16 @@ u8 beamforming_get_htndp_tx_rate(void *dm_void, u8 bfer_str_num);
 u8 beamforming_get_vht_ndp_tx_rate(void *dm_void, u8 bfer_str_num);
 
 
-#if (RTL8822B_SUPPORT == 1 || RTL8822C_SUPPORT == 1 || RTL8192F_SUPPORT == 1 ||\
-	RTL8814B_SUPPORT == 1 || RTL8198F_SUPPORT == 1)
-u8 phydm_get_beamforming_sounding_info(void *dm_void, u16 *throughput,
-				       u8 total_bfee_num, u8 *tx_rate);
-
-u8 phydm_get_ndpa_rate(void *dm_void);
-
-u8 phydm_get_mu_bfee_snding_decision(void *dm_void, u16 throughput);
-
-#else
 #define phydm_get_beamforming_sounding_info(dm, tp, bfee_num, rate) 0
 #define phydm_get_ndpa_rate(dm)
 #define phydm_get_mu_bfee_snding_decision(dm, tp)
 
-#endif
 #ifdef PHYSTS_3RD_TYPE_IC
 /*this function is only used for BFer*/
 void phydm_txbf_rfmode(void *dm_void, u8 su_bfee_cnt, u8 mu_bfee_cnt);
 
 void phydm_txbf_avoid_hang(void *dm_void);
 
-#if (RTL8814B_SUPPORT == 1)
-void phydm_txbf_80p80_rfmode(void *dm_void, u8 su_bfee_cnt, u8 mu_bfee_cnt);
-#endif
 
 #endif /*PHYSTS_3RD_TYPE_IC*/
 

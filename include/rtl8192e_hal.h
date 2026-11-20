@@ -310,16 +310,7 @@ void rtl8192e_init_default_value(_adapter *padapter);
 void rtl8192e_start_thread(_adapter *padapter);
 void rtl8192e_stop_thread(_adapter *padapter);
 
-#ifdef CONFIG_PCI_HCI
-	BOOLEAN	InterruptRecognized8192EE(PADAPTER Adapter);
-	u16	get_txbd_rw_reg(u16 ff_hwaddr);
-#endif
 
-#ifdef CONFIG_SDIO_HCI
-	#ifdef CONFIG_SDIO_TX_ENABLE_AVAL_INT
-		void _init_available_page_threshold(PADAPTER padapter, u8 numHQ, u8 numNQ, u8 numLQ, u8 numPubQ);
-	#endif
-#endif
 
 #ifdef CONFIG_BT_COEXIST
 	void rtl8192e_combo_card_WifiOnlyHwInit(PADAPTER Adapter);

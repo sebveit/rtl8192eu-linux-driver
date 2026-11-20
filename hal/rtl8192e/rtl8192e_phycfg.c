@@ -393,14 +393,8 @@ PHY_BBConfig8192E(
 	/* Enable BB and RF */
 	TmpU2B = rtw_read16(Adapter, REG_SYS_FUNC_EN);
 
-#ifdef CONFIG_PCI_HCI
-	if (IS_HARDWARE_TYPE_8192EE(Adapter))
-		TmpU2B |= (FEN_PPLL | FEN_PCIEA | FEN_DIO_PCIE);
-#endif
-#ifdef CONFIG_USB_HCI
 	if (IS_HARDWARE_TYPE_8192EU(Adapter))
 		TmpU2B |= (FEN_USBA | FEN_USBD);
-#endif
 
 	TmpU2B |= (FEN_EN_25_1 | FEN_BB_GLB_RSTn | FEN_BBRSTB);
 

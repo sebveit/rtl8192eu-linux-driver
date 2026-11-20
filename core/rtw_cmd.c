@@ -154,17 +154,6 @@ sint _rtw_init_evt_priv(struct evt_priv *pevtpriv)
 	pevtpriv->evt_buf = pevtpriv->evt_allocated_buf  +  4 - ((unsigned int)(pevtpriv->evt_allocated_buf) & 3);
 
 
-#if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-	pevtpriv->allocated_c2h_mem = rtw_zmalloc(C2H_MEM_SZ + 4);
-
-	if (pevtpriv->allocated_c2h_mem == NULL) {
-		res = _FAIL;
-		goto exit;
-	}
-
-	pevtpriv->c2h_mem = pevtpriv->allocated_c2h_mem +  4\
-			    - ((u32)(pevtpriv->allocated_c2h_mem) & 3);
-#endif /* end of CONFIG_SDIO_HCI */
 
 	_rtw_init_queue(&(pevtpriv->evt_queue));
 
@@ -1508,24 +1497,6 @@ u8 rtw_joinbss_cmd(_adapter  *padapter, struct wlan_network *pnetwork)
 
 	pcmd->cmdsz = sizeof(WLAN_BSSID_EX);
 
-#ifdef CONFIG_RTL8712
-	/* wlan_network endian conversion	 */
-	psecnetwork->Length = cpu_to_le32(psecnetwork->Length);
-	psecnetwork->Ssid.SsidLength = cpu_to_le32(psecnetwork->Ssid.SsidLength);
-	psecnetwork->Privacy = cpu_to_le32(psecnetwork->Privacy);
-	psecnetwork->Rssi = cpu_to_le32(psecnetwork->Rssi);
-	psecnetwork->NetworkTypeInUse = cpu_to_le32(psecnetwork->NetworkTypeInUse);
-	psecnetwork->Configuration.ATIMWindow = cpu_to_le32(psecnetwork->Configuration.ATIMWindow);
-	psecnetwork->Configuration.BeaconPeriod = cpu_to_le32(psecnetwork->Configuration.BeaconPeriod);
-	psecnetwork->Configuration.DSConfig = cpu_to_le32(psecnetwork->Configuration.DSConfig);
-	psecnetwork->Configuration.FHConfig.DwellTime = cpu_to_le32(psecnetwork->Configuration.FHConfig.DwellTime);
-	psecnetwork->Configuration.FHConfig.HopPattern = cpu_to_le32(psecnetwork->Configuration.FHConfig.HopPattern);
-	psecnetwork->Configuration.FHConfig.HopSet = cpu_to_le32(psecnetwork->Configuration.FHConfig.HopSet);
-	psecnetwork->Configuration.FHConfig.Length = cpu_to_le32(psecnetwork->Configuration.FHConfig.Length);
-	psecnetwork->Configuration.Length = cpu_to_le32(psecnetwork->Configuration.Length);
-	psecnetwork->InfrastructureMode = cpu_to_le32(psecnetwork->InfrastructureMode);
-	psecnetwork->IELength = cpu_to_le32(psecnetwork->IELength);
-#endif
 
 	_rtw_init_listhead(&pcmd->list);
 	pcmd->cmdcode = _JoinBss_CMD_;/* GEN_CMD_CODE(_JoinBss) */
@@ -4789,21 +4760,6 @@ static s32 rtw_mp_cmd_hdl(_adapter *padapter, u8 mp_cmd_id)
 			MPT_PwrCtlDM(padapter, 0);
 		}
 		padapter->mppriv.bmac_filter = _FALSE;
-#ifdef CONFIG_RTL8723B
-#ifdef CONFIG_USB_HCI
-		rtw_write32(padapter, 0x765, 0x0000);
-		rtw_write32(padapter, 0x948, 0x0280);
-#else
-		rtw_write32(padapter, 0x765, 0x0000);
-		rtw_write32(padapter, 0x948, 0x0000);
-#endif
-#ifdef CONFIG_FOR_RTL8723BS_VQ0
-		rtw_write32(padapter, 0x765, 0x0000);
-		rtw_write32(padapter, 0x948, 0x0280);
-#endif
-		rtw_write8(padapter, 0x66, 0x27); /*Open BT uart Log*/
-		rtw_write8(padapter, 0xc50, 0x20); /*for RX init Gain*/
-#endif
 		odm_write_dig(&pHalData->odmpriv, 0x20);
 
 	} else if (mp_cmd_id == MP_STOP) {

@@ -78,14 +78,6 @@ rtw_phydm_cfg_phy_para(
 
 /* @Judy ADD 20180125 */
 
-#if RTL8188E_SUPPORT == 1
-	#define RTL8188E_T_SUPPORT 1
-	#ifdef CONFIG_SFW_SUPPORTED
-		#define RTL8188E_S_SUPPORT 1
-	#else
-		#define RTL8188E_S_SUPPORT 0
-	#endif
-#endif
 
 #define RTL8197F_SUPPORT 0	/*@Just for PHYDM API development*/
 #define	RTL8195B_SUPPORT 0	/*@Just for PHYDM API development*/
@@ -93,20 +85,7 @@ rtw_phydm_cfg_phy_para(
 #define	RTL8812F_SUPPORT 0	/*@Just for PHYDM API development*/
 #define	RTL8197G_SUPPORT 0	/*@Just for PHYDM API development*/
 
-#if (RTL8188E_SUPPORT == 1)
-	#include "rtl8188e/hal8188erateadaptive.h" /* @for  RA,Power training */
-	#include "rtl8188e/halhwimg8188e_mac.h"
-	#include "rtl8188e/halhwimg8188e_rf.h"
-	#include "rtl8188e/halhwimg8188e_bb.h"
-	#include "rtl8188e/phydm_regconfig8188e.h"
-	#include "rtl8188e/phydm_rtl8188e.h"
-	#include "rtl8188e/hal8188ereg.h"
-	#include "rtl8188e/version_rtl8188e.h"
-		#include "rtl8188e_hal.h"
-		#include "halrf/rtl8188e/halrf_8188e_ce.h"
-#endif /* @88E END */
 
-#if (RTL8192E_SUPPORT == 1)
 
 		#include "halrf/rtl8192e/halrf_8192e_ce.h" /*@FOR_8192E_IQK*/
 
@@ -118,245 +97,22 @@ rtw_phydm_cfg_phy_para(
 		#include "rtl8192e/phydm_regconfig8192e.h"
 		#include "rtl8192e/hal8192ereg.h"
 		#include "rtl8192e_hal.h"
-#endif /* @92E END */
-
-#if (RTL8812A_SUPPORT == 1)
-
-		#include "halrf/rtl8812a/halrf_8812a_ce.h"
-
-	/* @#include "halrf/rtl8812a/halrf_8812a.h"  */ /* @FOR_8812_IQK */
-		#include "rtl8812a/halhwimg8812a_bb.h"
-		#include "rtl8812a/halhwimg8812a_mac.h"
-		#include "rtl8812a/halhwimg8812a_rf.h"
-		#include "rtl8812a/phydm_regconfig8812a.h"
-	#include "rtl8812a/phydm_rtl8812a.h"
-
-		#include "rtl8812a_hal.h"
-	#include "rtl8812a/version_rtl8812a.h"
-
-#endif /* @8812 END */
-
-#if (RTL8814A_SUPPORT == 1)
-
-	#include "rtl8814a/halhwimg8814a_mac.h"
-	#include "rtl8814a/halhwimg8814a_rf.h"
-	#include "rtl8814a/halhwimg8814a_bb.h"
-	#include "rtl8814a/version_rtl8814a.h"
-	#include "rtl8814a/phydm_rtl8814a.h"
-		#include "halrf/rtl8814a/halrf_8814a_ce.h"
-	#include "rtl8814a/phydm_regconfig8814a.h"
-		#include "rtl8814a_hal.h"
-		#include "halrf/rtl8814a/halrf_iqk_8814a.h"
-#endif /* @8814 END */
-
-#if (RTL8881A_SUPPORT == 1)/* @FOR_8881_IQK */
-		#include "halrf/rtl8821a/halrf_iqk_8821a_ce.h"
-	/* @#include "rtl8881a/HalHWImg8881A_BB.h" */
-	/* @#include "rtl8881a/HalHWImg8881A_MAC.h" */
-	/* @#include "rtl8881a/HalHWImg8881A_RF.h" */
-	/* @#include "rtl8881a/odm_RegConfig8881A.h" */
-#endif
-
-#if (RTL8723B_SUPPORT == 1)
-	#include "rtl8723b/halhwimg8723b_mac.h"
-	#include "rtl8723b/halhwimg8723b_rf.h"
-	#include "rtl8723b/halhwimg8723b_bb.h"
-	#include "rtl8723b/phydm_regconfig8723b.h"
-	#include "rtl8723b/phydm_rtl8723b.h"
-	#include "rtl8723b/hal8723breg.h"
-	#include "rtl8723b/version_rtl8723b.h"
-		#include "halrf/rtl8723b/halrf_8723b_ce.h"
-		#include "rtl8723b/halhwimg8723b_mp.h"
-		#include "rtl8723b_hal.h"
-#endif
-
-#if (RTL8821A_SUPPORT == 1)
-	#include "rtl8821a/halhwimg8821a_mac.h"
-	#include "rtl8821a/halhwimg8821a_rf.h"
-	#include "rtl8821a/halhwimg8821a_bb.h"
-	#include "rtl8821a/phydm_regconfig8821a.h"
-	#include "rtl8821a/phydm_rtl8821a.h"
-	#include "rtl8821a/version_rtl8821a.h"
-		#include "halrf/rtl8821a/halrf_8821a_ce.h"
-		#include "halrf/rtl8821a/halrf_iqk_8821a_ce.h"/*@for IQK*/
-		#include "halrf/rtl8812a/halrf_8812a_ce.h"/*@for IQK,LCK,Power-tracking*/
-		#include "rtl8812a_hal.h"
-#endif
 
 
 
-#if (RTL8822B_SUPPORT == 1)
-	#include "rtl8822b/halhwimg8822b_mac.h"
-	#include "rtl8822b/halhwimg8822b_rf.h"
-	#include "rtl8822b/halhwimg8822b_bb.h"
-	#include "rtl8822b/phydm_regconfig8822b.h"
-	#include "halrf/rtl8822b/halrf_8822b.h"
-	#include "rtl8822b/phydm_rtl8822b.h"
-	#include "rtl8822b/phydm_hal_api8822b.h"
-	#include "rtl8822b/version_rtl8822b.h"
 
-			#include <hal_data.h>		/* @struct HAL_DATA_TYPE */
-			#include <rtl8822b_hal.h>	/* @RX_SMOOTH_FACTOR, reg definition and etc.*/
 
-#endif
 
-#if (RTL8703B_SUPPORT == 1)
-	#include "rtl8703b/phydm_rtl8703b.h"
-	#include "rtl8703b/phydm_regconfig8703b.h"
-	#include "rtl8703b/halhwimg8703b_mac.h"
-	#include "rtl8703b/halhwimg8703b_rf.h"
-	#include "rtl8703b/halhwimg8703b_bb.h"
-	#include "halrf/rtl8703b/halrf_8703b.h"
-	#include "rtl8703b/version_rtl8703b.h"
-		#include "rtl8703b_hal.h"
-#endif
 
-#if (RTL8188F_SUPPORT == 1)
-	#include "rtl8188f/halhwimg8188f_mac.h"
-	#include "rtl8188f/halhwimg8188f_rf.h"
-	#include "rtl8188f/halhwimg8188f_bb.h"
-	#include "rtl8188f/hal8188freg.h"
-	#include "rtl8188f/phydm_rtl8188f.h"
-	#include "rtl8188f/phydm_regconfig8188f.h"
-	#include "halrf/rtl8188f/halrf_8188f.h" /*@for IQK,LCK,Power-tracking*/
-	#include "rtl8188f/version_rtl8188f.h"
-		#include "rtl8188f_hal.h"
-#endif
 
-#if (RTL8723D_SUPPORT == 1)
 
-		#include "rtl8723d/halhwimg8723d_bb.h"
-		#include "rtl8723d/halhwimg8723d_mac.h"
-		#include "rtl8723d/halhwimg8723d_rf.h"
-		#include "rtl8723d/phydm_regconfig8723d.h"
-		#include "rtl8723d/hal8723dreg.h"
-		#include "rtl8723d/phydm_rtl8723d.h"
-		#include "halrf/rtl8723d/halrf_8723d.h"
-		#include "rtl8723d/version_rtl8723d.h"
-		#include "rtl8723d_hal.h"
-#endif /* @8723D End */
 
-#if (RTL8710B_SUPPORT == 1)
 
-		#include "rtl8710b/halhwimg8710b_bb.h"
-		#include "rtl8710b/halhwimg8710b_mac.h"
-		#include "rtl8710b/halhwimg8710b_rf.h"
-		#include "rtl8710b/phydm_regconfig8710b.h"
-		#include "rtl8710b/hal8710breg.h"
-		#include "rtl8710b/phydm_rtl8710b.h"
-		#include "halrf/rtl8710b/halrf_8710b.h"
-		#include "rtl8710b/version_rtl8710b.h"
-		#include "rtl8710b_hal.h"
-#endif /* @8710B End */
 
-#if (RTL8197F_SUPPORT == 1)
-	#include "rtl8197f/halhwimg8197f_mac.h"
-	#include "rtl8197f/halhwimg8197f_rf.h"
-	#include "rtl8197f/halhwimg8197f_bb.h"
-	#include "rtl8197f/phydm_hal_api8197f.h"
-	#include "rtl8197f/version_rtl8197f.h"
-	#include "rtl8197f/phydm_rtl8197f.h"
-	#include "rtl8197f/phydm_regconfig8197f.h"
-	#include "halrf/rtl8197f/halrf_8197f.h"
-	#include "halrf/rtl8197f/halrf_iqk_8197f.h"
-	#include "halrf/rtl8197f/halrf_dpk_8197f.h"
-#endif
 
-#if (RTL8821C_SUPPORT == 1)
-	#include "rtl8821c/phydm_hal_api8821c.h"
-	#include "rtl8821c/halhwimg8821c_mac.h"
-	#include "rtl8821c/halhwimg8821c_rf.h"
-	#include "rtl8821c/halhwimg8821c_bb.h"
-	#include "rtl8821c/phydm_regconfig8821c.h"
-	#include "halrf/rtl8821c/halrf_8821c.h"
-	#include "rtl8821c/version_rtl8821c.h"
-		#include "rtl8821c_hal.h"
-#endif
 
-#if (RTL8192F_SUPPORT == 1)
-	#include "rtl8192f/halhwimg8192f_mac.h"
-	#include "rtl8192f/halhwimg8192f_rf.h"
-	#include "rtl8192f/halhwimg8192f_bb.h"
-	#include "rtl8192f/phydm_hal_api8192f.h"
-	#include "rtl8192f/version_rtl8192f.h"
-	#include "rtl8192f/phydm_rtl8192f.h"
-	#include "rtl8192f/phydm_regconfig8192f.h"
-	#include "halrf/rtl8192f/halrf_8192f.h"
-		#include "rtl8192f_hal.h"
-#endif
 
-#if (RTL8721D_SUPPORT == 1)
-	#include "halrf/rtl8721d/halrf_8721d.h"
-	#include "rtl8721d/phydm_hal_api8721d.h"
-	#include "rtl8721d/phydm_regconfig8721d.h"
-	#include "rtl8721d/halhwimg8721d_mac.h"
-	#include "rtl8721d/halhwimg8721d_rf.h"
-	#include "rtl8721d/halhwimg8721d_bb.h"
-	#include "rtl8721d/version_rtl8721d.h"
-	#include "rtl8721d/phydm_rtl8721d.h"
-	#include "rtl8721d/hal8721dreg.h"
-	#include <hal_data.h>
-#endif
-#if (RTL8195B_SUPPORT == 1)
-	#include "halrf/rtl8195b/halrf_8195b.h"
-	#include "rtl8195b/phydm_hal_api8195b.h"
-	#include "rtl8195b/phydm_regconfig8195b.h"
-	#include "rtl8195b/halhwimg8195b_mac.h"
-	#include "rtl8195b/halhwimg8195b_rf.h"
-	#include "rtl8195b/halhwimg8195b_bb.h"
-	#include "rtl8195b/version_rtl8195b.h"
-	#include <hal_data.h> /*@HAL_DATA_TYPE*/
-#endif
 
-#if (RTL8198F_SUPPORT == 1)
-	#include "rtl8198f/phydm_regconfig8198f.h"
-	#include "rtl8198f/phydm_hal_api8198f.h"
-	#include "rtl8198f/halhwimg8198f_mac.h"
-	#include "rtl8198f/halhwimg8198f_rf.h"
-	#include "rtl8198f/halhwimg8198f_bb.h"
-	#include "rtl8198f/version_rtl8198f.h"
-	#include "halrf/rtl8198f/halrf_8198f.h"
-	#include "halrf/rtl8198f/halrf_iqk_8198f.h"
-#endif
 
-#if (RTL8822C_SUPPORT)
-	#include "rtl8822c/halhwimg8822c_mac.h"
-	#include "rtl8822c/halhwimg8822c_rf.h"
-	#include "rtl8822c/halhwimg8822c_bb.h"
-	#include "rtl8822c/phydm_regconfig8822c.h"
-	#include "halrf/rtl8822c/halrf_8822c.h"
-	#include "rtl8822c/phydm_hal_api8822c.h"
-	#include "rtl8822c/version_rtl8822c.h"
-	/* @struct HAL_DATA_TYPE */
-	#include <hal_data.h>
-	/* @RX_SMOOTH_FACTOR, reg definition and etc.*/
-	#include <rtl8822c_hal.h>
-#endif
-#if (RTL8814B_SUPPORT == 1)
-	#include "rtl8814b/halhwimg8814b_mac.h"
-	#include "rtl8814b/halhwimg8814b_rf.h"
-	#include "rtl8814b/halhwimg8814b_bb.h"
-	#include "rtl8814b/phydm_regconfig8814b.h"
-	#include "halrf/rtl8814b/halrf_8814b.h"
-	#include "rtl8814b/phydm_hal_api8814b.h"
-	#include "rtl8814b/version_rtl8814b.h"
-#endif
-#if (RTL8812F_SUPPORT)
-	#include "rtl8812f/halhwimg8812f_mac.h"
-	#include "rtl8812f/halhwimg8812f_rf.h"
-	#include "rtl8812f/halhwimg8812f_bb.h"
-	#include "rtl8812f/phydm_regconfig8812f.h"
-	#include "halrf/rtl8812f/halrf_8812f.h"
-	#include "rtl8812f/phydm_hal_api8812f.h"
-	#include "rtl8812f/version_rtl8812f.h"
-#endif
-#if (RTL8197G_SUPPORT)
-	#include "rtl8197g/halhwimg8197g_mac.h"
-	#include "rtl8197g/halhwimg8197g_rf.h"
-	#include "rtl8197g/halhwimg8197g_bb.h"
-	#include "rtl8197g/phydm_regconfig8197g.h"
-	#include "halrf/rtl8197g/halrf_8197g.h"
-	#include "rtl8197g/phydm_hal_api8197g.h"
-	#include "rtl8197g/version_rtl8197g.h"
-#endif
+
 #endif /* @__ODM_PRECOMP_H__ */

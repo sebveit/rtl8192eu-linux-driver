@@ -40,15 +40,6 @@ int rtw_fw_ps_state(PADAPTER padapter)
 			 , rtw_is_drv_stopped(padapter) ? "True" : "False");
 		goto exit_fw_ps_state;
 	}
-	#if defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8822C)
-	rtw_hal_get_hwreg(padapter, HW_VAR_FW_PS_STATE, (u8 *)&fw_ps_state);
-	if ((fw_ps_state & BIT_LPS_STATUS) == 0)
-		ret = _SUCCESS;
-	else {
-		pdbgpriv->dbg_poll_fail_cnt++;
-		RTW_INFO("%s: fw_ps_state=%04x\n", __FUNCTION__, fw_ps_state);
-	}
-	#else
 	rtw_hal_set_hwreg(padapter, HW_VAR_SET_REQ_FW_PS, (u8 *)&dont_care);
 	{
 		/* 4. if 0x88[7]=1, driver set cmd to leave LPS/IPS. */
@@ -67,7 +58,6 @@ int rtw_fw_ps_state(PADAPTER padapter)
 			RTW_INFO("%s: fw_ps_state=%04x\n", __FUNCTION__, fw_ps_state);
 		}
 	}
-	#endif
 
 exit_fw_ps_state:
 	_exit_pwrlock(&pwrpriv->check_32k_lock);
@@ -1434,9 +1424,7 @@ void LPS_Leave_check(
 
 		if (rtw_is_surprise_removed(padapter)
 		    || (!rtw_is_hw_init_completed(padapter))
-#ifdef CONFIG_USB_HCI
 		    || rtw_is_drv_stopped(padapter)
-#endif
 		    || (pwrpriv->pwr_mode == PS_MODE_ACTIVE)
 		   )
 			bReady = _TRUE;
@@ -1528,39 +1516,6 @@ static void dma_event_callback(struct work_struct *work)
 #ifdef CONFIG_LPS_RPWM_TIMER
 
 #define DBG_CPWM_CHK_FAIL
-#if defined(DBG_CPWM_CHK_FAIL) && (defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C))
-#define CPU_EXCEPTION_CODE 0xFAFAFAFA
-static void rtw_cpwm_chk_fail_debug(_adapter *padapter)
-{
-	u32 cpu_state;
-
-	cpu_state = rtw_read32(padapter, 0x10FC);
-
-	RTW_INFO("[PS-DBG] Reg_10FC =0x%08x\n", cpu_state);
-	RTW_INFO("[PS-DBG] Reg_10F8 =0x%08x\n", rtw_read32(padapter, 0x10F8));
-	RTW_INFO("[PS-DBG] Reg_11F8 =0x%08x\n", rtw_read32(padapter, 0x11F8));
-	RTW_INFO("[PS-DBG] Reg_4A4 =0x%08x\n", rtw_read32(padapter, 0x4A4));
-	RTW_INFO("[PS-DBG] Reg_4A8 =0x%08x\n", rtw_read32(padapter, 0x4A8));
-
-	if (cpu_state == CPU_EXCEPTION_CODE) {
-		RTW_INFO("[PS-DBG] Reg_48C =0x%08x\n", rtw_read32(padapter, 0x48C));
-		RTW_INFO("[PS-DBG] Reg_490 =0x%08x\n", rtw_read32(padapter, 0x490));
-		RTW_INFO("[PS-DBG] Reg_494 =0x%08x\n", rtw_read32(padapter, 0x494));
-		RTW_INFO("[PS-DBG] Reg_498 =0x%08x\n", rtw_read32(padapter, 0x498));
-		RTW_INFO("[PS-DBG] Reg_49C =0x%08x\n", rtw_read32(padapter, 0x49C));
-		RTW_INFO("[PS-DBG] Reg_4A0 =0x%08x\n", rtw_read32(padapter, 0x4A0));
-		RTW_INFO("[PS-DBG] Reg_1BC =0x%08x\n", rtw_read32(padapter, 0x1BC));
-
-		RTW_INFO("[PS-DBG] Reg_008 =0x%08x\n", rtw_read32(padapter, 0x08));
-		RTW_INFO("[PS-DBG] Reg_2F0 =0x%08x\n", rtw_read32(padapter, 0x2F0));
-		RTW_INFO("[PS-DBG] Reg_2F4 =0x%08x\n", rtw_read32(padapter, 0x2F4));
-		RTW_INFO("[PS-DBG] Reg_2F8 =0x%08x\n", rtw_read32(padapter, 0x2F8));
-		RTW_INFO("[PS-DBG] Reg_2FC =0x%08x\n", rtw_read32(padapter, 0x2FC));
-
-		rtw_dump_fifo(RTW_DBGDUMP, padapter, 5, 0, 3072);
-	}
-}
-#endif
 static void rpwmtimeout_workitem_callback(struct work_struct *work)
 {
 	PADAPTER padapter;
@@ -1597,10 +1552,6 @@ static void rpwmtimeout_workitem_callback(struct work_struct *work)
 	pwrpriv->rpwm_retry = 0;
 	_exit_pwrlock(&pwrpriv->lock);
 
-#if defined(DBG_CPWM_CHK_FAIL) && (defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C))
-	RTW_INFO("+%s: rpwm=0x%02X cpwm=0x%02X\n", __func__, pwrpriv->rpwm, pwrpriv->cpwm);
-	rtw_cpwm_chk_fail_debug(padapter);
-#endif
 
 	if (rtw_read8(padapter, 0x100) != 0xEA) {
 		struct reportpwrstate_parm report;
@@ -2391,9 +2342,7 @@ void rtw_unregister_early_suspend(struct pwrctrl_priv *pwrpriv)
 #endif /* CONFIG_HAS_EARLYSUSPEND */
 
 #ifdef CONFIG_ANDROID_POWER
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
 	extern int rtw_resume_process(PADAPTER padapter);
-#endif
 static void rtw_early_suspend(android_early_suspend_t *h)
 {
 	struct pwrctrl_priv *pwrpriv = container_of(h, struct pwrctrl_priv, early_suspend);
@@ -2410,10 +2359,8 @@ static void rtw_late_resume(android_early_suspend_t *h)
 
 	RTW_INFO("%s\n", __FUNCTION__);
 	if (pwrpriv->do_late_resume) {
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
 		rtw_set_do_late_resume(pwrpriv, _FALSE);
 		rtw_resume_process(adapter);
-#endif
 	}
 }
 
@@ -2557,7 +2504,6 @@ int _rtw_pwr_wakeup(_adapter *padapter, u32 ips_deffer_ms, const char *caller)
 	}
 
 	if (rf_off == pwrpriv->rf_pwrstate) {
-#ifdef CONFIG_USB_HCI
 #ifdef CONFIG_AUTOSUSPEND
 		if (pwrpriv->brfoffbyhw == _TRUE) {
 			RTW_INFO("hw still in rf_off state ...........\n");
@@ -2571,7 +2517,6 @@ int _rtw_pwr_wakeup(_adapter *padapter, u32 ips_deffer_ms, const char *caller)
 				goto exit;
 			}
 		} else
-#endif
 #endif
 		{
 #ifdef CONFIG_IPS

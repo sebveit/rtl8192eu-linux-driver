@@ -255,9 +255,7 @@
 	#define CONFIG_RTW_CUSTOMIZE_BEEDCA		0x0000431C
 	#define CONFIG_RTW_CUSTOMIZE_BWMODE		0x00
 	#define CONFIG_RTW_CUSTOMIZE_RLSTA		0x7
-#if defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8192F) || defined(CONFIG_RTL8822B)
 	#define CONFIG_RTW_TX_2PATH_EN		/*	mutually incompatible with STBC_TX & Beamformer	*/
-#endif
 #endif
 /*#define CONFIG_EXTEND_LOWRATE_TXOP			*/
 
@@ -344,16 +342,7 @@
 	#error "CONFIG_IFACE_NUMBER cound not be 0 !!"
 #endif
 
-#if defined(CONFIG_RTL8188E) || defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8188F) || \
-defined(CONFIG_RTL8188GTV) || defined(CONFIG_RTL8192F) || \
-defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8710B) || \
-defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 #define CONFIG_HWMPCAP_GEN1
-#elif defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8822C) /*|| defined(CONFIG_RTL8814A)*/
-#define CONFIG_HWMPCAP_GEN2
-#elif defined(CONFIG_RTL8814B) /*Address CAM - 128*/
-#define CONFIG_HWMPCAP_GEN3
-#endif
 
 #if defined(CONFIG_HWMPCAP_GEN1) && (CONFIG_IFACE_NUMBER > 2) 
 	#ifdef CONFIG_POWER_SAVING
@@ -411,13 +400,7 @@ defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 #define MACID_NUM_SW_LIMIT 32
 #define SEC_CAM_ENT_NUM_SW_LIMIT 32
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8814A)
-	#define CONFIG_IEEE80211_BAND_5GHZ
-#endif
 
-#if defined(CONFIG_WOWLAN) && (defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8814A))
-	#define CONFIG_WOW_PATTERN_HW_CAM
-#endif
 
 #ifndef CONFIG_TSF_UPDATE_PAUSE_FACTOR
 #define CONFIG_TSF_UPDATE_PAUSE_FACTOR 200
@@ -453,11 +436,6 @@ defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 #endif /* CONFIG_SDIO_HCI || CONFIG_USB_RX_AGGREGATION */
 
 #ifdef CONFIG_RTW_HOSTAPD_ACS
-	#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8814A)
-		#ifndef CONFIG_FIND_BEST_CHANNEL
-			#define CONFIG_FIND_BEST_CHANNEL
-		#endif
-	#else
 		#ifdef CONFIG_FIND_BEST_CHANNEL
 			#undef CONFIG_FIND_BEST_CHANNEL
 		#endif
@@ -467,7 +445,6 @@ defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 		#ifndef CONFIG_BACKGROUND_NOISE_MONITOR
 			#define CONFIG_BACKGROUND_NOISE_MONITOR
 		#endif
-	#endif
 #endif
 
 #ifdef CONFIG_RTW_80211K
@@ -483,9 +460,7 @@ defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 #endif
 
 #ifdef RTW_REDUCE_SCAN_SWITCH_CH_TIME
-#ifndef CONFIG_RTL8822B
 	#error "Only 8822B support RTW_REDUCE_SCAN_SWITCH_CH_TIME"
-#endif
 	#ifndef RTW_CHANNEL_SWITCH_OFFLOAD
 		#define RTW_CHANNEL_SWITCH_OFFLOAD
 	#endif

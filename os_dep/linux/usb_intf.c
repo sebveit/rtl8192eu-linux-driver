@@ -23,9 +23,6 @@
 #include <linux/pm_runtime.h>
 #endif
 
-#ifndef CONFIG_USB_HCI
-#error "CONFIG_USB_HCI shall be on!\n"
-#endif
 
 
 #ifdef CONFIG_80211N_HT
@@ -93,34 +90,9 @@ static void rtw_dev_shutdown(struct device *dev)
 
 /* DID_USB_v916_20130116 */
 static struct usb_device_id rtw_usb_id_tbl[] = {
-#ifdef CONFIG_RTL8188E
-	/*=== Realtek demoboard ===*/
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x8179), .driver_info = RTL8188E}, /* 8188EUS */
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x0179), .driver_info = RTL8188E}, /* 8188ETV */	
-#endif
 
-#ifdef CONFIG_RTL8812A
-	/*=== Realtek demoboard ===*/
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x8812), .driver_info = RTL8812}, /* Default ID */
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x881A), .driver_info = RTL8812}, /* Default ID */
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x881B), .driver_info = RTL8812}, /* Default ID */
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x881C), .driver_info = RTL8812}, /* Default ID */
-	/*=== Customer ID ===*/	
-	{USB_DEVICE(0x2001, 0x330E), .driver_info = RTL8812}, /* D-Link - ALPHA */	
-	{USB_DEVICE(0x2001, 0x3313), .driver_info = RTL8812}, /* D-Link - ALPHA */	
-#endif
 
-#ifdef CONFIG_RTL8821A
-	/*=== Realtek demoboard ===*/
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x0811), .driver_info = RTL8821}, /* Default ID */
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x0821), .driver_info = RTL8821}, /* Default ID */
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x8822), .driver_info = RTL8821}, /* Default ID */
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xA811) , .driver_info = RTL8821},/* Default ID */
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0x0820, 0xff, 0xff, 0xff), .driver_info = RTL8821}, /* 8821AU */
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0x0823, 0xff, 0xff, 0xff), .driver_info = RTL8821}, /* 8821AU */	
-#endif
 
-#ifdef CONFIG_RTL8192E
 	/*=== Realtek demoboard ===*/
 	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0x818B, 0xff, 0xff, 0xff), .driver_info = RTL8192E}, /* Default ID */
 	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0x818C, 0xff, 0xff, 0xff), .driver_info = RTL8192E}, /* Default ID */
@@ -130,69 +102,16 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE(0x2357, 0x0108), .driver_info = RTL8192E}, /* TP-Link - TL-WN822N */
 	{USB_DEVICE(0x2357, 0x0109), .driver_info = RTL8192E}, /* TP-Link - TL-WN823N */
 	{USB_DEVICE(0x2357, 0x0126), .driver_info = RTL8192E}, /* TP-Link - TL-WN8200ND */
-#endif
 
-#ifdef CONFIG_RTL8723B
-	/* === Realtek demoboard === */
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xB720, 0xff, 0xff, 0xff), .driver_info = RTL8723B}, /* 8723BU 1*1 */
-	/* {USB_DEVICE(USB_VENDER_ID_REALTEK, 0xB720),.driver_info = RTL8723B},  8723BU */
-#endif
 
-#ifdef CONFIG_RTL8703B
-	/*=== Realtek demoboard ===*/
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xB703, 0xff, 0xff, 0xff), .driver_info = RTL8703B}, /* 8723CU 1*1 */
-	/* {USB_DEVICE(USB_VENDER_ID_REALTEK, 0xB703), .driver_info = RTL723C}, */ /* 8723CU 1*1 */
-#endif /* CONFIG_RTL8703B */
 
-#ifdef CONFIG_RTL8814A
 
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x8813), .driver_info = RTL8814A},
-	{USB_DEVICE(0x2001, 0x331a), .driver_info = RTL8814A}, /* D-Link - D-Link */
-#endif /* CONFIG_RTL8814A */
 
-#ifdef CONFIG_RTL8188F
-	/*=== Realtek demoboard ===*/
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xF179, 0xff, 0xff, 0xff), .driver_info = RTL8188F}, /* 8188FU 1*1 */
-#endif
 
-#ifdef CONFIG_RTL8188GTV
-	/*=== Realtek demoboard ===*/
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0x018C, 0xff, 0xff, 0xff), .driver_info = RTL8188GTV}, /* 8188GTV 1*1 */
-#endif
 
-#ifdef CONFIG_RTL8822B
-	/*=== Realtek demoboard ===*/
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xB82C, 0xff, 0xff, 0xff), .driver_info = RTL8822B}, /* Default ID for USB multi-function */
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xB812, 0xff, 0xff, 0xff), .driver_info = RTL8822B}, /* Default ID for USB Single-function, WiFi only */	
-#endif /* CONFIG_RTL8822B */
 
-#ifdef CONFIG_RTL8723D
-	/*=== Realtek demoboard ===*/
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xD723, 0xff, 0xff, 0xff), .driver_info = RTL8723D}, /* 8723DU 1*1 */
-#endif
 
-#ifdef CONFIG_RTL8192F
-	/*=== Realtek demoboard ===*/
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xF192, 0xff, 0xff, 0xff), .driver_info = RTL8192F}, /* 8192FU 2*2 */
-#endif
 
-#ifdef CONFIG_RTL8821C
-	/*=== Realtek demoboard ===*/
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xb82b, 0xff, 0xff, 0xff), .driver_info = RTL8821C}, /* 8821CU */
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xb820, 0xff, 0xff, 0xff), .driver_info = RTL8821C}, /* 8821CU */
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xC821, 0xff, 0xff, 0xff), .driver_info = RTL8821C}, /* 8821CU */
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xC820, 0xff, 0xff, 0xff), .driver_info = RTL8821C}, /* 8821CU */
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xC82A, 0xff, 0xff, 0xff), .driver_info = RTL8821C}, /* 8821CU */
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xC82B, 0xff, 0xff, 0xff), .driver_info = RTL8821C}, /* 8821CU */
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xC811, 0xff, 0xff, 0xff), .driver_info = RTL8821C}, /* 8811CU */
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0x8811, 0xff, 0xff, 0xff), .driver_info = RTL8821C}, /* 8811CU */	
-	/*=== Customer ID ===*/
-#endif
-
-#ifdef CONFIG_RTL8710B
-	/*=== Realtek dongle ===*/
-	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xB711, 0xff, 0xff, 0xff), .driver_info = RTL8710B}, /* 8710B = 8188GU 1*1 */
-#endif
 
 	{}	/* Terminating entry */
 };
@@ -320,70 +239,20 @@ static void rtw_decide_chip_type_by_usb_info(struct dvobj_priv *pdvobjpriv, cons
 {
 	pdvobjpriv->chip_type = pdid->driver_info;
 
-#ifdef CONFIG_RTL8188E
-	if (pdvobjpriv->chip_type == RTL8188E)
-		rtl8188eu_set_hw_type(pdvobjpriv);
-#endif
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-	if (pdvobjpriv->chip_type == RTL8812 || pdvobjpriv->chip_type == RTL8821)
-		rtl8812au_set_hw_type(pdvobjpriv);
-#endif
 
-#ifdef CONFIG_RTL8192E
 	if (pdvobjpriv->chip_type == RTL8192E)
 		rtl8192eu_set_hw_type(pdvobjpriv);
-#endif
 
-#ifdef CONFIG_RTL8723B
-	if (pdvobjpriv->chip_type == RTL8723B)
-		rtl8723bu_set_hw_type(pdvobjpriv);
-#endif
 
-#ifdef CONFIG_RTL8814A
-	if (pdvobjpriv->chip_type == RTL8814A)
-		rtl8814au_set_hw_type(pdvobjpriv);
-#endif /* CONFIG_RTL8814A */
 
-#ifdef CONFIG_RTL8188F
-	if (pdvobjpriv->chip_type == RTL8188F)
-		rtl8188fu_set_hw_type(pdvobjpriv);
-#endif
 
-#ifdef CONFIG_RTL8188GTV
-	if (pdvobjpriv->chip_type == RTL8188GTV)
-		rtl8188gtvu_set_hw_type(pdvobjpriv);
-#endif
 
-#ifdef CONFIG_RTL8703B
-	if (pdvobjpriv->chip_type == RTL8703B)
-		rtl8703bu_set_hw_type(pdvobjpriv);
-#endif /* CONFIG_RTL8703B */
 
-#ifdef CONFIG_RTL8822B
-	if (pdvobjpriv->chip_type == RTL8822B)
-		rtl8822bu_set_hw_type(pdvobjpriv);
-#endif /* CONFIG_RTL8822B */
 
-#ifdef CONFIG_RTL8723D
-	if (pdvobjpriv->chip_type == RTL8723D)
-		rtl8723du_set_hw_type(pdvobjpriv);
-#endif /* CONFIG_RTL8723D */
 
-#ifdef CONFIG_RTL8821C
-	if (pdvobjpriv->chip_type == RTL8821C)
-		rtl8821cu_set_hw_type(pdvobjpriv);
-#endif /* CONFIG_RTL8821C */
 
-#ifdef CONFIG_RTL8710B
-	if (pdvobjpriv->chip_type == RTL8710B)
-		rtl8710bu_set_hw_type(pdvobjpriv);
-#endif /* CONFIG_RTL8710B */
 
-#ifdef CONFIG_RTL8192F
-	if (pdvobjpriv->chip_type == RTL8192F)
-		rtl8192fu_set_hw_type(pdvobjpriv);
-#endif /* CONFIG_RTL8192F */
 }
 
 static struct dvobj_priv *usb_dvobj_init(struct usb_interface *usb_intf, const struct usb_device_id *pdid)
@@ -580,72 +449,20 @@ u8 rtw_set_hal_ops(_adapter *padapter)
 	if (rtw_hal_data_init(padapter) == _FAIL)
 		return _FAIL;
 
-#ifdef CONFIG_RTL8188E
-	if (rtw_get_chip_type(padapter) == RTL8188E)
-		rtl8188eu_set_hal_ops(padapter);
-#endif
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-	if (rtw_get_chip_type(padapter) == RTL8812 || rtw_get_chip_type(padapter) == RTL8821)
-		rtl8812au_set_hal_ops(padapter);
-#endif
 
-#ifdef CONFIG_RTL8192E
 	if (rtw_get_chip_type(padapter) == RTL8192E)
 		rtl8192eu_set_hal_ops(padapter);
-#endif
-#ifdef CONFIG_RTL8723B
-	if (rtw_get_chip_type(padapter) == RTL8723B)
-		rtl8723bu_set_hal_ops(padapter);
-#endif
-#ifdef CONFIG_RTL8814A
-	if (rtw_get_chip_type(padapter) == RTL8814A)
-		rtl8814au_set_hal_ops(padapter);
-#endif /* CONFIG_RTL8814A */
-
-#ifdef CONFIG_RTL8188F
-	if (rtw_get_chip_type(padapter) == RTL8188F)
-		rtl8188fu_set_hal_ops(padapter);
-#endif
-
-#ifdef CONFIG_RTL8188GTV
-	if (rtw_get_chip_type(padapter) == RTL8188GTV)
-		rtl8188gtvu_set_hal_ops(padapter);
-#endif
-
-#ifdef CONFIG_RTL8703B
-	if (rtw_get_chip_type(padapter) == RTL8703B)
-		rtl8703bu_set_hal_ops(padapter);
-#endif /* CONFIG_RTL8703B */
-
-#ifdef CONFIG_RTL8822B
-	if (rtw_get_chip_type(padapter) == RTL8822B)
-		rtl8822bu_set_hal_ops(padapter);
-#endif /* CONFIG_RTL8822B */
-
-#ifdef CONFIG_RTL8723D
-	if (rtw_get_chip_type(padapter) == RTL8723D)
-		rtl8723du_set_hal_ops(padapter);
-#endif /* CONFIG_RTL8723D */
 
 
-#ifdef CONFIG_RTL8821C
-	if (rtw_get_chip_type(padapter) == RTL8821C) {
-		if (rtl8821cu_set_hal_ops(padapter) == _FAIL)
-			return _FAIL;
-	}
-#endif
-
-#ifdef CONFIG_RTL8710B
-	if (rtw_get_chip_type(padapter) == RTL8710B)
-		rtl8710bu_set_hal_ops(padapter);
-#endif /* CONFIG_RTL8710B */
 
 
-#ifdef CONFIG_RTL8192F
-	if (rtw_get_chip_type(padapter) == RTL8192F)
-		rtl8192fu_set_hal_ops(padapter);
-#endif
+
+
+
+
+
+
 
 	if (_FAIL == rtw_hal_ops_check(padapter))
 		return _FAIL;

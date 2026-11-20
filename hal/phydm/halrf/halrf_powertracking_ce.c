@@ -592,10 +592,6 @@ void odm_txpowertracking_init(void *dm_void)
 u8 get_swing_index(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
-#if ((RTL8812A_SUPPORT == 1) || (RTL8821A_SUPPORT == 1))
-	void *adapter = dm->adapter;
-	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
-#endif
 	u8 i = 0;
 	u32 bb_swing, table_value;
 
@@ -603,14 +599,7 @@ u8 get_swing_index(void *dm_void)
 		(ODM_RTL8188E | ODM_RTL8723B | ODM_RTL8192E |
 		ODM_RTL8188F | ODM_RTL8703B | ODM_RTL8723D |
 		ODM_RTL8710B | ODM_RTL8821)) {
-#if (RTL8821A_SUPPORT == 1)
-		bb_swing =
-		phy_get_tx_bb_swing_8812a(adapter,
-					  hal_data->current_band_type,
-					  RF_PATH_A);
-#else
 		bb_swing = odm_get_bb_reg(dm, R_0xc80, 0xFFC00000);
-#endif
 		for (i = 0; i < OFDM_TABLE_SIZE; i++) {
 			table_value = ofdm_swing_table_new[i];
 
@@ -620,14 +609,7 @@ u8 get_swing_index(void *dm_void)
 				break;
 		}
 	} else {
-#if (RTL8812A_SUPPORT == 1)
-		bb_swing =
-		phy_get_tx_bb_swing_8812a(adapter,
-					  hal_data->current_band_type,
-					  RF_PATH_A);
-#else
 		bb_swing = odm_get_bb_reg(dm, R_0xc1c, 0xFFE00000);
-#endif
 		for (i = 0; i < TXSCALE_TABLE_SIZE; i++) {
 			table_value = tx_scaling_table_jaguar[i];
 

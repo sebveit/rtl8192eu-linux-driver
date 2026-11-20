@@ -248,7 +248,6 @@ void UpdateEarlyModeInfo8192E(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmi
 }
 #endif
 
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI)
 void rtl8192e_cal_txdesc_chksum(u8 *ptxdesc)
 {
 	u16	*usPtr = (u16 *)ptxdesc;
@@ -264,7 +263,6 @@ void rtl8192e_cal_txdesc_chksum(u8 *ptxdesc)
 
 	SET_TX_DESC_TX_DESC_CHECKSUM_92E(ptxdesc, checksum);
 }
-#endif
 
 #if defined(CONFIG_CONCURRENT_MODE)
 void fill_txdesc_force_bmc_camid(struct pkt_attrib *pattrib, u8 *ptxdesc)
@@ -492,9 +490,7 @@ void rtl8192e_fill_fake_txdesc(
 		fill_txdesc_sectype(&pattrib, pDesc);
 	}
 
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI)
 	/* USB interface drop packet if the checksum of descriptor isn't correct. */
 	/* Using this checksum can let hardware recovery from packet bulk out error (e.g. Cancel URC, Bulk out error.). */
 	rtl8192e_cal_txdesc_chksum(pDesc);
-#endif
 }

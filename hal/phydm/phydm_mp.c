@@ -52,48 +52,6 @@ void phydm_mp_set_single_tone_jgr3(void *dm_void, boolean is_single_tone,
 		start = RF_PATH_A;
 		end = RF_PATH_B;
 		break;
-#if (RTL8814B_SUPPORT == 1 || RTL8198F_SUPPORT == 1)
-	case RF_PATH_AC:
-		start = RF_PATH_A;
-		end = RF_PATH_C;
-		break;
-	case RF_PATH_AD:
-		start = RF_PATH_A;
-		end = RF_PATH_D;
-		break;
-	case RF_PATH_BC:
-		start = RF_PATH_B;
-		end = RF_PATH_C;
-		break;
-	case RF_PATH_BD:
-		start = RF_PATH_B;
-		end = RF_PATH_D;
-		break;
-	case RF_PATH_CD:
-		start = RF_PATH_C;
-		end = RF_PATH_D;
-		break;
-	case RF_PATH_ABC:
-		start = RF_PATH_A;
-		end = RF_PATH_C;
-		break;
-	case RF_PATH_ABD:
-		start = RF_PATH_A;
-		end = RF_PATH_D;
-		break;
-	case RF_PATH_ACD:
-		start = RF_PATH_A;
-		end = RF_PATH_D;
-		break;
-	case RF_PATH_BCD:
-		start = RF_PATH_B;
-		end = RF_PATH_D;
-		break;
-	case RF_PATH_ABCD:
-		start = RF_PATH_A;
-		end = RF_PATH_D;
-		break;
-#endif
 	}
 	if (is_single_tone) {
 		mp->rf_reg0 = odm_get_rf_reg(dm, RF_PATH_A, RF_0x00, 0xfffff);
@@ -107,19 +65,6 @@ void phydm_mp_set_single_tone_jgr3(void *dm_void, boolean is_single_tone,
 			/* @RF LO enabled */
 			odm_set_rf_reg(dm, start, RF_0x58, BIT(1), 0x1);
 		}
-		#if (RTL8814B_SUPPORT == 1)
-		if (dm->support_ic_type & ODM_RTL8814B) {
-			/* @Tx mode: RF0x00[19:16]=4'b0010 */
-			config_phydm_write_rf_syn_8814b(dm, RF_SYN0, RF_0x0,
-							0xF0000, 0x2);
-			/* @Lowest RF gain index: RF_0x0[4:0] = 0*/
-			config_phydm_write_rf_syn_8814b(dm, RF_SYN0, RF_0x0,
-							0x1F, 0x0);
-			/* @RF LO enabled */
-			config_phydm_write_rf_syn_8814b(dm, RF_SYN0, RF_0x58,
-							BIT(1), 0x1);
-		}
-		#endif
 	} else {
 		/* Eable CCK and OFDM */
 		odm_set_bb_reg(dm, R_0x1c3c, 0x3, 0x3);

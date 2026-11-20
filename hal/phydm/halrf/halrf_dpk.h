@@ -55,32 +55,8 @@ struct dm_dpk_info {
 	u8	thermal_dpk_avg[AVG_THERMAL_NUM_DPK];
 	u8	thermal_dpk_avg_index;
 
-#if (RTL8822C_SUPPORT == 1)
-	u8 	result[2][1];			/*path/group*/
-	u8 	tx_agc[2][1];			/*path/group*/
-	u32	coef[2][1][20];			/*path/group/MDPD coefficient*/
-#endif
 
-#if (RTL8198F_SUPPORT == 1 || RTL8192F_SUPPORT == 1 || RTL8197F_SUPPORT == 1)
-	/*2G DPK data*/
-	u8 	dpk_result[4][3];		/*path/group*/
-	u8 	pwsf_2g[4][3];			/*path/group*/
-	u32	lut_2g_even[4][3][64];		/*path/group/LUT data*/
-	u32	lut_2g_odd[4][3][64];		/*path/group/LUT data*/
-#endif
 
-#if (RTL8195B_SUPPORT == 1)
-		/*2G DPK data*/
-		u8	dpk_2g_result[1][3];		/*path/group*/
-		u8	pwsf_2g[1][3];			/*path/group*/
-		u32	lut_2g_even[1][3][16];		/*path/group/LUT data*/
-		u32	lut_2g_odd[1][3][16];		/*path/group/LUT data*/
-		/*5G DPK data*/
-		u8	dpk_5g_result[1][6];		/*path/group*/
-		u8	pwsf_5g[1][6];			/*path/group*/
-		u32	lut_5g_even[1][6][16];		/*path/group/LUT data*/
-		u32	lut_5g_odd[1][6][16];		/*path/group/LUT data*/
-#endif
 };
 
 #endif /*__HALRF_DPK_H__*/

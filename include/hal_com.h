@@ -706,14 +706,7 @@ void rtw_hal_get_rf_path(struct dvobj_priv *d, enum rf_type *type,
 void rtw_hal_beamforming_config_csirate(PADAPTER adapter);
 #endif
 #endif
-#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8812A) ||\
-	defined(CONFIG_RTL8192F) || defined(CONFIG_RTL8192E) ||\
-	defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821A)
 u8 phy_get_current_tx_num(IN PADAPTER pAdapter, IN u8 Rate);
-#endif
 
-#ifdef CONFIG_RTL8812A
-u8 * rtw_hal_set_8812a_vendor_ie(_adapter *padapter , u8 *pframe ,uint *frlen );
-#endif
 
 #endif /* __HAL_COMMON_H__ */

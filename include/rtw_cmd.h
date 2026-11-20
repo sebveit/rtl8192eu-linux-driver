@@ -18,7 +18,6 @@
 
 #define C2H_MEM_SZ (16*1024)
 
-#ifndef CONFIG_RTL8711FW
 
 #define FREE_CMDOBJ_SZ	128
 
@@ -107,10 +106,6 @@ struct	evt_priv {
 	u8	*evt_buf;	/* shall be non-paged, and 4 bytes aligned		 */
 	u8	*evt_allocated_buf;
 	u32	evt_done_cnt;
-#if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-	u8	*c2h_mem;
-	u8	*allocated_c2h_mem;
-#endif
 
 };
 
@@ -217,9 +212,6 @@ struct mgnt_tx_parm {
 };
 #endif
 
-#else
-/* #include <ieee80211.h> */
-#endif	/* CONFIG_RTL8711FW */
 
 enum rtw_drvextra_cmd_id {
 	NONE_WK_CID,

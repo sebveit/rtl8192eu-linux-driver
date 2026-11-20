@@ -163,14 +163,8 @@ _BlockWrite_8192E(
 	u32			remainSize_p1 = 0, remainSize_p2 = 0;
 	u8			*bufferPtr	= (u8 *)buffer;
 	u32			i = 0, offset = 0;
-#ifdef CONFIG_PCI_HCI
-	u8			remainFW[4] = {0, 0, 0, 0};
-	u8			*p = NULL;
-#endif
 
-#ifdef CONFIG_USB_HCI
 	blockSize_p1 = MAX_REG_BOLCK_SIZE;
-#endif
 
 	/* 3 Phase #1 */
 	blockCount_p1 = buffSize / blockSize_p1;
@@ -179,34 +173,12 @@ _BlockWrite_8192E(
 
 
 	for (i = 0; i < blockCount_p1; i++) {
-#ifdef CONFIG_USB_HCI
 		ret = rtw_writeN(padapter, (FW_START_ADDRESS + i * blockSize_p1), blockSize_p1, (bufferPtr + i * blockSize_p1));
-#else
-		ret = rtw_write32(padapter, (FW_START_ADDRESS + i * blockSize_p1), le32_to_cpu(*((u32 *)(bufferPtr + i * blockSize_p1))));
-#endif
 
 		if (ret == _FAIL)
 			goto exit;
 	}
 
-#ifdef CONFIG_PCI_HCI
-	p = (u8 *)((u32 *)(bufferPtr + blockCount_p1 * blockSize_p1));
-	if (remainSize_p1) {
-		switch (remainSize_p1) {
-		case 0:
-			break;
-		case 3:
-			remainFW[2] = *(p + 2);
-		case 2:
-			remainFW[1] = *(p + 1);
-		case 1:
-			remainFW[0] = *(p);
-			ret = rtw_write32(padapter, (FW_START_ADDRESS + blockCount_p1 * blockSize_p1),
-					  le32_to_cpu(*(u32 *)remainFW));
-		}
-		return ret;
-	}
-#endif
 
 	/* 3 Phase #2 */
 	if (remainSize_p1) {
@@ -217,14 +189,12 @@ _BlockWrite_8192E(
 
 
 
-#ifdef CONFIG_USB_HCI
 		for (i = 0; i < blockCount_p2; i++) {
 			ret = rtw_writeN(padapter, (FW_START_ADDRESS + offset + i * blockSize_p2), blockSize_p2, (bufferPtr + offset + i * blockSize_p2));
 
 			if (ret == _FAIL)
 				goto exit;
 		}
-#endif
 	}
 
 	/* 3 Phase #3 */
@@ -295,11 +265,6 @@ _WriteFW_8192E(
 	u32	page, offset;
 	u8	*bufferPtr = (u8 *)buffer;
 
-#ifdef CONFIG_PCI_HCI
-	/* 20100120 Joseph: Add for 88CE normal chip. */
-	/* Fill in zero to make firmware image to dword alignment.
-	*		_FillDummy(bufferPtr, &size); */
-#endif
 
 	pageNums = size / MAX_DLFW_PAGE_SIZE ;
 	/* RT_ASSERT((pageNums <= 4), ("Page numbers should not greater then 4\n")); */
@@ -745,9 +710,7 @@ void Hal_ReadPowerSavingMode8192E(
 
 		/* decide hw if support remote wakeup function */
 		/* if hw supported, 8051 (SIE) will generate WeakUP signal( D+/D- toggle) when autoresume */
-#ifdef CONFIG_USB_HCI
 		pwrctl->bSupportRemoteWakeup = (hwinfo[EEPROM_USB_OPTIONAL_FUNCTION0] & BIT1) ? _TRUE : _FALSE;
-#endif /* CONFIG_USB_HCI */
 
 
 		RTW_INFO("%s...bHWPwrPindetect(%x)-bHWPowerdown(%x) ,bSupportRemoteWakeup(%x)\n", __FUNCTION__,
@@ -2551,19 +2514,11 @@ static void hw_var_set_opmode(PADAPTER Adapter, u8 variable, u8 *val)
 
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN_EARLY_INT
 				rtw_write8(Adapter, REG_DRVERLYINT, 0x05);/* restore early int time to 5ms */
-#if defined(CONFIG_USB_HCI)
 				UpdateInterruptMask8192EU(Adapter, _TRUE, 0, IMR_BCNDMAINT1_8192E);
-#elif defined(CONFIG_SDIO_HCI)
-				UpdateInterruptMask8192ESdio(Adapter, 0, SDIO_HIMR_BCNERLY_INT_MSK);
-#endif
 #endif /* CONFIG_INTERRUPT_BASED_TXBCN_EARLY_INT */
 
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN_BCN_OK_ERR
-#if defined(CONFIG_USB_HCI)
 				UpdateInterruptMask8192EU(Adapter, _TRUE , 0, (IMR_TXBCN0ERR_8192E | IMR_TXBCN0OK_8192E));
-#elif defined(CONFIG_SDIO_HCI)
-				UpdateInterruptMask8192ESdio(Adapter, 0, (SDIO_HIMR_TXBCNOK_MSK | SDIO_HIMR_TXBCNERR_MSK));
-#endif
 #endif/* CONFIG_INTERRUPT_BASED_TXBCN_BCN_OK_ERR */
 
 #endif /* CONFIG_INTERRUPT_BASED_TXBCN */
@@ -2578,19 +2533,11 @@ static void hw_var_set_opmode(PADAPTER Adapter, u8 variable, u8 *val)
 		} else if (mode == _HW_STATE_AP_) {
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN_EARLY_INT
-#if defined(CONFIG_USB_HCI)
 			UpdateInterruptMask8192EU(Adapter, _TRUE , IMR_BCNDMAINT1_8192E, 0);
-#elif defined(CONFIG_SDIO_HCI)
-			UpdateInterruptMask8192ESdio(Adapter, SDIO_HIMR_BCNERLY_INT_MSK, 0);
-#endif
 #endif/* CONFIG_INTERRUPT_BASED_TXBCN_EARLY_INT */
 
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN_BCN_OK_ERR
-#if defined(CONFIG_USB_HCI)
 			UpdateInterruptMask8192EU(Adapter, _TRUE , (IMR_TXBCN0ERR_8192E | IMR_TXBCN0OK_8192E), 0);
-#elif defined(CONFIG_SDIO_HCI)
-			UpdateInterruptMask8192ESdio(Adapter, (SDIO_HIMR_TXBCNOK_MSK | SDIO_HIMR_TXBCNERR_MSK), 0);
-#endif
 #endif/* CONFIG_INTERRUPT_BASED_TXBCN_BCN_OK_ERR */
 
 #endif /* CONFIG_INTERRUPT_BASED_TXBCN */
@@ -2662,19 +2609,11 @@ static void hw_var_set_opmode(PADAPTER Adapter, u8 variable, u8 *val)
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN_EARLY_INT
 				rtw_write8(Adapter, REG_DRVERLYINT, 0x05);/* restore early int time to 5ms					 */
-#if defined(CONFIG_USB_HCI)
 				UpdateInterruptMask8192EU(Adapter, _TRUE, 0, IMR_BCNDMAINT0_8192E);
-#elif defined(CONFIG_SDIO_HCI)
-				UpdateInterruptMask8192ESdio(Adapter, 0, SDIO_HIMR_BCNERLY_INT_MSK);
-#endif
 #endif/* CONFIG_INTERRUPT_BASED_TXBCN_EARLY_INT */
 
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN_BCN_OK_ERR
-#if defined(CONFIG_USB_HCI)
 				UpdateInterruptMask8192EU(Adapter, _TRUE , 0, (IMR_TXBCN0ERR_8192E | IMR_TXBCN0OK_8192E));
-#elif defined(CONFIG_SDIO_HCI)
-				UpdateInterruptMask8192ESdio(Adapter, 0, (SDIO_HIMR_TXBCNOK_MSK | SDIO_HIMR_TXBCNERR_MSK));
-#endif
 #endif /* CONFIG_INTERRUPT_BASED_TXBCN_BCN_OK_ERR */
 
 #endif /* CONFIG_INTERRUPT_BASED_TXBCN		 */
@@ -2692,19 +2631,11 @@ static void hw_var_set_opmode(PADAPTER Adapter, u8 variable, u8 *val)
 
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN_EARLY_INT
-#if defined(CONFIG_USB_HCI)
 			UpdateInterruptMask8192EU(Adapter, _TRUE , IMR_BCNDMAINT0_8192E, 0);
-#elif defined(CONFIG_SDIO_HCI)
-			UpdateInterruptMask8192ESdio(Adapter, SDIO_HIMR_BCNERLY_INT_MSK, 0);
-#endif
 #endif/* CONFIG_INTERRUPT_BASED_TXBCN_EARLY_INT */
 
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN_BCN_OK_ERR
-#if defined(CONFIG_USB_HCI)
 			UpdateInterruptMask8192EU(Adapter, _TRUE , (IMR_TXBCN0ERR_8192E | IMR_TXBCN0OK_8192E), 0);
-#elif defined(CONFIG_SDIO_HCI)
-			UpdateInterruptMask8192ESdio(Adapter, (SDIO_HIMR_TXBCNOK_MSK | SDIO_HIMR_TXBCNERR_MSK), 0);
-#endif
 #endif/* CONFIG_INTERRUPT_BASED_TXBCN_BCN_OK_ERR */
 
 #endif /* CONFIG_INTERRUPT_BASED_TXBCN */
@@ -2846,14 +2777,6 @@ _InitQueueReservedPage_8192E(
 	value32 = _HPQ(numHQ) | _LPQ(numLQ) | _PUBQ(numPubQ) | LD_RQPN;
 	rtw_write32(Adapter, REG_RQPN, value32);
 
-#ifdef CONFIG_SDIO_HCI
-	rtw_hal_set_sdio_tx_max_length(Adapter, numHQ, numNQ, numLQ, numPubQ, SDIO_TX_DIV_NUM);
-
-#ifdef CONFIG_SDIO_TX_ENABLE_AVAL_INT
-	_init_available_page_threshold(Adapter, numHQ, numNQ, numLQ, numPubQ);
-#endif
-
-#endif
 
 }
 
@@ -4141,37 +4064,10 @@ GetHalDefVar8192E(
 
 void rtl8192e_start_thread(_adapter *padapter)
 {
-#ifdef CONFIG_SDIO_HCI
-#ifndef CONFIG_SDIO_TX_TASKLET
-	struct xmit_priv *xmitpriv = &padapter->xmitpriv;
-
-	if (xmitpriv->SdioXmitThread == NULL) {
-		RTW_INFO(FUNC_ADPT_FMT " start RTWHALXT\n", FUNC_ADPT_ARG(padapter));
-		xmitpriv->SdioXmitThread = kthread_run(rtl8192es_xmit_thread, padapter, "RTWHALXT");
-		if (IS_ERR(xmitpriv->SdioXmitThread)) {
-			RTW_ERR("%s: start rtl8192es_xmit_thread FAIL!!\n", __func__);
-			xmitpriv->SdioXmitThread = NULL;
-		}
-	}
-#endif
-
-#endif
 }
 
 void rtl8192e_stop_thread(_adapter *padapter)
 {
-#ifdef CONFIG_SDIO_HCI
-#ifndef CONFIG_SDIO_TX_TASKLET
-	struct xmit_priv *xmitpriv = &padapter->xmitpriv;
-
-	/* stop xmit_buf_thread */
-	if (xmitpriv->SdioXmitThread) {
-		_rtw_up_sema(&xmitpriv->SdioXmitSema);
-		rtw_thread_stop(xmitpriv->SdioXmitThread);
-		xmitpriv->SdioXmitThread = NULL;
-	}
-#endif
-#endif
 }
 void hal_notch_filter_8192E(_adapter *adapter, bool enable)
 {
@@ -4268,7 +4164,6 @@ void rtl8192e_init_default_value(_adapter *padapter)
 	/* init phydm default value */
 	pHalData->bIQKInitialized = _FALSE;
 
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_PCI_HCI)
 	pHalData->IntrMask[0]	= (u32)(\
 					/* IMR_ROK 		| */
 					/* IMR_RDU			| */
@@ -4316,7 +4211,6 @@ void rtl8192e_init_default_value(_adapter *padapter)
 					/* IMR_BCNDMAINT6	| */
 					/* IMR_BCNDMAINT7	| */
 					0);
-#endif
 	pHalData->EfuseHal.fakeEfuseBank = 0;
 	pHalData->EfuseHal.fakeEfuseUsedBytes = 0;
 	_rtw_memset(pHalData->EfuseHal.fakeEfuseContent, 0xFF, EFUSE_MAX_HW_SIZE);
@@ -4337,11 +4231,7 @@ void rtl8192e_combo_card_WifiOnlyHwInit(PADAPTER Adapter)
 	rtw_write8(Adapter, 0x944, 0x24);
 	rtw_write32(Adapter, 0x930, 0x700700);
 	rtw_write8(Adapter, 0x92c, 0x04);
-#ifdef CONFIG_USB_HCI
 	rtw_write32(Adapter, REG_PAD_CTRL1_8192E, 0x30430004);
-#else
-	rtw_write32(Adapter, REG_PAD_CTRL1_8192E, 0x30030004);
-#endif
 	/* 0x4c[27][24]='00', Set Antenna to BB */
 	u4Tmp = rtw_read32(Adapter, BIT_REG_LED_CFG_8192E);
 	u4Tmp &= ~BIT24;
